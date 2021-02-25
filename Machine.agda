@@ -24,17 +24,11 @@ record M (a b : Set) : Set₁ where
     s₀ : σ
     f : a × σ → b × σ
 
-run : M a b → List a → List b
-run (mach s f) [] = []
-run (mach s f) (a ∷ as) = let (b , s′) = f (a , s) in b ∷ run (mach s′ f) as
+-- We can easily make machines universe-level-polymorphic
 
--- Equivalently, highlight the constancy of the state transition function
-run′ : M a b → List a → List b
-run′ {a}{b} (mach {σ} s₀ f) = go s₀
- where
-   go : σ → List a → List b
-   go s [] = []
-   go s (a ∷ as) = let (b , s′) = f (a , s) in b ∷ go s′ as
+⟦_⟧ : M a b → List a → List b
+⟦ mach s f ⟧ [] = []
+⟦ mach s f ⟧ (a ∷ as) = let (b , s′) = f (a , s) in b ∷ ⟦ mach s′ f ⟧ as
 
 -- Mapping a function (empty state)
 mapᴹ : (a → b) → M a b
