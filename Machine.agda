@@ -90,30 +90,33 @@ open ≡-Reasoning
 
 ⟦∘⟧ : ∀ (g : b ➩ c) (f : a ➩ b) → ⟦ g ∘ f ⟧ ≗ ⟦ g ⟧ ◇.∘ ⟦ f ⟧
 ⟦∘⟧ g f [] = refl
--- ⟦∘⟧ g f (a ∷ as) rewrite ⟦∘⟧ g f as = {!refl!}
+⟦∘⟧ (mach t g) (mach s f) (a ∷ as)
+  rewrite (let (b , s′) = f (a , s) ; (c , t′) = g (b , t) in 
+            ⟦∘⟧ (mach t′ g) (mach s′ f) as) = refl
 
-⟦∘⟧ (mach t g) (mach s f) (a ∷ as) =
-  begin
-    ⟦ mach t g ∘ mach s f ⟧ (a ∷ as)
-  ≡⟨⟩
-    ⟦ mach (s , t) (λ (a , (s , t)) → let (b , s′) = f (a , s) ; (c , t′) = g (b , t) in c , (s′ , t′)) ⟧ (a ∷ as)
-  ≡⟨⟩
-    let (b , s′) = f (a , s) ; (c , t′) = g (b , t) in c ∷  ⟦ mach t′ g ∘ mach s′ f ⟧ as
-  ≡⟨ cong (_ ∷_) (⟦∘⟧ (mach _ g) (mach _ f) as) ⟩
-    let (b , s′) = f (a , s) ; (c , t′) = g (b , t) in c ∷ (⟦ mach t′ g ⟧ ◇.∘ ⟦ mach s′ f ⟧) as
-  ≡⟨⟩
-    let (b , s′) = f (a , s) ; (c , t′) = g (b , t) in c ∷ ⟦ mach t′ g ⟧ (⟦ mach s′ f ⟧ as)
-  ≡⟨⟩
-    let (b , s′) = f (a , s) in let (c , t′) = g (b , t) in c ∷ ⟦ mach t′ g ⟧ (⟦ mach s′ f ⟧ as)
-  ≡⟨⟩
-    let (b , s′) = f (a , s) in ⟦ mach t g ⟧ (b ∷ ⟦ mach s′ f ⟧ as)
-  ≡⟨⟩
-    ⟦ mach t g ⟧ (let (b , s′) = f (a , s) in b ∷ ⟦ mach s′ f ⟧ as)
-  ≡⟨⟩
-    ⟦ mach t g ⟧ (⟦ mach s f ⟧ (a ∷ as))
-  ≡⟨⟩
-    (⟦ mach t g ⟧ ◇.∘ ⟦ mach s f ⟧) (a ∷ as)
-  ∎
+-- ⟦∘⟧ (mach t g) (mach s f) (a ∷ as) =
+--   begin
+--     ⟦ mach t g ∘ mach s f ⟧ (a ∷ as)
+--   ≡⟨⟩
+--     ⟦ mach (s , t) (λ (a , (s , t)) → let (b , s′) = f (a , s) ; (c , t′) = g (b , t) in c , (s′ , t′)) ⟧ (a ∷ as)
+--   ≡⟨⟩
+--     let (b , s′) = f (a , s) ; (c , t′) = g (b , t) in c ∷  ⟦ mach t′ g ∘ mach s′ f ⟧ as
+--   ≡⟨ (let (b , s′) = f (a , s) ; (c , t′) = g (b , t) in
+--        cong (c ∷_) (⟦∘⟧ (mach t′ g) (mach s′ f) as)) ⟩
+--     let (b , s′) = f (a , s) ; (c , t′) = g (b , t) in c ∷ (⟦ mach t′ g ⟧ ◇.∘ ⟦ mach s′ f ⟧) as
+--   ≡⟨⟩
+--     let (b , s′) = f (a , s) ; (c , t′) = g (b , t) in c ∷ ⟦ mach t′ g ⟧ (⟦ mach s′ f ⟧ as)
+--   ≡⟨⟩
+--     let (b , s′) = f (a , s) in let (c , t′) = g (b , t) in c ∷ ⟦ mach t′ g ⟧ (⟦ mach s′ f ⟧ as)
+--   ≡⟨⟩
+--     let (b , s′) = f (a , s) in ⟦ mach t g ⟧ (b ∷ ⟦ mach s′ f ⟧ as)
+--   ≡⟨⟩
+--     ⟦ mach t g ⟧ (let (b , s′) = f (a , s) in b ∷ ⟦ mach s′ f ⟧ as)
+--   ≡⟨⟩
+--     ⟦ mach t g ⟧ (⟦ mach s f ⟧ (a ∷ as))
+--   ≡⟨⟩
+--     (⟦ mach t g ⟧ ◇.∘ ⟦ mach s f ⟧) (a ∷ as)
+--   ∎
 
 -- ⟦_⟧ : (a ➩ b) → (a ⇢ b)
 -- ⟦ mach s f ⟧ [] = []
