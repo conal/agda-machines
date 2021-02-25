@@ -23,10 +23,8 @@ record _➩_ (a b : Set) : Set₁ where
   constructor mach
   field
     { σ } : Set
-    s₀ : σ
-    f : a × σ → b × σ
-
--- We can easily make machines universe-level-polymorphic
+    start : σ
+    transition : a × σ → b × σ
 
 -- Semantics
 ⟦_⟧ : (a ➩ b) → (a ⇢ b)
