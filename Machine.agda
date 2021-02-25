@@ -28,6 +28,7 @@ record _➩_ (a b : Set) : Set₁ where
 
 -- We can easily make machines universe-level-polymorphic
 
+-- Semantics
 ⟦_⟧ : (a ➩ b) → (a ⇢ b)
 ⟦ mach s f ⟧ [] = []
 ⟦ mach s f ⟧ (a ∷ as) = let (b , s′) = f (a , s) in b ∷ ⟦ mach s′ f ⟧ as
@@ -89,7 +90,7 @@ open ≡-Reasoning
 --   ∎
 
 ⟦∘⟧ : ∀ (g : b ➩ c) (f : a ➩ b) → ⟦ g ∘ f ⟧ ≗ ⟦ g ⟧ ◇.∘ ⟦ f ⟧
-⟦∘⟧ g f [] = refl
+⟦∘⟧ _ _ [] = refl
 ⟦∘⟧ (mach t g) (mach s f) (a ∷ as)
   rewrite (let (b , s′) = f (a , s) ; (c , t′) = g (b , t) in 
             ⟦∘⟧ (mach t′ g) (mach s′ f) as) = refl
@@ -118,8 +119,8 @@ open ≡-Reasoning
 --     (⟦ mach t g ⟧ ◇.∘ ⟦ mach s f ⟧) (a ∷ as)
 --   ∎
 
--- ⟦_⟧ : (a ➩ b) → (a ⇢ b)
--- ⟦ mach s f ⟧ [] = []
--- ⟦ mach s f ⟧ (a ∷ as) = let (b , s′) = f (a , s) in b ∷ ⟦ mach s′ f ⟧ as
-
--- ⟦ mach t g ⟧ (b ∷ ⟦ mach s′ f ⟧ as) = let (c , t′) = g (b , t) in c ∷ ⟦ mach t′ g ⟧ (⟦ mach s′ f ⟧ as)
+⟦⊗⟧ : ∀ (g : b ➩ c) (f : a ➩ b) → ⟦ g ⊗ f ⟧ ≗ ⟦ g ⟧ ◇.⊗ ⟦ f ⟧
+⟦⊗⟧ _ _ [] = refl
+⟦⊗⟧ (mach s f) (mach t g) ((a , b) ∷ abs)
+  rewrite (let (c , s′) = f (a , s) ; (d , t′) = g (b , t) in 
+            ⟦⊗⟧ (mach s′ f) (mach t′ g) abs) = refl
