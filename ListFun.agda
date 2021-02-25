@@ -11,23 +11,23 @@ open import Data.List renaming (map to mapᴸ)
 
 private
   variable
-    a b c d : Set
+    A B C D : Set
 
 infix 1 _⇢_
 _⇢_ : Set → Set → Set
-a ⇢ b = List a → List b
+A ⇢ B = List A → List B
 
 -- Mapping a function (empty state)
-map : (a → b) → (a ⇢ b)
+map : (A → B) → (A ⇢ B)
 map = mapᴸ
 
 -- id and _∘_ come from Function
 
 -- Parallel composition
 infixr 10 _⊗_
-_⊗_ : (a ⇢ c) → (b ⇢ d) → (a × b ⇢ c × d)
+_⊗_ : (A ⇢ C) → (B ⇢ D) → (A × B ⇢ C × D)
 (f ⊗ g) abs = let (as , bs) = unzip abs in zip (f as) (g bs)
 
 -- Cons (memory/register)
-delay : a → (a ⇢ a)
+delay : A → (A ⇢ A)
 delay = _∷_
