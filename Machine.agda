@@ -59,3 +59,31 @@ mach s f ⊗ mach t g = mach (s , t) λ ((a , b) , (s , t)) →
 delay : a → (a ➩ a)
 delay a = mach a swap
                  -- (λ (next , prev) → prev , next)
+
+-------------------------------------------------------------------------------
+-- Properties
+-------------------------------------------------------------------------------
+
+open import Relation.Binary.PropositionalEquality
+open ≡-Reasoning
+
+⟦map⟧ : ∀ (h : a → b) → ⟦ map h ⟧ ≗ ◇.map h
+⟦map⟧ h [] = refl
+⟦map⟧ h (a ∷ as) rewrite ⟦map⟧ h as = refl
+
+-- ⟦map⟧ h (a ∷ as) =
+--   begin
+--     ⟦ map h ⟧ (a ∷ as)
+--   ≡⟨⟩
+--     ⟦ mach tt (map₁ h) ⟧ (a ∷ as)
+--   ≡⟨⟩
+--     let (b , tt) = map₁ h (a , tt) in b ∷ ⟦ mach tt (map₁ h) ⟧ as
+--   ≡⟨⟩
+--     let b = h a in b ∷ ⟦ mach tt (map₁ h) ⟧ as
+--   ≡⟨⟩
+--     h a ∷ ⟦ map h ⟧ as
+--   ≡⟨ cong (h a ∷_) (⟦map⟧ h as) ⟩
+--     h a ∷ ◇.map h as
+--   ≡⟨⟩
+--     ◇.map h (a ∷ as)
+--   ∎
