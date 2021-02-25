@@ -5,7 +5,6 @@
 module Machine where
 
 open import Data.Product
-
 open import Data.Unit
 open import Data.List
 
@@ -35,7 +34,7 @@ mapᴹ f = mach tt (map₁ f)
 
 -- Sequential composition
 infixr 9 _∘_
-_∘_ : ∀ {a b c} → M b c → M a b → M a c
+_∘_ : M b c → M a b → M a c
 mach t₀ g ∘ mach s₀ f = mach (s₀ , t₀) λ (a , (s , t)) →
  let (b , s′) = f (a , s)
      (c , t′) = g (b , t)
