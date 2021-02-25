@@ -4,8 +4,6 @@
 
 module Machine where
 
-open import Level
-
 open import Data.Product
 
 open import Data.Unit
