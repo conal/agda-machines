@@ -119,6 +119,6 @@ open ≡-Reasoning
 
 ⟦⊗⟧ : ∀ (g : B ➩ C) (f : A ➩ B) → ⟦ g ⊗ f ⟧ ≗ ⟦ g ⟧ ◇.⊗ ⟦ f ⟧
 ⟦⊗⟧ _ _ [] = refl
-⟦⊗⟧ (mach s f) (mach t g) ((a , b) ∷ abs)
+⟦⊗⟧ (mach s f) (mach t g) ((a , b) ∷ ps)
   rewrite (let (c , s′) = f (a , s) ; (d , t′) = g (b , t) in 
-            ⟦⊗⟧ (mach s′ f) (mach t′ g) abs) = refl
+            ⟦⊗⟧ (mach s′ f) (mach t′ g) ps) = refl

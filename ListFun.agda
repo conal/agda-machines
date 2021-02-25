@@ -26,7 +26,7 @@ map = mapᴸ
 -- Parallel composition
 infixr 10 _⊗_
 _⊗_ : (A ⇢ C) → (B ⇢ D) → (A × B ⇢ C × D)
-(f ⊗ g) abs = let (as , bs) = unzip abs in zip (f as) (g bs)
+(f ⊗ g) ps = let (as , bs) = unzip ps in zip (f as) (g bs)
 
 -- Cons (memory/register)
 delay : A → (A ⇢ A)
