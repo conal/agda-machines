@@ -46,7 +46,7 @@ mach t₀ g ∘ mach s₀ f = mach (s₀ , t₀) λ (a , (s , t)) →
     c , (s′ , t′)
 
 -- Parallel composition
-infixr 10 _⊗_
+infixr 7 _⊗_
 _⊗_ : (A ➩ C) → (B ➩ D) → (A × B ➩ C × D)
 mach s f ⊗ mach t g = mach (s , t) λ ((a , b) , (s , t)) →
   let (c , s′) = f (a , s)
@@ -87,13 +87,14 @@ open ≡-Reasoning
 --     ◇.map h (a ∷ as)
 --   ∎
 
-⟦∘⟧ : ∀ (g : B ➩ C) (f : A ➩ B) → ⟦ g ∘ f ⟧ ≗ ⟦ g ⟧ ◇.∘ ⟦ f ⟧
-⟦∘⟧ _ _ [] = refl
-⟦∘⟧ (mach t g) (mach s f) (a ∷ as)
+infixr 9 _⟦∘⟧_
+_⟦∘⟧_ : ∀ (g : B ➩ C) (f : A ➩ B) → ⟦ g ∘ f ⟧ ≗ ⟦ g ⟧ ◇.∘ ⟦ f ⟧
+(_ ⟦∘⟧ _) [] = refl
+(mach t g ⟦∘⟧ mach s f) (a ∷ as)
   rewrite (let (b , s′) = f (a , s) ; (c , t′) = g (b , t) in 
-            ⟦∘⟧ (mach t′ g) (mach s′ f) as) = refl
+            (mach t′ g ⟦∘⟧ mach s′ f) as) = refl
 
--- ⟦∘⟧ (mach t g) (mach s f) (a ∷ as) =
+-- (mach t g ⟦∘⟧ mach s f) (a ∷ as) =
 --   begin
 --     ⟦ mach t g ∘ mach s f ⟧ (a ∷ as)
 --   ≡⟨⟩
@@ -101,7 +102,7 @@ open ≡-Reasoning
 --   ≡⟨⟩
 --     let (b , s′) = f (a , s) ; (c , t′) = g (b , t) in c ∷  ⟦ mach t′ g ∘ mach s′ f ⟧ as
 --   ≡⟨ (let (b , s′) = f (a , s) ; (c , t′) = g (b , t) in
---        cong (c ∷_) (⟦∘⟧ (mach t′ g) (mach s′ f) as)) ⟩
+--        cong (c ∷_) ((mach t′ g ⟦∘⟧ mach s′ f) as)) ⟩
 --     let (b , s′) = f (a , s) ; (c , t′) = g (b , t) in c ∷ (⟦ mach t′ g ⟧ ◇.∘ ⟦ mach s′ f ⟧) as
 --   ≡⟨⟩
 --     let (b , s′) = f (a , s) ; (c , t′) = g (b , t) in c ∷ ⟦ mach t′ g ⟧ (⟦ mach s′ f ⟧ as)
@@ -117,8 +118,9 @@ open ≡-Reasoning
 --     (⟦ mach t g ⟧ ◇.∘ ⟦ mach s f ⟧) (a ∷ as)
 --   ∎
 
-⟦⊗⟧ : ∀ (g : B ➩ C) (f : A ➩ B) → ⟦ g ⊗ f ⟧ ≗ ⟦ g ⟧ ◇.⊗ ⟦ f ⟧
-⟦⊗⟧ _ _ [] = refl
-⟦⊗⟧ (mach s f) (mach t g) ((a , b) ∷ ps)
+infixr 7 _⟦⊗⟧_
+_⟦⊗⟧_ : ∀ (g : B ➩ C) (f : A ➩ B) → ⟦ g ⊗ f ⟧ ≗ ⟦ g ⟧ ◇.⊗ ⟦ f ⟧
+(_ ⟦⊗⟧ _) [] = refl
+(mach s f ⟦⊗⟧ mach t g) ((a , b) ∷ ps)
   rewrite (let (c , s′) = f (a , s) ; (d , t′) = g (b , t) in 
-            ⟦⊗⟧ (mach s′ f) (mach t′ g) ps) = refl
+            (mach s′ f ⟦⊗⟧ mach t′ g) ps) = refl
