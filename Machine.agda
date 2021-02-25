@@ -31,7 +31,7 @@ record _➩_ (A B : Set) : Set₁ where
 ⟦ mach s f ⟧ [] = []
 ⟦ mach s f ⟧ (a ∷ as) = let (b , s′) = f (a , s) in b ∷ ⟦ mach s′ f ⟧ as
 
--- Mapping a function (empty state)
+-- Mapping a function (empty state, i.e., combinational logic)
 map : (A → B) → (A ➩ B)
 map f = mach tt (map₁ f)
                 -- λ (a , tt) → f a , tt
