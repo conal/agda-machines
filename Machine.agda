@@ -1,3 +1,7 @@
+-- Synchronous stream functions as composable state machines
+
+{-# OPTIONS --safe --without-K #-}
+
 module Machine where
 
 open import Level
@@ -24,7 +28,7 @@ run : M a b → List a → List b
 run (mach s f) [] = []
 run (mach s f) (a ∷ as) = let (b , s′) = f (a , s) in b ∷ run (mach s′ f) as
 
--- Equivalently
+-- Equivalently, highlight the constancy of the state transition function
 run′ : M a b → List a → List b
 run′ {a}{b} (mach {σ} s₀ f) = go s₀
  where
