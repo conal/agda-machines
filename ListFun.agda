@@ -5,7 +5,7 @@
 module ListFun where
 
 open import Function using (id ; _∘_) public
-open import Data.Product hiding (map; zip)
+open import Data.Product hiding (zip) renaming (map to map×)
 open import Data.Unit
 open import Data.List renaming (map to mapᴸ)
 
@@ -26,7 +26,14 @@ map = mapᴸ
 -- Parallel composition
 infixr 10 _⊗_
 _⊗_ : (A ⇢ C) → (B ⇢ D) → (A × B ⇢ C × D)
-(f ⊗ g) ps = let (as , bs) = unzip ps in zip (f as) (g bs)
+f ⊗ g = uncurry zip ∘ map× f g ∘ unzip
+-- (f ⊗ g) ps = let as , bs = unzip ps in zip (f as) (g bs)
+
+-- -- Conditional/choice composition
+-- infixr 6 _⊕_
+-- _⊕_ : (A ⇢ C) → (B ⇢ D) → ((A ⊎ B) ⇢ (C ⊎ D))
+
+-- Hm.
 
 -- Cons (memory/register)
 delay : A → (A ⇢ A)
