@@ -1,8 +1,8 @@
--- Synchronous stream functions as composable Mealy machines
+-- Composable Mealy machines
 
 {-# OPTIONS --safe --without-K #-}
 
-module Machine where
+module Mealy where
 
 open import Data.Sum     hiding (map)
 open import Data.Product hiding (map) renaming (map₁ to map×₁; swap to swap×)
