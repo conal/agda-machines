@@ -4,7 +4,8 @@
 
 module Machine where
 
-open import Data.Product hiding (map)
+open import Data.Sum     hiding (map)
+open import Data.Product hiding (map) renaming (map₁ to map×₁; swap to swap×)
 open import Data.Unit
 open import Data.List    hiding (map)
 
@@ -28,35 +29,42 @@ record _➩_ (A B : Set) : Set₁ where
 
 -- Semantics
 ⟦_⟧ : (A ➩ B) → (A ⇢ B)
-⟦ mealy s f ⟧ [] = []
-⟦ mealy s f ⟧ (a ∷ as) = let (b , s′) = f (a , s) in b ∷ ⟦ mealy s′ f ⟧ as
+⟦ mealy _ _ ⟧ [] = []
+⟦ mealy s f ⟧ (a ∷ as) = let b , s′ = f (a , s) in b ∷ ⟦ mealy s′ f ⟧ as
 
 -- Mapping a function (empty state, i.e., combinational logic)
 map : (A → B) → (A ➩ B)
-map f = mealy tt (map₁ f)
+map f = mealy tt (map×₁ f)
                 -- λ (a , tt) → f a , tt
 
 -- Sequential composition
 infixr 9 _∘_
 _∘_ : (B ➩ C) → (A ➩ B) → (A ➩ C)
 mealy t₀ g ∘ mealy s₀ f = mealy (s₀ , t₀) λ (a , (s , t)) →
- let (b , s′) = f (a , s)
-     (c , t′) = g (b , t)
+ let b , s′ = f (a , s)
+     c , t′ = g (b , t)
  in
     c , (s′ , t′)
 
 -- Parallel composition
 infixr 7 _⊗_
 _⊗_ : (A ➩ C) → (B ➩ D) → (A × B ➩ C × D)
-mealy s f ⊗ mealy t g = mealy (s , t) λ ((a , b) , (s , t)) →
-  let (c , s′) = f (a , s)
-      (d , t′) = g (b , t)
+mealy s₀ f ⊗ mealy t₀ g = mealy (s₀ , t₀) λ ((a , b) , (s , t)) →
+  let c , s′ = f (a , s)
+      d , t′ = g (b , t)
   in
     (c , d) , (s′ , t′)
 
+-- Conditional/choice composition
+infixr 6 _⊕_
+_⊕_ : (A ➩ C) → (B ➩ D) → ((A ⊎ B) ➩ (C ⊎ D))
+mealy s₀ f ⊕ mealy t₀ g = mealy (s₀ , t₀)
+  λ { (inj₁ a , s , t) → let c , s′ = f (a , s) in inj₁ c , (s′ , t)
+    ; (inj₂ b , s , t) → let d , t′ = g (b , t) in inj₂ d , (s  , t′) }
+
 -- Cons (memory/register)
 delay : A → (A ➩ A)
-delay a = mealy a swap
+delay a = mealy a swap×
                  -- (λ (next , prev) → prev , next)
 
 -------------------------------------------------------------------------------
@@ -90,28 +98,29 @@ open ≡-Reasoning
 infixr 9 _⟦∘⟧_
 _⟦∘⟧_ : ∀ (g : B ➩ C) (f : A ➩ B) → ⟦ g ∘ f ⟧ ≗ ⟦ g ⟧ ◇.∘ ⟦ f ⟧
 (_ ⟦∘⟧ _) [] = refl
+
 (mealy t g ⟦∘⟧ mealy s f) (a ∷ as)
-  rewrite (let (b , s′) = f (a , s) ; (c , t′) = g (b , t) in 
+  rewrite (let b , s′ = f (a , s) ; c , t′ = g (b , t) in 
             (mealy t′ g ⟦∘⟧ mealy s′ f) as) = refl
 
 -- (mealy t g ⟦∘⟧ mealy s f) (a ∷ as) =
 --   begin
 --     ⟦ mealy t g ∘ mealy s f ⟧ (a ∷ as)
 --   ≡⟨⟩
---     ⟦ mealy (s , t) (λ (a , (s , t)) → let (b , s′) = f (a , s) ; (c , t′) = g (b , t) in c , (s′ , t′)) ⟧ (a ∷ as)
+--     ⟦ mealy (s , t) (λ (a , (s , t)) → let b , s′ = f (a , s) ; c , t′ = g (b , t) in c , (s′ , t′)) ⟧ (a ∷ as)
 --   ≡⟨⟩
---     let (b , s′) = f (a , s) ; (c , t′) = g (b , t) in c ∷  ⟦ mealy t′ g ∘ mealy s′ f ⟧ as
---   ≡⟨ (let (b , s′) = f (a , s) ; (c , t′) = g (b , t) in
+--     let b , s′ = f (a , s) ; c , t′ = g (b , t) in c ∷  ⟦ mealy t′ g ∘ mealy s′ f ⟧ as
+--   ≡⟨ (let b , s′ = f (a , s) ; c , t′ = g (b , t) in
 --        cong (c ∷_) ((mealy t′ g ⟦∘⟧ mealy s′ f) as)) ⟩
---     let (b , s′) = f (a , s) ; (c , t′) = g (b , t) in c ∷ (⟦ mealy t′ g ⟧ ◇.∘ ⟦ mealy s′ f ⟧) as
+--     let b , s′ = f (a , s) ; c , t′ = g (b , t) in c ∷ (⟦ mealy t′ g ⟧ ◇.∘ ⟦ mealy s′ f ⟧) as
 --   ≡⟨⟩
---     let (b , s′) = f (a , s) ; (c , t′) = g (b , t) in c ∷ ⟦ mealy t′ g ⟧ (⟦ mealy s′ f ⟧ as)
+--     let b , s′ = f (a , s) ; c , t′ = g (b , t) in c ∷ ⟦ mealy t′ g ⟧ (⟦ mealy s′ f ⟧ as)
 --   ≡⟨⟩
---     let (b , s′) = f (a , s) in let (c , t′) = g (b , t) in c ∷ ⟦ mealy t′ g ⟧ (⟦ mealy s′ f ⟧ as)
+--     let b , s′ = f (a , s) in let c , t′ = g (b , t) in c ∷ ⟦ mealy t′ g ⟧ (⟦ mealy s′ f ⟧ as)
 --   ≡⟨⟩
---     let (b , s′) = f (a , s) in ⟦ mealy t g ⟧ (b ∷ ⟦ mealy s′ f ⟧ as)
+--     let b , s′ = f (a , s) in ⟦ mealy t g ⟧ (b ∷ ⟦ mealy s′ f ⟧ as)
 --   ≡⟨⟩
---     ⟦ mealy t g ⟧ (let (b , s′) = f (a , s) in b ∷ ⟦ mealy s′ f ⟧ as)
+--     ⟦ mealy t g ⟧ (let b , s′ = f (a , s) in b ∷ ⟦ mealy s′ f ⟧ as)
 --   ≡⟨⟩
 --     ⟦ mealy t g ⟧ (⟦ mealy s f ⟧ (a ∷ as))
 --   ≡⟨⟩
@@ -121,6 +130,10 @@ _⟦∘⟧_ : ∀ (g : B ➩ C) (f : A ➩ B) → ⟦ g ∘ f ⟧ ≗ ⟦ g ⟧ 
 infixr 7 _⟦⊗⟧_
 _⟦⊗⟧_ : ∀ (g : B ➩ C) (f : A ➩ B) → ⟦ g ⊗ f ⟧ ≗ ⟦ g ⟧ ◇.⊗ ⟦ f ⟧
 (_ ⟦⊗⟧ _) [] = refl
-(mealy s f ⟦⊗⟧ mealy t g) ((a , b) ∷ ps)
-  rewrite (let (c , s′) = f (a , s) ; (d , t′) = g (b , t) in 
-            (mealy s′ f ⟦⊗⟧ mealy t′ g) ps) = refl
+(mealy s f ⟦⊗⟧ mealy t g) ((a , b) ∷ abs)
+  rewrite (let c , s′ = f (a , s) ; d , t′ = g (b , t) in 
+            (mealy s′ f ⟦⊗⟧ mealy t′ g) abs) = refl
+
+-- infixr 7 _⟦⊕⟧_
+-- _⟦⊕⟧_ : ∀ (g : B ➩ C) (f : A ➩ B) → ⟦ g ⊕ f ⟧ ≗ ⟦ g ⟧ ◇.⊕ ⟦ f ⟧
+-- f ⟦⊕⟧ g = ?
