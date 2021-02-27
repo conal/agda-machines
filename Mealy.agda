@@ -46,7 +46,7 @@ mealy t₀ g ∘ mealy s₀ f = mealy (s₀ , t₀) λ (a , (s , t)) →
  in
     c , (s′ , t′)
 
--- Parallel composition
+-- Parallel composition / product tensor
 infixr 7 _⊗_
 _⊗_ : (A ➩ C) → (B ➩ D) → (A × B ➩ C × D)
 mealy s₀ f ⊗ mealy t₀ g = mealy (s₀ , t₀) λ ((a , b) , (s , t)) →
@@ -55,7 +55,7 @@ mealy s₀ f ⊗ mealy t₀ g = mealy (s₀ , t₀) λ ((a , b) , (s , t)) →
   in
     (c , d) , (s′ , t′)
 
--- Conditional/choice composition
+-- Conditional/choice composition / coproduct tensor
 infixr 6 _⊕_
 _⊕_ : (A ➩ C) → (B ➩ D) → ((A ⊎ B) ➩ (C ⊎ D))
 mealy s₀ f ⊕ mealy t₀ g = mealy (s₀ , t₀)
@@ -64,8 +64,8 @@ mealy s₀ f ⊕ mealy t₀ g = mealy (s₀ , t₀)
 
 -- Cons (memory/register)
 delay : A → (A ➩ A)
-delay a = mealy a swap×
-                 -- (λ (next , prev) → prev , next)
+delay a₀ = mealy a₀ swap×
+                    -- (λ (next , prev) → prev , next)
 
 -------------------------------------------------------------------------------
 -- Properties
