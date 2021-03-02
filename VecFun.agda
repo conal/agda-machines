@@ -1,4 +1,4 @@
--- Synchronous list functions, used as semantics for Mealy machines
+-- Length-preserving vector functions, used as semantics for Mealy machines
 
 {-# OPTIONS --safe --without-K #-}
 
@@ -11,15 +11,19 @@ open import Data.Product hiding (zip)
 open import Data.Unit
 open import Data.Nat
 open import Data.Vec renaming (map to mapv)
+open import Relation.Binary.PropositionalEquality hiding (_≗_)
 
 private
   variable
     A B C D : Set
-    m n p : ℕ
 
 infix 0 _↠_
 _↠_ : Set → Set → Set
 A ↠ B = ∀ {n} → Vec A n → Vec B n
+
+infix 4 _≗_
+_≗_ : (f g : A ↠ B) → Set _
+f ≗ g = ∀ {n} (as : Vec _ n) → f as ≡ g as
 
 -- Mapping a function (combinational logic)
 map : (A → B) → (A ↠ B)
@@ -50,11 +54,11 @@ delay a as = init (a ∷ as)
 
 open import Relation.Binary.PropositionalEquality
 
-init∷ : ∀ {a : A} (as : Vec A (suc n)) → init (a ∷ as) ≡ a ∷ init as
+init∷ : ∀ {a : A}{n} (as : Vec A (suc n)) → init (a ∷ as) ≡ a ∷ init as
 init∷ as with initLast as
 ... | as′ , l , refl = refl
 
 -- TODO: Put init∷ into an agda-stdlib PR.
 
-∷delay : ∀ {a₀ a : A} {as : Vec A n} → a₀ ∷ delay a as ≡ delay a₀ (a ∷ as)
-∷delay {a₀ = a₀}{a}{as} = sym (init∷ (a ∷ as))
+∷delay : ∀ {a₀ a : A} {n} {as : Vec A n} → a₀ ∷ delay a as ≡ delay a₀ (a ∷ as)
+∷delay {a = a}{as = as} = sym (init∷ (a ∷ as))
