@@ -1,1 +1,1 @@
-Composable state machines in Agda
+Composable Mealy machines in Agda with compositional/functorial semantics
