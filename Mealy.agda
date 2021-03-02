@@ -2,7 +2,7 @@
 
 {-# OPTIONS --safe --without-K #-}
 
-module MealyVec where
+module Mealy where
 
 open import Data.Sum     hiding (map)
 open import Data.Product hiding (map) renaming (map₁ to map×₁; swap to swap×)
