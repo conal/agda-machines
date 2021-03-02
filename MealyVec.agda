@@ -9,9 +9,6 @@ open import Data.Product hiding (map) renaming (map₁ to map×₁; swap to swap
 open import Data.Unit
 open import Data.Vec    hiding (map)
 
-import VecFun as ◇
-open ◇ using (_↠_)
-
 private
   variable
     A B C D : Set
@@ -26,11 +23,6 @@ record _➩_ (A B : Set) : Set₁ where
     { State } : Set
     start : State
     transition : A × State → B × State
-
--- Semantics
-⟦_⟧ : (A ➩ B) → (A ↠ B)
-⟦ mealy _ _ ⟧ [] = []
-⟦ mealy s f ⟧ (a ∷ as) = let b , s′ = f (a , s) in b ∷ ⟦ mealy s′ f ⟧ as
 
 -- Mapping a function (empty state, i.e., combinational logic)
 map : (A → B) → (A ➩ B)
@@ -67,55 +59,50 @@ delay : A → (A ➩ A)
 delay a₀ = mealy a₀ swap×
                     -- (λ (next , prev) → prev , next)
 
--------------------------------------------------------------------------------
--- Properties
--------------------------------------------------------------------------------
+-- Specification via denotational homomorphisms
+module AsVecFun where
 
-open import Relation.Binary.PropositionalEquality hiding (_≗_)
-open ≡-Reasoning
+  open import Relation.Binary.PropositionalEquality hiding (_≗_)
+  open ≡-Reasoning
 
-infix 4 _≗_
-_≗_ : (f g : A ↠ B) → Set _
-f ≗ g = ∀ {n} (as : Vec _ n) → f as ≡ g as
+  import VecFun as ◇
+  open ◇ using (_↠_; _≗_)
 
-⟦map⟧ : ∀ (h : A → B) → ⟦ map h ⟧ ≗ ◇.map h
-⟦map⟧ h [] = refl
-⟦map⟧ h (a ∷ as) rewrite ⟦map⟧ h as = refl
+  ⟦_⟧ : (A ➩ B) → (A ↠ B)
+  ⟦ mealy _ _ ⟧ [] = []
+  ⟦ mealy s f ⟧ (a ∷ as) = let b , s′ = f (a , s) in b ∷ ⟦ mealy s′ f ⟧ as
 
-infixr 9 _⟦∘⟧_
-_⟦∘⟧_ : ∀ (g : B ➩ C) (f : A ➩ B) → ⟦ g ∘ f ⟧ ≗ ⟦ g ⟧ ◇.∘ ⟦ f ⟧
-(_ ⟦∘⟧ _) [] = refl
-(mealy t g ⟦∘⟧ mealy s f) (a ∷ as)
-  rewrite (let b , s′ = f (a , s) ; c , t′ = g (b , t) in 
-            (mealy t′ g ⟦∘⟧ mealy s′ f) as) = refl
+  ⟦map⟧ : ∀ (h : A → B) → ⟦ map h ⟧ ≗ ◇.map h
+  ⟦map⟧ h [] = refl
+  ⟦map⟧ h (a ∷ as) rewrite ⟦map⟧ h as = refl
 
-infixr 7 _⟦⊗⟧_
-_⟦⊗⟧_ : ∀ (g : B ➩ C) (f : A ➩ B) → ⟦ g ⊗ f ⟧ ≗ ⟦ g ⟧ ◇.⊗ ⟦ f ⟧
-(_ ⟦⊗⟧ _) [] = refl
-(mealy s f ⟦⊗⟧ mealy t g) ((a , b) ∷ abs)
-  rewrite (let c , s′ = f (a , s) ; d , t′ = g (b , t) in 
-            (mealy s′ f ⟦⊗⟧ mealy t′ g) abs) = refl
+  infixr 9 _⟦∘⟧_
+  _⟦∘⟧_ : ∀ (g : B ➩ C) (f : A ➩ B) → ⟦ g ∘ f ⟧ ≗ ⟦ g ⟧ ◇.∘ ⟦ f ⟧
+  (_ ⟦∘⟧ _) [] = refl
+  (mealy t g ⟦∘⟧ mealy s f) (a ∷ as)
+    rewrite (let b , s′ = f (a , s) ; c , t′ = g (b , t) in 
+              (mealy t′ g ⟦∘⟧ mealy s′ f) as) = refl
 
--- infixr 7 _⟦⊕⟧_
--- _⟦⊕⟧_ : ∀ (g : B ➩ C) (f : A ➩ B) → ⟦ g ⊕ f ⟧ ≗ ⟦ g ⟧ ◇.⊕ ⟦ f ⟧
--- f ⟦⊕⟧ g = ?
+  infixr 7 _⟦⊗⟧_
+  _⟦⊗⟧_ : ∀ (g : B ➩ C) (f : A ➩ B) → ⟦ g ⊗ f ⟧ ≗ ⟦ g ⟧ ◇.⊗ ⟦ f ⟧
+  (_ ⟦⊗⟧ _) [] = refl
+  (mealy s f ⟦⊗⟧ mealy t g) ((a , b) ∷ abs)
+    rewrite (let c , s′ = f (a , s) ; d , t′ = g (b , t) in 
+              (mealy s′ f ⟦⊗⟧ mealy t′ g) abs) = refl
 
+  -- infixr 7 _⟦⊕⟧_
+  -- _⟦⊕⟧_ : ∀ (g : B ➩ C) (f : A ➩ B) → ⟦ g ⊕ f ⟧ ≗ ⟦ g ⟧ ◇.⊕ ⟦ f ⟧
+  -- f ⟦⊕⟧ g = ?
 
-⟦delay⟧ : (a₀ : A) → ⟦ delay a₀ ⟧ ≗ ◇.delay a₀
-⟦delay⟧ a₀ [] = refl
-⟦delay⟧ a₀ (a ∷ as) =
-  begin
-    ⟦ delay a₀ ⟧ (a ∷ as)
-  ≡⟨⟩
-    ⟦ mealy a₀ swap× ⟧ (a ∷ as)
-  ≡⟨⟩
-    (let b , s′ = swap× (a , a₀) in b ∷ ⟦ mealy s′ swap× ⟧ as)
-  ≡⟨⟩
-    a₀ ∷ ⟦ mealy a swap× ⟧ as
-  ≡⟨⟩
-    a₀ ∷ ⟦ delay a ⟧ as
-  ≡⟨ cong (a₀ ∷_) (⟦delay⟧ a as) ⟩
-    a₀ ∷ ◇.delay a as
-  ≡⟨ ◇.∷delay ⟩
-    ◇.delay a₀ (a ∷ as)
-  ∎ where open ≡-Reasoning
+  ⟦delay⟧ : (a₀ : A) → ⟦ delay a₀ ⟧ ≗ ◇.delay a₀
+  ⟦delay⟧ a₀ [] = refl
+  ⟦delay⟧ a₀ (a ∷ as) =
+    begin
+      ⟦ delay a₀ ⟧ (a ∷ as)
+    ≡⟨⟩
+      a₀ ∷ ⟦ delay a ⟧ as
+    ≡⟨ cong (a₀ ∷_) (⟦delay⟧ a as) ⟩
+      a₀ ∷ ◇.delay a as
+    ≡⟨ ◇.∷delay ⟩
+      ◇.delay a₀ (a ∷ as)
+    ∎
