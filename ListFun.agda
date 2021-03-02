@@ -28,8 +28,6 @@ infixr 9 _∘_
 _∘_ : (B ↠ C) → (A ↠ B) → (A ↠ C)
 _∘_ = _∘′_
 
--- id and _∘_ come from Function (re-exported)
-
 -- Parallel composition
 infixr 10 _⊗_
 _⊗_ : (A ↠ C) → (B ↠ D) → (A × B ↠ C × D)
@@ -40,7 +38,7 @@ f ⊗ g = uncurry zip ∘′ map× f g ∘′ unzip
 -- infixr 6 _⊕_
 -- _⊕_ : (A ↠ C) → (B ↠ D) → ((A ⊎ B) ↠ (C ⊎ D))
 
--- How to define _⊕_?
+-- Puzzle: how to define _⊕_?
 
 -- Cons (memory/register)
 delay : A → (A ↠ A)
