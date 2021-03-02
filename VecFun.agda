@@ -47,3 +47,14 @@ f ⊗ g = uncurry zip ∘′ map× f g ∘′ unzip
 -- Cons (memory/register)
 delay : A → (A ↠ A)
 delay a as = init (a ∷ as)
+
+open import Relation.Binary.PropositionalEquality
+
+init∷ : ∀ {a : A} (as : Vec A (suc n)) → init (a ∷ as) ≡ a ∷ init as
+init∷ as with initLast as
+... | as′ , l , refl = refl
+
+-- TODO: Put init∷ into an agda-stdlib PR.
+
+∷delay : ∀ {a₀ a : A} {as : Vec A n} → a₀ ∷ delay a as ≡ delay a₀ (a ∷ as)
+∷delay {a₀ = a₀}{a}{as} = sym (init∷ (a ∷ as))
