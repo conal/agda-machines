@@ -16,7 +16,7 @@ private
   variable
     A B C D : Set
 
-infix 1 _➩_
+infix 0 _➩_
 
 -- State machine synchronously mapping from List a to List b.
 -- For composability, the state type is not visible in the type.
@@ -137,3 +137,5 @@ _⟦⊗⟧_ : ∀ (g : B ➩ C) (f : A ➩ B) → ⟦ g ⊗ f ⟧ ≗ ⟦ g ⟧ 
 -- infixr 7 _⟦⊕⟧_
 -- _⟦⊕⟧_ : ∀ (g : B ➩ C) (f : A ➩ B) → ⟦ g ⊕ f ⟧ ≗ ⟦ g ⟧ ◇.⊕ ⟦ f ⟧
 -- f ⟦⊕⟧ g = ?
+
+-- TODO: ⟦delay⟧. I don't think this one holds without dropping the final value.
