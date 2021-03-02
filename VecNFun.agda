@@ -48,7 +48,6 @@ delay : A → VF n A A
 delay a as = init (a ∷ as)
 
 open import Relation.Binary.PropositionalEquality
-open ≡-Reasoning
 
 init∷ : ∀ {a : A} (as : Vec A (suc n)) → init (a ∷ as) ≡ a ∷ init as
 init∷ as with initLast as
