@@ -10,7 +10,7 @@ open import Data.Unit
 open import Data.List    hiding (map)
 
 import ListFun as ◇
-open ◇ using (_⇢_)
+open ◇ using (_↠_)
 
 private
   variable
@@ -28,7 +28,7 @@ record _➩_ (A B : Set) : Set₁ where
     transition : A × State → B × State
 
 -- Semantics
-⟦_⟧ : (A ➩ B) → (A ⇢ B)
+⟦_⟧ : (A ➩ B) → (A ↠ B)
 ⟦ mealy _ _ ⟧ [] = []
 ⟦ mealy s f ⟧ (a ∷ as) = let b , s′ = f (a , s) in b ∷ ⟦ mealy s′ f ⟧ as
 
