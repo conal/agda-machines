@@ -60,5 +60,5 @@ init∷ as with initLast as
 
 -- TODO: Package init∷ into an agda-stdlib PR.
 
-∷delay : ∀ {a₀ a : A} {n} {as : Vec A n} → a₀ ∷ delay a as ≡ delay a₀ (a ∷ as)
-∷delay {a = a}{as = as} = sym (init∷ (a ∷ as))
+delay∷ : ∀ {a₀ a : A} {n} {as : Vec A n} → delay a₀ (a ∷ as) ≡ a₀ ∷ delay a as
+delay∷ {a = a}{as = as} = init∷ (a ∷ as)

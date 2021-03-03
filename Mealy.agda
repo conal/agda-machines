@@ -103,6 +103,6 @@ module AsVecFun where
       a₀ ∷ ⟦ delay a ⟧ as
     ≡⟨ cong (a₀ ∷_) (⟦delay⟧ a as) ⟩
       a₀ ∷ ◇.delay a as
-    ≡⟨ ◇.∷delay ⟩
+    ≡˘⟨ ◇.delay∷ ⟩
       ◇.delay a₀ (a ∷ as)
     ∎
