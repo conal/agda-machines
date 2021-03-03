@@ -56,7 +56,7 @@ open import Relation.Binary.PropositionalEquality
 
 init∷ : ∀ {a : A}{n} (as : Vec A (suc n)) → init (a ∷ as) ≡ a ∷ init as
 init∷ as with initLast as
-... | as′ , l , refl = refl
+... | _ , _ , refl = refl
 
 -- TODO: Package init∷ into an agda-stdlib PR.
 
