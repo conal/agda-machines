@@ -25,8 +25,8 @@ record _➩_ (A B : Set) : Set₁ where
     transition : A × State → B × State
 
 -- Mapping a function (empty state, i.e., combinational logic)
-map : (A → B) → (A ➩ B)
-map f = mealy tt (map×₁ f)
+arr : (A → B) → (A ➩ B)
+arr f = mealy tt (map×₁ f)
                 -- λ (a , tt) → f a , tt
 
 -- Sequential composition
@@ -72,9 +72,9 @@ module AsVecFun where
   ⟦ mealy _ _ ⟧ [] = []
   ⟦ mealy s f ⟧ (a ∷ as) = let b , s′ = f (a , s) in b ∷ ⟦ mealy s′ f ⟧ as
 
-  ⟦map⟧ : ∀ (h : A → B) → ⟦ map h ⟧ ≗ ◇.map h
-  ⟦map⟧ h [] = refl
-  ⟦map⟧ h (a ∷ as) rewrite ⟦map⟧ h as = refl
+  ⟦arr⟧ : ∀ (h : A → B) → ⟦ arr h ⟧ ≗ ◇.arr h
+  ⟦arr⟧ h [] = refl
+  ⟦arr⟧ h (a ∷ as) rewrite ⟦arr⟧ h as = refl
 
   infixr 9 _⟦∘⟧_
   _⟦∘⟧_ : ∀ (g : B ➩ C) (f : A ➩ B) → ⟦ g ∘ f ⟧ ≗ ⟦ g ⟧ ◇.∘ ⟦ f ⟧

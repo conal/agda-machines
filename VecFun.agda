@@ -10,7 +10,7 @@ open import Data.Product hiding (zip)
   renaming (map to map×; map₁ to map×₁; map₂ to map×₂)
 open import Data.Unit
 open import Data.Nat
-open import Data.Vec renaming (map to mapv)
+open import Data.Vec
 open import Relation.Binary.PropositionalEquality hiding (_≗_)
 
 private
@@ -26,8 +26,8 @@ _≗_ : (f g : A ↠ B) → Set _
 f ≗ g = ∀ {n} (as : Vec _ n) → f as ≡ g as
 
 -- Mapping a function (combinational logic)
-map : (A → B) → (A ↠ B)
-map f = mapv f
+arr : (A → B) → (A ↠ B)
+arr f = map f
 
 id : A ↠ A
 id = id→
@@ -58,7 +58,7 @@ init∷ : ∀ {a : A}{n} (as : Vec A (suc n)) → init (a ∷ as) ≡ a ∷ init
 init∷ as with initLast as
 ... | as′ , l , refl = refl
 
--- TODO: Put init∷ into an agda-stdlib PR.
+-- TODO: Package init∷ into an agda-stdlib PR.
 
 ∷delay : ∀ {a₀ a : A} {n} {as : Vec A n} → a₀ ∷ delay a as ≡ delay a₀ (a ∷ as)
 ∷delay {a = a}{as = as} = sym (init∷ (a ∷ as))
