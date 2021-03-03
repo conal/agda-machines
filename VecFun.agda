@@ -4,7 +4,7 @@
 
 module VecFun where
 
-open import Function using (_∘′_; case_of_; const) renaming (id to id→)
+open import Function using (_∘′_; case_of_; const) renaming (id to id′)
 open import Data.Sum hiding (map; [_,_])
 open import Data.Product hiding (zip)
   renaming (map to map×; map₁ to map×₁; map₂ to map×₂)
@@ -30,7 +30,7 @@ arr : (A → B) → (A ↠ B)
 arr f = map f
 
 id : A ↠ A
-id = id→
+id = id′
 
 infixr 9 _∘_
 _∘_ : (B ↠ C) → (A ↠ B) → (A ↠ C)
