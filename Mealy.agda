@@ -84,7 +84,7 @@ module AsVecFun where
               (mealy t′ g ⟦∘⟧ mealy s′ f) as) = refl
 
   infixr 7 _⟦⊗⟧_
-  _⟦⊗⟧_ : ∀ (g : B ➩ C) (f : A ➩ B) → ⟦ g ⊗ f ⟧ ≗ ⟦ g ⟧ ◇.⊗ ⟦ f ⟧
+  _⟦⊗⟧_ : ∀ (f : A ➩ C) (g : B ➩ D) → ⟦ f ⊗ g ⟧ ≗ ⟦ f ⟧ ◇.⊗ ⟦ g ⟧
   (_ ⟦⊗⟧ _) [] = refl
   (mealy s f ⟦⊗⟧ mealy t g) ((a , b) ∷ abs)
     rewrite (let c , s′ = f (a , s) ; d , t′ = g (b , t) in 
