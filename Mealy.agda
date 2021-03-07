@@ -27,7 +27,7 @@ record _➩_ (A B : Set) : Set₁ where
 -- Mapping a function (empty state, i.e., combinational logic)
 arr : (A → B) → (A ➩ B)
 arr f = mealy tt (map×₁ f)
-                -- λ (a , tt) → f a , tt
+                 -- λ (a , tt) → f a , tt
 
 -- Sequential composition
 infixr 9 _∘_
@@ -51,8 +51,8 @@ mealy s₀ f ⊗ mealy t₀ g = mealy (s₀ , t₀) λ ((a , b) , (s , t)) →
 infixr 6 _⊕_
 _⊕_ : (A ➩ C) → (B ➩ D) → ((A ⊎ B) ➩ (C ⊎ D))
 mealy s₀ f ⊕ mealy t₀ g = mealy (s₀ , t₀)
-  λ { (inj₁ a , s , t) → let c , s′ = f (a , s) in inj₁ c , (s′ , t)
-    ; (inj₂ b , s , t) → let d , t′ = g (b , t) in inj₂ d , (s  , t′) }
+  λ { (inj₁ a , (s , t)) → let c , s′ = f (a , s) in inj₁ c , (s′ , t)
+    ; (inj₂ b , (s , t)) → let d , t′ = g (b , t) in inj₂ d , (s  , t′) }
 
 -- Cons (memory/register)
 delay : A → (A ➩ A)
@@ -91,7 +91,7 @@ module AsVecFun where
               (mealy s′ f ⟦⊗⟧ mealy t′ g) abs) = refl
 
   -- infixr 7 _⟦⊕⟧_
-  -- _⟦⊕⟧_ : ∀ (g : B ➩ C) (f : A ➩ B) → ⟦ g ⊕ f ⟧ ≗ ⟦ g ⟧ ◇.⊕ ⟦ f ⟧
+  -- _⟦⊕⟧_ : ∀ (f : A ➩ C) (g : B ➩ D) → ⟦ f ⊕ g ⟧ ≗ ⟦ f ⟧ ◇.⊕ ⟦ g ⟧
   -- f ⟦⊕⟧ g = ?
 
   ⟦delay⟧ : (a₀ : A) → ⟦ delay a₀ ⟧ ≗ ◇.delay a₀
