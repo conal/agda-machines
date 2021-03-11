@@ -62,3 +62,63 @@ init∷ as with initLast as
 
 delay∷ : ∀ {a₀ a : A} {n} {as : Vec A n} → delay a₀ (a ∷ as) ≡ a₀ ∷ delay a as
 delay∷ {a = a}{as = as} = init∷ (a ∷ as)
+
+
+-- scanlV : (B → A → B) → B → ∀ {n} → Vec A n → Vec B n
+scanlV : (B → A → B) → B → A ↠ B
+scanlV f e []       = []
+scanlV f e (a ∷ as) = e ∷ scanlV f (f e a) as
+
+scanlV′ : (B → A → B) → B → ∀ {n} → Vec A n → Vec B (suc n)
+scanlV′ f e []       = e ∷ []
+scanlV′ f e (a ∷ as) = e ∷ scanlV′ f (f e a) as
+
+open ≡-Reasoning
+
+init∘scanlV′ : ∀ {f : B → A → B} {e : B} {n} (as : Vec A n)
+             → init (scanlV′ f e as) ≡ scanlV f e as
+init∘scanlV′ [] = refl
+init∘scanlV′ {f = f}{e} (a ∷ as) =
+  begin
+    init (e ∷ scanlV′ f (f e a) as)
+  ≡⟨ init∷ _ ⟩
+    e ∷ init (scanlV′ f (f e a) as)
+  ≡⟨ cong (e ∷_) (init∘scanlV′ as) ⟩
+    e ∷ scanlV f (f e a) as
+  ∎
+
+scanlV∷ʳ : ∀ {f : B → A → B} {e : B} {n} (as : Vec A n)
+         → scanlV′ f e as ≡ scanlV f e as ∷ʳ foldl _ f e as
+scanlV∷ʳ [] = refl
+scanlV∷ʳ {f = f}{e} (a ∷ as) =
+  begin
+    scanlV′ f e (a ∷ as)
+  ≡⟨⟩
+    e ∷ scanlV′ f (f e a) as
+  ≡⟨ cong (e ∷_) (scanlV∷ʳ as) ⟩
+    e ∷ (scanlV f (f e a) as ∷ʳ foldl _ f e (a ∷ as))
+  ≡⟨⟩
+    (e ∷ scanlV f (f e a) as) ∷ʳ foldl _ f e (a ∷ as)
+  ≡⟨⟩
+    scanlV f e (a ∷ as) ∷ʳ foldl _ f e (a ∷ as)
+  ∎
+
+init∷ʳ : ∀ {n}(as : Vec A n) {a} → init (as ∷ʳ a) ≡ as
+init∷ʳ [] = refl
+init∷ʳ (a′ ∷ as) {a = a} =
+  begin
+    init ((a′ ∷ as) ∷ʳ a)
+  ≡⟨⟩
+    init (a′ ∷ (as ∷ʳ a))
+  ≡⟨ init∷ _ ⟩
+    a′ ∷ init (as ∷ʳ a)
+  ≡⟨ cong (a′ ∷_) (init∷ʳ as) ⟩
+    a′ ∷ as
+  ∎
+
+-- scanlV′ f e (a ∷ as) = e ∷ scanlV′ f (f e a) as
+
+-- scanlV f e (a ∷ as) = e ∷ scanlV f (f e a) as
+
+
+-- init∷ : ∀ {a : A}{n} (as : Vec A (suc n)) → init (a ∷ as) ≡ a ∷ init as
