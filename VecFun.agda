@@ -103,17 +103,17 @@ scanlV∷ʳ {f = f}{e} (a ∷ as) =
     scanlV f e (a ∷ as) ∷ʳ foldl _ f e (a ∷ as)
   ∎
 
-init∷ʳ : ∀ {n}(as : Vec A n) {a} → init (as ∷ʳ a) ≡ as
+init∷ʳ : ∀ {n}(as : Vec A n) {x} → init (as ∷ʳ x) ≡ as
 init∷ʳ [] = refl
-init∷ʳ (a′ ∷ as) {a = a} =
+init∷ʳ (a ∷ as) {x = x} =
   begin
-    init ((a′ ∷ as) ∷ʳ a)
+    init ((a ∷ as) ∷ʳ x)
   ≡⟨⟩
-    init (a′ ∷ (as ∷ʳ a))
+    init (a ∷ (as ∷ʳ x))
   ≡⟨ init∷ _ ⟩
-    a′ ∷ init (as ∷ʳ a)
-  ≡⟨ cong (a′ ∷_) (init∷ʳ as) ⟩
-    a′ ∷ as
+    a ∷ init (as ∷ʳ x)
+  ≡⟨ cong (a ∷_) (init∷ʳ as) ⟩
+    a ∷ as
   ∎
 
 -- scanlV′ f e (a ∷ as) = e ∷ scanlV′ f (f e a) as
