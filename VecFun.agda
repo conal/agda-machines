@@ -52,6 +52,18 @@ f ⊗ g = uncurry zip ∘′ map× f g ∘′ unzip
 delay : A → (A ↠ A)
 delay a as = init (a ∷ as)
 
+-- scanlV : (B → A → B) → B → ∀ {n} → Vec A n → Vec B n
+scanlV : (B → A → B) → B → A ↠ B
+scanlV f e []       = []
+scanlV f e (a ∷ as) = e ∷ scanlV f (f e a) as
+
+scanlV′ : (B → A → B) → B → ∀ {n} → Vec A n → Vec B (suc n)
+scanlV′ f e []       = e ∷ []
+scanlV′ f e (a ∷ as) = e ∷ scanlV′ f (f e a) as
+
+
+---- Properties
+
 open import Relation.Binary.PropositionalEquality
 
 init∷ : ∀ {a : A}{n} (as : Vec A (suc n)) → init (a ∷ as) ≡ a ∷ init as
@@ -62,16 +74,6 @@ init∷ as with initLast as
 
 delay∷ : ∀ {a₀ a : A} {n} {as : Vec A n} → delay a₀ (a ∷ as) ≡ a₀ ∷ delay a as
 delay∷ {a = a}{as = as} = init∷ (a ∷ as)
-
-
--- scanlV : (B → A → B) → B → ∀ {n} → Vec A n → Vec B n
-scanlV : (B → A → B) → B → A ↠ B
-scanlV f e []       = []
-scanlV f e (a ∷ as) = e ∷ scanlV f (f e a) as
-
-scanlV′ : (B → A → B) → B → ∀ {n} → Vec A n → Vec B (suc n)
-scanlV′ f e []       = e ∷ []
-scanlV′ f e (a ∷ as) = e ∷ scanlV′ f (f e a) as
 
 open ≡-Reasoning
 
@@ -115,10 +117,3 @@ init∷ʳ (a ∷ as) {x = x} =
   ≡⟨ cong (a ∷_) (init∷ʳ as) ⟩
     a ∷ as
   ∎
-
--- scanlV′ f e (a ∷ as) = e ∷ scanlV′ f (f e a) as
-
--- scanlV f e (a ∷ as) = e ∷ scanlV f (f e a) as
-
-
--- init∷ : ∀ {a : A}{n} (as : Vec A (suc n)) → init (a ∷ as) ≡ a ∷ init as
