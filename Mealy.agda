@@ -13,11 +13,11 @@ private
   variable
     A B C D : Set
 
-infix 0 _➩_
+infix 0 _⇨_
 
 -- State machine synchronously mapping from List a to List b.
 -- For composability, the state type is not visible in the type.
-record _➩_ (A B : Set) : Set₁ where
+record _⇨_ (A B : Set) : Set₁ where
   constructor mealy
   field
     { State } : Set
@@ -25,13 +25,13 @@ record _➩_ (A B : Set) : Set₁ where
     transition : A × State → B × State
 
 -- Mapping a function (empty state, i.e., combinational logic)
-arr : (A → B) → (A ➩ B)
+arr : (A → B) → (A ⇨ B)
 arr f = mealy tt (map×₁ f)
                  -- λ (a , tt) → f a , tt
 
 -- Sequential composition
 infixr 9 _∘_
-_∘_ : (B ➩ C) → (A ➩ B) → (A ➩ C)
+_∘_ : (B ⇨ C) → (A ⇨ B) → (A ⇨ C)
 mealy t₀ g ∘ mealy s₀ f = mealy (s₀ , t₀) λ (a , (s , t)) →
  let b , s′ = f (a , s)
      c , t′ = g (b , t)
@@ -40,7 +40,7 @@ mealy t₀ g ∘ mealy s₀ f = mealy (s₀ , t₀) λ (a , (s , t)) →
 
 -- Parallel composition / product tensor
 infixr 7 _⊗_
-_⊗_ : (A ➩ C) → (B ➩ D) → (A × B ➩ C × D)
+_⊗_ : (A ⇨ C) → (B ⇨ D) → (A × B ⇨ C × D)
 mealy s₀ f ⊗ mealy t₀ g = mealy (s₀ , t₀) λ ((a , b) , (s , t)) →
   let c , s′ = f (a , s)
       d , t′ = g (b , t)
@@ -49,13 +49,13 @@ mealy s₀ f ⊗ mealy t₀ g = mealy (s₀ , t₀) λ ((a , b) , (s , t)) →
 
 -- Conditional/choice composition / coproduct tensor
 infixr 6 _⊕_
-_⊕_ : (A ➩ C) → (B ➩ D) → ((A ⊎ B) ➩ (C ⊎ D))
+_⊕_ : (A ⇨ C) → (B ⇨ D) → ((A ⊎ B) ⇨ (C ⊎ D))
 mealy s₀ f ⊕ mealy t₀ g = mealy (s₀ , t₀)
   λ { (inj₁ a , (s , t)) → let c , s′ = f (a , s) in inj₁ c , (s′ , t)
     ; (inj₂ b , (s , t)) → let d , t′ = g (b , t) in inj₂ d , (s  , t′) }
 
 -- Cons (memory/register)
-delay : A → (A ➩ A)
+delay : A → (A ⇨ A)
 delay a₀ = mealy a₀ swap×
                     -- (λ (next , prev) → prev , next)
 
@@ -68,7 +68,7 @@ module AsVecFun where
   import VecFun as ◇
   open ◇ using (_↠_; _≗_)
 
-  ⟦_⟧ : (A ➩ B) → (A ↠ B)
+  ⟦_⟧ : (A ⇨ B) → (A ↠ B)
   ⟦ mealy _ _ ⟧ [] = []
   ⟦ mealy s f ⟧ (a ∷ as) = let b , s′ = f (a , s) in b ∷ ⟦ mealy s′ f ⟧ as
 
@@ -77,21 +77,21 @@ module AsVecFun where
   ⟦arr⟧ h (a ∷ as) rewrite ⟦arr⟧ h as = refl
 
   infixr 9 _⟦∘⟧_
-  _⟦∘⟧_ : ∀ (g : B ➩ C) (f : A ➩ B) → ⟦ g ∘ f ⟧ ≗ ⟦ g ⟧ ◇.∘ ⟦ f ⟧
+  _⟦∘⟧_ : ∀ (g : B ⇨ C) (f : A ⇨ B) → ⟦ g ∘ f ⟧ ≗ ⟦ g ⟧ ◇.∘ ⟦ f ⟧
   (_ ⟦∘⟧ _) [] = refl
   (mealy t g ⟦∘⟧ mealy s f) (a ∷ as)
     rewrite (let b , s′ = f (a , s) ; c , t′ = g (b , t) in 
               (mealy t′ g ⟦∘⟧ mealy s′ f) as) = refl
 
   infixr 7 _⟦⊗⟧_
-  _⟦⊗⟧_ : ∀ (f : A ➩ C) (g : B ➩ D) → ⟦ f ⊗ g ⟧ ≗ ⟦ f ⟧ ◇.⊗ ⟦ g ⟧
+  _⟦⊗⟧_ : ∀ (f : A ⇨ C) (g : B ⇨ D) → ⟦ f ⊗ g ⟧ ≗ ⟦ f ⟧ ◇.⊗ ⟦ g ⟧
   (_ ⟦⊗⟧ _) [] = refl
   (mealy s f ⟦⊗⟧ mealy t g) ((a , b) ∷ abs)
     rewrite (let c , s′ = f (a , s) ; d , t′ = g (b , t) in 
               (mealy s′ f ⟦⊗⟧ mealy t′ g) abs) = refl
 
   -- infixr 7 _⟦⊕⟧_
-  -- _⟦⊕⟧_ : ∀ (f : A ➩ C) (g : B ➩ D) → ⟦ f ⊕ g ⟧ ≗ ⟦ f ⟧ ◇.⊕ ⟦ g ⟧
+  -- _⟦⊕⟧_ : ∀ (f : A ⇨ C) (g : B ⇨ D) → ⟦ f ⊕ g ⟧ ≗ ⟦ f ⟧ ◇.⊕ ⟦ g ⟧
   -- f ⟦⊕⟧ g = ?
 
   ⟦delay⟧ : (a₀ : A) → ⟦ delay a₀ ⟧ ≗ ◇.delay a₀
