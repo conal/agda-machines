@@ -1,8 +1,6 @@
 -- Synchronous stream functions, used as semantics for Mealy machines
 
-{-# OPTIONS --safe --without-K --copatterns #-}
-
-{-# OPTIONS --guardedness #-}
+{-# OPTIONS --safe --without-K --copatterns --guardedness #-}
 
 module StreamFun where
 
@@ -44,7 +42,8 @@ tail (map f as) = map f (tail as)
 -- Seems a shame to make two passes, but I couldn't figure out how to satisfy
 -- the termination checker in a single-pass definition.
 unzip : Stream (A × B) → Stream A × Stream B
-unzip zs = map proj₁ zs , map proj₂ zs
+unzip = < map proj₁ , map proj₂ >
+-- unzip zs = map proj₁ zs , map proj₂ zs
 
 id : A ↠ A
 id = id→
@@ -63,14 +62,10 @@ f ⊗ g = uncurry zip ∘′ map× f g ∘′ unzip
 -- -- infixr 6 _⊕_
 -- -- _⊕_ : (A ↠ C) → (B ↠ D) → ((A ⊎ B) ↠ (C ⊎ D))
 
--- -- How to define _⊕_?
-
--- open import Data.Sum
--- open import Data.Bool
-
--- unzip+ : Stream (A ⊎ B) → Stream Bool × Stream A × Stream B
--- unzip+ zs = {!!} , {!!} , {!!}
-
 -- Cons (memory/register)
 delay : A → (A ↠ A)
 delay = _∷_
+
+scanlV : (B → A → B) → B → A ↠ B
+head (scanlV f e as) = e
+tail (scanlV f e as) = scanlV f (f e (head as)) (tail as)
