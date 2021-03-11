@@ -113,20 +113,3 @@ module AsVecFun where
   ⟦scanlV⟧ : ∀ (f : B → A → B) → (s₀ : B) → ⟦ scanlV f s₀ ⟧ ≗ ◇.scanlV f s₀
   ⟦scanlV⟧ f s₀ [] = refl
   ⟦scanlV⟧ f s₀ (a ∷ as) rewrite ⟦scanlV⟧ f (f s₀ a) as = refl
-
-  -- ⟦scanlV⟧ f s₀ (a ∷ as) =
-  --   begin
-  --     ⟦ scanlV f s₀ ⟧ (a ∷ as)
-  --   ≡⟨⟩
-  --     ⟦ mealy s₀ (λ (a , s) → s , f s a) ⟧ (a ∷ as)
-  --   ≡⟨⟩
-  --     let b , s′ = s₀ , f s₀ a  in b ∷ ⟦ mealy s′ (λ (a , s) → s , f s a) ⟧ as
-  --   ≡⟨⟩
-  --     s₀ ∷ ⟦ mealy (f s₀ a) (λ (a , s) → s , f s a) ⟧ as
-  --   ≡⟨⟩
-  --     s₀ ∷ ⟦ scanlV f (f s₀ a) ⟧ as
-  --   ≡⟨ cong (s₀ ∷_) (⟦scanlV⟧ f (f s₀ a) as) ⟩
-  --     s₀ ∷ ◇.scanlV f (f s₀ a) as
-  --   ≡⟨⟩
-  --     ◇.scanlV f s₀ (a ∷ as)
-  --   ∎
