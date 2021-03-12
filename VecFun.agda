@@ -142,21 +142,21 @@ ex₁ = refl
 Carry : Set
 Carry = Bool
 
-halfAdd : Bool × Bool → Bool × Carry
-halfAdd (a , b) = a xor b , a ∧ b
+halfAdd : Bool → Bool → Bool × Carry
+halfAdd a b = a xor b , a ∧ b
 
-fullAdd : Carry × (Bool × Bool) → Bool × Carry
-fullAdd (cin , ab) =
-  let a+b , cout₁ = halfAdd ab
-      p , cout₂ = halfAdd (cin , a+b)
+fullAdd : Carry → Bool → Bool → Bool × Carry
+fullAdd cin a b =
+  let a+b , cout₁ = halfAdd a b
+      p , cout₂ = halfAdd cin a+b
   in
     p , cout₁ ∨ cout₂
 
-addⱽ : Carry × Vec (Bool × Bool) n → Vec Bool n × Carry
-addⱽ (cin , []) = [] , cin
-addⱽ (cin , ab ∷ abs) =
-  let sum₁ , cout₁ = fullAdd (cin , ab)
-      sums , cout  = addⱽ (cout₁ , abs)
+addⱽ : Carry → Vec Bool n → Vec Bool n → Vec Bool n × Carry
+addⱽ cin [] [] = [] , cin
+addⱽ cin (a ∷ as) (b ∷ bs) =
+  let sum₁ , cout₁ = fullAdd cin a b
+      sums , cout  = addⱽ cout₁ as bs
   in
      sum₁ ∷ sums , cout
 
