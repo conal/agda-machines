@@ -16,6 +16,7 @@ open import Relation.Binary.PropositionalEquality hiding (_≗_)
 private
   variable
     A B C D : Set
+    n : ℕ
 
 infix 0 _↠_
 _↠_ : Set → Set → Set
@@ -62,22 +63,24 @@ scanlV′ f e []       = e ∷ []
 scanlV′ f e (a ∷ as) = e ∷ scanlV′ f (f e a) as
 
 
----- Properties
+-------------------------------------------------------------------------------
+-- Properties
+-------------------------------------------------------------------------------
 
 open import Relation.Binary.PropositionalEquality
 
-init∷ : ∀ {a : A}{n} (as : Vec A (suc n)) → init (a ∷ as) ≡ a ∷ init as
+init∷ : ∀ {a : A} (as : Vec A (suc n)) → init (a ∷ as) ≡ a ∷ init as
 init∷ as with initLast as
 ... | _ , _ , refl = refl
 
 -- TODO: Package init∷ into an agda-stdlib PR.
 
-delay∷ : ∀ {a₀ a : A} {n} {as : Vec A n} → delay a₀ (a ∷ as) ≡ a₀ ∷ delay a as
+delay∷ : ∀ {a₀ a : A} {as : Vec A n} → delay a₀ (a ∷ as) ≡ a₀ ∷ delay a as
 delay∷ {a = a}{as = as} = init∷ (a ∷ as)
 
 open ≡-Reasoning
 
-init∘scanlV′ : ∀ {f : B → A → B} {e : B} {n} (as : Vec A n)
+init∘scanlV′ : ∀ {f : B → A → B} {e : B} (as : Vec A n)
              → init (scanlV′ f e as) ≡ scanlV f e as
 init∘scanlV′ [] = refl
 init∘scanlV′ {f = f}{e} (a ∷ as) =
@@ -89,7 +92,7 @@ init∘scanlV′ {f = f}{e} (a ∷ as) =
     e ∷ scanlV f (f e a) as
   ∎
 
-scanlV∷ʳ : ∀ {f : B → A → B} {e : B} {n} (as : Vec A n)
+scanlV∷ʳ : ∀ {f : B → A → B} {e : B} (as : Vec A n)
          → scanlV′ f e as ≡ scanlV f e as ∷ʳ foldl _ f e as
 scanlV∷ʳ [] = refl
 scanlV∷ʳ {f = f}{e} (a ∷ as) =
@@ -105,7 +108,7 @@ scanlV∷ʳ {f = f}{e} (a ∷ as) =
     scanlV f e (a ∷ as) ∷ʳ foldl _ f e (a ∷ as)
   ∎
 
-init∷ʳ : ∀ {n}(as : Vec A n) {x} → init (as ∷ʳ x) ≡ as
+init∷ʳ : ∀ (as : Vec A n) {x} → init (as ∷ʳ x) ≡ as
 init∷ʳ [] = refl
 init∷ʳ (a ∷ as) {x = x} =
   begin
@@ -117,3 +120,44 @@ init∷ʳ (a ∷ as) {x = x} =
   ≡⟨ cong (a ∷_) (init∷ʳ as) ⟩
     a ∷ as
   ∎
+
+
+-------------------------------------------------------------------------------
+-- Examples
+-------------------------------------------------------------------------------
+
+open import Data.Bool
+
+bval : Bool → ℕ
+bval false = 0
+bval true  = 1
+
+⟦_⟧ : Vec Bool n → ℕ
+⟦_⟧ = foldl _ (λ n b → bval b + 2 * n) 0
+
+ex₁ : ⟦ true ∷ false ∷ true ∷ [] ⟧ ≡ 5
+ex₁ = refl
+
+
+Carry : Set
+Carry = Bool
+
+halfAdd : Bool × Bool → Bool × Carry
+halfAdd (a , b) = a xor b , a ∧ b
+
+fullAdd : Carry × (Bool × Bool) → Bool × Carry
+fullAdd (cin , ab) =
+  let a+b , cout₁ = halfAdd ab
+      p , cout₂ = halfAdd (cin , a+b)
+  in
+    p , cout₁ ∨ cout₂
+
+addⱽ : Carry × Vec (Bool × Bool) n → Vec Bool n × Carry
+addⱽ (cin , []) = [] , cin
+addⱽ (cin , ab ∷ abs) =
+  let sum₁ , cout₁ = fullAdd (cin , ab)
+      sums , cout  = addⱽ (cout₁ , abs)
+  in
+     sum₁ ∷ sums , cout
+
+-- ⟦addⱽ⟧
