@@ -125,14 +125,9 @@ module AsStreamFun where
   import StreamFun as ◇
   open ◇ using (_↠_; _∷_ ; head; tail; _≗_)
 
-  -- ⟦_⟧ : (A ⇨ B) → (A ↠ B)
-  -- ⟦ mealy s f ⟧ as = let b , s′ = f (head as , s) in b ∷ ⟦ mealy s′ f ⟧ (tail as)
-
-  -- Termination checking failed for the following functions:
-  --   AsStreamFun.⟦_⟧
-  -- Problematic calls:
-  --   ⟦ mealy (proj₂ (f (head as , s))) f ⟧ (tail as)
-  --     (at /Users/conal/Agda/Machines/Mealy.agda:129,58-72)
+  ⟦_⟧ : (A ⇨ B) → (A ↠ B)
+  head (⟦ mealy s f ⟧ as) = let b , _  = f (head as , s) in b
+  tail (⟦ mealy s f ⟧ as) = let _ , s′ = f (head as , s) in ⟦ mealy s′ f ⟧ (tail as)
 
   -- ⟦arr⟧ : ∀ (h : A → B) → ⟦ arr h ⟧ ≗ ◇.arr h
   -- ⟦arr⟧ h [] = refl
