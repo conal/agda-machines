@@ -20,7 +20,7 @@ record Stream (A : Set) : Set where
     head : A
     tail : Stream A
 
-open Stream
+open Stream public
 
 open import Data.Nat
 
