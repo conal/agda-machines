@@ -60,8 +60,8 @@ delay : A → (A ⇨ A)
 delay a₀ = mealy a₀ swap×
                     -- (λ (next , prev) → prev , next)
 
-scanlV : (B → A → B) → B → A ⇨ B
-scanlV f s₀ = mealy s₀ (λ (a , s) → s , f s a)
+scanl : (B → A → B) → B → A ⇨ B
+scanl f s₀ = mealy s₀ (λ (a , s) → s , f s a)
 
 -- Specification via denotational homomorphisms
 module AsVecFun where
@@ -112,24 +112,31 @@ module AsVecFun where
       ◇.delay a₀ (a ∷ as)
     ∎
 
-  ⟦scanlV⟧ : ∀ (f : B → A → B) → (s₀ : B) → ⟦ scanlV f s₀ ⟧ ≗ ◇.scanlV f s₀
-  ⟦scanlV⟧ f s₀ [] = refl
-  ⟦scanlV⟧ f s₀ (a ∷ as) rewrite ⟦scanlV⟧ f (f s₀ a) as = refl
+  ⟦scanl⟧ : ∀ (f : B → A → B) → (s₀ : B) → ⟦ scanl f s₀ ⟧ ≗ ◇.scanl f s₀
+  ⟦scanl⟧ f s₀ [] = refl
+  ⟦scanl⟧ f s₀ (a ∷ as) rewrite ⟦scanl⟧ f (f s₀ a) as = refl
 
 -- Specification via denotational homomorphisms
 module AsStreamFun where
 
+  open import Data.Nat
   open import Relation.Binary.PropositionalEquality hiding (_≗_)
   open ≡-Reasoning
 
   import StreamFun as ◇
-  open ◇ using (_↠_; _∷_ ; head; tail; _≗_)
+  open ◇ using (_↠_ ; head; tail; _≗_)
 
   ⟦_⟧ : (A ⇨ B) → (A ↠ B)
   head (⟦ mealy s f ⟧ as) = let b , _  = f (head as , s) in b
   tail (⟦ mealy s f ⟧ as) = let _ , s′ = f (head as , s) in ⟦ mealy s′ f ⟧ (tail as)
 
+  -- -- The following alternative doesn't pass termination checking
+  -- ⟦ mealy s f ⟧ as = let b , s′ = f (head as , s) in b ∷ ⟦ mealy s′ f ⟧ (tail as)
+
   -- ⟦arr⟧ : ∀ (h : A → B) → ⟦ arr h ⟧ ≗ ◇.arr h
+  -- ⟦arr⟧ h as zero    = refl
+  -- ⟦arr⟧ h as (suc i) = {!!}
+
   -- ⟦arr⟧ h [] = refl
   -- ⟦arr⟧ h (a ∷ as) rewrite ⟦arr⟧ h as = refl
 
