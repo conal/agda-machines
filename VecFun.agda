@@ -13,6 +13,8 @@ open import Data.Nat
 open import Data.Vec
 open import Relation.Binary.PropositionalEquality hiding (_≗_)
 
+open ≡-Reasoning
+
 private
   variable
     A B C D : Set
@@ -53,21 +55,54 @@ f ⊗ g = uncurry zip ∘′ map× f g ∘′ unzip
 delay : A → (A ↠ A)
 delay a as = init (a ∷ as)
 
--- scanlV : (B → A → B) → B → ∀ {n} → Vec A n → Vec B n
-scanlV : (B → A → B) → B → A ↠ B
-scanlV f e []       = []
-scanlV f e (a ∷ as) = e ∷ scanlV f (f e a) as
+-- scanl : (B → A → B) → B → ∀ {n} → Vec A n → Vec B n
+scanl : (B → A → B) → B → A ↠ B
+scanl _∙_ b []       = []
+scanl _∙_ b (a ∷ as) = b ∷ scanl _∙_ (b ∙ a) as
 
-scanlV′ : (B → A → B) → B → ∀ {n} → Vec A n → Vec B (suc n)
-scanlV′ f e []       = e ∷ []
-scanlV′ f e (a ∷ as) = e ∷ scanlV′ f (f e a) as
+scanl′ : (B → A → B) → B → ∀ {n} → Vec A n → Vec B (suc n)
+scanl′ _∙_ b []       = b ∷ []
+scanl′ _∙_ b (a ∷ as) = b ∷ scanl′ _∙_ (b ∙ a) as
+
+scanl× : (B → A → B) → B → ∀ {n} → Vec A n → Vec B n × B
+scanl× _∙_ b []       = [] , b
+scanl× _∙_ b (a ∷ as) = map×₁ (b ∷_) (scanl× _∙_ (b ∙ a) as)
+
+mealy : ∀ {State : Set} → (A × State → B × State)
+      → Vec A n × State → Vec B n × State
+mealy f ([] , s) = [] , s
+mealy f (a ∷ as , s) = let b , s′ = f (a , s) in
+  map×₁ (b ∷_) (mealy f (as , s′))
+
+-- mealy f (a ∷ as , s) = let b , s′ = f (a , s)
+--                            bs , s″ = mealy f (as , s′)
+--                        in (b ∷ bs) , s″
+
+scanl-via-mealy : (B → A → B) → B → Vec A n → Vec B n × B
+scanl-via-mealy _∙_ b as = mealy (λ (a , b) → b , b ∙ a) (as , b)
+
+scanl≡mealy : (_∙_ : B → A → B) → (e : B) → (as : Vec A n)
+            → scanl× _∙_ e as ≡ scanl-via-mealy _∙_ e as
+scanl≡mealy _∙_ e [] = refl
+scanl≡mealy _∙_ e (a ∷ as) rewrite scanl≡mealy _∙_ (e ∙ a) as = refl
+
+-- scanl≡mealy _∙_ e (a ∷ as) =
+--   begin
+--     scanl× _∙_ e (a ∷ as)
+--   ≡⟨⟩
+--     map×₁ (e ∷_) (scanl× _∙_ (e ∙ a) as)
+--   ≡⟨ cong (map×₁ (e ∷_)) (scanl≡mealy _∙_ (e ∙ a) as) ⟩
+--     map×₁ (e ∷_) (mealy (λ (a′ , e) → e , e ∙ a′) (as , e ∙ a))
+--   ≡⟨⟩
+--     mealy (λ (a′ , e) → e , e ∙ a′) (a ∷ as , e)
+--   ≡⟨⟩
+--     scanl-via-mealy _∙_ e (a ∷ as)
+--   ∎
 
 
 -------------------------------------------------------------------------------
 -- Properties
 -------------------------------------------------------------------------------
-
-open import Relation.Binary.PropositionalEquality
 
 init∷ : ∀ {a : A} (as : Vec A (suc n)) → init (a ∷ as) ≡ a ∷ init as
 init∷ as with initLast as
@@ -78,34 +113,32 @@ init∷ as with initLast as
 delay∷ : ∀ {a₀ a : A} {as : Vec A n} → delay a₀ (a ∷ as) ≡ a₀ ∷ delay a as
 delay∷ {a = a}{as = as} = init∷ (a ∷ as)
 
-open ≡-Reasoning
-
-init∘scanlV′ : ∀ {f : B → A → B} {e : B} (as : Vec A n)
-             → init (scanlV′ f e as) ≡ scanlV f e as
-init∘scanlV′ [] = refl
-init∘scanlV′ {f = f}{e} (a ∷ as) =
+init∘scanl′ : ∀ {f : B → A → B} {e : B} (as : Vec A n)
+            → init (scanl′ f e as) ≡ scanl f e as
+init∘scanl′ [] = refl
+init∘scanl′ {f = f}{e} (a ∷ as) =
   begin
-    init (e ∷ scanlV′ f (f e a) as)
+    init (e ∷ scanl′ f (f e a) as)
   ≡⟨ init∷ _ ⟩
-    e ∷ init (scanlV′ f (f e a) as)
-  ≡⟨ cong (e ∷_) (init∘scanlV′ as) ⟩
-    e ∷ scanlV f (f e a) as
+    e ∷ init (scanl′ f (f e a) as)
+  ≡⟨ cong (e ∷_) (init∘scanl′ as) ⟩
+    e ∷ scanl f (f e a) as
   ∎
 
-scanlV∷ʳ : ∀ {f : B → A → B} {e : B} (as : Vec A n)
-         → scanlV′ f e as ≡ scanlV f e as ∷ʳ foldl _ f e as
-scanlV∷ʳ [] = refl
-scanlV∷ʳ {f = f}{e} (a ∷ as) =
+scanl∷ʳ : ∀ {f : B → A → B} {e : B} (as : Vec A n)
+         → scanl′ f e as ≡ scanl f e as ∷ʳ foldl _ f e as
+scanl∷ʳ [] = refl
+scanl∷ʳ {f = f}{e} (a ∷ as) =
   begin
-    scanlV′ f e (a ∷ as)
+    scanl′ f e (a ∷ as)
   ≡⟨⟩
-    e ∷ scanlV′ f (f e a) as
-  ≡⟨ cong (e ∷_) (scanlV∷ʳ as) ⟩
-    e ∷ (scanlV f (f e a) as ∷ʳ foldl _ f e (a ∷ as))
+    e ∷ scanl′ f (f e a) as
+  ≡⟨ cong (e ∷_) (scanl∷ʳ as) ⟩
+    e ∷ (scanl f (f e a) as ∷ʳ foldl _ f e (a ∷ as))
   ≡⟨⟩
-    (e ∷ scanlV f (f e a) as) ∷ʳ foldl _ f e (a ∷ as)
+    (e ∷ scanl f (f e a) as) ∷ʳ foldl _ f e (a ∷ as)
   ≡⟨⟩
-    scanlV f e (a ∷ as) ∷ʳ foldl _ f e (a ∷ as)
+    scanl f e (a ∷ as) ∷ʳ foldl _ f e (a ∷ as)
   ∎
 
 init∷ʳ : ∀ (as : Vec A n) {x} → init (as ∷ʳ x) ≡ as
@@ -158,6 +191,38 @@ addⱽ cin (a ∷ as) (b ∷ bs) =
   let sum₁ , cout₁ = fullAdd cin a b
       sums , cout  = addⱽ cout₁ as bs
   in
-     sum₁ ∷ sums , cout
+    sum₁ ∷ sums , cout
 
--- ⟦addⱽ⟧
+⟦_⟧ᵒ : Vec Bool n × Carry → ℕ
+⟦_⟧ᵒ {n} (bs , cout) = ⟦ bs ⟧ + 2 ^ n * bval cout
+-- ⟦ bs , cout ⟧ᵒ = ⟦ bs ∷ʳ cout ⟧
+
+open import Data.Nat.Properties
+
+{-
+
+⟦addⱽ⟧ : ∀ cin (as bs : Vec Bool n) → ⟦ addⱽ cin as bs ⟧ᵒ ≡ bval cin + ⟦ as ⟧ + ⟦ bs ⟧
+
+⟦addⱽ⟧ {zero} cin [] [] =
+  begin
+    ⟦ addⱽ cin [] [] ⟧ᵒ
+  ≡⟨⟩
+    bval cin + zero
+  ≡˘⟨ +-identityʳ _ ⟩
+    bval cin + zero + zero
+  ≡⟨⟩
+    bval cin + ⟦ [] ⟧ + ⟦ [] ⟧
+  ∎
+
+⟦addⱽ⟧ {suc n} cin (a ∷ as) (b ∷ bs) =
+  begin
+    ⟦ addⱽ cin (a ∷ as) (b ∷ bs) ⟧ᵒ
+  ≡⟨⟩
+      ⟦ (let sum₁ , cout₁ = fullAdd cin a b ; sums , cout  = addⱽ cout₁ as bs in sum₁ ∷ sums , cout) ⟧ᵒ
+  ≡⟨ {!!} ⟩
+    {!!}
+  ≡⟨⟩
+    bval cin + ⟦ a ∷ as ⟧ + ⟦ b ∷ bs ⟧
+  ∎
+
+-}
