@@ -50,7 +50,7 @@ Ext : ∀ {ℓ} → Rel B ℓ → Rel (A → B) ℓ
 Ext _≈_ f g = ∀ a → f a ≈ g a
 
 infix 4 _≛_
-_≛_ : (u v : Stream A) → Set _
+_≛_ : (u v : Stream A) → Set
 u ≛ v = Ext _≡_ (u !_) (v !_)
 -- u ≛ v = ∀ n → u ! n ≡ v ! n
 
@@ -62,13 +62,13 @@ take zero    as = []
 take (suc n) as = head as ∷ take n (tail as)
 
 infix 4 _≛_upto_
-_≛_upto_ : Stream A → Stream A → ℕ → Set _
+_≛_upto_ : Stream A → Stream A → ℕ → Set
 u ≛ v upto n = take n u ≡ take n v
 
 -- u ≛ v upto n = ∀ i → i < n → u ! i ≡ v ! i
 
 infix 4 _≡_at_
-_≡_at_ : Stream A → Stream A → ℕ → Set _
+_≡_at_ : Stream A → Stream A → ℕ → Set
 u ≡ v at i = u ! i ≡ v ! i
 
 
@@ -77,13 +77,23 @@ _↠_ : Set → Set → Set
 A ↠ B = Stream A → Stream B
 
 infix 4 _≗_
-_≗_ : (f g : A ↠ B) → Set _
+_≗_ : (f g : A ↠ B) → Set
 _≗_ = Ext _≛_
 
 -- f ≗ g = ∀ u i → f u ! i ≡ g u ! i
 
-causal : (A ↠ B) → Set _
+causal : (A ↠ B) → Set
 causal f = ∀ n u v → u ≛ v upto n → f u ! n ≡ f v ! n
+
+-- Equivalent but more composition-friendly:
+
+causal′ : (A ↠ B) → Set
+causal′ f = ∀ n u v → u ≛ v upto n → f u ≛ f v upto n
+
+-- Generalize:
+
+causal″ : ℕ → (A ↠ B) → Set
+causal″ d f = ∀ n u v → u ≛ v upto n → f u ≛ f v upto (d + n)
 
 -- TODO: Define a category of causal stream functions. Then map Mealy to them.
 
