@@ -9,7 +9,7 @@ open import Data.Product hiding (zip) renaming (map to map×)
 open import Data.Unit
 open import Data.Nat
 open import Data.Vec using (Vec; []; _∷_)
-open import Relation.Binary.PropositionalEquality
+open import Relation.Binary.PropositionalEquality hiding (_≗_)
 
 private
   variable
@@ -23,7 +23,8 @@ record Stream (A : Set) : Set where
 
 open Stream public
 
-record _≈_ {A : Set} (xs : Stream A) (ys : Stream A) : Set where
+infix 4 _≈_
+record _≈_ (xs : Stream A) (ys : Stream A) : Set where
   coinductive
   -- constructor ∷≈
   field
@@ -43,8 +44,11 @@ hd (map f as) = f (hd as)
 tl (map f as) = map f (tl as)
 
 zip : Stream A × Stream B → Stream (A × B)
-hd (zip (as , bs)) = hd as , hd bs
-tl (zip (as , bs)) = zip (tl as , tl bs)
+hd (zip uv) = map× hd hd uv
+tl (zip uv) = zip (map× tl tl uv)
+
+-- hd (zip (as , bs)) = hd as , hd bs
+-- tl (zip (as , bs)) = zip (tl as , tl bs)
 
 -- Seems a shame to make two passes, but I couldn't figure out how to satisfy
 -- the termination checker in a single-pass definition.
@@ -55,35 +59,25 @@ unzip = < map proj₁ , map proj₂ >
 open import Relation.Binary using (Rel)
 open import Relation.Binary.PropositionalEquality hiding (_≗_)
 
--- Extensionality parametrized over an equivalence relation
-Ext : ∀ {ℓ} → Rel B ℓ → Rel (A → B) ℓ
-Ext _≈_ f g = ∀ a → f a ≈ g a
-
 -- Truncate to a vector
 take : ∀ n → Stream A → Vec A n
 take zero    as = []
 take (suc n) as = hd as ∷ take n (tl as)
 
-infix 4 _≛_upto_
-_≛_upto_ : Stream A → Stream A → ℕ → Set
-u ≛ v upto n = take n u ≡ take n v
+infix 4 _≈_upto_
+_≈_upto_ : Stream A → Stream A → ℕ → Set
+u ≈ v upto n = take n u ≡ take n v
 
 infix 1 _↠_
 _↠_ : Set → Set → Set
 A ↠ B = Stream A → Stream B
 
-causal : (A ↠ B) → Set
-causal f = ∀ n u v → u ≛ v upto n → f u ! n ≡ f v ! n
+infix 4 _≗_
+_≗_ : Rel (A ↠ B) _
+f ≗ g = ∀ as → f as ≈ g as
 
--- Equivalent but more composition-friendly:
-
-causal′ : (A ↠ B) → Set
-causal′ f = ∀ n u v → u ≛ v upto n → f u ≛ f v upto n
-
--- Generalize:
-
-causal″ : ℕ → (A ↠ B) → Set
-causal″ d f = ∀ n u v → u ≛ v upto n → f u ≛ f v upto (d + n)
+causal : ℕ → (A ↠ B) → Set
+causal d f = ∀ n u v → u ≈ v upto n → f u ≈ f v upto (d + n)
 
 -- TODO: Define a category of causal stream functions. Then map Mealy to them.
 
@@ -162,7 +156,12 @@ zip∘unzip : ∀ {ps : Stream (A × B)} → zip (unzip ps) ≈ ps
 hd-≈ zip∘unzip = refl
 tl-≈ zip∘unzip = zip∘unzip  -- on tl ps
 
-delay⊗ : ∀ {a₀ : A} {b₀ : B} ps → (delay a₀ ⊗ delay b₀) ps ≈ delay (a₀ , b₀) ps
+zip∘unzip′ : zip ∘′ unzip ≗ id {A × B}
+hd-≈ (zip∘unzip′ _) = refl
+tl-≈ (zip∘unzip′ ps) = zip∘unzip′ (tl ps)  -- on tl ps
+
+-- delay⊗ : ∀ {a₀ : A} {b₀ : B} ps → (delay a₀ ⊗ delay b₀) ps ≈ delay (a₀ , b₀) ps
+delay⊗ : ∀ {a₀ : A} {b₀ : B} → delay a₀ ⊗ delay b₀ ≗ delay (a₀ , b₀)
 hd-≈ (delay⊗ ps) = refl
 tl-≈ (delay⊗ ps) = zip∘unzip
 
@@ -188,4 +187,3 @@ tl-≈ (delay⊗ ps) = zip∘unzip
 --   ∎
 --  where open R
 
--- f ⊗ g = zip ∘′ map× f g ∘′ unzip
