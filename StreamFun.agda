@@ -7,6 +7,9 @@ module StreamFun where
 open import Function using (_∘′_; case_of_) renaming (id to id→)
 open import Data.Product hiding (zip) renaming (map to map×)
 open import Data.Unit
+open import Data.Nat
+open import Data.Vec using (Vec; []; _∷_)
+open import Relation.Binary.PropositionalEquality
 
 private
   variable
@@ -15,26 +18,33 @@ private
 record Stream (A : Set) : Set where
   coinductive
   field
-    head : A
-    tail : Stream A
+    hd : A
+    tl : Stream A
 
 open Stream public
 
-open import Data.Nat
+record _≈_ {A : Set} (xs : Stream A) (ys : Stream A) : Set where
+  coinductive
+  -- constructor ∷≈
+  field
+    hd-≈ : hd xs ≡ hd ys
+    tl-≈ : tl xs ≈ tl ys
+
+open _≈_ public
 
 infix 8 _!_
 _!_ : Stream A → ℕ → A
-us ! zero = head us
-us ! suc i = tail us ! i
+as ! zero  = hd as
+as ! suc i = tl as ! i
 
 -- Mapping a function (combinational logic)
 map : (A → B) → Stream A → Stream B
-head (map f as) = f (head as)
-tail (map f as) = map f (tail as)
+hd (map f as) = f (hd as)
+tl (map f as) = map f (tl as)
 
-zip : Stream A → Stream B → Stream (A × B)
-head (zip as bs) = head as , head bs
-tail (zip as bs) = zip (tail as) (tail bs)
+zip : Stream A × Stream B → Stream (A × B)
+hd (zip (as , bs)) = hd as , hd bs
+tl (zip (as , bs)) = zip (tl as , tl bs)
 
 -- Seems a shame to make two passes, but I couldn't figure out how to satisfy
 -- the termination checker in a single-pass definition.
@@ -49,38 +59,18 @@ open import Relation.Binary.PropositionalEquality hiding (_≗_)
 Ext : ∀ {ℓ} → Rel B ℓ → Rel (A → B) ℓ
 Ext _≈_ f g = ∀ a → f a ≈ g a
 
-infix 4 _≛_
-_≛_ : (u v : Stream A) → Set
-u ≛ v = Ext _≡_ (u !_) (v !_)
--- u ≛ v = ∀ n → u ! n ≡ v ! n
-
-open import Data.Vec using (Vec; []; _∷_)
-
 -- Truncate to a vector
 take : ∀ n → Stream A → Vec A n
 take zero    as = []
-take (suc n) as = head as ∷ take n (tail as)
+take (suc n) as = hd as ∷ take n (tl as)
 
 infix 4 _≛_upto_
 _≛_upto_ : Stream A → Stream A → ℕ → Set
 u ≛ v upto n = take n u ≡ take n v
 
--- u ≛ v upto n = ∀ i → i < n → u ! i ≡ v ! i
-
-infix 4 _≡_at_
-_≡_at_ : Stream A → Stream A → ℕ → Set
-u ≡ v at i = u ! i ≡ v ! i
-
-
 infix 1 _↠_
 _↠_ : Set → Set → Set
 A ↠ B = Stream A → Stream B
-
-infix 4 _≗_
-_≗_ : (f g : A ↠ B) → Set
-_≗_ = Ext _≛_
-
--- f ≗ g = ∀ u i → f u ! i ≡ g u ! i
 
 causal : (A ↠ B) → Set
 causal f = ∀ n u v → u ≛ v upto n → f u ! n ≡ f v ! n
@@ -102,8 +92,8 @@ arr : (A → B) → (A ↠ B)
 arr = map
 
 const : A → Stream A
-head (const a) = a
-tail (const a) = const a
+hd (const a) = a
+tl (const a) = const a
 
 id : A ↠ A
 id = id→
@@ -115,7 +105,7 @@ _∘_ = _∘′_
 -- Parallel composition
 infixr 10 _⊗_
 _⊗_ : (A ↠ C) → (B ↠ D) → (A × B ↠ C × D)
-f ⊗ g = uncurry zip ∘′ map× f g ∘′ unzip
+f ⊗ g = zip ∘′ map× f g ∘′ unzip
 -- (f ⊗ g) ps = let as , bs = unzip ps in zip (f as) (g bs)
 
 -- -- -- Conditional/choice composition
@@ -124,9 +114,78 @@ f ⊗ g = uncurry zip ∘′ map× f g ∘′ unzip
 
 -- Cons (memory/register)
 delay : A → (A ↠ A)
-head (delay a as) = a
-tail (delay a as) = as
+hd (delay a as) = a
+tl (delay a as) = as
 
 scanlV : (B → A → B) → B → A ↠ B
-head (scanlV f e as) = e
-tail (scanlV f e as) = scanlV f (f e (head as)) (tail as)
+hd (scanlV f e as) = e
+tl (scanlV f e as) = scanlV f (f e (hd as)) (tl as)
+
+-------------------------------------------------------------------------------
+-- Properties
+-------------------------------------------------------------------------------
+
+open import Relation.Binary.PropositionalEquality.Properties
+
+-- open import Relation.Binary.Structures ()
+
+-- open IsEquivalence isEquivalence renaming (refl to refl≡; sym to sym≡; trans to trans≡)
+
+-- open ≡-Reasoning
+
+≈-refl : ∀ {as : Stream A} → as ≈ as
+hd-≈ ≈-refl = refl
+tl-≈ ≈-refl = ≈-refl
+
+≈-sym : ∀ {u v : Stream A} → u ≈ v → v ≈ u
+hd-≈ (≈-sym u≈v) =   sym (hd-≈ u≈v)
+tl-≈ (≈-sym u≈v) = ≈-sym (tl-≈ u≈v)
+
+≈-trans : ∀ {u v w : Stream A} → u ≈ v → v ≈ w → u ≈ w
+hd-≈ (≈-trans u≈v v≈w) =   trans (hd-≈ u≈v) (hd-≈ v≈w)
+tl-≈ (≈-trans u≈v v≈w) = ≈-trans (tl-≈ u≈v) (tl-≈ v≈w)
+
+open import Relation.Binary
+
+isEq : IsEquivalence {A = Stream A} _≈_
+isEq = record { refl = ≈-refl ; sym = ≈-sym ; trans = ≈-trans }
+
+≈-setoid : Set → Setoid _ _
+≈-setoid A = record { Carrier = Stream A ; _≈_ = _≈_ ; isEquivalence = isEq }
+
+module R {A : Set} where
+  open import Relation.Binary.Reasoning.Setoid (≈-setoid A) public
+
+-- open R
+
+zip∘unzip : ∀ {ps : Stream (A × B)} → zip (unzip ps) ≈ ps
+hd-≈ zip∘unzip = refl
+tl-≈ zip∘unzip = zip∘unzip  -- on tl ps
+
+delay⊗ : ∀ {a₀ : A} {b₀ : B} ps → (delay a₀ ⊗ delay b₀) ps ≈ delay (a₀ , b₀) ps
+hd-≈ (delay⊗ ps) = refl
+tl-≈ (delay⊗ ps) = zip∘unzip
+
+-- tl-≈ (delay⊗ {a₀ = a₀}{b₀} ps) =
+--   begin
+--     tl ((delay a₀ ⊗ delay b₀) ps)
+--   ≡⟨⟩
+--     tl (zip (map× (delay a₀) (delay b₀) (unzip ps)))
+--   ≡⟨⟩
+--     tl (zip (map× (delay a₀) (delay b₀) (map proj₁ ps , map proj₂ ps)))
+--   ≡⟨⟩
+--     tl (zip (delay a₀ (map proj₁ ps) , delay b₀ (map proj₂ ps)))
+--   ≡⟨⟩
+--     zip (tl (delay a₀ (map proj₁ ps)) , tl (delay b₀ (map proj₂ ps)))
+--   ≡⟨⟩
+--     zip (map proj₁ ps , map proj₂ ps)
+--   ≡⟨⟩
+--     zip (unzip ps)
+--   ≈⟨ zip∘unzip ⟩
+--     ps
+--   ≡⟨⟩
+--     tl (delay (a₀ , b₀) ps)
+--   ∎
+--  where open R
+
+-- f ⊗ g = zip ∘′ map× f g ∘′ unzip
