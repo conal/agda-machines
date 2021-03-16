@@ -124,18 +124,19 @@ module AsStreamFun where
   open ≡-Reasoning
 
   import StreamFun as ◇
-  open ◇ using (_↠_ ; head; tail; _≗_)
+  open ◇ using (Stream; _↠_; _≈_; _≗_)
+  open Stream ; open _≈_
 
   ⟦_⟧ : (A ⇨ B) → (A ↠ B)
-  head (⟦ mealy s f ⟧ as) = let b , _  = f (head as , s) in b
-  tail (⟦ mealy s f ⟧ as) = let _ , s′ = f (head as , s) in ⟦ mealy s′ f ⟧ (tail as)
+  hd (⟦ mealy s f ⟧ as) = let b , _  = f (hd as , s) in b
+  tl (⟦ mealy s f ⟧ as) = let _ , s′ = f (hd as , s) in ⟦ mealy s′ f ⟧ (tl as)
 
   -- -- The following alternative doesn't pass termination checking
-  -- ⟦ mealy s f ⟧ as = let b , s′ = f (head as , s) in b ∷ ⟦ mealy s′ f ⟧ (tail as)
+  -- ⟦ mealy s f ⟧ as = let b , s′ = f (hd as , s) in b ∷ ⟦ mealy s′ f ⟧ (tl as)
 
   -- ⟦arr⟧ : ∀ (h : A → B) → ⟦ arr h ⟧ ≗ ◇.arr h
-  -- ⟦arr⟧ h as zero    = refl
-  -- ⟦arr⟧ h as (suc i) = {!!}
+  -- hd-≈ (⟦arr⟧ h as) = refl
+  -- tl-≈ (⟦arr⟧ h as) = {!!}
 
   -- ⟦arr⟧ h [] = refl
   -- ⟦arr⟧ h (a ∷ as) rewrite ⟦arr⟧ h as = refl
