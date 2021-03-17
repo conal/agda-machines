@@ -12,21 +12,21 @@ private
   variable
     A B C D X : Set
 
-split : (X → A ⊎ B) → Σ (X → Bool) λ h → (Σ X (T ∘ h) → A) × (Σ X (T ∘ not ∘ h) → B)
+split : (X → A ⊎ B) → ∃ λ h → (∃ (T ∘ h) → A) × (∃ (T ∘ not ∘ h) → B)
 split f = is₁ ∘ f , split₁ f , split₂ f
  where
    is₁ : A ⊎ B → Bool
    is₁ = [ const true , const false ]
 
-   split₁ : (f : X → A ⊎ B) → Σ X (T ∘ is₁ ∘ f) → A
+   split₁ : (f : X → A ⊎ B) → ∃ (T ∘ is₁ ∘ f) → A
    split₁ f (x , q) with f x
    split₁ f (x , tt) | inj₁ a = a
 
-   split₂ : (f : X → A ⊎ B) → Σ X (T ∘ not ∘ is₁ ∘ f) → B
+   split₂ : (f : X → A ⊎ B) → ∃ (T ∘ not ∘ is₁ ∘ f) → B
    split₂ f (x , q) with f x
    split₂ f (x , tt) | inj₂ b = b
 
-merge : (h : X → Bool) → (Σ X (T ∘ h) → A) → (Σ X (T ∘ not ∘ h) → B) → (X → A ⊎ B)
+merge : (h : X → Bool) → (∃ (T ∘ h) → A) → (∃ (T ∘ not ∘ h) → B) → (X → A ⊎ B)
 merge h f g x = (f ∘ (x ,_) ⊕ (g ∘ (x ,_))) (step h x)
  where
    step : (h : X → Bool) → (x : X) → T (h x) ⊎ T (not (h x)) 
