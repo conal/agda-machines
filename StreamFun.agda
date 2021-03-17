@@ -17,6 +17,7 @@ private
 
 record Stream (A : Set) : Set where
   coinductive
+  constructor _∷′_
   field
     hd : A
     tl : Stream A
@@ -111,9 +112,19 @@ delay : A → (A ↠ A)
 hd (delay a as) = a
 tl (delay a as) = as
 
-scanlV : (B → A → B) → B → A ↠ B
-hd (scanlV f e as) = e
-tl (scanlV f e as) = scanlV f (f e (hd as)) (tl as)
+scanl : (B → A → B) → B → A ↠ B
+hd (scanl f e as) = e
+tl (scanl f e as) = scanl f (f e (hd as)) (tl as)
+
+mealy : ∀ {σ : Set} → σ → (A × σ → B × σ) → A ↠ B
+hd (mealy s f as) = let b , _  = f (hd as , s) in b
+tl (mealy s f as) = let _ , s′ = f (hd as , s) in mealy s′ f (tl as)
+
+-- -- Can mealy be defined without redundant computation?
+-- -- The following alternative doesn't pass termination checking:
+-- mealy s f as = let b , s′ = f (hd as , s) in b ∷′ mealy s′ f (tl as)
+
+-- TODO: relate scanl and mealy. Are they inter-definable?
 
 -------------------------------------------------------------------------------
 -- Properties
@@ -186,4 +197,3 @@ tl-≈ (delay⊗ ps) = zip∘unzip
 --     tl (delay (a₀ , b₀) ps)
 --   ∎
 --  where open R
-

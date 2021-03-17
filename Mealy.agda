@@ -128,11 +128,7 @@ module AsStreamFun where
   open Stream ; open _≈_
 
   ⟦_⟧ : (A ⇨ B) → (A ↠ B)
-  hd (⟦ mealy s f ⟧ as) = let b , _  = f (hd as , s) in b
-  tl (⟦ mealy s f ⟧ as) = let _ , s′ = f (hd as , s) in ⟦ mealy s′ f ⟧ (tl as)
-
-  -- -- The following alternative doesn't pass termination checking
-  -- ⟦ mealy s f ⟧ as = let b , s′ = f (hd as , s) in b ∷ ⟦ mealy s′ f ⟧ (tl as)
+  ⟦ mealy s f ⟧ = ◇.mealy s f
 
   -- ⟦arr⟧ : ∀ (h : A → B) → ⟦ arr h ⟧ ≗ ◇.arr h
   -- hd-≈ (⟦arr⟧ h as) = refl
