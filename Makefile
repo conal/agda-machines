@@ -6,7 +6,7 @@ MODULES:= \
   VecFun.agda \
   SumIso.agda \
 
-html/Everything.html: $(MODULES)
+html/Everything.html: $(MODULES) Makefile
 	@mkdir -p html
-	agda --html Everything.agda
+	agda -i. --html Everything.agda -v0
 
