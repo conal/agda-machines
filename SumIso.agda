@@ -18,8 +18,6 @@ f ⊕ g = [ inj₁ ∘ f , inj₂ ∘ g ]
 
 -- Is _⊕_ defined somewhere already?
 
--- Thanks to Arjan Rouvoet for suggesting step.
-
 merge : (h : X → Bool) → (Σ X (T ∘ h) → A) → (Σ X (T ∘ not ∘ h) → B) → (X → A ⊎ B)
 merge h f g x = (f ∘ (x ,_) ⊕ (g ∘ (x ,_))) (step h x)
  where
@@ -27,6 +25,8 @@ merge h f g x = (f ∘ (x ,_) ⊕ (g ∘ (x ,_))) (step h x)
    step h x with h x
    ... | true  = inj₁ tt
    ... | false = inj₂ tt
+
+-- Thanks to Arjan Rouvoet for suggesting step.
 
 split : (X → A ⊎ B) → Σ (X → Bool) λ h → (Σ X (T ∘ h) → A) × (Σ X (T ∘ not ∘ h) → B)
 split f = is₁ ∘ f , split₁ f , split₂ f
