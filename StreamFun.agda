@@ -5,7 +5,7 @@
 module StreamFun where
 
 open import Function using (_∘′_; case_of_) renaming (id to id→)
-open import Data.Product hiding (zip) renaming (map to map×)
+open import Data.Product hiding (zip) renaming (map to map×; map₁ to map×₁; swap to swap×)
 open import Data.Unit
 open import Data.Nat
 open import Data.Vec using (Vec; []; _∷_)
@@ -17,10 +17,11 @@ private
 
 record Stream (A : Set) : Set where
   coinductive
-  constructor _∷′_
+  constructor delay
   field
     hd : A
     tl : Stream A
+-- {-# ETA Stream #-}
 
 open Stream public
 
@@ -107,10 +108,10 @@ f ⊗ g = zip ∘′ map× f g ∘′ unzip
 -- -- infixr 6 _⊕_
 -- -- _⊕_ : (A ↠ C) → (B ↠ D) → ((A ⊎ B) ↠ (C ⊎ D))
 
--- Cons (memory/register)
-delay : A → (A ↠ A)
-hd (delay a as) = a
-tl (delay a as) = as
+-- -- Cons (memory/register)
+-- delay : A → (A ↠ A)
+-- hd (delay a as) = a
+-- tl (delay a as) = as
 
 scanl : (B → A → B) → B → A ↠ B
 hd (scanl f e as) = e
@@ -122,7 +123,7 @@ tl (mealy s f as) = let _ , s′ = f (hd as , s) in mealy s′ f (tl as)
 
 -- -- Can mealy be defined without redundant computation?
 -- -- The following alternative doesn't pass termination checking:
--- mealy s f as = let b , s′ = f (hd as , s) in b ∷′ mealy s′ f (tl as)
+-- mealy s f as = let b , s′ = f (hd as , s) in delay b (mealy s′ f (tl as))
 
 -- TODO: relate scanl and mealy. Are they inter-definable?
 
@@ -139,8 +140,8 @@ open import Relation.Binary.PropositionalEquality.Properties
 -- open ≡-Reasoning
 
 ≈-refl : ∀ {as : Stream A} → as ≈ as
-hd-≈ ≈-refl = refl
-tl-≈ ≈-refl = ≈-refl
+hd-≈ ≈-refl = refl     -- hd as ≡ hd as
+tl-≈ ≈-refl = ≈-refl   -- tl as ≈ tl as
 
 ≈-sym : ∀ {u v : Stream A} → u ≈ v → v ≈ u
 hd-≈ (≈-sym u≈v) =   sym (hd-≈ u≈v)
@@ -160,6 +161,10 @@ isEq = record { refl = ≈-refl ; sym = ≈-sym ; trans = ≈-trans }
 
 module R {A : Set} where
   open import Relation.Binary.Reasoning.Setoid (≈-setoid A) public
+
+delay-hd-tl : ∀ {as : Stream A} → delay (hd as) (tl as) ≈ as
+hd-≈ (delay-hd-tl {as = as}) = refl   -- : hd as ≡ hd as
+tl-≈ (delay-hd-tl {as = as}) = ≈-refl -- : tl as ≈ tl as
 
 -- open R
 
@@ -197,3 +202,41 @@ tl-≈ (delay⊗ ps) = zip∘unzip
 --     tl (delay (a₀ , b₀) ps)
 --   ∎
 --  where open R
+
+module AsMealy where
+  open R
+
+  arrᴹ : ∀ (f : A → B) → arr f ≗ mealy tt (map×₁ f)
+  hd-≈ (arrᴹ f as) = refl
+  tl-≈ (arrᴹ f as) = arrᴹ f (tl as)              -- passes termination check
+  -- tl-≈ (arrᴹ f as) = ≈-trans ≈-refl (arrᴹ f (tl as))  -- fails termination check
+
+  -- delayᴹ : (a₀ : A) → mealy a₀ swap× ≗ delay a₀
+  -- hd-≈ (delayᴹ a₀ as) = refl
+  -- -- tl-≈ (delayᴹ a₀ as) = ≈-trans (delayᴹ (hd as) (tl as)) delay-hd-tl
+  -- tl-≈ (delayᴹ a₀ as) = delayᴹ (hd as) (tl as)
+
+  -- delayᴹ : (a₀ : A) → mealy a₀ swap× ≗ delay a₀
+  -- hd-≈ (delayᴹ a₀ as) = refl
+  -- tl-≈ (delayᴹ a₀ as) = ≈-trans (delayᴹ (hd as) (tl as)) delay-hd-tl
+
+  -- ⟦delay⟧ : (a₀ : A) → ⟦ delay a₀ ⟧ ≗ ◇.delay a₀
+  -- hd-≈ (⟦delay⟧ a₀ as) = refl
+  -- tl-≈ (⟦delay⟧ a₀ as) = ◇.≈-trans (⟦delay⟧ (hd as) (tl as)) ◇.delay-hd-tl
+
+
+  -- infixr 9 _∘ᴹ_
+  -- _∘ᴹ_ : ∀ (g : B ⇨ C) (f : A ⇨ B) → mealy t g ∘ mealy s f ≗ ⟦ g ∘ f ⟧ ≗ ⟦ g ⟧ ◇.∘ ⟦ f ⟧
+  -- (_ ∘ᴹ _) [] = refl
+  -- (mealy t g ∘ᴹ mealy s f) (a ∷ as)
+  --   rewrite (let b , s′ = f (a , s) ; c , t′ = g (b , t) in 
+  --             (mealy t′ g ∘ᴹ mealy s′ f) as) = refl
+  
+
+
+  -- infixr 9 _⟦∘⟧_
+  -- _⟦∘⟧_ : ∀ (g : B ⇨ C) (f : A ⇨ B) → ⟦ g ∘ f ⟧ ≗ ⟦ g ⟧ ◇.∘ ⟦ f ⟧
+  -- (_ ⟦∘⟧ _) [] = refl
+  -- (mealy t g ⟦∘⟧ mealy s f) (a ∷ as)
+  --   rewrite (let b , s′ = f (a , s) ; c , t′ = g (b , t) in 
+  --             (mealy t′ g ⟦∘⟧ mealy s′ f) as) = refl
