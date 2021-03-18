@@ -160,3 +160,7 @@ f ▵ g = (f ⊗ g) ∘ comb dup↠
 -- parametrized by denotation.
 
 -- TODO: Cocartesian.
+
+-- TODO: replicate compiling-to-categories using Agda reflection, and use to
+-- make definitions like `_∘_` and `_⊗_` above read like their counterparts in
+-- the Mealy module.
