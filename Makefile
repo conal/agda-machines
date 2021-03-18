@@ -1,12 +1,7 @@
-all : html/Everything.html
+all : listings
 
-MODULES:= \
-  Mealy.agda \
-  StreamFun.agda \
-  VecFun.agda \
-  SumIso.agda \
-
-html/Everything.html: $(MODULES) Makefile
+.PHONY: listings
+listings:
 	@mkdir -p html
-	agda -i. --html Everything.agda -v0
+	agda -i. --html Everything.agda
 
