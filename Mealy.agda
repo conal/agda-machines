@@ -2,7 +2,7 @@
 
 {-# OPTIONS --safe --without-K #-}
 
-{-# OPTIONS --guardedness #-}
+{-# OPTIONS --copatterns --guardedness #-}  -- for stream semantics
 
 module Mealy where
 
@@ -16,7 +16,7 @@ private
 
 infix 0 _⇨_
 
--- State machine synchronously mapping from List a to List b.
+-- Synchronous state machine.
 -- For composability, the state type is not visible in the type.
 record _⇨_ (A B : Set) : Set₁ where
   constructor mealy
@@ -121,52 +121,73 @@ module AsStreamFun where
 
   open import Data.Nat
   open import Relation.Binary.PropositionalEquality hiding (_≗_)
-  open ≡-Reasoning
 
   import StreamFun as ◇
-  open ◇ using (Stream; _↠_; _≈_; _≗_)
-  open Stream ; open _≈_
+  open ◇ using (Stream; _↠_; _≈_; _≗_; module R)
+  open Stream ; open _≈_ ; open ◇.AsMealy
 
   ⟦_⟧ : (A ⇨ B) → (A ↠ B)
-  ⟦ mealy s f ⟧ = ◇.mealy s f
+  hd (⟦ mealy s f ⟧ as) = let b , _  = f (hd as , s) in b
+  tl (⟦ mealy s f ⟧ as) = let _ , s′ = f (hd as , s) in ⟦ mealy s′ f ⟧ (tl as)
 
-  -- ⟦arr⟧ : ∀ (h : A → B) → ⟦ arr h ⟧ ≗ ◇.arr h
-  -- hd-≈ (⟦arr⟧ h as) = refl
-  -- tl-≈ (⟦arr⟧ h as) = {!!}
+  -- ⟦ mealy s f ⟧ = ◇.mealy s f
 
-  -- ⟦arr⟧ h [] = refl
-  -- ⟦arr⟧ h (a ∷ as) rewrite ⟦arr⟧ h as = refl
+  ⟦arr⟧ : ∀ (f : A → B) → ⟦ arr f ⟧ ≗ ◇.arr f
+  hd-≈ (⟦arr⟧ f as) = refl
+  tl-≈ (⟦arr⟧ f as) = ⟦arr⟧ f (tl as)
 
-  -- infixr 9 _⟦∘⟧_
-  -- _⟦∘⟧_ : ∀ (g : B ⇨ C) (f : A ⇨ B) → ⟦ g ∘ f ⟧ ≗ ⟦ g ⟧ ◇.∘ ⟦ f ⟧
-  -- (_ ⟦∘⟧ _) [] = refl
-  -- (mealy t g ⟦∘⟧ mealy s f) (a ∷ as)
-  --   rewrite (let b , s′ = f (a , s) ; c , t′ = g (b , t) in 
-  --             (mealy t′ g ⟦∘⟧ mealy s′ f) as) = refl
+  infixr 9 _⟦∘⟧_
+  _⟦∘⟧_ : ∀ (g : B ⇨ C) (f : A ⇨ B) → ⟦ g ∘ f ⟧ ≗ ⟦ g ⟧ ◇.∘ ⟦ f ⟧
+  hd-≈ ((mealy t g ⟦∘⟧ mealy s f) as) = refl
+  tl-≈ ((mealy t g ⟦∘⟧ mealy s f) as) = let b , s′ = f (hd as , s)
+                                            c , t′ = g (b , t) in
+    (mealy t′ g ⟦∘⟧ mealy s′ f) (tl as)
 
-  -- infixr 7 _⟦⊗⟧_
-  -- _⟦⊗⟧_ : ∀ (f : A ⇨ C) (g : B ⇨ D) → ⟦ f ⊗ g ⟧ ≗ ⟦ f ⟧ ◇.⊗ ⟦ g ⟧
-  -- (_ ⟦⊗⟧ _) [] = refl
-  -- (mealy s f ⟦⊗⟧ mealy t g) ((a , b) ∷ abs)
-  --   rewrite (let c , s′ = f (a , s) ; d , t′ = g (b , t) in 
-  --             (mealy s′ f ⟦⊗⟧ mealy t′ g) abs) = refl
+  infixr 7 _⟦⊗⟧_
+  _⟦⊗⟧_ : ∀ (f : A ⇨ C) (g : B ⇨ D) → ⟦ f ⊗ g ⟧ ≗ ⟦ f ⟧ ◇.⊗ ⟦ g ⟧
+  hd-≈ ((mealy s f ⟦⊗⟧ mealy t g) ps) = refl
+  tl-≈ ((mealy s f ⟦⊗⟧ mealy t g) ps) = let a , b = hd ps
+                                            c , s′ = f (a , s)
+                                            d , t′ = g (b , t) in
+    (mealy s′ f ⟦⊗⟧ mealy t′ g) (tl ps)
 
-  -- -- infixr 7 _⟦⊕⟧_
-  -- -- _⟦⊕⟧_ : ∀ (f : A ⇨ C) (g : B ⇨ D) → ⟦ f ⊕ g ⟧ ≗ ⟦ f ⟧ ◇.⊕ ⟦ g ⟧
-  -- -- f ⟦⊕⟧ g = ?
+  -- infixr 7 _⟦⊕⟧_
+  -- _⟦⊕⟧_ : ∀ (f : A ⇨ C) (g : B ⇨ D) → ⟦ f ⊕ g ⟧ ≗ ⟦ f ⟧ ◇.⊕ ⟦ g ⟧
+  -- f ⟦⊕⟧ g = ?
 
   -- ⟦delay⟧ : (a₀ : A) → ⟦ delay a₀ ⟧ ≗ ◇.delay a₀
-  -- ⟦delay⟧ a₀ [] = refl
-  -- ⟦delay⟧ a₀ (a ∷ as) =
+  -- hd-≈ (⟦delay⟧ a₀ as) = refl
+
+  -- -- tl-≈ (⟦delay⟧ a₀ as) = ◇.≈-trans (⟦delay⟧ (hd as) (tl as)) ◇.delay-hd-tl
+ 
+  -- tl-≈ (⟦delay⟧ a₀ as) =
   --   begin
-  --     ⟦ delay a₀ ⟧ (a ∷ as)
+  --     tl (⟦ delay a₀ ⟧ as)
   --   ≡⟨⟩
-  --     a₀ ∷ ⟦ delay a ⟧ as
-  --   ≡⟨ cong (a₀ ∷_) (⟦delay⟧ a as) ⟩
-  --     a₀ ∷ ◇.delay a as
-  --   ≡˘⟨ ◇.delay∷ ⟩
-  --     ◇.delay a₀ (a ∷ as)
-  --   ∎
+  --     tl (⟦ mealy a₀ swap× ⟧ as)
+  --   ≡⟨⟩
+  --     let _ , s′ = swap× (hd as , a₀) in ⟦ mealy s′ swap× ⟧ (tl as)
+  --   ≡⟨⟩
+  --     ⟦ mealy (hd as) swap× ⟧ (tl as)
+  --   ≡⟨⟩
+  --     ⟦ delay (hd as) ⟧ (tl as)
+  --   ≈⟨ ⟦delay⟧ (hd as) (tl as) ⟩
+  --     ◇.delay (hd as) (tl as)
+  --   ≈⟨ ◇.delay-hd-tl ⟩
+  --     as
+  --   ≡⟨⟩
+  --     tl (◇.delay a₀ as)
+  --   ∎ where open R
+
+    -- begin
+    --   ⟦ delay a₀ ⟧ (a ∷ as)
+    -- ≡⟨⟩
+    --   a₀ ∷ ⟦ delay a ⟧ as
+    -- ≡⟨ cong (a₀ ∷_) (⟦delay⟧ a as) ⟩
+    --   a₀ ∷ ◇.delay a as
+    -- ≡˘⟨ ◇.delay∷ ⟩
+    --   ◇.delay a₀ (a ∷ as)
+    -- ∎ where open R
 
   -- ⟦scanlV⟧ : ∀ (f : B → A → B) → (s₀ : B) → ⟦ scanlV f s₀ ⟧ ≗ ◇.scanlV f s₀
   -- ⟦scanlV⟧ f s₀ [] = refl
