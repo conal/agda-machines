@@ -113,8 +113,8 @@ record _→ˢ_ (A B : Set) : Set₁ where
 
 import Mealy as ◇
 
-⟦_⟧ : A →ˢ B → A ◇.→ˢ B
-⟦ mealy s₀ f ⟧ = ◇.mealy s₀ ⟦ f ⟧ᶜ
+⟦_⟧ˢ : A →ˢ B → A ◇.→ˢ B
+⟦ mealy s₀ f ⟧ˢ = ◇.mealy s₀ ⟦ f ⟧ᶜ
 
 comb : A →ᶜ B → A →ˢ B
 comb f = mealy tt (firstᶜ f)
@@ -123,19 +123,19 @@ comb f = mealy tt (firstᶜ f)
 
 -- comb f = {!!}   -- weird, correct result
 
-id : A →ˢ A
-id = comb idᶜ
+idˢ : A →ˢ A
+idˢ = comb idᶜ
 
 -- id = mealy tt idᶜ
 
 -- TODO: more comb shorthands
 
-delay : A → A →ˢ A
-delay a₀ = mealy a₀ swapᶜ
+delayˢ : A → A →ˢ A
+delayˢ a₀ = mealy a₀ swapᶜ
 
-infixr 9 _∘_
-_∘_ : B →ˢ C → A →ˢ B → A →ˢ C
-mealy t₀ g ∘ mealy s₀ f = mealy (s₀ , t₀)
+infixr 9 _∘ˢ_
+_∘ˢ_ : B →ˢ C → A →ˢ B → A →ˢ C
+mealy t₀ g ∘ˢ mealy s₀ f = mealy (s₀ , t₀)
   (swiz₂ ∘ᶜ secondᶜ g ∘ᶜ swiz₁ ∘ᶜ firstᶜ f ∘ᶜ assocˡᶜ)
  where
    swiz₁ : (B × σ) × τ →ᶜ σ × (B × τ)
@@ -143,13 +143,13 @@ mealy t₀ g ∘ mealy s₀ f = mealy (s₀ , t₀)
    swiz₂ : σ × (C × τ) →ᶜ C × (σ × τ)
    swiz₂ = exlᶜ ∘ᶜ exrᶜ ▵ᶜ secondᶜ exrᶜ
 
-infixr 7 _⊗_
-_⊗_ : A →ˢ C → B →ˢ D → A × B →ˢ C × D
-mealy s₀ f ⊗ mealy t₀ g = mealy (s₀ , t₀) (transposeᶜ ∘ᶜ (f ⊗ᶜ g) ∘ᶜ transposeᶜ)
+infixr 7 _⊗ˢ_
+_⊗ˢ_ : A →ˢ C → B →ˢ D → A × B →ˢ C × D
+mealy s₀ f ⊗ˢ mealy t₀ g = mealy (s₀ , t₀) (transposeᶜ ∘ᶜ (f ⊗ᶜ g) ∘ᶜ transposeᶜ)
 
-infixr 7 _▵_
-_▵_ : A →ˢ C → A →ˢ D → A →ˢ C × D
-f ▵ g = (f ⊗ g) ∘ comb dupᶜ
+infixr 7 _▵ˢ_
+_▵ˢ_ : A →ˢ C → A →ˢ D → A →ˢ C × D
+f ▵ˢ g = (f ⊗ˢ g) ∘ˢ comb dupᶜ
 
 -- TODO: consider making categorical operations (most of the functionality in
 -- this module) be methods of a common typeclass, so that (a) we can state and

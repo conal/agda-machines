@@ -99,34 +99,34 @@ record Mealy (m : A ◇.→ˢ B) : Set₁ where
 
 -- TODO: maybe replace the record type with the transition Comb.
 
-⟦_⟧ : {f : A ◇.→ˢ B} (m : Mealy f) → A ◇.→ˢ B
-⟦_⟧ {f = f} _ = f
+⟦_⟧ˢ : {f : A ◇.→ˢ B} (m : Mealy f) → A ◇.→ˢ B
+⟦_⟧ˢ {f = f} _ = f
 
 comb : ∀ {f : A → B} (c : Comb f) → Mealy (◇.arr f)
 comb c = mealy (firstᶜ c)
 
-id : Mealy (◇.id {A})
-id = comb idᶜ
+idˢ : Mealy (◇.id {A})
+idˢ = comb idᶜ
 
-delay : (a₀ : A) → Mealy (◇.delay a₀)
-delay _ = mealy swapᶜ
+delayˢ : (a₀ : A) → Mealy (◇.delay a₀)
+delayˢ _ = mealy swapᶜ
 
-infixr 9 _∘_
-_∘_ : {g : B ◇.→ˢ C} {f : A ◇.→ˢ B} → Mealy g → Mealy f → Mealy (g ◇.∘ f)
-mealy g ∘ mealy f = mealy (swiz₂ ∘ᶜ secondᶜ g ∘ᶜ swiz₁ ∘ᶜ firstᶜ f ∘ᶜ assocˡᶜ)
+infixr 9 _∘ˢ_
+_∘ˢ_ : {g : B ◇.→ˢ C} {f : A ◇.→ˢ B} → Mealy g → Mealy f → Mealy (g ◇.∘ f)
+mealy g ∘ˢ mealy f = mealy (swiz₂ ∘ᶜ secondᶜ g ∘ᶜ swiz₁ ∘ᶜ firstᶜ f ∘ᶜ assocˡᶜ)
  where
    swiz₁ : Comb λ ((b , s) , t) → s , (b , t)
    swiz₁ = exrᶜ ∘ᶜ exlᶜ ▵ᶜ firstᶜ exlᶜ
    swiz₂ : Comb λ (s , (c , t)) → c , (s , t)
    swiz₂ = exlᶜ ∘ᶜ exrᶜ ▵ᶜ secondᶜ exrᶜ
 
-infixr 7 _⊗_
-_⊗_ : {f : A ◇.→ˢ C} {g : B ◇.→ˢ D} → Mealy f → Mealy g → Mealy (f ◇.⊗ g)
-mealy f ⊗ mealy g = mealy (transposeᶜ ∘ᶜ (f ⊗ᶜ g) ∘ᶜ transposeᶜ)
+infixr 7 _⊗ˢ_
+_⊗ˢ_ : {f : A ◇.→ˢ C} {g : B ◇.→ˢ D} → Mealy f → Mealy g → Mealy (f ◇.⊗ g)
+mealy f ⊗ˢ mealy g = mealy (transposeᶜ ∘ᶜ (f ⊗ᶜ g) ∘ᶜ transposeᶜ)
 
-infixr 7 _▵_
-_▵_ : {f : A ◇.→ˢ C} {g : A ◇.→ˢ D} → Mealy f → Mealy g → Mealy (f ◇.▵ g)
-f ▵ g = (f ⊗ g) ∘ comb dupᶜ
+infixr 7 _▵ˢ_
+_▵ˢ_ : {f : A ◇.→ˢ C} {g : A ◇.→ˢ D} → Mealy f → Mealy g → Mealy (f ◇.▵ g)
+f ▵ˢ g = (f ⊗ˢ g) ∘ˢ comb dupᶜ
 
 -- TODO: consider making categorical operations (most of the functionality in
 -- this module) be methods of a common typeclass, so that (a) we can state and
