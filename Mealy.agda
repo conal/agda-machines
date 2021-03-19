@@ -14,11 +14,11 @@ private
   variable
     A B C D : Set
 
-infix 0 _→ˢ_
+infix 0 _⇨_
 
 -- Synchronous state machine.
 -- For composability, the state type is not visible in the type.
-record _→ˢ_ (A B : Set) : Set₁ where
+record _⇨_ (A B : Set) : Set₁ where
   constructor mealy
   field
     { State } : Set
@@ -26,16 +26,16 @@ record _→ˢ_ (A B : Set) : Set₁ where
     transition : A × State → B × State
 
 -- Mapping a function (empty state, i.e., combinational logic)
-arr : (A → B) → (A →ˢ B)
+arr : (A → B) → (A ⇨ B)
 arr f = mealy tt (map×₁ f)
                  -- λ (a , tt) → f a , tt
 
-id : A →ˢ A
+id : A ⇨ A
 id = arr (λ a → a)
 
 -- Sequential composition
 infixr 9 _∘_
-_∘_ : (B →ˢ C) → (A →ˢ B) → (A →ˢ C)
+_∘_ : (B ⇨ C) → (A ⇨ B) → (A ⇨ C)
 mealy t₀ g ∘ mealy s₀ f = mealy (s₀ , t₀) λ (a , (s , t)) →
  let b , s′ = f (a , s)
      c , t′ = g (b , t)
@@ -44,7 +44,7 @@ mealy t₀ g ∘ mealy s₀ f = mealy (s₀ , t₀) λ (a , (s , t)) →
 
 -- Parallel composition / product tensor
 infixr 7 _⊗_
-_⊗_ : (A →ˢ C) → (B →ˢ D) → (A × B →ˢ C × D)
+_⊗_ : (A ⇨ C) → (B ⇨ D) → (A × B ⇨ C × D)
 mealy s₀ f ⊗ mealy t₀ g = mealy (s₀ , t₀) λ ((a , b) , (s , t)) →
   let c , s′ = f (a , s)
       d , t′ = g (b , t)
@@ -52,22 +52,22 @@ mealy s₀ f ⊗ mealy t₀ g = mealy (s₀ , t₀) λ ((a , b) , (s , t)) →
     (c , d) , (s′ , t′)
 
 infixr 7 _▵_
-_▵_ : A →ˢ C → A →ˢ D → A →ˢ C × D
+_▵_ : A ⇨ C → A ⇨ D → A ⇨ C × D
 f ▵ g = (f ⊗ g) ∘ arr (λ a → a , a)
 
 -- Conditional/choice composition / coproduct tensor
 infixr 6 _⊕_
-_⊕_ : (A →ˢ C) → (B →ˢ D) → ((A ⊎ B) →ˢ (C ⊎ D))
+_⊕_ : (A ⇨ C) → (B ⇨ D) → ((A ⊎ B) ⇨ (C ⊎ D))
 mealy s₀ f ⊕ mealy t₀ g = mealy (s₀ , t₀)
   λ { (inj₁ a , (s , t)) → let c , s′ = f (a , s) in inj₁ c , (s′ , t)
     ; (inj₂ b , (s , t)) → let d , t′ = g (b , t) in inj₂ d , (s  , t′) }
 
 -- Cons (memory/register)
-delay : A → (A →ˢ A)
+delay : A → (A ⇨ A)
 delay a₀ = mealy a₀ swap×
                     -- (λ (next , prev) → prev , next)
 
-scanl : (B → A → B) → B → A →ˢ B
+scanl : (B → A → B) → B → A ⇨ B
 scanl f s₀ = mealy s₀ (λ (a , s) → s , f s a)
 
 -- Specification via denotational homomorphisms
@@ -80,7 +80,7 @@ module AsVecFun where
   import VecFun as ◇
   open ◇ using (_↠_; _≗_)
 
-  ⟦_⟧ : (A →ˢ B) → (A ↠ B)
+  ⟦_⟧ : (A ⇨ B) → (A ↠ B)
   ⟦ mealy _ _ ⟧ [] = []
   ⟦ mealy s f ⟧ (a ∷ as) = let b , s′ = f (a , s) in b ∷ ⟦ mealy s′ f ⟧ as
 
@@ -89,21 +89,21 @@ module AsVecFun where
   ⟦arr⟧ h (a ∷ as) rewrite ⟦arr⟧ h as = refl
 
   infixr 9 _⟦∘⟧_
-  _⟦∘⟧_ : ∀ (g : B →ˢ C) (f : A →ˢ B) → ⟦ g ∘ f ⟧ ≗ ⟦ g ⟧ ◇.∘ ⟦ f ⟧
+  _⟦∘⟧_ : ∀ (g : B ⇨ C) (f : A ⇨ B) → ⟦ g ∘ f ⟧ ≗ ⟦ g ⟧ ◇.∘ ⟦ f ⟧
   (_ ⟦∘⟧ _) [] = refl
   (mealy t g ⟦∘⟧ mealy s f) (a ∷ as)
     rewrite (let b , s′ = f (a , s) ; c , t′ = g (b , t) in 
               (mealy t′ g ⟦∘⟧ mealy s′ f) as) = refl
 
   infixr 7 _⟦⊗⟧_
-  _⟦⊗⟧_ : ∀ (f : A →ˢ C) (g : B →ˢ D) → ⟦ f ⊗ g ⟧ ≗ ⟦ f ⟧ ◇.⊗ ⟦ g ⟧
+  _⟦⊗⟧_ : ∀ (f : A ⇨ C) (g : B ⇨ D) → ⟦ f ⊗ g ⟧ ≗ ⟦ f ⟧ ◇.⊗ ⟦ g ⟧
   (_ ⟦⊗⟧ _) [] = refl
   (mealy s f ⟦⊗⟧ mealy t g) ((a , b) ∷ abs)
     rewrite (let c , s′ = f (a , s) ; d , t′ = g (b , t) in 
               (mealy s′ f ⟦⊗⟧ mealy t′ g) abs) = refl
 
   -- infixr 7 _⟦⊕⟧_
-  -- _⟦⊕⟧_ : ∀ (f : A →ˢ C) (g : B →ˢ D) → ⟦ f ⊕ g ⟧ ≗ ⟦ f ⟧ ◇.⊕ ⟦ g ⟧
+  -- _⟦⊕⟧_ : ∀ (f : A ⇨ C) (g : B ⇨ D) → ⟦ f ⊕ g ⟧ ≗ ⟦ f ⟧ ◇.⊕ ⟦ g ⟧
   -- f ⟦⊕⟧ g = ?
 
   ⟦delay⟧ : (a₀ : A) → ⟦ delay a₀ ⟧ ≗ ◇.delay a₀
@@ -133,7 +133,7 @@ module AsStreamFun where
   open ◇ using (Stream; _↠_; _≈_; _≗_; module R)
   open Stream ; open _≈_ ; open ◇.AsMealy
 
-  ⟦_⟧ : (A →ˢ B) → (A ↠ B)
+  ⟦_⟧ : (A ⇨ B) → (A ↠ B)
   hd (⟦ mealy s f ⟧ as) = let b , _  = f (hd as , s) in b
   tl (⟦ mealy s f ⟧ as) = let _ , s′ = f (hd as , s) in ⟦ mealy s′ f ⟧ (tl as)
 
@@ -144,14 +144,14 @@ module AsStreamFun where
   tl-≈ (⟦arr⟧ f as) = ⟦arr⟧ f (tl as)
 
   infixr 9 _⟦∘⟧_
-  _⟦∘⟧_ : ∀ (g : B →ˢ C) (f : A →ˢ B) → ⟦ g ∘ f ⟧ ≗ ⟦ g ⟧ ◇.∘ ⟦ f ⟧
+  _⟦∘⟧_ : ∀ (g : B ⇨ C) (f : A ⇨ B) → ⟦ g ∘ f ⟧ ≗ ⟦ g ⟧ ◇.∘ ⟦ f ⟧
   hd-≈ ((mealy t g ⟦∘⟧ mealy s f) as) = refl
   tl-≈ ((mealy t g ⟦∘⟧ mealy s f) as) = let b , s′ = f (hd as , s)
                                             c , t′ = g (b , t) in
     (mealy t′ g ⟦∘⟧ mealy s′ f) (tl as)
 
   infixr 7 _⟦⊗⟧_
-  _⟦⊗⟧_ : ∀ (f : A →ˢ C) (g : B →ˢ D) → ⟦ f ⊗ g ⟧ ≗ ⟦ f ⟧ ◇.⊗ ⟦ g ⟧
+  _⟦⊗⟧_ : ∀ (f : A ⇨ C) (g : B ⇨ D) → ⟦ f ⊗ g ⟧ ≗ ⟦ f ⟧ ◇.⊗ ⟦ g ⟧
   hd-≈ ((mealy s f ⟦⊗⟧ mealy t g) ps) = refl
   tl-≈ ((mealy s f ⟦⊗⟧ mealy t g) ps) = let a , b = hd ps
                                             c , s′ = f (a , s)
@@ -159,7 +159,7 @@ module AsStreamFun where
     (mealy s′ f ⟦⊗⟧ mealy t′ g) (tl ps)
 
   -- infixr 7 _⟦⊕⟧_
-  -- _⟦⊕⟧_ : ∀ (f : A →ˢ C) (g : B →ˢ D) → ⟦ f ⊕ g ⟧ ≗ ⟦ f ⟧ ◇.⊕ ⟦ g ⟧
+  -- _⟦⊕⟧_ : ∀ (f : A ⇨ C) (g : B ⇨ D) → ⟦ f ⊕ g ⟧ ≗ ⟦ f ⟧ ◇.⊕ ⟦ g ⟧
   -- f ⟦⊕⟧ g = ?
 
   -- ⟦delay⟧ : (a₀ : A) → ⟦ delay a₀ ⟧ ≗ ◇.delay a₀

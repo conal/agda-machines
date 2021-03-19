@@ -1,7 +1,7 @@
 -- Miscellaneous simply-typed categorical operations on functions
 
 import Data.Product as ×
-open import Data.Product using (_,_; _×_)
+open × using (_,_; _×_)
 
 private
   variable
