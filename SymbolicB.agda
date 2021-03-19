@@ -53,6 +53,8 @@ infixr 9 _∘ᶜ_
 ⟦_⟧ᶜ : ∀ {f : A → B} → Comb f → A → B
 ⟦_⟧ᶜ {f = f} _ = f
 
+-- TODO: consider module in place of "ᶜ".
+
 -- TODO: Prove the cartesian category laws for Comb.
 
 ∧ᶜ : Comb (uncurry _∧_)
@@ -142,8 +144,7 @@ delay _ = mealy swapᶜ
 
 infixr 9 _∘_
 _∘_ : {g : B ◇.⇨ C} {f : A ◇.⇨ B} → Mealy g → Mealy f → Mealy (g ◇.∘ f)
-mealy g ∘ mealy f = mealy
-  (swiz₂ ∘ᶜ secondᶜ g ∘ᶜ swiz₁ ∘ᶜ firstᶜ f ∘ᶜ assocˡᶜ)
+mealy g ∘ mealy f = mealy (swiz₂ ∘ᶜ secondᶜ g ∘ᶜ swiz₁ ∘ᶜ firstᶜ f ∘ᶜ assocˡᶜ)
  where
    swiz₁ : Comb {(B × σ) × τ} {σ × (B × τ)} λ { ((b , s) , t) → s , (b , t) }
    swiz₁ = exrᶜ ∘ᶜ exlᶜ ▵ᶜ firstᶜ exlᶜ
