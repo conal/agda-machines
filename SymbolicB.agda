@@ -1,14 +1,15 @@
 -- Symbolic representation or Mealy machines, suitable for analysis and code
--- generation (e.g., Verilog).
+-- generation (e.g., Verilog). This version parametrizes the symbolic
+-- representations by their denotations.
 
 module SymbolicB where
 
 open import Data.Unit
 open import Data.Bool
-open import Data.Product hiding (zip)
-  renaming (map to map×; assocˡ to assocˡ→; assocʳ to assocʳ→; swap to swap×)
-open import Function using () renaming (id to id→; _∘_ to _∘→_)
+open import Data.Product
 open import Relation.Binary.PropositionalEquality
+
+open import Misc
 
 private
   variable
@@ -20,23 +21,12 @@ data Prim : {A B : Set} → (A → B) → Set₁ where
   ∨⇀   : Prim (uncurry _∨_)
   xor⇀ : Prim (uncurry _xor_)
   not⇀ : Prim not
-  dup⇀ : Prim {A} {A × A} (λ a → a , a)
-  exl⇀ : Prim {A × B} {A} proj₁
-  exr⇀ : Prim {A × B} {B} proj₂
-  id⇀  : Prim {A} {A} id→
+  dup⇀ : Prim (dup→ {A})
+  exl⇀ : Prim (exl→ {A} {B})
+  exr⇀ : Prim (exr→ {A} {B})
+  id⇀  : Prim (id→ {A})
 
--- TODO: replace suffix "⇀" with "ᶜ"
-
-⟦_⟧⇀ : ∀ {f : A → B} → Prim f → A → B
-⟦_⟧⇀ {f = f} _ = f
-
-infixr 7 _⊗→_
-_⊗→_ : (A → C) → (B → D) → (A × B → C × D)
-(f ⊗→ g) (a , b) = f a , g b
-
-infixr 7 _▵→_
-_▵→_ : (A → C) → (A → D) → (A → C × D)
-(f ▵→ g) = λ a → f a , g a
+-- TODO: replace suffix "⇀" with "ᵖ"
 
 -- TODO: make a module with simply typed, level-monomorphic versions of these
 -- operations. Import as "→".
@@ -67,16 +57,16 @@ xorᶜ = prim xor⇀
 notᶜ : Comb not
 notᶜ = prim not⇀
 
-dupᶜ : Comb {A} {A × A} (λ a → a , a)
+dupᶜ : Comb (dup→ {A})
 dupᶜ = prim dup⇀
 
-exlᶜ : Comb {A × B} {A} proj₁
+exlᶜ : Comb (exl→ {A} {B})
 exlᶜ = prim exl⇀
 
-exrᶜ : Comb {A × B} {B} proj₂
+exrᶜ : Comb (exr→ {A} {B})
 exrᶜ = prim exr⇀
 
-idᶜ  : Comb {A} {A} id→
+idᶜ  : Comb (id→ {A})
 idᶜ = prim id⇀
 
 -- Agsy filled in all of the definitions above.
@@ -87,10 +77,10 @@ infixr 7 _▵ᶜ_
 _▵ᶜ_ : ∀ {f : A → C} {g : A → D} → Comb f → Comb g → Comb (f ▵→ g)
 f ▵ᶜ g = (f ⊗ᶜ g) ∘ᶜ dupᶜ
 
-firstᶜ : ∀ {f : A → C} → Comb f → Comb {A × B} {C × B} (map₁ f)
+firstᶜ : ∀ {f : A → C} → Comb f → Comb {A × B} {C × B} (first→ f)
 firstᶜ f = f ⊗ᶜ idᶜ
 
-secondᶜ : ∀ {g : B → D} → Comb g → Comb {A × B} {A × D} (map₂ g)
+secondᶜ : ∀ {g : B → D} → Comb g → Comb {A × B} {A × D} (second→ g)
 secondᶜ f = idᶜ ⊗ᶜ f
 
 -- Some useful composite combinational circuits
@@ -114,13 +104,8 @@ transposeᶜ = (exlᶜ ⊗ᶜ exlᶜ) ▵ᶜ (exrᶜ ⊗ᶜ exrᶜ)
 import Mealy as ◇
 
 -- Synchronous state machine.
--- For composability, the state type is not visible in the type.
 record Mealy (m : A ◇.⇨ B) : Set₁ where
   constructor mealy
-  -- State : Set
-  -- State = ◇._⇨_.State m
-  -- start : State
-  -- start = ◇._⇨_.start m
   field
     transition : Comb (◇._⇨_.transition m)
 
@@ -132,7 +117,7 @@ record Mealy (m : A ◇.⇨ B) : Set₁ where
 comb : ∀ {f : A → B} (c : Comb f) → Mealy (◇.arr f)
 comb c = mealy (firstᶜ c)
 
-id : Mealy {A} ◇.id
+id : Mealy (◇.id {A})
 id = comb idᶜ
 
 delay : (a₀ : A) → Mealy (◇.delay a₀)
@@ -142,9 +127,9 @@ infixr 9 _∘_
 _∘_ : {g : B ◇.⇨ C} {f : A ◇.⇨ B} → Mealy g → Mealy f → Mealy (g ◇.∘ f)
 mealy g ∘ mealy f = mealy (swiz₂ ∘ᶜ secondᶜ g ∘ᶜ swiz₁ ∘ᶜ firstᶜ f ∘ᶜ assocˡᶜ)
  where
-   swiz₁ : Comb {(B × σ) × τ} {σ × (B × τ)} λ { ((b , s) , t) → s , (b , t) }
+   swiz₁ : Comb λ ((b , s) , t) → s , (b , t)
    swiz₁ = exrᶜ ∘ᶜ exlᶜ ▵ᶜ firstᶜ exlᶜ
-   swiz₂ : Comb {σ × (C × τ)} {C × (σ × τ)} λ { (s , (c , t)) → c , (s , t) }
+   swiz₂ : Comb λ (s , (c , t)) → c , (s , t)
    swiz₂ = exlᶜ ∘ᶜ exrᶜ ▵ᶜ secondᶜ exrᶜ
 
 infixr 7 _⊗_

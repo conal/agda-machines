@@ -1,4 +1,4 @@
--- Miscellaneous simply-typed operations on functions
+-- Miscellaneous simply-typed categorical operations on functions
 
 open import Function
 open import Data.Product using () renaming (swap to swap×) public
