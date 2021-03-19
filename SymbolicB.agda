@@ -44,73 +44,71 @@ _▵→_ : (A → C) → (A → D) → (A → C × D)
 -- Combinational circuits
 data Comb : ∀ {A B : Set} → (A → B) → Set₁ where
   prim : ∀ {f : A → B} (p : Prim f) → Comb f
-  _∘↠_ : ∀ {f : A → B} {g : B → C} → Comb g → Comb f → Comb (g ∘→ f)
-  _⊗↠_ : ∀ {f : A → C} {g : B → D} → Comb f → Comb g → Comb (f ⊗→ g)
+  _∘ᶜ_ : ∀ {f : A → B} {g : B → C} → Comb g → Comb f → Comb (g ∘→ f)
+  _⊗ᶜ_ : ∀ {f : A → C} {g : B → D} → Comb f → Comb g → Comb (f ⊗→ g)
 
-infixr 7 _⊗↠_
-infixr 9 _∘↠_
+infixr 7 _⊗ᶜ_
+infixr 9 _∘ᶜ_
 
--- TODO: replace suffix "↠" with "ᶜ"
+⟦_⟧ᶜ : ∀ {f : A → B} → Comb f → A → B
+⟦_⟧ᶜ {f = f} _ = f
 
-⟦_⟧↠ : ∀ {f : A → B} → Comb f → A → B
-⟦_⟧↠ {f = f} _ = f
+-- TODO: Prove the cartesian category laws for Comb.
 
--- TODO: Prove the cartesian category laws for _↠_.
+∧ᶜ : Comb (uncurry _∧_)
+∧ᶜ = prim ∧⇀
 
-∧↠ : Comb (uncurry _∧_)
-∧↠ = prim ∧⇀
+∨ᶜ : Comb (uncurry _∨_)
+∨ᶜ = prim ∨⇀
 
-∨↠ : Comb (uncurry _∨_)
-∨↠ = prim ∨⇀
+xorᶜ : Comb (uncurry _xor_)
+xorᶜ = prim xor⇀
 
-xor↠ : Comb (uncurry _xor_)
-xor↠ = prim xor⇀
+notᶜ : Comb not
+notᶜ = prim not⇀
 
-not↠ : Comb not
-not↠ = prim not⇀
+dupᶜ : Comb {A} {A × A} (λ a → a , a)
+dupᶜ = prim dup⇀
 
-dup↠ : Comb {A} {A × A} (λ a → a , a)
-dup↠ = prim dup⇀
+exlᶜ : Comb {A × B} {A} proj₁
+exlᶜ = prim exl⇀
 
-exl↠ : Comb {A × B} {A} proj₁
-exl↠ = prim exl⇀
+exrᶜ : Comb {A × B} {B} proj₂
+exrᶜ = prim exr⇀
 
-exr↠ : Comb {A × B} {B} proj₂
-exr↠ = prim exr⇀
-
-id↠  : Comb {A} {A} id→
-id↠ = prim id⇀
+idᶜ  : Comb {A} {A} id→
+idᶜ = prim id⇀
 
 -- Agsy filled in all of the definitions above.
 
 -- Cartesian-categorical operations.
 
-infixr 7 _▵↠_
-_▵↠_ : ∀ {f : A → C} {g : A → D} → Comb f → Comb g → Comb (f ▵→ g)
-f ▵↠ g = (f ⊗↠ g) ∘↠ dup↠
+infixr 7 _▵ᶜ_
+_▵ᶜ_ : ∀ {f : A → C} {g : A → D} → Comb f → Comb g → Comb (f ▵→ g)
+f ▵ᶜ g = (f ⊗ᶜ g) ∘ᶜ dupᶜ
 
-first↠ : ∀ {f : A → C} → Comb f → Comb {A × B} {C × B} (map₁ f)
-first↠ f = f ⊗↠ id↠
+firstᶜ : ∀ {f : A → C} → Comb f → Comb {A × B} {C × B} (map₁ f)
+firstᶜ f = f ⊗ᶜ idᶜ
 
-second↠ : ∀ {g : B → D} → Comb g → Comb {A × B} {A × D} (map₂ g)
-second↠ f = id↠ ⊗↠ f
+secondᶜ : ∀ {g : B → D} → Comb g → Comb {A × B} {A × D} (map₂ g)
+secondᶜ f = idᶜ ⊗ᶜ f
 
 -- Some useful composite combinational circuits
 
-assocˡ↠ : Comb {A × (B × C)} {(A × B) × C} assocˡ→
-assocʳ↠ : Comb {(A × B) × C} {A × (B × C)} assocʳ→
+assocˡᶜ : Comb {A × (B × C)} {(A × B) × C} assocˡ→
+assocʳᶜ : Comb {(A × B) × C} {A × (B × C)} assocʳ→
 
-assocˡ↠ = second↠ exl↠ ▵↠ exr↠ ∘↠ exr↠
-assocʳ↠ = exl↠ ∘↠ exl↠ ▵↠ first↠ exr↠
+assocˡᶜ = secondᶜ exlᶜ ▵ᶜ exrᶜ ∘ᶜ exrᶜ
+assocʳᶜ = exlᶜ ∘ᶜ exlᶜ ▵ᶜ firstᶜ exrᶜ
 
-swap↠ : Comb {A × B} {B × A} swap×
-swap↠ = exr↠ ▵↠ exl↠
+swapᶜ : Comb {A × B} {B × A} swap×
+swapᶜ = exrᶜ ▵ᶜ exlᶜ
 
 transpose→ : (A × B) × (C × D) → (A × C) × (B × D)
 transpose→ ((a , b) , (c , d)) = (a , c) , (b , d)
 
-transpose↠ : Comb {(A × B) × (C × D)} {(A × C) × (B × D)} transpose→
-transpose↠ = (exl↠ ⊗↠ exl↠) ▵↠ (exr↠ ⊗↠ exr↠)
+transposeᶜ : Comb {(A × B) × (C × D)} {(A × C) × (B × D)} transpose→
+transposeᶜ = (exlᶜ ⊗ᶜ exlᶜ) ▵ᶜ (exrᶜ ⊗ᶜ exrᶜ)
 
 
 import Mealy as ◇
@@ -132,33 +130,33 @@ record Mealy {A B : Set} (m : A ◇.⇨ B) : Set₁ where
 ⟦_⟧ {f = f} _ = f
 
 comb : ∀ {f : A → B} (c : Comb f) → Mealy (◇.arr f)
-comb c = mealy (first↠ c)
+comb c = mealy (firstᶜ c)
 
 id : Mealy {A} ◇.id
-id = comb id↠
+id = comb idᶜ
 
 -- TODO: more comb shorthands
 
 delay : (a₀ : A) → Mealy (◇.delay a₀)
-delay _ = mealy swap↠
+delay _ = mealy swapᶜ
 
 infixr 9 _∘_
 _∘_ : {g : B ◇.⇨ C} {f : A ◇.⇨ B} → Mealy g → Mealy f → Mealy (g ◇.∘ f)
 mealy g ∘ mealy f = mealy
-  (swiz₂ ∘↠ second↠ g ∘↠ swiz₁ ∘↠ first↠ f ∘↠ assocˡ↠)
+  (swiz₂ ∘ᶜ secondᶜ g ∘ᶜ swiz₁ ∘ᶜ firstᶜ f ∘ᶜ assocˡᶜ)
  where
    swiz₁ : Comb {(B × σ) × τ} {σ × (B × τ)} λ { ((b , s) , t) → s , (b , t) }
-   swiz₁ = exr↠ ∘↠ exl↠ ▵↠ first↠ exl↠
+   swiz₁ = exrᶜ ∘ᶜ exlᶜ ▵ᶜ firstᶜ exlᶜ
    swiz₂ : Comb {σ × (C × τ)} {C × (σ × τ)} λ { (s , (c , t)) → c , (s , t) }
-   swiz₂ = exl↠ ∘↠ exr↠ ▵↠ second↠ exr↠
+   swiz₂ = exlᶜ ∘ᶜ exrᶜ ▵ᶜ secondᶜ exrᶜ
 
 infixr 7 _⊗_
 _⊗_ : {f : A ◇.⇨ C} {g : B ◇.⇨ D} → Mealy f → Mealy g → Mealy (f ◇.⊗ g)
-mealy f ⊗ mealy g = mealy (transpose↠ ∘↠ (f ⊗↠ g) ∘↠ transpose↠)
+mealy f ⊗ mealy g = mealy (transposeᶜ ∘ᶜ (f ⊗ᶜ g) ∘ᶜ transposeᶜ)
 
 infixr 7 _▵_
 _▵_ : {f : A ◇.⇨ C} {g : A ◇.⇨ D} → Mealy f → Mealy g → Mealy (f ◇.▵ g)
-f ▵ g = (f ⊗ g) ∘ comb dup↠
+f ▵ g = (f ⊗ g) ∘ comb dupᶜ
 
 -- TODO: consider making categorical operations (most of the functionality in
 -- this module) be methods of a common typeclass, so that (a) we can state and
