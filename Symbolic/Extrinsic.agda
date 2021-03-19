@@ -118,10 +118,10 @@ module s where
       start : State
       transition : A × State c.⇨ B × State
 
-  import Mealy as ◇
+  import Mealy as m
 
-  ⟦_⟧ : A ⇨ B → A ◇.⇨ B
-  ⟦ mealy s₀ f ⟧ = ◇.mealy s₀ c.⟦ f ⟧
+  ⟦_⟧ : A ⇨ B → A m.⇨ B
+  ⟦ mealy s₀ f ⟧ = m.mealy s₀ c.⟦ f ⟧
 
   comb : A c.⇨ B → A ⇨ B
   comb f = mealy tt (c.first f)

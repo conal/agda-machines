@@ -97,30 +97,30 @@ open c using (Comb)
 -- Sequential computations 
 module s where
 
-  import Mealy as ◇
+  import Mealy as m
 
   -- Synchronous state machine.
-  record Mealy (m : A ◇.⇨ B) : Set₁ where
+  record Mealy (m : A m.⇨ B) : Set₁ where
     constructor mealy
     field
-      transition : Comb (◇._⇨_.transition m)
+      transition : Comb (m._⇨_.transition m)
 
   -- TODO: maybe replace the record type with the transition Comb.
 
-  ⟦_⟧ : {f : A ◇.⇨ B} (m : Mealy f) → A ◇.⇨ B
+  ⟦_⟧ : {f : A m.⇨ B} (m : Mealy f) → A m.⇨ B
   ⟦_⟧ {f = f} _ = f
 
-  comb : ∀ {f : A → B} (c : Comb f) → Mealy (◇.arr f)
+  comb : ∀ {f : A → B} (c : Comb f) → Mealy (m.arr f)
   comb c = mealy (c.first c)
 
-  id : Mealy (◇.id {A})
+  id : Mealy (m.id {A})
   id = comb c.id
 
-  delay : (a₀ : A) → Mealy (◇.delay a₀)
+  delay : (a₀ : A) → Mealy (m.delay a₀)
   delay _ = mealy c.swap
 
   infixr 9 _∘_
-  _∘_ : {g : B ◇.⇨ C} {f : A ◇.⇨ B} → Mealy g → Mealy f → Mealy (g ◇.∘ f)
+  _∘_ : {g : B m.⇨ C} {f : A m.⇨ B} → Mealy g → Mealy f → Mealy (g m.∘ f)
   mealy g ∘ mealy f = mealy (swiz₂ c.∘ c.second g c.∘ swiz₁ c.∘ c.first f c.∘ c.assocˡ)
    where
      swiz₁ : Comb λ ((b , s) , t) → s , (b , t)
@@ -129,11 +129,11 @@ module s where
      swiz₂ = c.exl c.∘ c.exr c.▵ c.second c.exr
 
   infixr 7 _⊗_
-  _⊗_ : {f : A ◇.⇨ C} {g : B ◇.⇨ D} → Mealy f → Mealy g → Mealy (f ◇.⊗ g)
+  _⊗_ : {f : A m.⇨ C} {g : B m.⇨ D} → Mealy f → Mealy g → Mealy (f m.⊗ g)
   mealy f ⊗ mealy g = mealy (c.transpose c.∘ (f c.⊗ g) c.∘ c.transpose)
 
   infixr 7 _▵_
-  _▵_ : {f : A ◇.⇨ C} {g : A ◇.⇨ D} → Mealy f → Mealy g → Mealy (f ◇.▵ g)
+  _▵_ : {f : A m.⇨ C} {g : A m.⇨ D} → Mealy f → Mealy g → Mealy (f m.▵ g)
   f ▵ g = (f ⊗ g) ∘ comb c.dup
 
   -- TODO: consider making categorical operations (most of the functionality in
