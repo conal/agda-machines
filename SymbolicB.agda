@@ -17,19 +17,14 @@ private
 
 -- Combinational primitives
 data Prim : {A B : Set} → (A → B) → Set₁ where
-  ∧⇀   : Prim (uncurry _∧_)
-  ∨⇀   : Prim (uncurry _∨_)
-  xor⇀ : Prim (uncurry _xor_)
-  not⇀ : Prim not
-  dup⇀ : Prim (dup→ {A})
-  exl⇀ : Prim (exl→ {A} {B})
-  exr⇀ : Prim (exr→ {A} {B})
-  id⇀  : Prim (id→ {A})
-
--- TODO: replace suffix "⇀" with "ᵖ"
-
--- TODO: make a module with simply typed, level-monomorphic versions of these
--- operations. Import as "→".
+  ∧ᵖ   : Prim (uncurry _∧_)
+  ∨ᵖ   : Prim (uncurry _∨_)
+  xorᵖ : Prim (uncurry _xor_)
+  notᵖ : Prim not
+  dupᵖ : Prim (dup→ {A})
+  exlᵖ : Prim (exl→ {A} {B})
+  exrᵖ : Prim (exr→ {A} {B})
+  idᵖ  : Prim (id→ {A})
 
 -- Combinational circuits
 data Comb : ∀ {A B : Set} → (A → B) → Set₁ where
@@ -46,28 +41,28 @@ infixr 9 _∘ᶜ_
 -- TODO: consider module in place of "ᶜ".
 
 ∧ᶜ : Comb (uncurry _∧_)
-∧ᶜ = prim ∧⇀
+∧ᶜ = prim ∧ᵖ
 
 ∨ᶜ : Comb (uncurry _∨_)
-∨ᶜ = prim ∨⇀
+∨ᶜ = prim ∨ᵖ
 
 xorᶜ : Comb (uncurry _xor_)
-xorᶜ = prim xor⇀
+xorᶜ = prim xorᵖ
 
 notᶜ : Comb not
-notᶜ = prim not⇀
+notᶜ = prim notᵖ
 
 dupᶜ : Comb (dup→ {A})
-dupᶜ = prim dup⇀
+dupᶜ = prim dupᵖ
 
 exlᶜ : Comb (exl→ {A} {B})
-exlᶜ = prim exl⇀
+exlᶜ = prim exlᵖ
 
 exrᶜ : Comb (exr→ {A} {B})
-exrᶜ = prim exr⇀
+exrᶜ = prim exrᵖ
 
 idᶜ  : Comb (id→ {A})
-idᶜ = prim id⇀
+idᶜ = prim idᵖ
 
 -- Agsy filled in all of the definitions above.
 
