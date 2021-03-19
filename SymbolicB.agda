@@ -115,12 +115,12 @@ import Mealy as ◇
 
 -- Synchronous state machine.
 -- For composability, the state type is not visible in the type.
-record Mealy {A B : Set} (m : A ◇.⇨ B) : Set₁ where
+record Mealy (m : A ◇.⇨ B) : Set₁ where
   constructor mealy
-  State : Set
-  State = ◇._⇨_.State m
-  start : State
-  start = ◇._⇨_.start m
+  -- State : Set
+  -- State = ◇._⇨_.State m
+  -- start : State
+  -- start = ◇._⇨_.start m
   field
     transition : Comb (◇._⇨_.transition m)
 
@@ -134,8 +134,6 @@ comb c = mealy (firstᶜ c)
 
 id : Mealy {A} ◇.id
 id = comb idᶜ
-
--- TODO: more comb shorthands
 
 delay : (a₀ : A) → Mealy (◇.delay a₀)
 delay _ = mealy swapᶜ
