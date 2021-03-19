@@ -4,7 +4,8 @@ import Mealy
 import StreamFun
 import VecFun
 import SumIso
-import Symbolic
-import SymbolicB
+import Symbolic.Extrinsic
+import Symbolic.Intrinsic
+
 
 

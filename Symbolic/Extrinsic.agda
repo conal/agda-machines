@@ -15,141 +15,141 @@ private
     A B C D σ τ : Set
 
 -- Combinational primitives
-infix 1 _⇀_
-data _⇀_ : Set → Set → Set₁ where
-  ∧⇀ ∨⇀ xor⇀ : Bool × Bool ⇀ Bool
-  not⇀ : Bool ⇀ Bool
-  dup⇀ : A ⇀ A × A
-  exl⇀ : A × B ⇀ A
-  exr⇀ : A × B ⇀ B
-  id⇀ : A ⇀ A
+infix 1 _→ᵖ_
+data _→ᵖ_ : Set → Set → Set₁ where
+  ∧ᵖ ∨ᵖ xorᵖ : Bool × Bool →ᵖ Bool
+  notᵖ : Bool →ᵖ Bool
+  dupᵖ : A →ᵖ A × A
+  exlᵖ : A × B →ᵖ A
+  exrᵖ : A × B →ᵖ B
+  idᵖ : A →ᵖ A
 
-⟦_⟧⇀ : A ⇀ B → A → B
-⟦ ∧⇀   ⟧⇀ = uncurry _∧_
-⟦ ∨⇀   ⟧⇀ = uncurry _∨_
-⟦ xor⇀ ⟧⇀ = uncurry _xor_
-⟦ not⇀ ⟧⇀ = not
-⟦ dup⇀ ⟧⇀ = < id→ , id→ >
-⟦ exl⇀ ⟧⇀ = proj₁
-⟦ exr⇀ ⟧⇀ = proj₂
-⟦ id⇀  ⟧⇀ = id→
+⟦_⟧ᵖ : A →ᵖ B → A → B
+⟦ ∧ᵖ   ⟧ᵖ = uncurry _∧_
+⟦ ∨ᵖ   ⟧ᵖ = uncurry _∨_
+⟦ xorᵖ ⟧ᵖ = uncurry _xor_
+⟦ notᵖ ⟧ᵖ = not
+⟦ dupᵖ ⟧ᵖ = < id→ , id→ >
+⟦ exlᵖ ⟧ᵖ = proj₁
+⟦ exrᵖ ⟧ᵖ = proj₂
+⟦ idᵖ  ⟧ᵖ = id→
 
-infix  1 _↠_
-infixr 7 _⊗↠_
-infixr 9 _∘↠_
+infix  0 _→ᶜ_
+infixr 7 _⊗ᶜ_
+infixr 9 _∘ᶜ_
 
 -- Combinational circuits
-data _↠_ : Set → Set → Set₁ where
-  prim : A ⇀ B → A ↠ B
-  _∘↠_ : B ↠ C → A ↠ B → A ↠ C
-  _⊗↠_ : A ↠ C → B ↠ D → A × B ↠ C × D
+data _→ᶜ_ : Set → Set → Set₁ where
+  prim : A →ᵖ B → A →ᶜ B
+  _∘ᶜ_ : B →ᶜ C → A →ᶜ B → A →ᶜ C
+  _⊗ᶜ_ : A →ᶜ C → B →ᶜ D → A × B →ᶜ C × D
 
-⟦_⟧↠ : A ↠ B → A → B
-⟦ prim f ⟧↠ = ⟦ f ⟧⇀
-⟦ g ∘↠ f ⟧↠ = ⟦ g ⟧↠ ∘→ ⟦ f ⟧↠
-⟦ f ⊗↠ g ⟧↠ = map× ⟦ f ⟧↠ ⟦ g ⟧↠
+⟦_⟧ᶜ : A →ᶜ B → A → B
+⟦ prim f ⟧ᶜ = ⟦ f ⟧ᵖ
+⟦ g ∘ᶜ f ⟧ᶜ = ⟦ g ⟧ᶜ ∘→ ⟦ f ⟧ᶜ
+⟦ f ⊗ᶜ g ⟧ᶜ = map× ⟦ f ⟧ᶜ ⟦ g ⟧ᶜ
 
--- TODO: Try parametrizing _⇀_ and _↠_ by their denotation.
+-- TODO: Try parametrizing _ᵖ_ and _ᶜ_ by their denotation.
 
--- TODO: Prove the cartesian category laws for _↠_. Probably easier if
+-- TODO: Prove the cartesian category laws for _ᶜ_. Probably easier if
 -- parametrized by denotation.
 
 -- Lift primitives to combinational circuits
-∧↠ ∨↠ xor↠ : Bool × Bool ↠ Bool
-¬↠ : Bool ↠ Bool
-dup↠ : A ↠ A × A
-exl↠ : A × B ↠ A
-exr↠ : A × B ↠ B
-id↠ : A ↠ A
+∧ᶜ ∨ᶜ xorᶜ : Bool × Bool →ᶜ Bool
+¬ᶜ : Bool →ᶜ Bool
+dupᶜ : A →ᶜ A × A
+exlᶜ : A × B →ᶜ A
+exrᶜ : A × B →ᶜ B
+idᶜ : A →ᶜ A
 
-∧↠   = prim ∧⇀
-∨↠   = prim ∨⇀
-xor↠ = prim xor⇀
-¬↠   = prim not⇀
-dup↠ = prim dup⇀
-exl↠ = prim exl⇀
-exr↠ = prim exr⇀
-id↠  = prim id⇀
+∧ᶜ   = prim ∧ᵖ
+∨ᶜ   = prim ∨ᵖ
+xorᶜ = prim xorᵖ
+¬ᶜ   = prim notᵖ
+dupᶜ = prim dupᵖ
+exlᶜ = prim exlᵖ
+exrᶜ = prim exrᵖ
+idᶜ  = prim idᵖ
 
 -- Cartesian-categorical operations.
 
-infixr 7 _▵↠_
-_▵↠_ : A ↠ C → A ↠ D → A ↠ C × D
-f ▵↠ g = (f ⊗↠ g) ∘↠ dup↠
+infixr 7 _▵ᶜ_
+_▵ᶜ_ : A →ᶜ C → A →ᶜ D → A →ᶜ C × D
+f ▵ᶜ g = (f ⊗ᶜ g) ∘ᶜ dupᶜ
 
-first↠ : A ↠ C → A × B ↠ C × B
-first↠ f = f ⊗↠ prim id⇀
---- first↠ f = f ⊗↠ id↠
+firstᶜ : A →ᶜ C → A × B →ᶜ C × B
+firstᶜ f = f ⊗ᶜ prim idᵖ
+--- firstᶜ f = f ⊗ᶜ idᶜ
 
-second↠ : B ↠ D → A × B ↠ A × D
-second↠ f = id↠ ⊗↠ f
+secondᶜ : B →ᶜ D → A × B →ᶜ A × D
+secondᶜ f = idᶜ ⊗ᶜ f
 
 -- Some useful composite combinational circuits
 
-assocˡ↠ : A × (B × C) ↠ (A × B) × C
-assocʳ↠ : (A × B) × C ↠ A × (B × C)
+assocˡᶜ : A × (B × C) →ᶜ (A × B) × C
+assocʳᶜ : (A × B) × C →ᶜ A × (B × C)
 
-assocˡ↠ = second↠ exl↠ ▵↠ exr↠ ∘↠ exr↠
-assocʳ↠ = exl↠ ∘↠ exl↠ ▵↠ first↠ exr↠
+assocˡᶜ = secondᶜ exlᶜ ▵ᶜ exrᶜ ∘ᶜ exrᶜ
+assocʳᶜ = exlᶜ ∘ᶜ exlᶜ ▵ᶜ firstᶜ exrᶜ
 
-swap↠ : A × B ↠ B × A
-swap↠ = exr↠ ▵↠ exl↠
+swapᶜ : A × B →ᶜ B × A
+swapᶜ = exrᶜ ▵ᶜ exlᶜ
 
-transpose↠ : (A × B) × (C × D) ↠ (A × C) × (B × D)
-transpose↠ = (exl↠ ⊗↠ exl↠) ▵↠ (exr↠ ⊗↠ exr↠)
+transposeᶜ : (A × B) × (C × D) →ᶜ (A × C) × (B × D)
+transposeᶜ = (exlᶜ ⊗ᶜ exlᶜ) ▵ᶜ (exrᶜ ⊗ᶜ exrᶜ)
 
 -- Agsy can synthesize most of these definitions, thought not most succinctly.
--- Where _▵↠_ is used, I gave it explicitly ("? ▵↠ ?").
+-- Where _▵ᶜ_ is used, I gave it explicitly ("? ▵ᶜ ?").
 
 -- Synchronous state machine.
 -- For composability, the state type is not visible in the type.
-infix  1 _⇨_
-record _⇨_ (A B : Set) : Set₁ where
+infix  0 _→ˢ_
+record _→ˢ_ (A B : Set) : Set₁ where
   constructor mealy
   field
     { State } : Set
     start : State
-    transition : A × State ↠ B × State
+    transition : A × State →ᶜ B × State
 
 import Mealy as ◇
 
-⟦_⟧ : A ⇨ B → A ◇.⇨ B
-⟦ mealy s₀ f ⟧ = ◇.mealy s₀ ⟦ f ⟧↠
+⟦_⟧ : A →ˢ B → A ◇.→ˢ B
+⟦ mealy s₀ f ⟧ = ◇.mealy s₀ ⟦ f ⟧ᶜ
 
-comb : A ↠ B → A ⇨ B
-comb f = mealy tt (first↠ f)
+comb : A →ᶜ B → A →ˢ B
+comb f = mealy tt (firstᶜ f)
 
 -- comb f = mealy tt {!!}
 
 -- comb f = {!!}   -- weird, correct result
 
-id : A ⇨ A
-id = comb id↠
+id : A →ˢ A
+id = comb idᶜ
 
--- id = mealy tt id↠
+-- id = mealy tt idᶜ
 
 -- TODO: more comb shorthands
 
-delay : A → A ⇨ A
-delay a₀ = mealy a₀ swap↠
+delay : A → A →ˢ A
+delay a₀ = mealy a₀ swapᶜ
 
 infixr 9 _∘_
-_∘_ : B ⇨ C → A ⇨ B → A ⇨ C
+_∘_ : B →ˢ C → A →ˢ B → A →ˢ C
 mealy t₀ g ∘ mealy s₀ f = mealy (s₀ , t₀)
-  (swiz₂ ∘↠ second↠ g ∘↠ swiz₁ ∘↠ first↠ f ∘↠ assocˡ↠)
+  (swiz₂ ∘ᶜ secondᶜ g ∘ᶜ swiz₁ ∘ᶜ firstᶜ f ∘ᶜ assocˡᶜ)
  where
-   swiz₁ : (B × σ) × τ ↠ σ × (B × τ)
-   swiz₁ = exr↠ ∘↠ exl↠ ▵↠ first↠ exl↠
-   swiz₂ : σ × (C × τ) ↠ C × (σ × τ)
-   swiz₂ = exl↠ ∘↠ exr↠ ▵↠ second↠ exr↠
+   swiz₁ : (B × σ) × τ →ᶜ σ × (B × τ)
+   swiz₁ = exrᶜ ∘ᶜ exlᶜ ▵ᶜ firstᶜ exlᶜ
+   swiz₂ : σ × (C × τ) →ᶜ C × (σ × τ)
+   swiz₂ = exlᶜ ∘ᶜ exrᶜ ▵ᶜ secondᶜ exrᶜ
 
 infixr 7 _⊗_
-_⊗_ : A ⇨ C → B ⇨ D → A × B ⇨ C × D
-mealy s₀ f ⊗ mealy t₀ g = mealy (s₀ , t₀) (transpose↠ ∘↠ (f ⊗↠ g) ∘↠ transpose↠)
+_⊗_ : A →ˢ C → B →ˢ D → A × B →ˢ C × D
+mealy s₀ f ⊗ mealy t₀ g = mealy (s₀ , t₀) (transposeᶜ ∘ᶜ (f ⊗ᶜ g) ∘ᶜ transposeᶜ)
 
 infixr 7 _▵_
-_▵_ : A ⇨ C → A ⇨ D → A ⇨ C × D
-f ▵ g = (f ⊗ g) ∘ comb dup↠
+_▵_ : A →ˢ C → A →ˢ D → A →ˢ C × D
+f ▵ g = (f ⊗ g) ∘ comb dupᶜ
 
 -- TODO: consider making categorical operations (most of the functionality in
 -- this module) be methods of a common typeclass, so that (a) we can state and
@@ -157,7 +157,7 @@ f ▵ g = (f ⊗ g) ∘ comb dup↠
 
 -- TODO: Rebuild this module in terms of semantic Mealy machines.
 
--- TODO: Prove the cartesian category laws for _⇨_. Probably easier if
+-- TODO: Prove the cartesian category laws for _→ˢ_. Probably easier if
 -- parametrized by denotation.
 
 -- TODO: Cocartesian.

@@ -92,14 +92,14 @@ transposeᶜ = (exlᶜ ⊗ᶜ exlᶜ) ▵ᶜ (exrᶜ ⊗ᶜ exrᶜ)
 import Mealy as ◇
 
 -- Synchronous state machine.
-record Mealy (m : A ◇.⇨ B) : Set₁ where
+record Mealy (m : A ◇.→ˢ B) : Set₁ where
   constructor mealy
   field
-    transition : Comb (◇._⇨_.transition m)
+    transition : Comb (◇._→ˢ_.transition m)
 
 -- TODO: maybe replace the record type with the transition Comb.
 
-⟦_⟧ : {f : A ◇.⇨ B} (m : Mealy f) → A ◇.⇨ B
+⟦_⟧ : {f : A ◇.→ˢ B} (m : Mealy f) → A ◇.→ˢ B
 ⟦_⟧ {f = f} _ = f
 
 comb : ∀ {f : A → B} (c : Comb f) → Mealy (◇.arr f)
@@ -112,7 +112,7 @@ delay : (a₀ : A) → Mealy (◇.delay a₀)
 delay _ = mealy swapᶜ
 
 infixr 9 _∘_
-_∘_ : {g : B ◇.⇨ C} {f : A ◇.⇨ B} → Mealy g → Mealy f → Mealy (g ◇.∘ f)
+_∘_ : {g : B ◇.→ˢ C} {f : A ◇.→ˢ B} → Mealy g → Mealy f → Mealy (g ◇.∘ f)
 mealy g ∘ mealy f = mealy (swiz₂ ∘ᶜ secondᶜ g ∘ᶜ swiz₁ ∘ᶜ firstᶜ f ∘ᶜ assocˡᶜ)
  where
    swiz₁ : Comb λ ((b , s) , t) → s , (b , t)
@@ -121,11 +121,11 @@ mealy g ∘ mealy f = mealy (swiz₂ ∘ᶜ secondᶜ g ∘ᶜ swiz₁ ∘ᶜ fi
    swiz₂ = exlᶜ ∘ᶜ exrᶜ ▵ᶜ secondᶜ exrᶜ
 
 infixr 7 _⊗_
-_⊗_ : {f : A ◇.⇨ C} {g : B ◇.⇨ D} → Mealy f → Mealy g → Mealy (f ◇.⊗ g)
+_⊗_ : {f : A ◇.→ˢ C} {g : B ◇.→ˢ D} → Mealy f → Mealy g → Mealy (f ◇.⊗ g)
 mealy f ⊗ mealy g = mealy (transposeᶜ ∘ᶜ (f ⊗ᶜ g) ∘ᶜ transposeᶜ)
 
 infixr 7 _▵_
-_▵_ : {f : A ◇.⇨ C} {g : A ◇.⇨ D} → Mealy f → Mealy g → Mealy (f ◇.▵ g)
+_▵_ : {f : A ◇.→ˢ C} {g : A ◇.→ˢ D} → Mealy f → Mealy g → Mealy (f ◇.▵ g)
 f ▵ g = (f ⊗ g) ∘ comb dupᶜ
 
 -- TODO: consider making categorical operations (most of the functionality in
