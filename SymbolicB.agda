@@ -9,7 +9,7 @@ open import Data.Bool
 open import Data.Product
 open import Relation.Binary.PropositionalEquality
 
-open import Misc
+import Misc as ⟶
 
 private
   variable
@@ -21,16 +21,16 @@ data Prim : {A B : Set} → (A → B) → Set₁ where
   ∨ᵖ   : Prim (uncurry _∨_)
   xorᵖ : Prim (uncurry _xor_)
   notᵖ : Prim not
-  dupᵖ : Prim (dup→ {A})
-  exlᵖ : Prim (exl→ {A} {B})
-  exrᵖ : Prim (exr→ {A} {B})
-  idᵖ  : Prim (id→ {A})
+  dupᵖ : Prim (⟶.dup {A})
+  exlᵖ : Prim (⟶.exl {A} {B})
+  exrᵖ : Prim (⟶.exr {A} {B})
+  idᵖ  : Prim (⟶.id {A})
 
 -- Combinational circuits
 data Comb : ∀ {A B : Set} → (A → B) → Set₁ where
   prim : ∀ {f : A → B} (p : Prim f) → Comb f
-  _∘ᶜ_ : ∀ {f : A → B} {g : B → C} → Comb g → Comb f → Comb (g ∘→ f)
-  _⊗ᶜ_ : ∀ {f : A → C} {g : B → D} → Comb f → Comb g → Comb (f ⊗→ g)
+  _∘ᶜ_ : ∀ {f : A → B} {g : B → C} → Comb g → Comb f → Comb (g ⟶.∘ f)
+  _⊗ᶜ_ : ∀ {f : A → C} {g : B → D} → Comb f → Comb g → Comb (f ⟶.⊗ g)
 
 infixr 7 _⊗ᶜ_
 infixr 9 _∘ᶜ_
@@ -40,59 +40,50 @@ infixr 9 _∘ᶜ_
 
 -- TODO: consider module in place of "ᶜ".
 
-∧ᶜ : Comb (uncurry _∧_)
-∧ᶜ = prim ∧ᵖ
-
-∨ᶜ : Comb (uncurry _∨_)
-∨ᶜ = prim ∨ᵖ
-
+∧ᶜ   : Comb (uncurry _∧_)
+∨ᶜ   : Comb (uncurry _∨_)
 xorᶜ : Comb (uncurry _xor_)
-xorᶜ = prim xorᵖ
-
 notᶜ : Comb not
+dupᶜ : Comb (⟶.dup {A})
+exlᶜ : Comb (⟶.exl {A} {B})
+exrᶜ : Comb (⟶.exr {A} {B})
+idᶜ  : Comb (⟶.id {A})
+
+∧ᶜ   = prim ∧ᵖ
+∨ᶜ   = prim ∨ᵖ
+xorᶜ = prim xorᵖ
 notᶜ = prim notᵖ
-
-dupᶜ : Comb (dup→ {A})
 dupᶜ = prim dupᵖ
-
-exlᶜ : Comb (exl→ {A} {B})
 exlᶜ = prim exlᵖ
-
-exrᶜ : Comb (exr→ {A} {B})
 exrᶜ = prim exrᵖ
-
-idᶜ  : Comb (id→ {A})
-idᶜ = prim idᵖ
+idᶜ  = prim idᵖ
 
 -- Agsy filled in all of the definitions above.
 
 -- Cartesian-categorical operations.
 
 infixr 7 _▵ᶜ_
-_▵ᶜ_ : ∀ {f : A → C} {g : A → D} → Comb f → Comb g → Comb (f ▵→ g)
+_▵ᶜ_ : ∀ {f : A → C} {g : A → D} → Comb f → Comb g → Comb (f ⟶.▵ g)
 f ▵ᶜ g = (f ⊗ᶜ g) ∘ᶜ dupᶜ
 
-firstᶜ : ∀ {f : A → C} → Comb f → Comb {A × B} {C × B} (first→ f)
+firstᶜ : ∀ {f : A → C} → Comb f → Comb {A × B} {C × B} (⟶.first f)
 firstᶜ f = f ⊗ᶜ idᶜ
 
-secondᶜ : ∀ {g : B → D} → Comb g → Comb {A × B} {A × D} (second→ g)
+secondᶜ : ∀ {g : B → D} → Comb g → Comb {A × B} {A × D} (⟶.second g)
 secondᶜ f = idᶜ ⊗ᶜ f
 
 -- Some useful composite combinational circuits
 
-assocˡᶜ : Comb {A × (B × C)} {(A × B) × C} assocˡ→
-assocʳᶜ : Comb {(A × B) × C} {A × (B × C)} assocʳ→
+assocˡᶜ : Comb {A × (B × C)} {(A × B) × C} ⟶.assocˡ
+assocʳᶜ : Comb {(A × B) × C} {A × (B × C)} ⟶.assocʳ
 
 assocˡᶜ = secondᶜ exlᶜ ▵ᶜ exrᶜ ∘ᶜ exrᶜ
 assocʳᶜ = exlᶜ ∘ᶜ exlᶜ ▵ᶜ firstᶜ exrᶜ
 
-swapᶜ : Comb {A × B} {B × A} swap×
+swapᶜ : Comb {A × B} {B × A} ⟶.swap×
 swapᶜ = exrᶜ ▵ᶜ exlᶜ
 
-transpose→ : (A × B) × (C × D) → (A × C) × (B × D)
-transpose→ ((a , b) , (c , d)) = (a , c) , (b , d)
-
-transposeᶜ : Comb {(A × B) × (C × D)} {(A × C) × (B × D)} transpose→
+transposeᶜ : Comb {(A × B) × (C × D)} {(A × C) × (B × D)} ⟶.transpose
 transposeᶜ = (exlᶜ ⊗ᶜ exlᶜ) ▵ᶜ (exrᶜ ⊗ᶜ exrᶜ)
 
 
