@@ -86,6 +86,7 @@ swapᶜ = exrᶜ ▵ᶜ exlᶜ
 transposeᶜ : Comb {(A × B) × (C × D)} {(A × C) × (B × D)} ⟶.transpose
 transposeᶜ = (exlᶜ ⊗ᶜ exlᶜ) ▵ᶜ (exrᶜ ⊗ᶜ exrᶜ)
 
+
 -- Sequential computations 
 
 import Mealy as ◇
@@ -127,17 +128,17 @@ infixr 7 _▵_
 _▵_ : {f : A ◇.⇨ C} {g : A ◇.⇨ D} → Mealy f → Mealy g → Mealy (f ◇.▵ g)
 f ▵ g = (f ⊗ g) ∘ comb dupᶜ
 
--- Agsy did not fare well with filling in the combinational or sequential
--- circuit definitions, but compiling-to-categories would be.
-
 -- TODO: consider making categorical operations (most of the functionality in
 -- this module) be methods of a common typeclass, so that (a) we can state and
 -- prove laws conveniently, and (b) we needn't use clumsy names.
 
--- TODO: Cocartesian.
+-- Agsy did not fare well with filling in the combinational or sequential
+-- circuit definitions, but compiling-to-categories would be.
 
 -- TODO: replicate compiling-to-categories using Agda reflection, and use to
 -- make definitions like `_∘_` and `_⊗_` above read like their counterparts in
 -- the Mealy module.
+
+-- TODO: Cocartesian.
 
 -- TODO: are ⟦_⟧ᶜ and ⟦_⟧ worth keeping explicitly?
