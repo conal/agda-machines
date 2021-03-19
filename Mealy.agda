@@ -30,6 +30,9 @@ arr : (A → B) → (A ⇨ B)
 arr f = mealy tt (map×₁ f)
                  -- λ (a , tt) → f a , tt
 
+id : A ⇨ A
+id = arr (λ a → a)
+
 -- Sequential composition
 infixr 9 _∘_
 _∘_ : (B ⇨ C) → (A ⇨ B) → (A ⇨ C)
@@ -47,6 +50,10 @@ mealy s₀ f ⊗ mealy t₀ g = mealy (s₀ , t₀) λ ((a , b) , (s , t)) →
       d , t′ = g (b , t)
   in
     (c , d) , (s′ , t′)
+
+infixr 7 _▵_
+_▵_ : A ⇨ C → A ⇨ D → A ⇨ C × D
+f ▵ g = (f ⊗ g) ∘ arr (λ a → a , a)
 
 -- Conditional/choice composition / coproduct tensor
 infixr 6 _⊕_

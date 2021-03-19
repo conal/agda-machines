@@ -18,7 +18,7 @@ private
 infix 1 _⇀_
 data _⇀_ : Set → Set → Set₁ where
   ∧⇀ ∨⇀ xor⇀ : Bool × Bool ⇀ Bool
-  ¬⇀ : Bool ⇀ Bool
+  not⇀ : Bool ⇀ Bool
   dup⇀ : A ⇀ A × A
   exl⇀ : A × B ⇀ A
   exr⇀ : A × B ⇀ B
@@ -28,7 +28,7 @@ data _⇀_ : Set → Set → Set₁ where
 ⟦ ∧⇀   ⟧⇀ = uncurry _∧_
 ⟦ ∨⇀   ⟧⇀ = uncurry _∨_
 ⟦ xor⇀ ⟧⇀ = uncurry _xor_
-⟦ ¬⇀   ⟧⇀ = not
+⟦ not⇀ ⟧⇀ = not
 ⟦ dup⇀ ⟧⇀ = < id→ , id→ >
 ⟦ exl⇀ ⟧⇀ = proj₁
 ⟦ exr⇀ ⟧⇀ = proj₂
@@ -65,7 +65,7 @@ id↠ : A ↠ A
 ∧↠   = prim ∧⇀
 ∨↠   = prim ∨⇀
 xor↠ = prim xor⇀
-¬↠   = prim ¬⇀
+¬↠   = prim not⇀
 dup↠ = prim dup⇀
 exl↠ = prim exl⇀
 exr↠ = prim exr⇀
@@ -78,7 +78,8 @@ _▵↠_ : A ↠ C → A ↠ D → A ↠ C × D
 f ▵↠ g = (f ⊗↠ g) ∘↠ dup↠
 
 first↠ : A ↠ C → A × B ↠ C × B
-first↠ f = f ⊗↠ id↠
+first↠ f = f ⊗↠ prim id⇀
+--- first↠ f = f ⊗↠ id↠
 
 second↠ : B ↠ D → A × B ↠ A × D
 second↠ f = id↠ ⊗↠ f
@@ -116,7 +117,7 @@ import Mealy as ◇
 ⟦ mealy s₀ f ⟧ = ◇.mealy s₀ ⟦ f ⟧↠
 
 comb : A ↠ B → A ⇨ B
-comb f = mealy tt (f ⊗↠ id↠)
+comb f = mealy tt (first↠ f)
 
 -- comb f = mealy tt {!!}
 
