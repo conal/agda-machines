@@ -1,7 +1,7 @@
 -- Symbolic representation or Mealy machines, suitable for analysis and code
 -- generation (e.g., Verilog).
 
-module Symbolic where
+module Symbolic.Extrinsic where
 
 open import Data.Unit
 open import Data.Bool

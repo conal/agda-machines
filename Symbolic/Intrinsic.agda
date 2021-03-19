@@ -2,7 +2,7 @@
 -- generation (e.g., Verilog). This version parametrizes the symbolic
 -- representations by their denotations.
 
-module SymbolicB where
+module Symbolic.Intrinsic where
 
 open import Data.Unit
 open import Data.Bool
