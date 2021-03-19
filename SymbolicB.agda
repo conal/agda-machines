@@ -55,8 +55,6 @@ infixr 9 _∘ᶜ_
 
 -- TODO: consider module in place of "ᶜ".
 
--- TODO: Prove the cartesian category laws for Comb.
-
 ∧ᶜ : Comb (uncurry _∧_)
 ∧ᶜ = prim ∧⇀
 
@@ -163,11 +161,10 @@ f ▵ g = (f ⊗ g) ∘ comb dupᶜ
 -- this module) be methods of a common typeclass, so that (a) we can state and
 -- prove laws conveniently, and (b) we needn't use clumsy names.
 
--- TODO: Prove the cartesian category laws for _⇨_. Probably easier if
--- parametrized by denotation.
-
 -- TODO: Cocartesian.
 
 -- TODO: replicate compiling-to-categories using Agda reflection, and use to
 -- make definitions like `_∘_` and `_⊗_` above read like their counterparts in
 -- the Mealy module.
+
+-- TODO: are ⟦_⟧ᶜ and ⟦_⟧ worth keeping?
