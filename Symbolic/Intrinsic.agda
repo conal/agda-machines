@@ -44,8 +44,6 @@ module c where
   ⟦_⟧ : ∀ {f : A → B} → Comb f → A → B
   ⟦_⟧ {f = f} _ = f
 
-  -- TODO: consider module in place of "".
-
   ∧   : Comb (uncurry Bool._∧_)
   ∨   : Comb (uncurry Bool._∨_)
   xor : Comb (uncurry Bool._xor_)
