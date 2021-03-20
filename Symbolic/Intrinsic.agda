@@ -65,9 +65,9 @@ module c where
 
   -- Cartesian-categorical operations:
 
-  infixr 7 _▵_
-  _▵_ : ∀ {f : A → C} {g : A → D} → Comb f → Comb g → Comb (f F.▵ g)
-  f ▵ g = (f ⊗ g) ∘ dup
+  infixr 7 _△_
+  _△_ : ∀ {f : A → C} {g : A → D} → Comb f → Comb g → Comb (f F.△ g)
+  f △ g = (f ⊗ g) ∘ dup
 
   first : ∀ {f : A → C} → Comb f → Comb {A × B} {C × B} (F.first f)
   first f = f ⊗ id
@@ -78,14 +78,14 @@ module c where
   assocˡ : Comb {A × (B × C)} {(A × B) × C} F.assocˡ
   assocʳ : Comb {(A × B) × C} {A × (B × C)} F.assocʳ
 
-  assocˡ = second exl ▵ exr ∘ exr
-  assocʳ = exl ∘ exl ▵ first exr
+  assocˡ = second exl △ exr ∘ exr
+  assocʳ = exl ∘ exl △ first exr
 
   swap : Comb {A × B} {B × A} F.swap×
-  swap = exr ▵ exl
+  swap = exr △ exl
 
   transpose : Comb {(A × B) × (C × D)} {(A × C) × (B × D)} F.transpose
-  transpose = (exl ⊗ exl) ▵ (exr ⊗ exr)
+  transpose = (exl ⊗ exl) △ (exr ⊗ exr)
 
 open c using (Comb)
 
@@ -116,18 +116,18 @@ module s where
   mealy g ∘ mealy f =
     mealy (swiz₂ c.∘ c.second g c.∘ swiz₁ c.∘ c.first f c.∘ c.assocˡ)
    where
-     swiz₁ : Comb λ ((b , s) , t) → s , (b , t)
-     swiz₁ = c.exr c.∘ c.exl c.▵ c.first c.exl
-     swiz₂ : Comb λ (s , (c , t)) → c , (s , t)
-     swiz₂ = c.exl c.∘ c.exr c.▵ c.second c.exr
+     swiz₁ : Comb λ ((b , s′) , t) → s′ , (b , t)
+     swiz₁ = c.exr c.∘ c.exl c.△ c.first c.exl
+     swiz₂ : Comb λ (s′ , (c , t′)) → c , (s′ , t′)
+     swiz₂ = c.exl c.∘ c.exr c.△ c.second c.exr
 
   infixr 7 _⊗_
   _⊗_ : {f : A m.⇨ C} {g : B m.⇨ D} → Mealy f → Mealy g → Mealy (f m.⊗ g)
   mealy f ⊗ mealy g = mealy (c.transpose c.∘ (f c.⊗ g) c.∘ c.transpose)
 
-  infixr 7 _▵_
-  _▵_ : {f : A m.⇨ C} {g : A m.⇨ D} → Mealy f → Mealy g → Mealy (f m.▵ g)
-  f ▵ g = (f ⊗ g) ∘ comb c.dup
+  infixr 7 _△_
+  _△_ : {f : A m.⇨ C} {g : A m.⇨ D} → Mealy f → Mealy g → Mealy (f m.△ g)
+  f △ g = (f ⊗ g) ∘ comb c.dup
  
 -- TODO: consider making categorical operations (most of the functionality in
 -- this module) be methods of a common typeclass, so that (a) we can state and

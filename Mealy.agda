@@ -51,9 +51,9 @@ mealy s₀ f ⊗ mealy t₀ g = mealy (s₀ , t₀) λ ((a , b) , (s , t)) →
   in
     (c , d) , (s′ , t′)
 
-infixr 7 _▵_
-_▵_ : A ⇨ C → A ⇨ D → A ⇨ C × D
-f ▵ g = (f ⊗ g) ∘ arr (λ a → a , a)
+infixr 7 _△_
+_△_ : A ⇨ C → A ⇨ D → A ⇨ C × D
+f △ g = (f ⊗ g) ∘ arr (λ a → a , a)
 
 -- Conditional/choice composition / coproduct tensor
 infixr 6 _⊕_

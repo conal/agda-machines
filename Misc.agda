@@ -29,18 +29,18 @@ first f (a , b) = f a , b
 second : (B → D) → (A × B) → (A × D)
 second g (a , b) = a , g b
 
-infixr 7 _▵_
-_▵_ : (A → C) → (A → D) → (A → C × D)
-_▵_ = ×.<_,_>
+infixr 7 _△_
+_△_ : (A → C) → (A → D) → (A → C × D)
+_△_ = ×.<_,_>
 
 infixr 7 _⊗_
 _⊗_ : (A → C) → (B → D) → (A × B → C × D)
 f ⊗ g = ×.map f g
 
 -- (f ⊗ g) (a , b) = f a , g b
--- f ⊗ g = f ∘ exl ▵ g ∘ exr
+-- f ⊗ g = f ∘ exl △ g ∘ exr
 
--- f ▵ g = (f ⊗ g) ∘ dup
+-- f △ g = (f ⊗ g) ∘ dup
 
 assocʳ : (A × B) × C → A × (B × C)
 assocʳ = ×.assocʳ
