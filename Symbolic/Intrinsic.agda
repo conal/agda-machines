@@ -23,10 +23,10 @@ module p where
     ∨   : Prim (uncurry Bool._∨_)
     xor : Prim (uncurry Bool._xor_)
     not : Prim Bool.not
-    dup : Prim (F.dup {A})
-    exl : Prim (F.exl {A} {B})
-    exr : Prim (F.exr {A} {B})
-    id  : Prim (F.id {A})
+    dup : Prim (F.dup {A = A})
+    exl : Prim (F.exl {A = A} {B = B})
+    exr : Prim (F.exr {A = A} {B = B})
+    id  : Prim (F.id {A = A})
 
 open p using (Prim)
 
@@ -48,10 +48,10 @@ module c where
   ∨   : Comb (uncurry Bool._∨_)
   xor : Comb (uncurry Bool._xor_)
   not : Comb Bool.not
-  dup : Comb (F.dup {A})
-  exl : Comb (F.exl {A} {B})
-  exr : Comb (F.exr {A} {B})
-  id  : Comb (F.id {A})
+  dup : Comb (F.dup {A = A})
+  exl : Comb (F.exl {A = A} {B = B})
+  exr : Comb (F.exr {A = A} {B = B})
+  id  : Comb (F.id {A = A})
 
   -- Definitions by Agsy:
   ∧   = prim p.∧

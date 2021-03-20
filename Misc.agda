@@ -1,11 +1,13 @@
 -- Miscellaneous simply-typed categorical operations on functions
 
+open import Level
 import Data.Product as ×
 open × using (_,_; _×_)
 
 private
   variable
-    A B C D : Set
+    ℓ : Level
+    A B C D : Set ℓ
 
 id : A → A
 id a = a
