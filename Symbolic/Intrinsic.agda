@@ -55,6 +55,7 @@ module c where
   exr : Comb (F.exr {A} {B})
   id  : Comb (F.id {A})
 
+  -- Definitions by Agsy:
   ∧   = prim P.∧
   ∨   = prim P.∨
   xor = prim P.xor
@@ -63,8 +64,6 @@ module c where
   exl = prim P.exl
   exr = prim P.exr
   id  = prim P.id
-
-  -- Agsy filled in all of the definitions above.
 
   -- Cartesian-categorical operations:
 
@@ -77,8 +76,6 @@ module c where
 
   second : ∀ {g : B → D} → Comb g → Comb {A × B} {A × D} (F.second g)
   second f = id ⊗ f
-
-  -- Some useful composite combinational circuits:
 
   assocˡ : Comb {A × (B × C)} {(A × B) × C} F.assocˡ
   assocʳ : Comb {(A × B) × C} {A × (B × C)} F.assocʳ
@@ -99,13 +96,10 @@ module s where
 
   import Mealy as m
 
-  -- Synchronous state machine.
   record Mealy (m : A m.⇨ B) : Set₁ where
     constructor mealy
     field
       transition : Comb (m._⇨_.transition m)
-
-  -- TODO: maybe replace the record type with the transition Comb.
 
   ⟦_⟧ : {f : A m.⇨ B} (m : Mealy f) → A m.⇨ B
   ⟦_⟧ {f = f} _ = f
@@ -121,7 +115,8 @@ module s where
 
   infixr 9 _∘_
   _∘_ : {g : B m.⇨ C} {f : A m.⇨ B} → Mealy g → Mealy f → Mealy (g m.∘ f)
-  mealy g ∘ mealy f = mealy (swiz₂ c.∘ c.second g c.∘ swiz₁ c.∘ c.first f c.∘ c.assocˡ)
+  mealy g ∘ mealy f =
+    mealy (swiz₂ c.∘ c.second g c.∘ swiz₁ c.∘ c.first f c.∘ c.assocˡ)
    where
      swiz₁ : Comb λ ((b , s) , t) → s , (b , t)
      swiz₁ = c.exr c.∘ c.exl c.▵ c.first c.exl
@@ -135,18 +130,18 @@ module s where
   infixr 7 _▵_
   _▵_ : {f : A m.⇨ C} {g : A m.⇨ D} → Mealy f → Mealy g → Mealy (f m.▵ g)
   f ▵ g = (f ⊗ g) ∘ comb c.dup
+ 
+-- TODO: consider making categorical operations (most of the functionality in
+-- this module) be methods of a common typeclass, so that (a) we can state and
+-- prove laws conveniently, and (b) we needn't use clumsy names.
 
-  -- TODO: consider making categorical operations (most of the functionality in
-  -- this module) be methods of a common typeclass, so that (a) we can state and
-  -- prove laws conveniently, and (b) we needn't use clumsy names.
+-- Agsy did not fare well with filling in the combinational or sequential
+-- circuit definitions, but compiling-to-categories would be.
 
-  -- Agsy did not fare well with filling in the combinational or sequential
-  -- circuit definitions, but compiling-to-categories would be.
+-- TODO: replicate compiling-to-categories using Agda reflection, and use to
+-- make definitions like `_∘_` and `_⊗_` above read like their counterparts in
+-- the Mealy module.
 
-  -- TODO: replicate compiling-to-categories using Agda reflection, and use to
-  -- make definitions like `_∘_` and `_⊗_` above read like their counterparts in
-  -- the Mealy module.
+-- TODO: Cocartesian.
 
-  -- TODO: Cocartesian.
-
-  -- TODO: are the semantic functions worth keeping explicitly?
+-- TODO: are the semantic functions worth keeping explicitly?
