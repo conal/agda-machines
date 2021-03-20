@@ -16,7 +16,7 @@ private
     A B C D σ τ : Set
 
 -- Combinational primitives
-module P where
+module p where
 
   data Prim : {A B : Set} → (A → B) → Set₁ where
     ∧   : Prim (uncurry Bool._∧_)
@@ -28,7 +28,7 @@ module P where
     exr : Prim (F.exr {A} {B})
     id  : Prim (F.id {A})
 
-open P using (Prim)
+open p using (Prim)
 
 -- Combinational circuits
 module c where
@@ -56,14 +56,14 @@ module c where
   id  : Comb (F.id {A})
 
   -- Definitions by Agsy:
-  ∧   = prim P.∧
-  ∨   = prim P.∨
-  xor = prim P.xor
-  not = prim P.not
-  dup = prim P.dup
-  exl = prim P.exl
-  exr = prim P.exr
-  id  = prim P.id
+  ∧   = prim p.∧
+  ∨   = prim p.∨
+  xor = prim p.xor
+  not = prim p.not
+  dup = prim p.dup
+  exl = prim p.exl
+  exr = prim p.exr
+  id  = prim p.id
 
   -- Cartesian-categorical operations:
 
