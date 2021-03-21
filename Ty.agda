@@ -20,3 +20,15 @@ data Ty : Set where
 infix 0 _→ᵗ_
 _→ᵗ_ : Ty → Ty → Set
 A →ᵗ B = ⟦ A ⟧ᵗ → ⟦ B ⟧ᵗ
+
+-- Index of a bit in a type
+data BitIx : Ty → Set where
+  here : BitIx Bool
+  left  : ∀ {A B} → BitIx A → BitIx (A × B)
+  right : ∀ {A B} → BitIx B → BitIx (A × B)
+
+-- Extract a bit
+⟦_⟧ᵇ : ∀ {A} → BitIx A → A →ᵗ Bool
+⟦ here    ⟧ᵇ x = x
+⟦ left  i ⟧ᵇ (x , y) = ⟦ i ⟧ᵇ x
+⟦ right i ⟧ᵇ (x , y) = ⟦ i ⟧ᵇ y
