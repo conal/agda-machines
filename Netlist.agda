@@ -68,4 +68,5 @@ flatten (f c.⊗ g) (a ∙ b , nets , m) =
 
 -- TODO: Redesign the representation to simplify the interpreter and its proof.
 
-
+-- TODO: Maybe add some optimizations like constant folding and hash consing
+-- (common subexpression elimination).
