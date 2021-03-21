@@ -1,6 +1,5 @@
 module Netlist where
 
-open import Data.Product using (_,_) renaming (_×_ to _×ᵗ_)
 open import Data.Nat
 open import Data.List
 
