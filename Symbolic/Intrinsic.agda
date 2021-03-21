@@ -19,11 +19,11 @@ private
 module r where
 
   data Route : {A B : Set} → (A → B) → Set₁ where
-    id  : Route (F.id {A = A})
-    dup : Route (F.dup {A = A})
-    exl : Route (F.exl {A = A} {B = B})
-    exr : Route (F.exr {A = A} {B = B})
-    !   : Route (F.! {A = A})
+    id  : Route {A} F.id
+    dup : Route {A} F.dup
+    exl : Route {A × B} F.exl
+    exr : Route {A × B} F.exr
+    !   : Route {A} F.!
 
 open r using (Route)
 
@@ -57,11 +57,11 @@ module c where
   ∨   : Comb (uncurry Bool._∨_)
   xor : Comb (uncurry Bool._xor_)
   not : Comb Bool.not
-  id  : Comb (F.id {A = A})
-  dup : Comb (F.dup {A = A})
-  exl : Comb (F.exl {A = A} {B = B})
-  exr : Comb (F.exr {A = A} {B = B})
-  !   : Comb (F.! {A = A})
+  id  : Comb {A} F.id
+  dup : Comb {A} F.dup
+  exl : Comb {A × B} F.exl
+  exr : Comb {A × B} F.exr
+  !   : Comb {A} F.!
 
   -- Definitions by Agsy:
   id  = route r.id
