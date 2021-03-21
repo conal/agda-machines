@@ -50,6 +50,7 @@ route r.id x        = x
 route r.dup x       = x ∙ x
 route r.exl (x ∙ y) = x
 route r.exr (x ∙ y) = y
+route r.! _         = tt          
 
 flatten : (A c.⇨ B) → A →ᴹ B
 flatten (c.route r) = F.first (route r)
