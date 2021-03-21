@@ -3,33 +3,15 @@
 
 module Symbolic.ExtrinsicTy where
 
-open import Data.Unit renaming (⊤ to ⊤ᵗ)
 import Data.Bool as Bool
-open Bool using () renaming (Bool to Boolᵗ)
-open import Data.Product using (_,_; uncurry) renaming (_×_ to _×ᵗ_)
-open import Relation.Binary.PropositionalEquality
+
+open import Ty
 
 import Misc as F
-
-infixr 2 _×_
-data Ty : Set where
-  ⊤    : Ty
-  Bool : Ty
-  _×_  : Ty → Ty → Ty
-
-⟦_⟧ᵗ : Ty → Set
-⟦ ⊤ ⟧ᵗ     = ⊤ᵗ
-⟦ Bool ⟧ᵗ  = Boolᵗ
-⟦ σ × τ ⟧ᵗ = ⟦ σ ⟧ᵗ ×ᵗ ⟦ τ ⟧ᵗ
-
-infix 0 _→ᵗ_
-_→ᵗ_ : Ty → Ty → Set
-A →ᵗ B = ⟦ A ⟧ᵗ → ⟦ B ⟧ᵗ
 
 private
   variable
     A B C D σ τ : Ty
-
 
 -- Routing
 module r where
