@@ -12,19 +12,19 @@ private
   variable
     A B C D X : Ty
 
-infixr 4 _∙_
+infixr 8 _∙_
 data Source : Ty → Set₁ where
   tt : Source ⊤
-  port : ℕ → Source Bool
+  pin : ℕ → Source Bool
   _∙_ : ∀ {σ τ} → Source σ → Source τ → Source (σ × τ)
 
--- Generate a source, and advance the port counter
+-- Generate a source, and advance the pin counter
 mkSource : ℕ → Source A ×ᵗ ℕ
 mkSource {⊤} n = tt , n
-mkSource {Bool} n = port n , suc n
-mkSource {A × B} n = let A′ , m = mkSource n
-                         B′ , o = mkSource m in 
-                     (A′ ∙ B′) , o
+mkSource {Bool} n = pin n , suc n
+mkSource {A × B} m = let A′ , n = mkSource m
+                         B′ , o = mkSource n in 
+                     A′ ∙ B′ , o
                         
 record Instance : Set₁ where
   constructor inst
@@ -46,7 +46,7 @@ _→ᴹ_ : Ty → Ty → Set₁
 A →ᴹ B = Source A ×ᵗ St → Source B ×ᵗ St
 
 route : (A r.⇨ B) → Source A → Source B
-route r.id  x       = x
+route r.id x        = x
 route r.dup x       = x ∙ x
 route r.exl (x ∙ y) = x
 route r.exr (x ∙ y) = y
@@ -56,17 +56,16 @@ flatten (c.route r) = F.first (route r)
 flatten (c.prim p) (a , nets , m) =
   let b , n = mkSource m in b , inst a p b ∷ nets , n
 flatten (g c.∘ f) = flatten g F.∘ flatten f
-flatten (f c.⊗ g) ((a ∙ b) , nets , m) =
+flatten (f c.⊗ g) (a ∙ b , nets , m) =
   let c , nets′ , n = flatten f (a , nets  , m)
       d , nets″ , o = flatten g (b , nets′ , n)
-   in (c ∙ d) , nets″ , o
+   in c ∙ d , nets″ , o
 
 -- TODO: Use a standard state monad and "do" notation
 
 -- TODO: Define an interpreter for _→ᴹ_, and prove that flatten preserves
 -- meaning. I expect it to be difficult or impossible.
 
--- TODO: Redesign the representation and interpreter to simplify the interpreter
--- and its proof.
+-- TODO: Redesign the representation to simplify the interpreter and its proof.
 
 
