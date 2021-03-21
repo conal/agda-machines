@@ -21,6 +21,7 @@ module r where
     dup : Route {A} F.dup
     exl : Route {A × B} F.exl
     exr : Route {A × B} F.exr
+    !   : Route {A} F.!
 
 open r using (Route)
 
@@ -59,6 +60,7 @@ module c where
   dup : Comb {A} F.dup
   exl : Comb {A × B} F.exl
   exr : Comb {A × B} F.exr
+  !   : Comb {A} F.!
 
   ∧   : Comb (uncurry Bool._∧_)
   ∨   : Comb (uncurry Bool._∨_)
@@ -70,6 +72,7 @@ module c where
   dup = route r.dup
   exl = route r.exl
   exr = route r.exr
+  !   = route r.!
   ∧   = prim  p.∧
   ∨   = prim  p.∨
   xor = prim  p.xor

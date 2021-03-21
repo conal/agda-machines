@@ -1,6 +1,7 @@
 -- Miscellaneous simply-typed categorical operations on functions
 
 open import Level
+open import Data.Unit
 import Data.Product as ×
 open × using (_,_; _×_)
 
@@ -55,3 +56,6 @@ swap× = ×.swap
 
 transpose : (A × B) × (C × D) → (A × C) × (B × D)
 transpose ((a , b) , (c , d)) = (a , c) , (b , d)
+
+! : A → ⊤
+! _ = tt

@@ -23,6 +23,7 @@ module r where
     dup : Route (F.dup {A = A})
     exl : Route (F.exl {A = A} {B = B})
     exr : Route (F.exr {A = A} {B = B})
+    !   : Route (F.! {A = A})
 
 open r using (Route)
 
@@ -56,16 +57,18 @@ module c where
   ∨   : Comb (uncurry Bool._∨_)
   xor : Comb (uncurry Bool._xor_)
   not : Comb Bool.not
+  id  : Comb (F.id {A = A})
   dup : Comb (F.dup {A = A})
   exl : Comb (F.exl {A = A} {B = B})
   exr : Comb (F.exr {A = A} {B = B})
-  id  : Comb (F.id {A = A})
+  !   : Comb (F.! {A = A})
 
   -- Definitions by Agsy:
   id  = route r.id
   dup = route r.dup
   exl = route r.exl
   exr = route r.exr
+  !   = route r.!
   ∧   = prim  p.∧
   ∨   = prim  p.∨
   xor = prim  p.xor

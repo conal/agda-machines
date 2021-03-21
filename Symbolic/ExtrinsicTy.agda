@@ -22,12 +22,14 @@ module r where
     dup : A ⇨ A × A
     exl : A × B ⇨ A
     exr : A × B ⇨ B
+    !   : A ⇨ ⊤
 
   ⟦_⟧ : A ⇨ B → A →ᵗ B
   ⟦ id  ⟧ = F.id
   ⟦ dup ⟧ = F.dup
   ⟦ exl ⟧ = F.exl
   ⟦ exr ⟧ = F.exr
+  ⟦ !   ⟧ = F.!
 
 -- Combinational primitives
 module p where
@@ -67,17 +69,19 @@ module c where
   -- parametrized by denotation.
 
   -- Lift routes primitives to combinational circuits
-  ∧ ∨ xor : Bool × Bool ⇨ Bool
-  ¬ : Bool ⇨ Bool
   id : A ⇨ A
   dup : A ⇨ A × A
   exl : A × B ⇨ A
   exr : A × B ⇨ B
+  !   : A ⇨ ⊤
+  ∧ ∨ xor : Bool × Bool ⇨ Bool
+  ¬ : Bool ⇨ Bool
 
   id  = route r.id
   dup = route r.dup
   exl = route r.exl
   exr = route r.exr
+  !   = route r.!
 
   ∧   = prim p.∧
   ∨   = prim p.∨
