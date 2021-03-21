@@ -74,20 +74,25 @@ module c where
   exl : A × B ⇨ A
   exr : A × B ⇨ B
   !   : A ⇨ ⊤
-  ∧ ∨ xor : Bool × Bool ⇨ Bool
-  ¬ : Bool ⇨ Bool
 
   id  = route r.id
   dup = route r.dup
   exl = route r.exl
   exr = route r.exr
   !   = route r.!
-  ∧   = prim  p.∧
-  ∨   = prim  p.∨
-  xor = prim  p.xor
-  ¬   = prim  p.not
 
-  -- Cartesian-categorical operations.
+  -- ∧ ∨ xor : Bool × Bool ⇨ Bool
+  -- ¬ : Bool ⇨ Bool
+  -- ∧   = prim  p.∧
+  -- ∨   = prim  p.∨
+  -- xor = prim  p.xor
+  -- ¬   = prim  p.not
+
+  -- Cartesian-categorical operations with standard definitions. Agsy can
+  -- synthesize most of these definitions, thought not most succinctly. Where
+  -- _▵_ is used, I gave it explicitly ("? ▵ ?"). On the other hand, we can give
+  -- these definitions elsewhere for *all* cartesian categories and then remove
+  -- them here.
 
   infixr 7 _▵_
   _▵_ : A ⇨ C → A ⇨ D → A ⇨ C × D
@@ -98,8 +103,6 @@ module c where
 
   second : B ⇨ D → A × B ⇨ A × D
   second f = id ⊗ f
-
-  -- Some useful composite combinational circuits
 
   assocˡ : A × (B × C) ⇨ (A × B) × C
   assocʳ : (A × B) × C ⇨ A × (B × C)
@@ -113,10 +116,6 @@ module c where
   transpose : (A × B) × (C × D) ⇨ (A × C) × (B × D)
   transpose = (exl ⊗ exl) ▵ (exr ⊗ exr)
 
-  -- Agsy can synthesize most of these definitions, thought not most succinctly.
-  -- Where _▵_ is used, I gave it explicitly ("? ▵ ?").
-  -- On the other hand, we can give these definitions elsewhere for *all*
-  -- cartesian categories and then remove them here.
 
 -- Synchronous state machine.
 module s where

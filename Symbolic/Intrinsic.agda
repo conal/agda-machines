@@ -53,10 +53,6 @@ module c where
   ⟦_⟧ : ∀ {f : A → B} → Comb f → A → B
   ⟦_⟧ {f = f} _ = f
 
-  ∧   : Comb (uncurry Bool._∧_)
-  ∨   : Comb (uncurry Bool._∨_)
-  xor : Comb (uncurry Bool._xor_)
-  not : Comb Bool.not
   id  : Comb {A} F.id
   dup : Comb {A} F.dup
   exl : Comb {A × B} F.exl
@@ -69,12 +65,17 @@ module c where
   exl = route r.exl
   exr = route r.exr
   !   = route r.!
-  ∧   = prim  p.∧
-  ∨   = prim  p.∨
-  xor = prim  p.xor
-  not = prim  p.not
 
-  -- Cartesian-categorical operations:
+  -- ∧   : Comb (uncurry Bool._∧_)
+  -- ∨   : Comb (uncurry Bool._∨_)
+  -- xor : Comb (uncurry Bool._xor_)
+  -- not : Comb Bool.not
+  -- ∧   = prim  p.∧
+  -- ∨   = prim  p.∨
+  -- xor = prim  p.xor
+  -- not = prim  p.not
+
+  -- Cartesian-categorical operations with standard definitions:
 
   infixr 7 _△_
   _△_ : ∀ {f : A → C} {g : A → D} → Comb f → Comb g → Comb (f F.△ g)

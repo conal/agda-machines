@@ -74,8 +74,6 @@ module c where
   exl : A × B ⇨ A
   exr : A × B ⇨ B
   !   : A ⇨ ⊤
-  ∧ ∨ xor : Bool × Bool ⇨ Bool
-  ¬ : Bool ⇨ Bool
 
   id  = route r.id
   dup = route r.dup
@@ -83,10 +81,12 @@ module c where
   exr = route r.exr
   !   = route r.!
 
-  ∧   = prim p.∧
-  ∨   = prim p.∨
-  xor = prim p.xor
-  ¬   = prim p.not
+  -- ∧ ∨ xor : Bool × Bool ⇨ Bool
+  -- ¬ : Bool ⇨ Bool
+  -- ∧   = prim p.∧
+  -- ∨   = prim p.∨
+  -- xor = prim p.xor
+  -- ¬   = prim p.not
 
   -- Cartesian-categorical operations.
 

@@ -62,21 +62,21 @@ module c where
   exr : Comb {A × B} F.exr
   !   : Comb {A} F.!
 
-  ∧   : Comb (uncurry Bool._∧_)
-  ∨   : Comb (uncurry Bool._∨_)
-  xor : Comb (uncurry Bool._xor_)
-  not : Comb Bool.not
-
   -- Definitions by Agsy:
   id  = route r.id
   dup = route r.dup
   exl = route r.exl
   exr = route r.exr
   !   = route r.!
-  ∧   = prim  p.∧
-  ∨   = prim  p.∨
-  xor = prim  p.xor
-  not = prim  p.not
+
+  -- ∧   : Comb (uncurry Bool._∧_)
+  -- ∨   : Comb (uncurry Bool._∨_)
+  -- xor : Comb (uncurry Bool._xor_)
+  -- not : Comb Bool.not
+  -- ∧   = prim  p.∧
+  -- ∨   = prim  p.∨
+  -- xor = prim  p.xor
+  -- not = prim  p.not
 
   -- Cartesian-categorical operations:
 
