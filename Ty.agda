@@ -1,3 +1,5 @@
+{-# OPTIONS --safe --without-K #-}
+
 module Ty where
 
 open import Data.Unit renaming (⊤ to ⊤ᵗ) public
