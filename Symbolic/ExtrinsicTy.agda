@@ -88,7 +88,7 @@ module c where
   -- xor = prim p.xor
   -- ¬   = prim p.not
 
-  -- Cartesian-categorical operations.
+  -- Cartesian-categorical operations with standard definitions:
 
   infixr 7 _▵_
   _▵_ : A ⇨ C → A ⇨ D → A ⇨ C × D

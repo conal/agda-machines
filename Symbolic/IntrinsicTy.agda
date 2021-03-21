@@ -78,7 +78,7 @@ module c where
   -- xor = prim  p.xor
   -- not = prim  p.not
 
-  -- Cartesian-categorical operations:
+  -- Cartesian-categorical operations with standard definitions:
 
   infixr 7 _△_
   _△_ : ∀ {f : A →ᵗ C} {g : A →ᵗ D} → Comb f → Comb g → Comb (f F.△ g)
