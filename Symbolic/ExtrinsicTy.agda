@@ -45,7 +45,6 @@ module p where
   ⟦ xor ⟧ = uncurry Bool._xor_
   ⟦ not ⟧ = Bool.not
 
-
 -- Combinational circuits
 module c where
 
