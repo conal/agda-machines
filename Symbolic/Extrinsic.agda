@@ -15,6 +15,22 @@ private
   variable
     A B C D σ τ : Set
 
+-- Routing
+module r where
+
+  infix 1 _⇨_
+  data _⇨_ : Set → Set → Set₁ where
+    id  : A ⇨ A
+    dup : A ⇨ A × A
+    exl : A × B ⇨ A
+    exr : A × B ⇨ B
+
+  ⟦_⟧ : A ⇨ B → A → B
+  ⟦ id  ⟧ = F.id
+  ⟦ dup ⟧ = F.dup
+  ⟦ exl ⟧ = F.exl
+  ⟦ exr ⟧ = F.exr
+
 -- Combinational primitives
 module p where
 
@@ -22,21 +38,12 @@ module p where
   data _⇨_ : Set → Set → Set₁ where
     ∧ ∨ xor : Bool × Bool ⇨ Bool
     not : Bool ⇨ Bool
-    dup : A ⇨ A × A
-    exl : A × B ⇨ A
-    exr : A × B ⇨ B
-    id : A ⇨ A
 
   ⟦_⟧ : A ⇨ B → A → B
   ⟦ ∧   ⟧ = uncurry Bool._∧_
   ⟦ ∨   ⟧ = uncurry Bool._∨_
   ⟦ xor ⟧ = uncurry Bool._xor_
   ⟦ not ⟧ = Bool.not
-  ⟦ dup ⟧ = F.dup
-  ⟦ exl ⟧ = F.exl
-  ⟦ exr ⟧ = F.exr
-  ⟦ id  ⟧ = F.id
-
 
 -- Combinational circuits
 module c where
@@ -46,34 +53,36 @@ module c where
   infixr 9 _∘_
 
   data _⇨_ : Set → Set → Set₁ where
+    route : A r.⇨ B → A ⇨ B
     prim : A p.⇨ B → A ⇨ B
     _∘_ : B ⇨ C → A ⇨ B → A ⇨ C
     _⊗_ : A ⇨ C → B ⇨ D → A × B ⇨ C × D
 
   ⟦_⟧ : A ⇨ B → A → B
+  ⟦ route f ⟧ = r.⟦ f ⟧
   ⟦ prim f ⟧ = p.⟦ f ⟧
   ⟦ g ∘ f ⟧ = ⟦ g ⟧ F.∘ ⟦ f ⟧
   ⟦ f ⊗ g ⟧ = ⟦ f ⟧ F.⊗ ⟦ g ⟧
 
   -- TODO: Prove the cartesian category laws for _⇨_. Probably easier if
   -- parametrized by denotation.
-
-  -- Lift primitives to combinational circuits
+  -- Lift routes primitives to combinational circuits
   ∧ ∨ xor : Bool × Bool ⇨ Bool
   ¬ : Bool ⇨ Bool
+  id : A ⇨ A
   dup : A ⇨ A × A
   exl : A × B ⇨ A
   exr : A × B ⇨ B
-  id : A ⇨ A
+
+  id  = route r.id
+  dup = route r.dup
+  exl = route r.exl
+  exr = route r.exr
 
   ∧   = prim p.∧
   ∨   = prim p.∨
   xor = prim p.xor
   ¬   = prim p.not
-  dup = prim p.dup
-  exl = prim p.exl
-  exr = prim p.exr
-  id  = prim p.id
 
   -- Cartesian-categorical operations.
 

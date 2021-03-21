@@ -15,6 +15,17 @@ private
   variable
     A B C D σ τ : Set
 
+-- Routing
+module r where
+
+  data Route : {A B : Set} → (A → B) → Set₁ where
+    id  : Route (F.id {A = A})
+    dup : Route (F.dup {A = A})
+    exl : Route (F.exl {A = A} {B = B})
+    exr : Route (F.exr {A = A} {B = B})
+
+open r using (Route)
+
 -- Combinational primitives
 module p where
 
@@ -23,10 +34,6 @@ module p where
     ∨   : Prim (uncurry Bool._∨_)
     xor : Prim (uncurry Bool._xor_)
     not : Prim Bool.not
-    dup : Prim (F.dup {A = A})
-    exl : Prim (F.exl {A = A} {B = B})
-    exr : Prim (F.exr {A = A} {B = B})
-    id  : Prim (F.id {A = A})
 
 open p using (Prim)
 
@@ -34,6 +41,7 @@ open p using (Prim)
 module c where
 
   data Comb : ∀ {A B : Set} → (A → B) → Set₁ where
+    route : ∀ {f : A → B} (r : Route f) → Comb f
     prim : ∀ {f : A → B} (p : Prim f) → Comb f
     _∘_ : ∀ {f : A → B} {g : B → C} → Comb g → Comb f → Comb (g F.∘ f)
     _⊗_ : ∀ {f : A → C} {g : B → D} → Comb f → Comb g → Comb (f F.⊗ g)
@@ -54,14 +62,14 @@ module c where
   id  : Comb (F.id {A = A})
 
   -- Definitions by Agsy:
-  ∧   = prim p.∧
-  ∨   = prim p.∨
-  xor = prim p.xor
-  not = prim p.not
-  dup = prim p.dup
-  exl = prim p.exl
-  exr = prim p.exr
-  id  = prim p.id
+  id  = route r.id
+  dup = route r.dup
+  exl = route r.exl
+  exr = route r.exr
+  ∧   = prim  p.∧
+  ∨   = prim  p.∨
+  xor = prim  p.xor
+  not = prim  p.not
 
   -- Cartesian-categorical operations:
 

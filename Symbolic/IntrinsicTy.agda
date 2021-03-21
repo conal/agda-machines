@@ -13,6 +13,17 @@ private
   variable
     A B C D σ τ : Ty
 
+-- Routing
+module r where
+
+  data Route : {A B : Ty} → (A →ᵗ B) → Set₁ where
+    id  : Route {A} F.id
+    dup : Route {A} F.dup
+    exl : Route {A × B} F.exl
+    exr : Route {A × B} F.exr
+
+open r using (Route)
+
 -- Combinational primitives
 module p where
 
@@ -21,10 +32,6 @@ module p where
     ∨   : Prim (uncurry Bool._∨_)
     xor : Prim (uncurry Bool._xor_)
     not : Prim Bool.not
-    dup : Prim {A} F.dup
-    exl : Prim {A × B} F.exl
-    exr : Prim {A × B} F.exr
-    id  : Prim {A} F.id
 
 open p using (Prim)
 
@@ -32,12 +39,15 @@ open p using (Prim)
 module c where
 
   data Comb : ∀ {A B : Ty} → (A →ᵗ B) → Set₁ where
-    -- prim : ∀ {f : A →ᵗ B} (p : Prim f) → Comb f
-    -- _∘_ : ∀ {f : A →ᵗ B} {g : B →ᵗ C} → Comb g → Comb f → Comb (g F.∘ f)
-    -- _⊗_ : ∀ {f : A →ᵗ C} {g : B →ᵗ D} → Comb f → Comb g → Comb (f F.⊗ g)
+    route : ∀ {f} (r : Route {A}{B} f) → Comb f
     prim : ∀ {f} (p : Prim {A}{B} f) → Comb f
     _∘_ : ∀ {f}{g} → Comb {B}{C} g → Comb {A}{B} f → Comb (g F.∘ f)
     _⊗_ : ∀ {f}{g} → Comb {A}{C} f → Comb {B}{D} g → Comb (f F.⊗ g)
+
+  -- Alternatively,
+    -- prim : ∀ {f : A →ᵗ B} (p : Prim f) → Comb f
+    -- _∘_ : ∀ {f : A →ᵗ B} {g : B →ᵗ C} → Comb g → Comb f → Comb (g F.∘ f)
+    -- _⊗_ : ∀ {f : A →ᵗ C} {g : B →ᵗ D} → Comb f → Comb g → Comb (f F.⊗ g)
 
   infixr 7 _⊗_
   infixr 9 _∘_
@@ -45,24 +55,25 @@ module c where
   ⟦_⟧ : ∀ {f : A →ᵗ B} → Comb f → A →ᵗ B
   ⟦_⟧ {f = f} _ = f
 
+  id  : Comb {A} F.id
+  dup : Comb {A} F.dup
+  exl : Comb {A × B} F.exl
+  exr : Comb {A × B} F.exr
+
   ∧   : Comb (uncurry Bool._∧_)
   ∨   : Comb (uncurry Bool._∨_)
   xor : Comb (uncurry Bool._xor_)
   not : Comb Bool.not
-  dup : Comb {A} F.dup
-  exl : Comb {A × B} F.exl
-  exr : Comb {A × B} F.exr
-  id  : Comb {A} F.id
 
   -- Definitions by Agsy:
-  ∧   = prim p.∧
-  ∨   = prim p.∨
-  xor = prim p.xor
-  not = prim p.not
-  dup = prim p.dup
-  exl = prim p.exl
-  exr = prim p.exr
-  id  = prim p.id
+  id  = route r.id
+  dup = route r.dup
+  exl = route r.exl
+  exr = route r.exr
+  ∧   = prim  p.∧
+  ∨   = prim  p.∨
+  xor = prim  p.xor
+  not = prim  p.not
 
   -- Cartesian-categorical operations:
 

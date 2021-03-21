@@ -66,7 +66,7 @@ module c where
   -- TODO: Prove the cartesian category laws for _⇨_. Probably easier if
   -- parametrized by denotation.
 
-  -- Lift primitives to combinational circuits
+  -- Lift routes primitives to combinational circuits
   ∧ ∨ xor : Bool × Bool ⇨ Bool
   ¬ : Bool ⇨ Bool
   id : A ⇨ A
