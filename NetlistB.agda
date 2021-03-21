@@ -14,6 +14,12 @@ mutual
     input : Ty → Netlist
     snoc : (f : Netlist) → Source f A → A p.⇨ B → Netlist
 
+  record NetSource A : Set where
+    constructor netSource
+    field
+      netlist : Netlist
+      source : Source netlist A
+
   -- Type as output of a netlist component
   infix 4 _∈_
   data _∈_ (B : Ty) : Netlist → Set where
@@ -33,22 +39,20 @@ dom : Netlist → Ty
 dom (input A) = A
 dom (snoc f _ _) = dom f
 
--- Netlist codomain: most recently added component or input if empty.
-cod : Netlist → Ty
-cod (input A) = A
-cod (snoc _ _ p) = codᵖ p
-  where
-    codᵖ : A p.⇨ B → Ty
-    codᵖ {B = B} _ = B
-
--- This cod can't work, because it gives no way to translate combinational
--- circuits ending route or _⊗_.
-
--- infix 0 _⇨_
--- data _⇨_ (A B : Ty) : Set where
---   netlist : (f : Netlist) → 
+infix 0 _⇨_
+data _⇨_ : Ty → Ty → Set where
+  netlist : (f : Netlist) → Source f B → dom f ⇨ B
     
+-- ⟦_⟧ⁱˢ : Source (input A) B → A →ᵗ B
+-- ⟦_⟧ⁱˢ tt = F.!
+-- ⟦_⟧ⁱˢ (bit input∈ i) = ⟦ i ⟧ᵇ
+-- ⟦_⟧ⁱˢ (s₁ ∙ s₂) = ⟦ s₁ ⟧ⁱˢ F.△ ⟦ s₂ ⟧ⁱˢ
 
-⟦_⟧ⁿ : (f : Netlist) → dom f →ᵗ cod f
-⟦ input A ⟧ⁿ = F.id
-⟦ snoc f s p ⟧ⁿ = p.⟦ p ⟧ F.∘ {!!}
+⟦_⟧ⁿ : A ⇨ B → A →ᵗ B
+⟦ netlist _ tt ⟧ⁿ = F.!
+⟦ netlist f (bit B∈f i) ⟧ⁿ = {!!}
+⟦ netlist f (s₁ ∙ s₂) ⟧ⁿ = ⟦ netlist f s₁ ⟧ⁿ F.△ ⟦ netlist f s₂ ⟧ⁿ
+
+-- ⟦ netlist (input _) s ⟧ⁿ = {!s!} -- ⟦ s ⟧ⁱˢ
+-- ⟦ netlist (snoc f s′ p) s ⟧ⁿ = {!!}
+
