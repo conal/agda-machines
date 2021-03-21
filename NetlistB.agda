@@ -71,3 +71,6 @@ data _⇨_ : Ty → Ty → Set where
 -- TODO: maybe split s into two netfun arguments
 
 -- TODO: move dom into Netlist type, and rename NetSrc to _⇨_.
+
+-- TODO: Maybe add some optimizations like constant folding and hash consing
+-- (common subexpression elimination).
