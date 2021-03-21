@@ -163,17 +163,18 @@ module s where
   _▵_ : A ⇨ C → A ⇨ D → A ⇨ C × D
   f ▵ g = (f ⊗ g) ∘ comb c.dup
 
-  -- TODO: consider making categorical operations (most of the functionality in
-  -- this module) be methods of a common typeclass, so that (a) we can state and
-  -- prove laws conveniently, and (b) we needn't use clumsy names.
 
-  -- TODO: Rebuild this module in terms of semantic Mealy machines.
+-- TODO: consider making categorical operations (most of the functionality in
+-- this module) be methods of a common typeclass, so that (a) we can state and
+-- prove laws conveniently, and (b) we needn't use clumsy names.
 
-  -- TODO: Prove the cartesian category laws for _⇨_. Probably easier if
-  -- parametrized by denotation.
+-- TODO: Rebuild this module in terms of semantic Mealy machines.
 
-  -- TODO: Cocartesian.
+-- TODO: Prove the cartesian category laws for _⇨_. Probably easier if
+-- parametrized by denotation.
 
-  -- TODO: replicate compiling-to-categories using Agda reflection, and use to
-  -- make definitions like `_∘_` and `_⊗_` above read like their counterparts in
-  -- the Mealy module.
+-- TODO: Cocartesian.
+
+-- TODO: replicate compiling-to-categories using Agda reflection, and use to
+-- make definitions like `_∘_` and `_⊗_` above read like their counterparts in
+-- the Mealy module.
