@@ -5,6 +5,7 @@ open import Data.Nat
 open import Data.List
 
 import Misc as F
+open import Ty
 open import Symbolic.ExtrinsicTy
 
 private
