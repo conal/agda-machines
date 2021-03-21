@@ -24,7 +24,7 @@ mkSource {⊤} n = tt , n
 mkSource {Bool} n = pin n , suc n
 mkSource {_ × _} m = let A , n = mkSource m
                          B , o = mkSource n in 
-                     A ∙ B , o
+                       A ∙ B , o
                         
 record Instance : Set₁ where
   constructor inst
