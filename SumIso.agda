@@ -26,8 +26,8 @@ split f = is₁ ∘ f , split₁ f , split₂ f
    split₂ f (x , q) with f x
    split₂ f (x , tt) | inj₂ b = b
 
-merge : (h : X → Bool) → (∃ (T ∘ h) → A) → (∃ (T ∘ not ∘ h) → B) → (X → A ⊎ B)
-merge h f g x = (f ∘ (x ,_) ⊕ (g ∘ (x ,_))) (step h x)
+merge : (∃ λ h → (∃ (T ∘ h) → A) × (∃ (T ∘ not ∘ h) → B)) → (X → A ⊎ B)
+merge (h , f , g) x = (f ∘ (x ,_) ⊕ (g ∘ (x ,_))) (step h x)
  where
    step : (h : X → Bool) → (x : X) → T (h x) ⊎ T (not (h x)) 
    step h x with h x          -- h/t Arjan Rouvoet
