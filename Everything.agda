@@ -1,9 +1,11 @@
 module Everything where
 
-import Mealy
 import StreamFun
 import VecFun
+import FunFun
 import SumIso
+
+import Mealy
 import Symbolic.Extrinsic
 import Symbolic.Intrinsic
 
@@ -13,5 +15,4 @@ import MealyTy
 import Symbolic.ExtrinsicTy
 import Symbolic.IntrinsicTy
 
-
-
+import Netlist
