@@ -10,21 +10,21 @@ open import Symbolic.ExtrinsicTy
 
 private
   variable
-    A B C D X : Ty
+    A B : Ty
 
 infixr 8 _∙_
 data Source : Ty → Set₁ where
   tt : Source ⊤
   pin : ℕ → Source Bool
-  _∙_ : ∀ {σ τ} → Source σ → Source τ → Source (σ × τ)
+  _∙_ : Source A → Source B → Source (A × B)
 
 -- Generate a source, and advance the pin counter
 mkSource : ℕ → Source A ×ᵗ ℕ
 mkSource {⊤} n = tt , n
 mkSource {Bool} n = pin n , suc n
-mkSource {A × B} m = let A′ , n = mkSource m
-                         B′ , o = mkSource n in 
-                     A′ ∙ B′ , o
+mkSource {_ × _} m = let A , n = mkSource m
+                         B , o = mkSource n in 
+                     A ∙ B , o
                         
 record Instance : Set₁ where
   constructor inst
