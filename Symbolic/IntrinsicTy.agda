@@ -21,10 +21,10 @@ module p where
     ∨   : Prim (uncurry Bool._∨_)
     xor : Prim (uncurry Bool._xor_)
     not : Prim Bool.not
-    dup : Prim (F.dup {A = ⟦ A ⟧ᵗ})
-    exl : Prim (F.exl {A = ⟦ A ⟧ᵗ} {B = ⟦ B ⟧ᵗ})
-    exr : Prim (F.exr {A = ⟦ A ⟧ᵗ} {B = ⟦ B ⟧ᵗ})
-    id  : Prim (F.id {A = ⟦ A ⟧ᵗ})
+    dup : Prim {A} F.dup
+    exl : Prim {A × B} F.exl
+    exr : Prim {A × B} F.exr
+    id  : Prim {A} F.id
 
 open p using (Prim)
 
