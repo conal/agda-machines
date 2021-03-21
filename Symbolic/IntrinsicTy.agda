@@ -32,9 +32,12 @@ open p using (Prim)
 module c where
 
   data Comb : ∀ {A B : Ty} → (A →ᵗ B) → Set₁ where
-    prim : ∀ {f : A →ᵗ B} (p : Prim f) → Comb f
-    _∘_ : ∀ {f : A →ᵗ B} {g : B →ᵗ C} → Comb g → Comb f → Comb (g F.∘ f)
-    _⊗_ : ∀ {f : A →ᵗ C} {g : B →ᵗ D} → Comb f → Comb g → Comb (f F.⊗ g)
+    -- prim : ∀ {f : A →ᵗ B} (p : Prim f) → Comb f
+    -- _∘_ : ∀ {f : A →ᵗ B} {g : B →ᵗ C} → Comb g → Comb f → Comb (g F.∘ f)
+    -- _⊗_ : ∀ {f : A →ᵗ C} {g : B →ᵗ D} → Comb f → Comb g → Comb (f F.⊗ g)
+    prim : ∀ {f} (p : Prim {A}{B} f) → Comb f
+    _∘_ : ∀ {f}{g} → Comb {B}{C} g → Comb {A}{B} f → Comb (g F.∘ f)
+    _⊗_ : ∀ {f}{g} → Comb {A}{C} f → Comb {B}{D} g → Comb (f F.⊗ g)
 
   infixr 7 _⊗_
   infixr 9 _∘_
@@ -106,8 +109,9 @@ module s where
   id : Mealy (m.id {A})
   id = comb c.id
 
-  delay : (a₀ : ⟦ A ⟧ᵗ) → Mealy (m.delay a₀)
-  delay _ = mealy c.swap
+  delay : { a₀ : ⟦ A ⟧ᵗ} → Mealy (m.delay a₀)
+  delay = mealy c.swap
+  -- TODO: should a₀ be an implicit or explicit parameter?
 
   infixr 9 _∘_
   _∘_ : {g : B m.⇨ C} {f : A m.⇨ B} → Mealy g → Mealy f → Mealy (g m.∘ f)
@@ -140,4 +144,4 @@ module s where
 
 -- TODO: Cocartesian.
 
--- TODO: are the semantic functions worth keeping explicitly?
+-- TODO: are the explicit semantic functions worth keeping?
