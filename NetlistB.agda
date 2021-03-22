@@ -62,3 +62,37 @@ mutual
 
 -- TODO: Maybe add some optimizations like constant folding and hash consing
 -- (common subexpression elimination).
+
+mutual
+
+  idˢ : Source (input {A}) A
+  idˢ {⊤}     = tt
+  idˢ {_ × _} = exlˢ ∙ exrˢ
+  idˢ {Bool}  = bit input∈ here
+
+  exlˢ : Source (input {A × B}) A
+  exlˢ = {!!}
+
+  exrˢ : Source (input {A × B}) B
+  exrˢ = {!!}
+
+  -- TODO: consider generalizing BitIdx to ValIdx
+
+-- idʳ : A ⇨ A
+-- idʳ {⊤} = {!!}
+-- idʳ {Bool} = {!!}
+-- idʳ {A × A₁} = {!!}
+
+-- route : A r.⇨ B → A ⇨ B
+-- route r.id = netFun {!!}
+-- route r.dup = {!!}
+-- route r.exl = {!!}
+-- route r.exr = {!!}
+-- route r.! = {!!}
+
+
+-- compile : A c.⇨ B → A ⇨ B
+-- compile (c.route r) = {!!}
+-- compile (c.prim x) = {!!}
+-- compile (c c.∘ c₁) = {!!}
+-- compile (c c.⊗ c₁) = {!!}
