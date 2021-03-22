@@ -1,4 +1,4 @@
-module Netlist where
+module NetlistA where
 
 open import Data.Nat
 open import Data.List
