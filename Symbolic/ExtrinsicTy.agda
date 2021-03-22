@@ -18,7 +18,7 @@ module r where
 
   infix 1 _⇨_
   data _⇨_ : Ty → Ty → Set where
-    id  : A ⇨ A
+    id  : A ⇨ A    -- Bool ⇨ Bool ?
     dup : A ⇨ A × A
     exl : A × B ⇨ A
     exr : A × B ⇨ B
