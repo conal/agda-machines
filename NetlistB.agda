@@ -10,6 +10,7 @@ private variable A B C D : Ty
 
 mutual
 
+  -- Netlist with typed input and compatible identified output source
   infix 0 _⇨_
   record _⇨_ (A B : Ty) : Set where
     inductive
@@ -25,16 +26,16 @@ mutual
 
   private variable nets : Netlist A
 
-  infix 4 _∈⇨_
-  _∈⇨_ : Ty → A ⇨ B → Set
-  C ∈⇨ netFun { nets } _ = C ∈ nets
-
   -- Type as output of a netlist component
   infix 4 _∈_
   data _∈_ (C : Ty) : Netlist A → Set where
     input∈ : C ∈ input {C}
     here   : ∀ (f : A ⇨ B) (p : B p.⇨ C)          → C ∈ snoc f p
     there  : ∀ {f : A ⇨ B} {p : B p.⇨ D} → C ∈⇨ f → C ∈ snoc f p
+
+  infix 4 _∈⇨_
+  _∈⇨_ : Ty → A ⇨ B → Set
+  C ∈⇨ netFun { nets } _ = C ∈ nets
 
   -- Data source
   infixr 8 _∙_
