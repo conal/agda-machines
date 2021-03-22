@@ -35,6 +35,8 @@ data BitIx : Ty → Set where
 ⟦ left  i ⟧ᵇ (x , y) = ⟦ i ⟧ᵇ x
 ⟦ right i ⟧ᵇ (x , y) = ⟦ i ⟧ᵇ y
 
+-- TODO: phase out BitIx and ⟦_⟧ᵇ
+
 -- Index of a subvalue in a type
 infix 1 _∈ᵗ_
 data _∈ᵗ_ : Ty → Ty → Set where
