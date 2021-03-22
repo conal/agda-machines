@@ -90,13 +90,13 @@ module c where
 
   -- Cartesian-categorical operations with standard definitions. Agsy can
   -- synthesize most of these definitions, thought not most succinctly. Where
-  -- _▵_ is used, I gave it explicitly ("? ▵ ?"). On the other hand, we can give
+  -- _△_ is used, I gave it explicitly ("? △ ?"). On the other hand, we can give
   -- these definitions elsewhere for *all* cartesian categories and then remove
   -- them here.
 
-  infixr 7 _▵_
-  _▵_ : A ⇨ C → A ⇨ D → A ⇨ C × D
-  f ▵ g = (f ⊗ g) ∘ dup
+  infixr 7 _△_
+  _△_ : A ⇨ C → A ⇨ D → A ⇨ C × D
+  f △ g = (f ⊗ g) ∘ dup
 
   first : A ⇨ C → A × B ⇨ C × B
   first f = f ⊗ id
@@ -107,14 +107,14 @@ module c where
   assocˡ : A × (B × C) ⇨ (A × B) × C
   assocʳ : (A × B) × C ⇨ A × (B × C)
 
-  assocˡ = second exl ▵ exr ∘ exr
-  assocʳ = exl ∘ exl ▵ first exr
+  assocˡ = second exl △ exr ∘ exr
+  assocʳ = exl ∘ exl △ first exr
 
   swap : A × B ⇨ B × A
-  swap = exr ▵ exl
+  swap = exr △ exl
 
   transpose : (A × B) × (C × D) ⇨ (A × C) × (B × D)
-  transpose = (exl ⊗ exl) ▵ (exr ⊗ exr)
+  transpose = (exl ⊗ exl) △ (exr ⊗ exr)
 
 
 -- Synchronous state machine.
@@ -149,17 +149,17 @@ module s where
     (swiz₂ c.∘ c.second g c.∘ swiz₁ c.∘ c.first f c.∘ c.assocˡ)
    where
      swiz₁ : (B × σ) × τ c.⇨ σ × (B × τ)
-     swiz₁ = c.exr c.∘ c.exl c.▵ c.first c.exl
+     swiz₁ = c.exr c.∘ c.exl c.△ c.first c.exl
      swiz₂ : σ × (C × τ) c.⇨ C × (σ × τ)
-     swiz₂ = c.exl c.∘ c.exr c.▵ c.second c.exr
+     swiz₂ = c.exl c.∘ c.exr c.△ c.second c.exr
 
   infixr 7 _⊗_
   _⊗_ : A ⇨ C → B ⇨ D → A × B ⇨ C × D
   mealy s₀ f ⊗ mealy t₀ g = mealy (s₀ , t₀) (c.transpose c.∘ (f c.⊗ g) c.∘ c.transpose)
 
-  infixr 7 _▵_
-  _▵_ : A ⇨ C → A ⇨ D → A ⇨ C × D
-  f ▵ g = (f ⊗ g) ∘ comb c.dup
+  infixr 7 _△_
+  _△_ : A ⇨ C → A ⇨ D → A ⇨ C × D
+  f △ g = (f ⊗ g) ∘ comb c.dup
 
 -- TODO: consider making categorical operations (most of the functionality in
 -- this module) be methods of a common typeclass, so that (a) we can state and
