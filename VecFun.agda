@@ -55,7 +55,6 @@ f ⊗ g = uncurry zip ∘′ map× f g ∘′ unzip
 delay : A → (A ↠ A)
 delay a as = init (a ∷ as)
 
--- scanl : (B → A → B) → B → ∀ {n} → Vec A n → Vec B n
 scanl : (B → A → B) → B → A ↠ B
 scanl _∙_ b []       = []
 scanl _∙_ b (a ∷ as) = b ∷ scanl _∙_ (b ∙ a) as
@@ -68,36 +67,19 @@ scanl× : (B → A → B) → B → ∀ {n} → Vec A n → Vec B n × B
 scanl× _∙_ b []       = [] , b
 scanl× _∙_ b (a ∷ as) = map×₁ (b ∷_) (scanl× _∙_ (b ∙ a) as)
 
-mealy : ∀ {State : Set} → (A × State → B × State)
-      → Vec A n × State → Vec B n × State
-mealy f ([] , s) = [] , s
-mealy f (a ∷ as , s) = let b , s′ = f (a , s) in
-  map×₁ (b ∷_) (mealy f (as , s′))
-
--- mealy f (a ∷ as , s) = let b , s′ = f (a , s)
---                            bs , s″ = mealy f (as , s′)
---                        in (b ∷ bs) , s″
+mealy′ : ∀ {State : Set} → (A × State → B × State)
+       → Vec A n × State → Vec B n × State
+mealy′ f ([] , s) = [] , s
+mealy′ f (a ∷ as , s) = let b , s′ = f (a , s) in
+  map×₁ (b ∷_) (mealy′ f (as , s′))
 
 scanl-via-mealy : (B → A → B) → B → Vec A n → Vec B n × B
-scanl-via-mealy _∙_ b as = mealy (λ (a , b) → b , b ∙ a) (as , b)
+scanl-via-mealy _∙_ b as = mealy′ (λ (a , b) → b , b ∙ a) (as , b)
 
 scanl≡mealy : (_∙_ : B → A → B) → (e : B) → (as : Vec A n)
             → scanl× _∙_ e as ≡ scanl-via-mealy _∙_ e as
 scanl≡mealy _∙_ e [] = refl
 scanl≡mealy _∙_ e (a ∷ as) rewrite scanl≡mealy _∙_ (e ∙ a) as = refl
-
--- scanl≡mealy _∙_ e (a ∷ as) =
---   begin
---     scanl× _∙_ e (a ∷ as)
---   ≡⟨⟩
---     map×₁ (e ∷_) (scanl× _∙_ (e ∙ a) as)
---   ≡⟨ cong (map×₁ (e ∷_)) (scanl≡mealy _∙_ (e ∙ a) as) ⟩
---     map×₁ (e ∷_) (mealy (λ (a′ , e) → e , e ∙ a′) (as , e ∙ a))
---   ≡⟨⟩
---     mealy (λ (a′ , e) → e , e ∙ a′) (a ∷ as , e)
---   ≡⟨⟩
---     scanl-via-mealy _∙_ e (a ∷ as)
---   ∎
 
 
 -------------------------------------------------------------------------------
