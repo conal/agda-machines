@@ -1,3 +1,5 @@
+{-# OPTIONS --safe --without-K #-}
+
 -- Miscellaneous simply-typed categorical operations on functions
 
 open import Level
