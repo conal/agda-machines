@@ -63,18 +63,18 @@ mutual
 -- TODO: Maybe add some optimizations like constant folding and hash consing
 -- (common subexpression elimination).
 
-mutual
+-- mutual
 
-  idˢ : Source (input {A}) A
-  idˢ {⊤}     = tt
-  idˢ {_ × _} = exlˢ ∙ exrˢ
-  idˢ {Bool}  = bit input∈ here
+--   idˢ : Source (input {A}) A
+--   idˢ {⊤}     = tt
+--   idˢ {_ × _} = exlˢ ∙ exrˢ
+--   idˢ {Bool}  = bit input∈ here
 
-  exlˢ : Source (input {A × B}) A
-  exlˢ = {!!}
+--   exlˢ : Source (input {A × B}) A
+--   exlˢ = {!!}
 
-  exrˢ : Source (input {A × B}) B
-  exrˢ = {!!}
+--   exrˢ : Source (input {A × B}) B
+--   exrˢ = {!!}
 
   -- TODO: consider generalizing BitIdx to ValIdx
 
