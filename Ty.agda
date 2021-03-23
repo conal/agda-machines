@@ -6,6 +6,8 @@ open import Data.Unit renaming (⊤ to ⊤ᵗ) public
 open import Data.Bool using () renaming (Bool to Boolᵗ) public
 open import Data.Product using (_,_; uncurry) renaming (_×_ to _×ᵗ_) public
 
+import Misc as F
+
 infixr 2 _×_
 data Ty : Set where
   ⊤    : Ty
@@ -46,6 +48,19 @@ data _∈ᵗ_ : Ty → Ty → Set where
 
 -- Extract a subvalue
 ⟦_∈ᵗ⟧ : ∀ {A} → B ∈ᵗ A → A →ᵗ B
-⟦ here    ∈ᵗ⟧ x = x
-⟦ left  i ∈ᵗ⟧ (x , y) = ⟦ i ∈ᵗ⟧ x
-⟦ right i ∈ᵗ⟧ (x , y) = ⟦ i ∈ᵗ⟧ y
+⟦ here    ∈ᵗ⟧ = F.id
+⟦ left  i ∈ᵗ⟧ = ⟦ i ∈ᵗ⟧ F.∘ F.exl
+⟦ right i ∈ᵗ⟧ = ⟦ i ∈ᵗ⟧ F.∘ F.exr
+
+-- ⟦ here    ∈ᵗ⟧ x = x
+-- ⟦ left  i ∈ᵗ⟧ (x , y) = ⟦ i ∈ᵗ⟧ x
+-- ⟦ right i ∈ᵗ⟧ (x , y) = ⟦ i ∈ᵗ⟧ y
+
+infixr 9 _∘∈ᵗ_
+_∘∈ᵗ_ : B ∈ᵗ C → A ∈ᵗ B → A ∈ᵗ C
+here    ∘∈ᵗ f = f
+left  i ∘∈ᵗ f = left  (i ∘∈ᵗ f)
+right i ∘∈ᵗ f = right (i ∘∈ᵗ f)
+-- Fully synthesized from {! -c !}
+
+-- TODO: Prove that ⟦_∈ᵗ⟧  is a functor. Probably easy.
