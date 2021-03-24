@@ -157,7 +157,8 @@ isEq : IsEquivalence {A = Stream A} _≈_
 isEq = record { refl = ≈-refl ; sym = ≈-sym ; trans = ≈-trans }
 
 ≈-setoid : Set → Setoid _ _
-≈-setoid A = record { Carrier = Stream A ; _≈_ = _≈_ ; isEquivalence = isEq }
+≈-setoid A = record { isEquivalence = isEq {A} }
+-- ≈-setoid A = record { Carrier = Stream A ; _≈_ = _≈_ ; isEquivalence = isEq }
 
 module R {A : Set} where
   open import Relation.Binary.Reasoning.Setoid (≈-setoid A) public
