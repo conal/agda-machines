@@ -70,3 +70,10 @@ flatten (f c.⊗ g) (a ∙ b , nets , m) =
 
 -- TODO: Maybe add some optimizations like constant folding and hash consing
 -- (common subexpression elimination).
+
+open import Data.String
+
+compile : (A c.⇨ B) → Source B ×ᵗ St
+compile f = let sₐ , m = mkSource 0
+                in flatten f (sₐ , [] , m)
+  
