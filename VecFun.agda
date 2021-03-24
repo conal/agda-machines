@@ -208,3 +208,36 @@ open import Data.Nat.Properties
   ∎
 
 -}
+
+-- Equivalence relation for easier reasoning.
+
+refl≗ : ∀ {f : A ↠ B} → f ≗ f
+refl≗ as = refl
+
+sym≗ : ∀ {f g : A ↠ B} → f ≗ g → g ≗ f
+sym≗ f≗g as = sym (f≗g as)
+
+trans≗ : ∀ {f g h : A ↠ B} → f ≗ g → g ≗ h → f ≗ h
+trans≗ f≗g g≗h as = trans (f≗g as) (g≗h as)
+
+open import Relation.Binary
+
+isEq : IsEquivalence {A = A ↠ B} _≗_
+isEq = record { refl = λ {f} → refl≗ {f = f} ; sym = sym≗ ; trans = trans≗ }
+
+≗-setoid : Set → Set → Setoid _ _
+≗-setoid A B = record { isEquivalence = isEq {A}{B} }
+
+-- Is cong≗ provable without assuming extensionality?
+
+-- cong≗ : ∀ (P : (A ↠ B) → (C ↠ D)) {f g : A ↠ B} → f ≗ g → P f ≗ P g
+-- cong≗ P {f} {g} f≗g as =
+--   begin
+--      P f as
+--   ≡⟨⟩
+--      P (λ s → f s) as
+--   ≡⟨ ? ⟩
+--      P (λ s → g s) as
+--   ≡⟨ {!!} ⟩
+--     P g as
+--   ∎
