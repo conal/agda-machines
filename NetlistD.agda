@@ -1,3 +1,6 @@
+-- This variation is based on a vector-like type with sized elements.
+-- Replace products with vectors.
+
 module NetlistD where
 
 open import Data.Nat
