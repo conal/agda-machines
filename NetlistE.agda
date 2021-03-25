@@ -38,7 +38,7 @@ _⇨_ : ℕ → ℕ → Set
 a ⇨ b = ∃ λ j → ∀ {k} → Src k a → Src (j + k) b
 
 route : a r.⇨ b → a ⇨ b
-route r = zero , λ (netsₖ , k⇨ᵣa) → netsₖ , r r.∘ k⇨ᵣa
+route a⇨ᵣb = zero , λ (netsₖ , k⇨ᵣa) → netsₖ , a⇨ᵣb r.∘ k⇨ᵣa
 
 id  : a ⇨ a
 dup : a ⇨ a + a
@@ -56,7 +56,7 @@ exr = route r.exr
 -- route is a cartesian functor, so all such alternatives are equivalent.
 
 prim : a p.⇨ b → a ⇨ b
-prim {a}{b} p = b , λ (netsₖ , k⇨ᵣa) → (a , p , k⇨ᵣa) ∷ netsₖ , r.exl
+prim {a}{b} a⇨ₚb = b , λ (netsₖ , k⇨ᵣa) → (a , a⇨ₚb , k⇨ᵣa) ∷ netsₖ , r.exl
 
 open import Relation.Binary.PropositionalEquality using (sym; subst)
 open import Data.Nat.Properties using (+-assoc)
