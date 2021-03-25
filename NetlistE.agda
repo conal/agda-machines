@@ -52,7 +52,8 @@ exl = route r.exl
 exr = route r.exr
 !   = route r.!
 
--- assocʳ etc via route or their standard definitions via _△_ etc.
+-- assocʳ etc via route or their standard definitions via _△_ etc. TODO: prove
+-- route is a cartesian functor, so all such alternatives are equivalent.
 
 prim : a p.⇨ b → a ⇨ b
 prim {a}{b} p = b , λ (netsₖ , k⇨ᵣa) → (a , p , k⇨ᵣa) ∷ netsₖ , r.exl
@@ -84,3 +85,10 @@ f ⊗ g = second g ∘ first f
 infixr 7 _△_
 _△_ : a ⇨ c → a ⇨ d → a ⇨ c + d
 f △ g = (f ⊗ g) ∘ dup
+
+-- Homomorphic compilation
+compile : a c.⇨ b → a ⇨ b
+compile (c.route r) = route r
+compile (c.prim  p) = prim p
+compile (g c.∘ f)   = compile g ∘ compile f
+compile (f c.⊗ g)   = compile f ⊗ compile g
