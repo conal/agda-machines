@@ -88,3 +88,5 @@ compile (g c.∘ f)   = compile g ∘ compile f
 compile (f c.⊗ g)   = compile f ⊗ compile g
 
 -- Note that compile is a cartesian functor
+
+-- TODO: Evaluation as a functor. Also ⟦_⟧ ≗ c.⟦_⟧ ∘′ compile .
