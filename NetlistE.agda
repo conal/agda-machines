@@ -12,65 +12,75 @@ open import Data.Fin using (Fin; raise; inject+) renaming (splitAt to splitAtᶠ
 import Data.Sum as ⊎
 open ⊎ using (_⊎_)
 
+open import Symbolic.ExtrinsicVec
+
+private variable a b c d j k : ℕ
+
 infixr 5 _∷_
 data Vec′ (F : ℕ → ℕ → Set) : ℕ → Set where
   [] : Vec′ F zero
-  _∷_ : ∀ {k n} → F k n → Vec′ F k → Vec′ F (n + k)
+  _∷_ : F k j → Vec′ F k → Vec′ F (j + k)
 
-
-open import Symbolic.ExtrinsicVec
-
-private variable a b c d m n k : ℕ
 
 F : ℕ → ℕ → Set
-F k n = ∃ λ m → (m p.⇨ n) × (k r.⇨ m)
+F k b = ∃ λ a → (a p.⇨ b) × (k r.⇨ a)
 
 Netlist : ℕ → Set
 Netlist = Vec′ F
 
 -- A netlist with i outputs and result size a
 Src : ℕ → ℕ → Set
-Src i a = Netlist i × (i r.⇨ a)
+Src k a = Netlist k × (k r.⇨ a)
 
 -- The netlist category. The number of netlist outputs is static.
 infix 0 _⇨_
 _⇨_ : ℕ → ℕ → Set
-a ⇨ b = ∃ λ j → ∀ { i } → Src i a → Src (j + i) b
+a ⇨ b = ∃ λ j → ∀ {k} → Src k a → Src (j + k) b
 
 route : a r.⇨ b → a ⇨ b
-route r = zero , λ {i} (netsᵢ , i⇨ᵣa) → netsᵢ , r r.∘ i⇨ᵣa
+route r = zero , λ (netsₖ , k⇨ᵣa) → netsₖ , r r.∘ k⇨ᵣa
 
--- Now id and _∘_ are easy. What about _⊗_?
+id  : a ⇨ a
+dup : a ⇨ a + a
+exl : a + b ⇨ a
+exr : a + b ⇨ b
+!   : a ⇨ 0
 
-id : a ⇨ a
-id = zero , id′
+id  = route r.id
+dup = route r.dup   -- or id △ id
+exl = route r.exl
+exr = route r.exr
+!   = route r.!
 
-open import Relation.Binary.PropositionalEquality
-open import Data.Nat.Properties
+-- assocʳ etc via route or their standard definitions via _△_ etc.
+
+prim : a p.⇨ b → a ⇨ b
+prim {a}{b} p = b , λ (netsₖ , k⇨ᵣa) → (a , p , k⇨ᵣa) ∷ netsₖ , r.exl
+
+open import Relation.Binary.PropositionalEquality using (sym; subst)
+open import Data.Nat.Properties using (+-assoc)
 
 infixr 9 _∘_
 _∘_ : b ⇨ c → a ⇨ b → a ⇨ c
-_∘_ {c = c} (gj , g) (fj , f) =
-  gj + fj , λ {i} sₐ → subst (λ n → Src n c) (sym (+-assoc gj fj i)) (g (f sₐ))
+_∘_ {c = c} (jg , g) (jf , f) =
+  jg + jf , λ {k} sₐ → subst (λ n → Src n c) (sym (+-assoc jg jf k)) (g (f sₐ))
 
 first : a ⇨ c → a + b ⇨ c + b
-first (fj , f) = fj , λ {i} (netsᵢ , ir⇒a+b) →
- let nets_fj+i , fj+i⇨ᵣc = f {i} (netsᵢ , r.exl r.∘ ir⇒a+b) in
-   nets_fj+i , fj+i⇨ᵣc r.△ r.exr r.∘ ir⇒a+b r.∘ r.exr
+first (jf , f) = jf , λ {k} (netsₖ , k⇒ᵣa+b) →
+ let nets_jf+k , jf+k⇨ᵣc = f {k} (netsₖ , r.exl r.∘ k⇒ᵣa+b) in
+   nets_jf+k , jf+k⇨ᵣc r.△ r.exr r.∘ k⇒ᵣa+b r.∘ r.exr
 
 second : b ⇨ d → a + b ⇨ a + d
 second {b}{d}{a} g = route (r.swap {d}{a}) ∘ first g ∘ route (r.swap {a}{b})
 
 -- route r.swap : a + b ⇨ b + a
--- first g : b + a ⇨ d + a
+-- first g      : b + a ⇨ d + a
 -- route r.swap : d + a ⇨ a + d
 
 infixr 7 _⊗_
 _⊗_ : a ⇨ c → b ⇨ d → a + b ⇨ c + d
 f ⊗ g = second g ∘ first f
 
--- r.exr : fj + i r.⇨ i
--- ir⇒a+b : i r.⇨ a + b
--- r.exr : a + b r.⇨ b
--- 
--- r.exr r.∘ ir⇒a+b r.∘ r.exr : fj + i r.⇨ b
+infixr 7 _△_
+_△_ : a ⇨ c → a ⇨ d → a ⇨ c + d
+f △ g = (f ⊗ g) ∘ dup
