@@ -3,14 +3,8 @@
 
 -- module Netlist where
 
-open import Function renaming (id to id′) using (_∘′_)
 open import Data.Product using (∃; _×_; _,_)
 open import Data.Nat
-open import Data.Fin using (Fin; raise; inject+) renaming (splitAt to splitAtᶠ)
--- TODO: trim Data.Fin imports
--- open import Data.Fin using (Fin)
-import Data.Sum as ⊎
-open ⊎ using (_⊎_)
 
 open import Symbolic.ExtrinsicVec
 
@@ -92,3 +86,5 @@ compile (c.route r) = route r
 compile (c.prim  p) = prim p
 compile (g c.∘ f)   = compile g ∘ compile f
 compile (f c.⊗ g)   = compile f ⊗ compile g
+
+-- Note that compile is a cartesian functor
