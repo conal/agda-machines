@@ -83,7 +83,7 @@ module r where
 module p where
 
   1→1 : (Bool → Bool) → 1 →ᵇ 1
-  1→1 ∙_ (x ∷ []) = ∙ x ∷ []
+  1→1 f (x ∷ []) = f x ∷ []
 
   2→1 : (Bool → Bool → Bool) → 2 →ᵇ 1
   2→1 _∙_ (x ∷ y ∷ []) = x ∙ y ∷ []
