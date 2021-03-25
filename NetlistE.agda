@@ -32,7 +32,7 @@ Netlist = Vec′ F
 Src : ℕ → ℕ → Set
 Src i a = Netlist i × (i r.⇨ a)
 
--- The netlist category. The number of outputs is static.
+-- The netlist category. The number of netlist outputs is static.
 infix 0 _⇨_
 _⇨_ : ℕ → ℕ → Set
 a ⇨ b = ∃ λ j → ∀ { i } → Src i a → Src (j + i) b
