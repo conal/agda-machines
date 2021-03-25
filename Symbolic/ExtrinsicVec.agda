@@ -21,16 +21,6 @@ infix 0 _→ᵇ_
 _→ᵇ_ : ℕ → ℕ → Set
 m →ᵇ n = Bits m → Bits n
 
-1→1 : (Bool → Bool) → 1 →ᵇ 1
-1→1 ∙_ (x ∷ []) = ∙ x ∷ []
-
-2→1 : (Bool → Bool → Bool) → 2 →ᵇ 1
-2→1 _∙_ (x ∷ y ∷ []) = x ∙ y ∷ []
-
--- private
---   variable
---     A B C D σ τ : Ty
-
 private
   variable
     a b c d : ℕ
@@ -91,6 +81,12 @@ module r where
 
 -- Combinational primitives
 module p where
+
+  1→1 : (Bool → Bool) → 1 →ᵇ 1
+  1→1 ∙_ (x ∷ []) = ∙ x ∷ []
+
+  2→1 : (Bool → Bool → Bool) → 2 →ᵇ 1
+  2→1 _∙_ (x ∷ y ∷ []) = x ∙ y ∷ []
 
   infix 1 _⇨_
   data _⇨_ : ℕ → ℕ → Set where
