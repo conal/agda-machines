@@ -37,7 +37,73 @@ data BitIx : Ty → Set where
 ⟦ left  i ⟧ᵇ (x , y) = ⟦ i ⟧ᵇ x
 ⟦ right i ⟧ᵇ (x , y) = ⟦ i ⟧ᵇ y
 
--- TODO: phase out BitIx and ⟦_⟧ᵇ
+tabulate : (BitIx A → Boolᵗ) → ⟦ A ⟧ᵗ
+tabulate {⊤} f = tt
+tabulate {Bool} f = f here
+tabulate {_ × _} f = tabulate (f F.∘ left) , tabulate (f F.∘ right)
+
+lookup : ⟦ A ⟧ᵗ → (BitIx A → Boolᵗ)
+lookup a i = ⟦ i ⟧ᵇ a
+
+-- Relate Ty values to vectors
+
+open import Data.Nat
+open import Data.Vec
+open import Data.Vec.Properties using (++-injective)
+open import Function using (_↔_; mk↔′)
+open import Relation.Binary.PropositionalEquality
+open ≡-Reasoning
+
+size : Ty → ℕ
+size ⊤       = 0
+size Bool    = 1
+size (A × B) = size A + size B
+
+→Vec : ⟦ A ⟧ᵗ → Vec Boolᵗ (size A)
+→Vec {⊤} tt = []
+→Vec {Bool} b = b ∷ []
+→Vec {_ × _} (x , y) = →Vec x ++ →Vec y
+
+Vec→ : Vec Boolᵗ (size A) → ⟦ A ⟧ᵗ
+Vec→ {⊤} [] = tt
+Vec→ {Bool} (b ∷ []) = b
+Vec→ {A × B} bs = let u , v , _ = splitAt (size A) bs in Vec→ u , Vec→ v
+
+→Vec∘Vec→ : ∀ (bs : Vec Boolᵗ (size A)) → →Vec (Vec→ {A} bs) ≡ bs
+→Vec∘Vec→ {⊤} [] = refl
+→Vec∘Vec→ {Bool} (b ∷ []) = refl
+→Vec∘Vec→ {A × B} uv with splitAt (size A) uv
+... | u , v , refl = cong₂ _++_ (→Vec∘Vec→ {A} u) (→Vec∘Vec→ {B} v)
+
+-- In progress
+postulate
+  Vec→∘→Vec : ∀ (x : ⟦ A ⟧ᵗ) → Vec→ (→Vec x) ≡ x
+
+-- Vec→∘→Vec {⊤} tt = refl
+-- Vec→∘→Vec {Bool} b = refl
+-- Vec→∘→Vec {A × B} (x , y) =
+--   let u , v , eq = splitAt (size A) (→Vec x ++ →Vec y)
+--       →Vec_x≡u , →Vec_y≡v = ++-injective (→Vec x) u eq in
+--     begin
+--       Vec→ (→Vec (x , y))
+--     ≡⟨⟩
+--       Vec→ (→Vec x ++ →Vec y)
+--     ≡⟨ cong₂ (λ u v → Vec→ (u ++ v)) →Vec_x≡u →Vec_y≡v ⟩
+--       Vec→ (u ++ v)
+--     ≡⟨ {!!} ⟩
+--       Vec→ (→Vec x) , Vec→ (→Vec y)
+--     ≡⟨ cong₂ _,_ (Vec→∘→Vec {A} x) (Vec→∘→Vec {B} y) ⟩
+--       x , y
+--     ∎
+
+↔Vec : ⟦ A ⟧ᵗ ↔ Vec Boolᵗ (size A)
+↔Vec {A} = mk↔′ →Vec Vec→ (→Vec∘Vec→ {A}) (Vec→∘→Vec {A})
+
+-- TODO: rework ↔Vec as a equational style proof.
+
+
+-- TODO: Maybe phase out BitIx and ⟦_⟧ᵇ. More likely, drop its
+-- generalization below.
 
 -- Index of a subvalue in a type
 infix 1 _∈ᵗ_
