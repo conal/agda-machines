@@ -81,13 +81,6 @@ module c where
   exr = route r.exr
   !   = route r.!
 
-  -- ∧ ∨ xor : Bool × Bool ⇨ Bool
-  -- ¬ : Bool ⇨ Bool
-  -- ∧   = prim  p.∧
-  -- ∨   = prim  p.∨
-  -- xor = prim  p.xor
-  -- ¬   = prim  p.not
-
   -- Cartesian-categorical operations with standard definitions. Agsy can
   -- synthesize most of these definitions, thought not most succinctly. Where
   -- _△_ is used, I gave it explicitly ("? △ ?"). On the other hand, we can give
