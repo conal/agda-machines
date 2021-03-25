@@ -75,29 +75,29 @@ Vec→ {A × B} bs = let u , v , _ = splitAt (size A) bs in Vec→ u , Vec→ v
 →Vec∘Vec→ {A × B} uv with splitAt (size A) uv
 ... | u , v , refl = cong₂ _++_ (→Vec∘Vec→ {A} u) (→Vec∘Vec→ {B} v)
 
+{-
 -- In progress
-postulate
-  Vec→∘→Vec : ∀ (x : ⟦ A ⟧ᵗ) → Vec→ (→Vec x) ≡ x
-
--- Vec→∘→Vec {⊤} tt = refl
--- Vec→∘→Vec {Bool} b = refl
--- Vec→∘→Vec {A × B} (x , y) =
---   let u , v , eq = splitAt (size A) (→Vec x ++ →Vec y)
---       →Vec_x≡u , →Vec_y≡v = ++-injective (→Vec x) u eq in
---     begin
---       Vec→ (→Vec (x , y))
---     ≡⟨⟩
---       Vec→ (→Vec x ++ →Vec y)
---     ≡⟨ cong₂ (λ u v → Vec→ (u ++ v)) →Vec_x≡u →Vec_y≡v ⟩
---       Vec→ (u ++ v)
---     ≡⟨ {!!} ⟩
---       Vec→ (→Vec x) , Vec→ (→Vec y)
---     ≡⟨ cong₂ _,_ (Vec→∘→Vec {A} x) (Vec→∘→Vec {B} y) ⟩
---       x , y
---     ∎
+Vec→∘→Vec : ∀ (x : ⟦ A ⟧ᵗ) → Vec→ (→Vec x) ≡ x
+Vec→∘→Vec {⊤} tt = refl
+Vec→∘→Vec {Bool} b = refl
+Vec→∘→Vec {A × B} (x , y) =
+  let u , v , eq = splitAt (size A) (→Vec x ++ →Vec y)
+      →Vec_x≡u , →Vec_y≡v = ++-injective (→Vec x) u eq in
+    begin
+      Vec→ (→Vec (x , y))
+    ≡⟨⟩
+      Vec→ (→Vec x ++ →Vec y)
+    ≡⟨ cong₂ (λ u v → Vec→ (u ++ v)) →Vec_x≡u →Vec_y≡v ⟩
+      Vec→ (u ++ v)
+    ≡⟨ {!!} ⟩
+      Vec→ (→Vec x) , Vec→ (→Vec y)
+    ≡⟨ cong₂ _,_ (Vec→∘→Vec {A} x) (Vec→∘→Vec {B} y) ⟩
+      x , y
+    ∎
 
 ↔Vec : ⟦ A ⟧ᵗ ↔ Vec Boolᵗ (size A)
 ↔Vec {A} = mk↔′ →Vec Vec→ (→Vec∘Vec→ {A}) (Vec→∘→Vec {A})
+-}
 
 -- TODO: rework ↔Vec as a equational style proof.
 
