@@ -79,13 +79,6 @@ module c where
   exr = route r.exr
   !   = route r.!
 
-  -- ∧ ∨ xor : Bool × Bool ⇨ Bool
-  -- ¬ : Bool ⇨ Bool
-  -- ∧   = prim p.∧
-  -- ∨   = prim p.∨
-  -- xor = prim p.xor
-  -- ¬   = prim p.not
-
   -- Cartesian-categorical operations with standard definitions:
 
   infixr 7 _△_
