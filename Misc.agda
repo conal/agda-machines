@@ -61,3 +61,12 @@ transpose ((a , b) , (c , d)) = (a , c) , (b , d)
 
 ! : A → ⊤
 ! _ = tt
+
+open import Data.Sum renaming (map to map⊎)
+infixr 6 _⊕_
+_⊕_ : (A → C) → (B → D) → (A ⊎ B → C ⊎ D)
+_⊕_ = map⊎
+
+jam : ∀ {a}{A : Set a} → A ⊎ A → A
+jam (inj₁ x) = x
+jam (inj₂ y) = y
