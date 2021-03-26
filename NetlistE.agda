@@ -111,3 +111,9 @@ compile (f c.⊗ g)   = compile f ⊗ compile g
 ⟦ _ , f ⟧ x = ⟦ f (input x) ⟧ˢ
 
 -- TODO: Prove that ⟦_⟧ is a functor and c.⟦_⟧ ≗ ⟦_⟧ ∘′ compile .
+
+-- TODO: Render a ⇨ b to dot format to make pictures.
+-- What about input? If I plug the input hole with const, it will render that way.
+-- I suppose I could add a special "input" primitive with a silly evaluator (e.g., zero).
+-- Alternatively, change Vec′ to denote a function, with [] denoting input.
+-- Then drop the Cayley trick, and define Src append instead. Might be a nicer design.
