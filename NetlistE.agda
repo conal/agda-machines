@@ -1,7 +1,7 @@
 -- This variation is based on a vector-like type with sized elements.
 -- Replace products with vectors.
 
--- module Netlist where
+module NetlistE where
 
 open import Data.Product using (∃; _×_; _,_)
 open import Data.Nat
@@ -22,18 +22,19 @@ data Vec′ (F : ℕ → ℕ → Set) : ℕ → Set where
 
 -- TODO: Define fold on Vec′
 
-F : ℕ → ℕ → Set
-F k b = ∃ λ a → (a p.⇨ b) × (k r.⇨ a)
+-- Primitive instance: primitive and matching input routing
+Inst : ℕ → ℕ → Set
+Inst k b = ∃ λ a → (a p.⇨ b) × (k r.⇨ a)
 
-⟦_⟧ᶠ : F k b → k →ᵇ b
-⟦ _ , p , r ⟧ᶠ = p.⟦ p ⟧ F.∘ r.⟦ r ⟧
+⟦_⟧ⁱ : Inst k b → k →ᵇ b
+⟦ _ , p , r ⟧ⁱ = p.⟦ p ⟧ F.∘ r.⟦ r ⟧
 
 Netlist : ℕ → Set
-Netlist = Vec′ F
+Netlist = Vec′ Inst
 
 ⟦_⟧ⁿ : Netlist k → Bits k
 ⟦ [] ⟧ⁿ = V.[]
-⟦ f ∷ nl ⟧ⁿ = let b = ⟦ nl ⟧ⁿ in ⟦ f ⟧ᶠ b V.++ b
+⟦ inst ∷ nl ⟧ⁿ = let b = ⟦ nl ⟧ⁿ in ⟦ inst ⟧ⁱ b V.++ b
 
 -- TODO: generalize ⟦_⟧ⁿ from Netlist to Vec′, probably as a fold
 
@@ -44,8 +45,14 @@ Src k a = Netlist k × (k r.⇨ a)
 ⟦_⟧ˢ : Src k a → Bits a
 ⟦ nl , r ⟧ˢ = r.⟦ r ⟧ ⟦ nl ⟧ⁿ
 
-input : Bits a → Src a a
-input x = subst Netlist (+-identityʳ _) ((zero , p.const x , r.!) ∷ []) , r.id
+valIn : Bits a → Src a a
+valIn x = subst Netlist (+-identityʳ _) ((zero , p.const x , r.!) ∷ []) , r.id
+
+-- input : Src a a
+-- input = subst Netlist (+-identityʳ _) ((zero , p.input , r.!) ∷ []) , r.id
+
+-- output : ℕ → Src k k
+-- output a = {!!} , r.id
 
 -- The netlist category. The number of netlist outputs is static.
 infix 0 _⇨_
@@ -73,6 +80,11 @@ exr = route r.exr
 prim : a p.⇨ b → a ⇨ b
 prim {a}{b} a⇨ₚb = b , λ (netsₖ , k⇨ᵣa) → (a , a⇨ₚb , k⇨ᵣa) ∷ netsₖ , r.exl
 
+const : Bits b → 0 ⇨ b
+const x = prim (p.const x)
+
+-- The next two are for plugging the input and output before
+
 infixr 9 _∘_
 _∘_ : b ⇨ c → a ⇨ b → a ⇨ c
 _∘_ {c = c} (jg , g) (jf , f) =
@@ -98,7 +110,7 @@ infixr 7 _△_
 _△_ : a ⇨ c → a ⇨ d → a ⇨ c + d
 f △ g = (f ⊗ g) ∘ dup
 
--- Homomorphic compilation
+-- Functorial compilation
 compile : a c.⇨ b → a ⇨ b
 compile (c.route r) = route r
 compile (c.prim p)  = prim p
@@ -108,7 +120,7 @@ compile (f c.⊗ g)   = compile f ⊗ compile g
 -- Note that compile is a cartesian functor
 
 ⟦_⟧ : a ⇨ b → a →ᵇ b
-⟦ _ , f ⟧ x = ⟦ f (input x) ⟧ˢ
+⟦ _ , f ⟧ x = ⟦ f (valIn x) ⟧ˢ
 
 -- TODO: Prove that ⟦_⟧ is a functor and c.⟦_⟧ ≗ ⟦_⟧ F.∘ compile .
 
@@ -117,3 +129,15 @@ compile (f c.⊗ g)   = compile f ⊗ compile g
 -- I suppose I could add a special "input" primitive with a silly evaluator (e.g., zero).
 -- Alternatively, change Vec′ to denote a function, with [] denoting input.
 -- Then drop the Cayley trick, and define Src append instead. Might be a nicer design.
+
+seal : a ⇨ b → 0 ⇨ 0
+seal f = prim p.output ∘ f ∘ prim p.input
+
+nuthinˢ : Src 0 0
+nuthinˢ = [] , r.!
+
+-- Seal and extract netlist
+sealⁿ : a ⇨ b → ∃ Netlist
+sealⁿ f = let k , h = seal f
+              nl , r = h nuthinˢ
+          in k , subst Netlist (+-identityʳ k) nl
