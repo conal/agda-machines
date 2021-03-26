@@ -9,6 +9,7 @@ open import Data.Nat.Properties using (+-assoc; +-identityʳ)
 open import Relation.Binary.PropositionalEquality -- using (_≡_; sym; subst)
 import Data.Vec as V
 
+import Misc as F
 open import Symbolic.ExtrinsicVec
 
 
@@ -24,14 +25,15 @@ data Vec′ (F : ℕ → ℕ → Set) : ℕ → Set where
 F : ℕ → ℕ → Set
 F k b = ∃ λ a → (a p.⇨ b) × (k r.⇨ a)
 
--- TODO: factor ⟦_⟧ᶠ out of ⟦_⟧ⁿ
+⟦_⟧ᶠ : F k b → Bits k → Bits b  -- TODO: move _→ᵇ_ definition, and use here.
+⟦ _ , p , r ⟧ᶠ = p.⟦ p ⟧ F.∘ r.⟦ r ⟧
 
 Netlist : ℕ → Set
 Netlist = Vec′ F
 
 ⟦_⟧ⁿ : Netlist k → Bits k
 ⟦ [] ⟧ⁿ = V.[]
-⟦ (_ , p , r) ∷ nl ⟧ⁿ = let b = ⟦ nl ⟧ⁿ in p.⟦ p ⟧ (r.⟦ r ⟧ b) V.++ b
+⟦ f ∷ nl ⟧ⁿ = let b = ⟦ nl ⟧ⁿ in ⟦ f ⟧ᶠ b V.++ b
 
 -- TODO: generalize ⟦_⟧ⁿ from Netlist to Vec′, probably as a fold
 
