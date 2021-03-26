@@ -5,8 +5,12 @@
 
 open import Data.Product using (∃; _×_; _,_)
 open import Data.Nat
+open import Data.Nat.Properties using (+-assoc; +-identityʳ)
+open import Relation.Binary.PropositionalEquality -- using (_≡_; sym; subst)
+import Data.Vec as V
 
 open import Symbolic.ExtrinsicVec
+
 
 private variable a b c d j k : ℕ
 
@@ -15,16 +19,31 @@ data Vec′ (F : ℕ → ℕ → Set) : ℕ → Set where
   [] : Vec′ F zero
   _∷_ : F k j → Vec′ F k → Vec′ F (j + k)
 
+-- TODO: Define fold on Vec′
 
 F : ℕ → ℕ → Set
 F k b = ∃ λ a → (a p.⇨ b) × (k r.⇨ a)
 
+-- TODO: factor ⟦_⟧ᶠ out of ⟦_⟧ⁿ
+
 Netlist : ℕ → Set
 Netlist = Vec′ F
+
+⟦_⟧ⁿ : Netlist k → Bits k
+⟦ [] ⟧ⁿ = V.[]
+⟦ (_ , p , r) ∷ nl ⟧ⁿ = let b = ⟦ nl ⟧ⁿ in p.⟦ p ⟧ (r.⟦ r ⟧ b) V.++ b
+
+-- TODO: generalize ⟦_⟧ⁿ from Netlist to Vec′, probably as a fold
 
 -- A netlist with i outputs and result size a
 Src : ℕ → ℕ → Set
 Src k a = Netlist k × (k r.⇨ a)
+
+⟦_⟧ˢ : Src k a → Bits a
+⟦ nl , r ⟧ˢ = r.⟦ r ⟧ ⟦ nl ⟧ⁿ
+
+input : Bits a → Src a a
+input x = subst Netlist (+-identityʳ _) ((zero , p.const x , r.!) ∷ []) , r.id
 
 -- The netlist category. The number of netlist outputs is static.
 infix 0 _⇨_
@@ -51,9 +70,6 @@ exr = route r.exr
 
 prim : a p.⇨ b → a ⇨ b
 prim {a}{b} a⇨ₚb = b , λ (netsₖ , k⇨ᵣa) → (a , a⇨ₚb , k⇨ᵣa) ∷ netsₖ , r.exl
-
-open import Relation.Binary.PropositionalEquality using (sym; subst)
-open import Data.Nat.Properties using (+-assoc)
 
 infixr 9 _∘_
 _∘_ : b ⇨ c → a ⇨ b → a ⇨ c
@@ -83,10 +99,13 @@ f △ g = (f ⊗ g) ∘ dup
 -- Homomorphic compilation
 compile : a c.⇨ b → a ⇨ b
 compile (c.route r) = route r
-compile (c.prim  p) = prim p
+compile (c.prim p)  = prim p
 compile (g c.∘ f)   = compile g ∘ compile f
 compile (f c.⊗ g)   = compile f ⊗ compile g
 
 -- Note that compile is a cartesian functor
 
--- TODO: Define evaluation ⟦_⟧. Prove functor and ⟦_⟧ ≗ c.⟦_⟧ ∘′ compile .
+⟦_⟧ : a ⇨ b → Bits a → Bits b   -- TODO: move _→ᵇ_ definition, and use here.
+⟦ _ , f ⟧ x = ⟦ f (input x) ⟧ˢ
+
+-- TODO: Prove that ⟦_⟧ is a functor and c.⟦_⟧ ≗ ⟦_⟧ ∘′ compile .
