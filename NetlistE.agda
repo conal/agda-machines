@@ -110,7 +110,7 @@ compile (f c.⊗ g)   = compile f ⊗ compile g
 ⟦_⟧ : a ⇨ b → a →ᵇ b
 ⟦ _ , f ⟧ x = ⟦ f (input x) ⟧ˢ
 
--- TODO: Prove that ⟦_⟧ is a functor and c.⟦_⟧ ≗ ⟦_⟧ ∘′ compile .
+-- TODO: Prove that ⟦_⟧ is a functor and c.⟦_⟧ ≗ ⟦_⟧ F.∘ compile .
 
 -- TODO: Render a ⇨ b to dot format to make pictures.
 -- What about input? If I plug the input hole with const, it will render that way.
