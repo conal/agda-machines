@@ -25,7 +25,7 @@ data Vec′ (F : ℕ → ℕ → Set) : ℕ → Set where
 F : ℕ → ℕ → Set
 F k b = ∃ λ a → (a p.⇨ b) × (k r.⇨ a)
 
-⟦_⟧ᶠ : F k b → Bits k → Bits b  -- TODO: move _→ᵇ_ definition, and use here.
+⟦_⟧ᶠ : F k b → k →ᵇ b
 ⟦ _ , p , r ⟧ᶠ = p.⟦ p ⟧ F.∘ r.⟦ r ⟧
 
 Netlist : ℕ → Set
@@ -107,7 +107,7 @@ compile (f c.⊗ g)   = compile f ⊗ compile g
 
 -- Note that compile is a cartesian functor
 
-⟦_⟧ : a ⇨ b → Bits a → Bits b   -- TODO: move _→ᵇ_ definition, and use here.
+⟦_⟧ : a ⇨ b → a →ᵇ b
 ⟦ _ , f ⟧ x = ⟦ f (input x) ⟧ˢ
 
 -- TODO: Prove that ⟦_⟧ is a functor and c.⟦_⟧ ≗ ⟦_⟧ ∘′ compile .
