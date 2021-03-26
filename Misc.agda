@@ -12,6 +12,9 @@ private
     ℓ : Level
     A B C D : Set ℓ
 
+const : B → A → B
+const b a = b
+
 id : A → A
 id a = a
 

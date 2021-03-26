@@ -7,24 +7,26 @@ open import Data.Nat
 open import Data.Fin using (Fin; raise; inject+) renaming (splitAt to splitAtᶠ)
 open import Data.Vec hiding (transpose)
 import Data.Bool as Bool
-open Bool using (Bool)
+open Bool using (Bool; if_then_else_)
 open import Data.Product using (_×_ ; _,_; uncurry) renaming (map to map×)
 import Data.Sum as ⊎
 open ⊎ using (_⊎_; inj₁; inj₂)
+open import Data.String using (String; intersperse)
+import Data.List as L
 
 import Misc as F
+
+private variable a b c d : ℕ
 
 Bits : ℕ → Set
 Bits = Vec Bool
 
+showBits : Bits a → String
+showBits bs = intersperse "," (L.map (λ b → if b then "1" else "0") (toList bs))
+
 infix 0 _→ᵇ_
 _→ᵇ_ : ℕ → ℕ → Set
 m →ᵇ n = Bits m → Bits n
-
-private
-  variable
-    a b c d : ℕ
-    u v : Bits a
 
 -- Is this function defined somewhere?
 merge⊎ : Fin a ⊎ Fin b → Fin (a + b)
@@ -92,12 +94,28 @@ module p where
   data _⇨_ : ℕ → ℕ → Set where
     ∧ ∨ xor : 2 ⇨ 1
     not : 1 ⇨ 1
+    const : Bits a → 0 ⇨ a
+    -- The next two are introduced by graph generation
+    input  : 0 ⇨ a
+    output : b ⇨ 0
 
   ⟦_⟧ : a ⇨ b → a →ᵇ b
-  ⟦  ∧  ⟧ = 2→1 Bool._∧_
-  ⟦  ∨  ⟧ = 2→1 Bool._∨_
-  ⟦ xor ⟧ = 2→1 Bool._xor_
-  ⟦ not ⟧ = 1→1 Bool.not
+  ⟦ ∧ ⟧       = 2→1 Bool._∧_
+  ⟦ ∨ ⟧       = 2→1 Bool._∨_
+  ⟦ xor ⟧     = 2→1 Bool._xor_
+  ⟦ not ⟧     = 1→1 Bool.not
+  ⟦ const a ⟧ = F.const a
+  ⟦ input ⟧   = F.const (replicate Bool.false)
+  ⟦ output ⟧  = F.const []
+
+  show : a ⇨ b → String
+  show ∧         = "∧"
+  show ∨         = "∨"
+  show xor       = "xor"
+  show not       = "not"
+  show (const x) = showBits x
+  show input     = "input"
+  show output    = "output"
 
 -- Combinational circuits
 module c where

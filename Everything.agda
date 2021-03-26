@@ -14,5 +14,8 @@ import Ty
 import MealyTy
 import Symbolic.ExtrinsicTy
 import Symbolic.IntrinsicTy
+import Symbolic.ExtrinsicVec
 
-import Netlist
+import NetlistA
+import NetlistB
+import NetlistE
