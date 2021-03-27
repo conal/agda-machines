@@ -34,11 +34,11 @@ mergeᶠ {a}{b} = ⊎.[ inject+ b , raise a ]
 split′ : ∀ {ℓ}{X : Set ℓ} → Vec X (a + b) → Vec X a × Vec X b
 split′ {a = a} xs = let (u , v , _) = splitAt a xs in u , v
 
-module b where
+module v (A : Set) where
 
   infix 0 _⇨_
   _⇨_ : ℕ → ℕ → Set
-  m ⇨ n = Bits m → Bits n
+  m ⇨ n = Vec A m → Vec A n
 
   id : a ⇨ a
   id = F.id
@@ -76,7 +76,10 @@ module b where
   ! : a ⇨ 0
   ! = F.const []
 
--- TODO: phase out _→ᵇ_ in favor of b._⇨_
+module b where
+  open v Bool public
+
+-- TODO: phase out _→ᵇ_ in favor of v._⇨_
 infix 0 _→ᵇ_
 _→ᵇ_ : ℕ → ℕ → Set
 _→ᵇ_ = b._⇨_
