@@ -26,7 +26,7 @@ data Vec′ (F : ℕ → ℕ → Set) : ℕ → Set where
 Inst : ℕ → ℕ → Set
 Inst k b = ∃ λ a → (a p.⇨ b) × (k r.⇨ a)
 
-⟦_⟧ⁱ : Inst k b → k →ᵇ b
+⟦_⟧ⁱ : Inst k b → k b.⇨ b
 ⟦ _ , p , r ⟧ⁱ = p.⟦ p ⟧ F.∘ r.⟦ r ⟧
 
 Netlist : ℕ → Set
@@ -38,7 +38,7 @@ Netlist = Vec′ Inst
 
 -- TODO: generalize ⟦_⟧ⁿ from Netlist to Vec′, probably as a fold
 
--- A netlist with i outputs and result size a
+-- A netlist with k outputs and result size a
 Src : ℕ → ℕ → Set
 Src k a = Netlist k × (k r.⇨ a)
 
@@ -117,27 +117,33 @@ compile (c.prim p)  = prim p
 compile (g c.∘ f)   = compile g ∘ compile f
 compile (f c.⊗ g)   = compile f ⊗ compile g
 
--- Note that compile is a cartesian functor
-
-⟦_⟧ : a ⇨ b → a →ᵇ b
+-- Netlist semantics/interpreter
+⟦_⟧ : a ⇨ b → a b.⇨ b
 ⟦ _ , f ⟧ x = ⟦ f (valIn x) ⟧ˢ
 
 -- TODO: Prove that ⟦_⟧ is a functor and c.⟦_⟧ ≗ ⟦_⟧ F.∘ compile .
 
--- TODO: Render a ⇨ b to dot format to make pictures.
--- What about input? If I plug the input hole with const, it will render that way.
--- I suppose I could add a special "input" primitive with a silly evaluator (e.g., zero).
--- Alternatively, change Vec′ to denote a function, with [] denoting input.
--- Then drop the Cayley trick, and define Src append instead. Might be a nicer design.
+-- TODO: Render a ⇨ b to dot format to make pictures. What about input? If I
+-- plug the input hole with const, it will render that way. I suppose I could
+-- add a special "input" primitive with a silly evaluator (e.g., zero).
+-- Alternatively, change Vec′ to denote a function, with [] denoting input. Then
+-- drop the Cayley trick, and define Src append instead. Might be a nicer
+-- design.
 
 seal : a ⇨ b → 0 ⇨ 0
 seal f = prim p.output ∘ f ∘ prim p.input
 
 nuthinˢ : Src 0 0
-nuthinˢ = [] , r.!
+nuthinˢ = [] , r.!  -- equivalently, r.id
 
 -- Seal and extract netlist
 sealⁿ : a ⇨ b → ∃ Netlist
 sealⁿ f = let k , h = seal f
               nl , r = h nuthinˢ
           in k , subst Netlist (+-identityʳ k) nl
+
+
+-- Experimental variations for stateful computation
+
+sealˢ : ∀ {s} → a + s ⇨ b + s → s ⇨ s
+sealˢ f = first (prim p.output) ∘ f ∘ first (prim p.input)

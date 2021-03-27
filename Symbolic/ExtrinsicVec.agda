@@ -79,13 +79,13 @@ module v (A : Set) where
 module b where
   open v Bool public
 
--- TODO: phase out _→ᵇ_ in favor of v._⇨_
-infix 0 _→ᵇ_
-_→ᵇ_ : ℕ → ℕ → Set
-_→ᵇ_ = b._⇨_
+-- -- TODO: phase out _→ᵇ_ in favor of v._⇨_
+-- infix 0 _→ᵇ_
+-- _→ᵇ_ : ℕ → ℕ → Set
+-- _→ᵇ_ = b._⇨_
   
 
--- Routing.
+-- Routing.  TODO: consider generalizing from Bool.
 module r where
 
   infix 1 _⇨_
