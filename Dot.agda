@@ -5,11 +5,13 @@ module Dot where
 open import Data.Product using (_,_; _×_; proj₂)
 open import Data.Nat
 open import Data.Nat.Show as NS
-open import Data.Fin using (Fin; splitAt; toℕ)
+-- open import Data.Fin using (Fin; splitAt; toℕ)
+open import Data.Fin hiding ()
+open import Data.Fin.Show as FS
 open import Data.Sum using ([_,_])
 open import Data.String
 open import Data.List using (List; _∷_; map; upTo)
--- open import Data.Vec using (Vec)
+import Data.Vec as V
 
 open import Relation.Binary.PropositionalEquality using (_≡_; refl)
 
@@ -17,17 +19,7 @@ import Misc as F
 open import Symbolic.ExtrinsicVec
 open import NetlistE
 
--- line : String → String
--- line = _++ ";\n"
-
 private variable a b c d j k : ℕ
-
--- Output component and port number
-portᵒ : ℕ → Netlist k → Fin k → String
-portᵒ comp# (_∷_ {j = j} inst nl) i =
-  [ (λ o → "c" ++ NS.show comp# ++ NS.show (toℕ o))
-  , (λ o → portᵒ (suc comp#) nl o)
-  ] (splitAt j i)
 
 labels : String → ℕ → String
 labels tag n =
@@ -39,19 +31,31 @@ labelsⁱ = labels "In"
 labelsᵒ : ℕ → String
 labelsᵒ = labels "Out"
 
+-- Input component and port number
+portⁱ : ℕ → Fin a → String
+portⁱ comp# a = "c" ++ NS.show comp# ++ ":" ++ "In" ++ FS.show a
+
+-- Output component and port number
+portᵒ : ℕ → Netlist k → Fin k → String
+portᵒ comp# (_∷_ {j = j} inst nl) i =
+  [ (λ o → "c" ++ NS.show comp# ++ FS.show o)
+  , (λ o → portᵒ (suc comp#) nl o)
+  ] (splitAt j i)
+
 _ : labelsⁱ 5 ≡ "{<In0>|<In1>|<In2>|<In3>|<In4>}"
 _ = refl
 
 dotⁱ : ℕ → Inst k b → Netlist k → String
-dotⁱ {b = b} n (a , a⇨ₚb , k⇨ᵣa) nl = unlines (
-  ("c" ++ NS.show n ++
+dotⁱ {b = b} comp# (a , a⇨ₚb , k⇨ᵣa) nl = unlines (
+  ("c" ++ NS.show comp# ++
    "[label=\"" ++
-     braces (
-       labelsⁱ a ++
-       "|" ++ p.show a⇨ₚb ++ "|" ++
-       labelsᵒ b) ++
+   braces (labelsⁱ a ++ "|" ++ p.show a⇨ₚb ++ "|" ++ labelsᵒ b) ++
    "\"];")
-  ∷ {!!})
+  ∷ map (λ i → portᵒ comp# nl (k⇨ᵣa i) ++ " -> " ++ portⁱ comp# i ++ " [];")
+        (V.toList (V.allFin a)))
+
+_ : portⁱ 4 (suc (suc (zero {3}))) ≡ "c4:In2"
+_ = refl
 
 -- {!p.show a⇨ₚb!}
 
@@ -66,19 +70,5 @@ dotⁿ n (inst ∷ nl) = dotⁱ n inst nl ++ dotⁿ (suc n) nl
 dot : a ⇨ b → String
 dot f = dotⁿ 0 (proj₂ (sealⁿ f))
 
-
-{-
-
-data Vec′ (F : ℕ → ℕ → Set) : ℕ → Set where
-  [] : Vec′ F zero
-  _∷_ : F k j → Vec′ F k → Vec′ F (j + k)
-
-Inst k b = ∃ λ a → (a p.⇨ b) × (k r.⇨ a)
-
-Netlist = Vec′ Inst
-
-Src k a = Netlist k × (k r.⇨ a)
-
-a ⇨ b = ∃ λ j → ∀ {k} → Src k a → Src (j + k) b
-
--}
+-- The performance might suffer from using lists and multiple traversals
+-- (potentially quadratic). TODO: explore alternatives, such AVL trees.
