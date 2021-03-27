@@ -3,8 +3,16 @@ all : tests
 
 .PHONY: listings tests
 
-tests:
+# %: %.agda
+# 	agda --compile $<
+
+# Is there a build tool for Agda that tracks dependencies?
+
+# Compile unconditionally
+compile:
 	agda --compile Test.agda
+
+tests: Test
 	./Test
 	make -C figures
 
