@@ -27,16 +27,60 @@ bool e t b = if b then t else e
 showBits : Bits a → String
 showBits bs = intersperse "," (L.map (bool "0" "1") (toList bs))
 
+-- Is this function defined somewhere?
+mergeᶠ : Fin a ⊎ Fin b → Fin (a + b)
+mergeᶠ {a}{b} = ⊎.[ inject+ b , raise a ]
+
+split′ : ∀ {ℓ}{X : Set ℓ} → Vec X (a + b) → Vec X a × Vec X b
+split′ {a = a} xs = let (u , v , _) = splitAt a xs in u , v
+
+module b where
+
+  infix 0 _⇨_
+  _⇨_ : ℕ → ℕ → Set
+  m ⇨ n = Bits m → Bits n
+
+  id : a ⇨ a
+  id = F.id
+
+  infixr 9 _∘_
+  _∘_ : b ⇨ c → a ⇨ b → a ⇨ c
+  _∘_ = F._∘_
+
+  infixr 7 _⊗_
+  _⊗_ : a ⇨ c → b ⇨ d → a + b ⇨ c + d
+  f ⊗ g = uncurry _++_ F.∘ map× f g F.∘ split′
+
+  first : a ⇨ c → a + b ⇨ c + b
+  first f = f ⊗ id
+
+  second : b ⇨ d → a + b ⇨ a + d
+  second g = id ⊗ g
+
+  exl : a + b ⇨ a
+  exl = F.exl F.∘ split′
+
+  exr : a + b ⇨ b
+  exr = F.exr F.∘ split′
+
+  dup : a ⇨ a + a
+  dup = uncurry _++_ F.∘ F.dup
+
+  infixr 7 _△_
+  _△_ : a ⇨ c → a ⇨ d → a ⇨ c + d
+  f △ g = (f ⊗ g) ∘ dup
+
+  swap : a + b ⇨ b + a
+  swap {a} = exr △ exl {a}
+
+  ! : a ⇨ 0
+  ! = F.const []
+
+-- TODO: phase out _→ᵇ_ in favor of b._⇨_
 infix 0 _→ᵇ_
 _→ᵇ_ : ℕ → ℕ → Set
-m →ᵇ n = Bits m → Bits n
-
--- Is this function defined somewhere?
-merge⊎ : Fin a ⊎ Fin b → Fin (a + b)
-merge⊎ {a}{b} = ⊎.[ inject+ b , raise a ]
-
-splitAt′ : ∀ {ℓ}{X : Set ℓ} → Vec X (a + b) → Vec X a × Vec X b
-splitAt′ {a = a} xs = let (u , v , _) = splitAt a xs in u , v
+_→ᵇ_ = b._⇨_
+  
 
 -- Routing.
 module r where
@@ -45,7 +89,7 @@ module r where
   _⇨_ : ℕ → ℕ → Set
   a ⇨ b = Fin b → Fin a
 
-  ⟦_⟧ : (a ⇨ b) → (a →ᵇ b)
+  ⟦_⟧ : (a ⇨ b) → (a b.⇨ b)
   ⟦ f ⟧ a = tabulate (lookup a F.∘ f)
 
   id : a ⇨ a
@@ -57,7 +101,7 @@ module r where
 
   infixr 7 _⊗_
   _⊗_ : a ⇨ c → b ⇨ d → a + b ⇨ c + d
-  _⊗_ {c = c} f g = merge⊎ F.∘ ⊎.map f g F.∘ splitAtᶠ c
+  _⊗_ {c = c} f g = mergeᶠ F.∘ ⊎.map f g F.∘ splitAtᶠ c
 
   first : a ⇨ c → a + b ⇨ c + b
   first f = f ⊗ id
@@ -87,10 +131,10 @@ module r where
 -- Combinational primitives
 module p where
 
-  1→1 : (Bool → Bool) → 1 →ᵇ 1
+  1→1 : (Bool → Bool) → 1 b.⇨ 1
   1→1 f (x ∷ []) = f x ∷ []
 
-  2→1 : (Bool → Bool → Bool) → 2 →ᵇ 1
+  2→1 : (Bool → Bool → Bool) → 2 b.⇨ 1
   2→1 _∙_ (x ∷ y ∷ []) = x ∙ y ∷ []
 
   infix 1 _⇨_
@@ -102,7 +146,7 @@ module p where
     input  : 0 ⇨ a
     output : b ⇨ 0
 
-  ⟦_⟧ : a ⇨ b → a →ᵇ b
+  ⟦_⟧ : a ⇨ b → a b.⇨ b
   ⟦ ∧ ⟧       = 2→1 Bool._∧_
   ⟦ ∨ ⟧       = 2→1 Bool._∨_
   ⟦ xor ⟧     = 2→1 Bool._xor_
@@ -133,11 +177,11 @@ module c where
     _∘_ : b ⇨ c → a ⇨ b → a ⇨ c
     _⊗_ : a ⇨ c → b ⇨ d → a + b ⇨ c + d
 
-  ⟦_⟧ : a ⇨ b → a →ᵇ b
+  ⟦_⟧ : a ⇨ b → a b.⇨ b
   ⟦ route r ⟧ xs = tabulate (lookup xs F.∘ r)
   ⟦ prim  p ⟧ = p.⟦ p ⟧
-  ⟦ g ∘ f ⟧ = ⟦ g ⟧ F.∘ ⟦ f ⟧
-  ⟦ f ⊗ g ⟧ = uncurry _++_ F.∘ map× ⟦ f ⟧ ⟦ g ⟧ F.∘ splitAt′
+  ⟦ g ∘ f ⟧ = ⟦ g ⟧ b.∘ ⟦ f ⟧
+  ⟦ f ⊗ g ⟧ = ⟦ f ⟧ b.⊗ ⟦ g ⟧
 
   -- TODO: Prove the cartesian category laws for _⇨_. Probably easier if
   -- parametrized by denotation.
