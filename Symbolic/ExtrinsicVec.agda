@@ -21,8 +21,11 @@ private variable a b c d : ℕ
 Bits : ℕ → Set
 Bits = Vec Bool
 
+bool : ∀ {ℓ}{A : Set ℓ} → A → A → Bool → A
+bool e t b = if b then t else e
+
 showBits : Bits a → String
-showBits bs = intersperse "," (L.map (λ b → if b then "1" else "0") (toList bs))
+showBits bs = intersperse "," (L.map (bool "0" "1") (toList bs))
 
 infix 0 _→ᵇ_
 _→ᵇ_ : ℕ → ℕ → Set
@@ -204,10 +207,10 @@ module s where
 
 --   import Mealy as m
 
---   ⟦_⟧ : A ⇨ B → ⟦ A ⟧ᵗ m.⇨ ⟦ B ⟧ᵗ
+--   ⟦_⟧ : a ⇨ b → ⟦ a ⟧ᵗ m.⇨ ⟦ b ⟧ᵗ
 --   ⟦ mealy s₀ f ⟧ = m.mealy s₀ c.⟦ f ⟧
 
---   comb : A c.⇨ B → A ⇨ B
+--   comb : a c.⇨ b → a ⇨ b
 --   comb f = mealy tt (c.first f)
 
 --   id : A ⇨ A
@@ -217,21 +220,21 @@ module s where
 --   delay a₀ = mealy a₀ c.swap
 
 --   infixr 9 _∘_
---   _∘_ : B ⇨ C → A ⇨ B → A ⇨ C
+--   _∘_ : b ⇨ c → a ⇨ b → a ⇨ c
 --   mealy t₀ g ∘ mealy s₀ f = mealy (s₀ , t₀)
 --     (swiz₂ c.∘ c.second g c.∘ swiz₁ c.∘ c.first f c.∘ c.assocˡ)
 --    where
---      swiz₁ : (B × σ) × τ c.⇨ σ × (B × τ)
+--      swiz₁ : (b × σ) × τ c.⇨ σ × (b × τ)
 --      swiz₁ = c.exr c.∘ c.exl c.△ c.first c.exl
---      swiz₂ : σ × (C × τ) c.⇨ C × (σ × τ)
+--      swiz₂ : σ × (c × τ) c.⇨ c × (σ × τ)
 --      swiz₂ = c.exl c.∘ c.exr c.△ c.second c.exr
 
 --   infixr 7 _⊗_
---   _⊗_ : A ⇨ C → B ⇨ D → A × B ⇨ C × D
+--   _⊗_ : a ⇨ c → b ⇨ d → a × b ⇨ c × d
 --   mealy s₀ f ⊗ mealy t₀ g = mealy (s₀ , t₀) (c.transpose c.∘ (f c.⊗ g) c.∘ c.transpose)
 
 --   infixr 7 _△_
---   _△_ : A ⇨ C → A ⇨ D → A ⇨ C × D
+--   _△_ : a ⇨ c → a ⇨ d → a ⇨ c × d
 --   f △ g = (f ⊗ g) ∘ comb c.dup
 
 
