@@ -46,51 +46,42 @@ g ∘ [ a⇨ᵣb ] = g ∘ʳ a⇨ᵣb
 g ∘ (f ∷ʳ inst) = g ∘ f ∷ʳ inst
 
 
+first : a ⇨ c → a + b ⇨ c + b
+first [ a⇨ᵣc ] = [ r.first a⇨ᵣc ]
+first {a}{c}{b} (f ∷ʳ (d , d⇨ₚe , a⇨ᵣd)) =
+  first {b = b} f ∷ʳ ({!!} , {!!} , {!!})
 
 {-
 
-Goal: b + a r.⇨ b + e
+Goal: a + b ⇨ c + b
 ————————————————————————————————————————————————————————————
-a⇨ᵣb : a r.⇨ e
+a⇨ᵣd : a r.⇨ d
+d⇨ₚe : d p.⇨ e
+d    : ℕ
+f    : e + a ⇨ c
 
-r.second a⇨ᵣb : b + a r.⇨ b + e
+b₁ = e
 
--- b⇨ᵣd : e r.⇨ d
--- d⇨ₚe : d p.⇨ b
+first f : (e + a) + b ⇨ c + b
 
--- g    : b + e ⇨ c
-
--- b₁ = d
 -}
 
--- infixr 9 _∘_
--- _∘_ : (b ⇨ c) → (a ⇨ b) → (a ⇨ c)
--- [ b⇨ᵣc ] ∘ [ a⇨ʳb ] = [ b⇨ᵣc r.∘ a⇨ʳb ]
 
--- (g ∷ʳ (d , d⇨ₚe , b⇨ᵣd)) ∘ [ a⇨ʳb ] =
---    {!!}
+-- first (jf , f) = jf , λ {k} (netsₖ , k⇒ᵣa+b) →
+--  let nets_jf+k , jf+k⇨ᵣc = f {k} (netsₖ , r.exl r.∘ k⇒ᵣa+b) in
+--    nets_jf+k , jf+k⇨ᵣc r.△ r.exr r.∘ k⇒ᵣa+b r.∘ r.exr
 
--- a⇨ʳb : a r.⇨ b
--- b⇨ᵣd : b r.⇨ d
--- d⇨ₚe : d p.⇨ e
--- g    : e + b ⇨ c
+-- second : b ⇨ d → a + b ⇨ a + d
+-- second {b}{d}{a} g = route (r.swap {d}{a}) ∘ first g ∘ route (r.swap {a}{b})
 
--- b₁ = d
+-- -- route r.swap : a + b ⇨ b + a
+-- -- first g      : b + a ⇨ d + a
+-- -- route r.swap : d + a ⇨ a + d
 
+-- infixr 7 _⊗_
+-- _⊗_ : a ⇨ c → b ⇨ d → a + b ⇨ c + d
+-- f ⊗ g = second g ∘ first f
 
-   -- {!g ∷ʳ (d , d⇨ₚe , b⇨ᵣd r.∘ a⇨ʳb)!}
-
--- g ∘ (f ∷ʳ inst) = {!!}
-
--- [ b⇨ᵣc ] ∘ [ a⇨ᵣb ] = [ b⇨ᵣc r.∘ a⇨ᵣb ]
--- [ b⇨ᵣc ] ∘ (f ∷ʳ inst) = {!!}
-
--- (g ∷ʳ inst) ∘ f = {!!}
-
--- _∘_ {b}{c}{a} (g ∷ʳ x) f = {!!}
-
--- [ b⇨ᵣc ] ∘ [ a⇨ᵣb ] = [ b⇨ᵣc r.∘ a⇨ᵣb ]
--- [ b+o⇨ᵣc ] ∘ P@((d , d⇨ₚb , o⇨ᵣd) ∷ a⇨o) =
---   {!!} -- {!!} ∷ a⇨o
--- (inst ∷ g) ∘ f = {!!}
-
+-- infixr 7 _△_
+-- _△_ : a ⇨ c → a ⇨ d → a ⇨ c + d
+-- f △ g = (f ⊗ g) ∘ dup
