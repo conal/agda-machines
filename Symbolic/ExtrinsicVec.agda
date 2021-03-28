@@ -14,6 +14,9 @@ open ⊎ using (_⊎_; inj₁; inj₂)
 open import Data.String using (String; intersperse)
 import Data.List as L
 
+open import Relation.Binary.PropositionalEquality
+open import Data.Nat.Properties
+
 import Misc as F
 
 private variable a b c d : ℕ
@@ -76,6 +79,16 @@ module v (A : Set) where
   ! : a ⇨ 0
   ! = F.const []
 
+  assocˡ : a + (b + c) ⇨ (a + b) + c
+  assocʳ : (a + b) + c ⇨ a + (b + c)
+
+  assocˡ {a}{b}{c} = subst (_⇨ (a + b) + c) (+-assoc a b c) id
+  assocʳ {a}{b}{c} = subst ((a + b) + c ⇨_) (+-assoc a b c) id
+
+  -- -- Or standard definitions:
+  -- assocˡ {a}{b}{c} = second (exl {b}) △ exr {b}{c} ∘ exr {a}
+  -- assocʳ {a}{b}{c} = exl {a} ∘ exl △ first (exr {a})
+
 module b where
   open v Bool public
 
@@ -127,6 +140,15 @@ module r where
 
   swap : a + b ⇨ b + a
   swap {a} = exr △ exl {a}
+  -- We must not use the subst/id trick for swap!
+
+  -- Elimination half of unitor isomorphisms
+  unitorᵉˡ : 0 + a ⇨ a
+  unitorᵉˡ = id
+  -- unitorᵉˡ {a} = subst (0 + a ⇨_) (+-identityˡ a) id
+
+  unitorᵉʳ : a + 0 ⇨ a
+  unitorᵉʳ {a} = subst (a + 0 ⇨_) (+-identityʳ a) id
 
   ! : a ⇨ 0
   ! ()
@@ -225,17 +247,24 @@ module c where
   assocˡ : a + (b + c) ⇨ (a + b) + c
   assocʳ : (a + b) + c ⇨ a + (b + c)
 
-  assocˡ {a}{b}{c} = second (exl {b}) △ exr {b} ∘ exr {a}
-  assocʳ {a}{b}{c} = exl {a} ∘ exl △ first (exr {a})
+  assocˡ {a}{b}{c} = subst (_⇨ (a + b) + c) (+-assoc a b c) id
+  assocʳ {a}{b}{c} = subst ((a + b) + c ⇨_) (+-assoc a b c) id
+
+  -- assocˡ {a}{b}{c} = second (exl {b}) △ exr {b} ∘ exr {a}
+  -- assocʳ {a}{b}{c} = exl {a} ∘ exl △ first (exr {a})
 
   -- assocˡ = second exl △ exr ∘ exr
   -- assocʳ = exl ∘ exl △ first exr
 
   swap : a + b ⇨ b + a
-  swap {a}{b} = exr △ exl {a}
+  swap {a}{b} = subst (a + b ⇨_) (+-comm a b) (id {a + b})
+
+  -- swap {a}{b} = exr △ exl {a}
 
   transpose : (a + b) + (c + d) ⇨ (a + c) + (b + d)
   transpose {a}{b}{c}{d} = (exl {a} ⊗ exl {c}) △ (exr {a} ⊗ exr {c})
+
+  -- TODO: redo transpose via subst and Data.Nat.Properties
 
   -- If I parametrize by Ty instead of ℕ, the implicit arguments will be inferred.
 
