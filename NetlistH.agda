@@ -38,28 +38,30 @@ module _ (i : ℕ) where
 
   -- A netlist with k outputs and result size a
   Src : ℕ → ℕ → Set
-  Src k a = Netlist k × (k r.⇨ a)
+  Src k a = Netlist k × (k + i r.⇨ a)
 
 
 Q : (a b.⇨ b) → (a b.⇨ b + a)
 Q f = f b.△ b.id
 
-⟦_⟧ⁿ : Netlist a k → a b.⇨ k
-⟦ [] ⟧ⁿ = b.id
-⟦ inst ∷ nl ⟧ⁿ = Q ⟦ inst ⟧ⁱ b.∘ ⟦ nl ⟧ⁿ
+⟦_⟧ⁿ : Netlist a k → a b.⇨ k + a
+⟦ [] ⟧ⁿ = b.dup
+⟦ inst ∷ nl ⟧ⁿ = b.first (Q ⟦ inst ⟧ⁱ) b.∘ ⟦ nl ⟧ⁿ
 
--- ⟦_⟧ˢ : Src a k b → a b.⇨ b
--- ⟦ nl , r ⟧ˢ = r.⟦ r ⟧ b.∘ ⟦ nl ⟧ⁿ
+⟦_⟧ˢ : Src a k b → a b.⇨ b
+⟦ nl , r ⟧ˢ = r.⟦ r ⟧ b.∘ ⟦ nl ⟧ⁿ
 
--- infix 0 _⇨_
--- _⇨_ : ℕ → ℕ → Set
--- i ⇨ o = ∃ λ k → Src i k o
+infix 0 _⇨_
+_⇨_ : ℕ → ℕ → Set
+i ⇨ o = ∃ λ k → Src i k o
 
--- -- Netlist semantics/interpreter
--- ⟦_⟧ : a ⇨ b → a b.⇨ b
--- ⟦ k , n , k⇨ᵣb ⟧ = r.⟦ k⇨ᵣb ⟧ b.∘ ⟦ n ⟧ⁿ
+-- Netlist semantics/interpreter
+⟦_⟧ : a ⇨ b → a b.⇨ b
+⟦ k , n , k⇨ᵣb ⟧ = r.⟦ k⇨ᵣb ⟧ b.∘ ⟦ n ⟧ⁿ
 
--- route : a r.⇨ b → a ⇨ b
+route : a r.⇨ b → a ⇨ b
+route {a} a⇨ᵣb = {!!} , {!!} , {!!}
+
 -- route {a} a⇨ᵣb = a , [] , a⇨ᵣb
 
 -- infixr 9 _∘_
