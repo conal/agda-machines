@@ -17,7 +17,7 @@ private variable a b c d j k : ℕ
 
 infixr 5 _∷_
 data Vec′ (F : ℕ → ℕ → Set) : ℕ → Set where
-  [] : Vec′ F zero
+  [] : Vec′ F 0
   _∷_ : F k j → Vec′ F k → Vec′ F (j + k)
 
 -- TODO: Define fold on Vec′
