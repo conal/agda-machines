@@ -89,6 +89,22 @@ module v (A : Set) where
   -- assocˡ {a}{b}{c} = second (exl {b}) △ exr {b}{c} ∘ exr {a}
   -- assocʳ {a}{b}{c} = exl {a} ∘ exl △ first (exr {a})
 
+  -- Elimination half of unitor isomorphisms
+  unitorᵉˡ : 0 + a ⇨ a
+  unitorᵉˡ = id
+  -- unitorᵉˡ {a} = subst (0 + a ⇨_) (+-identityˡ a) id
+
+  unitorᵉʳ : a + 0 ⇨ a
+  unitorᵉʳ {a} = subst (a + 0 ⇨_) (+-identityʳ a) id
+
+  -- Introduction half of unitor isomorphisms
+  unitorⁱˡ : a ⇨ 0 + a
+  unitorⁱˡ = id
+  -- unitorⁱˡ {a} = subst (_⇨ 0 + a) (+-identityˡ a) id
+
+  unitorⁱʳ : a ⇨ a + 0
+  unitorⁱʳ {a} = subst (_⇨ a + 0) (+-identityʳ a) id
+
 module b where
   open v Bool public
 
@@ -141,6 +157,12 @@ module r where
   swap : a + b ⇨ b + a
   swap {a} = exr △ exl {a}
   -- We must not use the subst/id trick for swap!
+
+  assocˡ : a + (b + c) ⇨ (a + b) + c
+  assocʳ : (a + b) + c ⇨ a + (b + c)
+
+  assocˡ {a}{b}{c} = subst (_⇨ (a + b) + c) (+-assoc a b c) id
+  assocʳ {a}{b}{c} = subst ((a + b) + c ⇨_) (+-assoc a b c) id
 
   -- Elimination half of unitor isomorphisms
   unitorᵉˡ : 0 + a ⇨ a
