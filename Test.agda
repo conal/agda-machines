@@ -6,8 +6,12 @@ open import Data.String
 open import IO
 
 open import Symbolic.ExtrinsicVec ; open c
-open import NetlistE using (compile)
-open import Dot
+
+-- open import NetlistE using (compile)
+-- open import Dot
+
+open import StackFunction using (compile)
+open import DotStack
 
 module _ where
 
@@ -22,9 +26,12 @@ module _ where
   t₄ : 2 ⇨ 2
   t₄ = first (prim p.not)
 
+  t₅ = prim p.not
+
 example : ∀ {a b} → String → a ⇨ b → IO {0ℓ} ⊤
 example name f =
-  writeFile ("figures/" ++ name ++ ".dot") (dot (compile f))
+  do putStrLn name
+     writeFile ("figures/" ++ name ++ ".dot") (dot (compile f))
 
 open import Agda.Builtin.IO using () renaming (IO to IO′)
 
@@ -36,3 +43,4 @@ main = run do
   example "and"       t₂
   example "nand"      t₃
   example "first-not" t₄
+  example "not"       t₅
