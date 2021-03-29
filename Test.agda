@@ -1,46 +1,72 @@
 module Test where
 
-open import Level
+open import Level using (0ℓ)
+open import Data.Nat
 open import Data.Unit.Polymorphic
+open import Data.Bool using (true; false)
+open import Data.Vec using ([_]; []; _∷_)
 open import Data.String
 open import IO
 
-open import Symbolic.ExtrinsicVec ; open c
-
--- open import NetlistE using (compile)
--- open import Dot
+open import Symbolic.ExtrinsicVec
 
 open import StackFunction using (compile)
-open import DotStack
+open import DotStackB
 
-module _ where
+-- Combinational examples
+module ce where
+  open c
 
-  t₁ : ∀ {a} → a ⇨ a
-  t₁ = id
+  t₁ = id {10}
 
-  -- t₂ : 2 ⇨ 1
   t₂ = prim p.∧
 
   t₃ = prim p.not ∘ prim p.∧
 
-  t₄ : 2 ⇨ 2
+  t₄ : 3 ⇨ 3
   t₄ = first (prim p.not)
 
   t₅ = prim p.not
 
-example : ∀ {a b} → String → a ⇨ b → IO {0ℓ} ⊤
-example name f =
+-- Sequential examples
+module se where
+  open s
+
+  -- Toggle
+  t₁ : 0 ⇨ 1
+  t₁ = mealy [ true ] (c.dup c.∘ c.prim p.not c.∘ c.exr {0}{1})
+  -- λ { (tt , s) → (not s , not s) }
+
+  -- Cumulative or
+  t₂ : 1 ⇨ 1
+  t₂ = mealy [ false ] (c.dup c.∘ c.prim p.∨)
+  -- λ { (b , s) → (b ∨ s , b ∨ s) }
+
+  t₃ = delay (false ∷ [])
+
+  t₄ = delay (false ∷ true ∷ false ∷ [])
+
+  t₅ = delay [ false ] ∘ delay [ true ]
+
+exampleˢ : ∀ {i o} → String → i s.⇨ o → IO {0ℓ} ⊤
+exampleˢ {i = i} name (s.mealy {s} state₀ f) =
   do putStrLn name
-     writeFile ("figures/" ++ name ++ ".dot") (dot (compile f))
+     writeFile ("figures/" ++ name ++ ".dot") (dot {s = s} state₀ {i = i} (compile f))
 
-open import Agda.Builtin.IO using () renaming (IO to IO′)
+exampleᶜ : ∀ {i o} → String → i c.⇨ o → IO {0ℓ} ⊤
+exampleᶜ name f = exampleˢ name (s.comb f)
 
-run-example : ∀ {a b} → String → a ⇨ b → IO′ ⊤
-run-example name f = run (example name f)
 
 main = run do
-  example "id-3"      (t₁ {3})
-  example "and"       t₂
-  example "nand"      t₃
-  example "first-not" t₄
-  example "not"       t₅
+
+  exampleᶜ "id"        ce.t₁
+  exampleᶜ "and"       ce.t₂
+  exampleᶜ "nand"      ce.t₃
+  exampleᶜ "first-not" ce.t₄
+  exampleᶜ "not"       ce.t₅
+
+  exampleˢ "toggle"    se.t₁
+  exampleˢ "any"       se.t₂
+  exampleˢ "delay-1"   se.t₃
+  exampleˢ "delay-3"   se.t₄
+  exampleˢ "delay×2"   se.t₅
