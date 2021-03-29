@@ -1,6 +1,7 @@
-module DotStack where
+module DotStackB where
 
 open import Function using (_∘′_)
+open import Data.Bool
 open import Data.Product using (∃; _×_; _,_)
 open import Data.Fin using (Fin; toℕ; suc; zero)
 open import Data.Fin.Show as FS
@@ -9,13 +10,27 @@ open import Data.Nat.Show as NS
 open import Data.String hiding (toList)
 open import Data.Vec renaming (map to mapV; _++_ to _++ⁿ_)
 open import Data.List using (List; []; _∷_; map; upTo)
-  renaming (_++_ to _++ˡ_)
+  renaming (_++_ to _++ˡ_; concat to concatˡ)
 open import Relation.Binary.PropositionalEquality using (_≡_; refl)
 
 open import Symbolic.ExtrinsicVec
 open import StackFunction
 
-private variable a b c d i o s sⁱ sᵒ sᵃ : ℕ
+private variable a b c d i o s z zⁱ zᵒ zᵃ : ℕ
+
+prelude : List String
+prelude =
+  "margin=0" ∷
+  "rankdir=LR" ∷
+  "node [shape=Mrecord]" ∷
+  "bgcolor=transparent" ∷
+  "nslimit=20" ∷
+  "ranksep=0.75" ∷
+  []
+
+package : List String → String
+package = (_++ "\n}\n") ∘′ ("digraph {" ++_) ∘′ ("\n" ++_) ∘′
+          unlines ∘′ map (λ s → "  " ++ s ++ ";") ∘′ (prelude ++ˡ_)
 
 -- Output port name
 OPort : Set
@@ -31,15 +46,11 @@ labelsⁱ = labels "In"
 labelsᵒ : ℕ → String
 labelsᵒ = labels "Out"
 
-wire : String → OPort → Fin i → String
-wire compName oport i = oport ++ " -> " ++  compName ++ ":In" ++ FS.show i
+wire : String → Fin i → OPort → String
+wire compName i oport = oport ++ " -> " ++  compName ++ ":In" ++ FS.show i
 
-_ : wire "Foo" "c2:Out4" (suc (suc (zero {5}))) ≡ "c2:Out4 -> Foo:In2"
+_ : wire "Foo" (suc (suc (zero {5}))) "c2:Out4" ≡ "c2:Out4 -> Foo:In2"
 _ = refl
-
--- c2:Out0 -> c1:In0 [];
-
--- For warm-up, just combinational
 
 comp : String → String → Vec OPort i → ℕ → List String
 comp {i} compName opName ins o =
@@ -47,39 +58,57 @@ comp {i} compName opName ins o =
    " [label=\"" ++
    braces (labelsⁱ i ++ "|" ++ opName ++ "|" ++ labelsᵒ o) ++
    "\"]")
-  ∷ toList (mapV (wire compName) ins ⊛ allFin i)
+  ∷ toList (mapV (wire compName) (allFin i) ⊛ ins)
 
 oport : String → Fin a → OPort
 oport compName o = compName ++ ":Out" ++ FS.show o
 
-dotᵏ : ℕ → Vec OPort (i + sⁱ) → (i , sⁱ k.⇨ o , sᵒ) → List String
-dotᵏ comp# ins k.[ r ] =
-  comp "output" "output" (r′.⟦ r ⟧ ins) comp#
-dotᵏ comp# ins (f k.∷ʳ (a , a⇨ₚb , i+sⁱ⇨ᵣa+sᵃ)) =
-  let ins′ = r′.⟦ i+sⁱ⇨ᵣa+sᵃ ⟧ ins
-      #o = p.#outs a⇨ₚb  -- or get from an implicit
-      compName = "c" ++ NS.show comp#
-      oports = mapV (oport compName) (allFin #o)
-      compIns , restIns , _ = splitAt a ins′
-  in
-    comp compName (p.show a⇨ₚb) compIns #o
-    ++ˡ dotᵏ (suc comp#) (oports ++ⁿ restIns) f
+module _ {s} (state₀ : Bits s) where
 
-prelude : List String
-prelude =
-  "margin=0" ∷
-  "rankdir=LR" ∷
-  "node [shape=Mrecord]" ∷
-  "bgcolor=transparent" ∷
-  "nslimit=20" ∷
-  "ranksep=0.75" ∷
-  []
+  reg : Fin a → String
+  reg j = "reg" ++ FS.show j
 
-package : List String → String
-package = (_++ "\n}\n") ∘′ ("digraph {" ++_) ∘′ ("\n" ++_) ∘′ unlines ∘′ map (λ s → "  " ++ s ++ ";") ∘′ (prelude ++ˡ_) -- ∘′ init
+  -- registers : List String
+  -- registers = concatˡ (toList (
+  --   mapV (λ j → comp ("reg" ++ FS.show j)
+  --                    ("cons " ++ showBit (lookup state₀ j))
+  --                    [] -- Nothing for now.
+  --                    1)
+  --        (allFin s)))
 
-dot : a sf.⇨ b → String
-dot {a} f = package (
-  comp "input" "input" [] a ++ˡ
-  dotᵏ 0 (b′.unitorⁱʳ (mapV (oport "input") (allFin a))) (f {0}))
+  register : Fin s → Bool → OPort → List String
+  register j s₀ src =
+    comp ("reg" ++ FS.show j) ("cons " ++ showBit (lookup state₀ j)) [ src ] 1
 
+  dotᵏ : ℕ → Vec OPort (i + zⁱ) → (i , zⁱ k.⇨ o + s , zᵒ) → List String
+  dotᵏ {o = o} comp# ins k.[ r ] =
+    let os , q , _ = splitAt o (r′.⟦ r′.assocʳ {A = OPort}{a = o}{s} r.∘ r ⟧ ins)
+        ss , _ , _ = splitAt s q in
+    concatˡ (toList (mapV register (allFin s) ⊛ state₀ ⊛ ss))
+    -- toList (mapV (λ j → wire (reg j) (zero {1}) (lookup ss j))
+    --              (allFin s))
+    ++ˡ comp "output" "output" os comp#
+    -- TODO: I think zᵒ must be zero here (empty stack). Can I enforce with types?
+  dotᵏ {o = o} comp# ins (f k.∷ʳ (a , a⇨ₚb , i+zⁱ⇨ᵣa+zᵃ)) =
+    let ins′ = r′.⟦ i+zⁱ⇨ᵣa+zᵃ ⟧ ins
+        #o = p.#outs a⇨ₚb  -- or get from an implicit
+        compName = "c" ++ NS.show comp#
+        oports = mapV (oport compName) (allFin #o)
+        compIns , restIns , _ = splitAt a ins′
+    in
+      comp compName (p.show a⇨ₚb) compIns #o
+      ++ˡ dotᵏ {o = o} (suc comp#) (oports ++ⁿ restIns) f
+
+  dot : i + s sf.⇨ o + s → String
+  dot {i = i} f = package (
+    comp "input" "input" [] i ++ˡ
+    -- registers ++ˡ
+    dotᵏ 0 (b′.unitorⁱʳ (mapV (oport "input") (allFin i) ++ⁿ
+                         mapV (λ r → oport ("reg" ++ FS.show r) (zero {1})) (allFin s)))
+           (f {0}))
+
+  -- dot : i + s sf.⇨ o + s → String
+  -- dot {i = i} f = package (
+  --   comp "input" "input" [] i ++ˡ
+  --   registers ++ˡ
+  --   dotᵏ 0 (b′.unitorⁱʳ (mapV (oport "input") (allFin (i + s)))) (f {0}))
