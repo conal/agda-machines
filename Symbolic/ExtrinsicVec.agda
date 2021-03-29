@@ -11,7 +11,7 @@ open Bool using (Bool; if_then_else_)
 open import Data.Product using (_×_ ; _,_; uncurry) renaming (map to map×)
 import Data.Sum as ⊎
 open ⊎ using (_⊎_; inj₁; inj₂)
-open import Data.String using (String; intersperse)
+open import Data.String using (String) renaming (concat to concatˢ)
 import Data.List as L
 
 open import Relation.Binary.PropositionalEquality
@@ -19,16 +19,17 @@ open import Data.Nat.Properties
 
 import Misc as F
 
-private variable a b c d : ℕ
+private variable a b c d s t : ℕ
 
 Bits : ℕ → Set
 Bits = Vec Bool
 
-bool : ∀ {ℓ}{A : Set ℓ} → A → A → Bool → A
-bool e t b = if b then t else e
+showBit : Bool → String
+showBit Bool.false = "0"
+showBit Bool.true  = "1"
 
 showBits : Bits a → String
-showBits bs = intersperse "," (L.map (bool "0" "1") (toList bs))
+showBits bs = concatˢ (L.map showBit (toList bs))
 
 -- Is this function defined somewhere?
 mergeᶠ : Fin a ⊎ Fin b → Fin (a + b)
@@ -170,6 +171,14 @@ module r′ {A : Set} where
   unitorᵉʳ : a + 0 ⇨ a
   unitorᵉʳ {a} = subst (a + 0 ⇨_) (+-identityʳ a) id
 
+  -- Introduction half of unitor isomorphisms
+  unitorⁱˡ : a ⇨ 0 + a
+  unitorⁱˡ = id
+  -- unitorⁱˡ {a} = subst (_⇨ 0 + a) (+-identityˡ a) id
+
+  unitorⁱʳ : a ⇨ a + 0
+  unitorⁱʳ {a} = subst (_⇨ a + 0) (+-identityʳ a) id
+
   ! : a ⇨ 0
   ! ()
 
@@ -283,9 +292,7 @@ module c where
   -- assocʳ = exl ∘ exl △ first exr
 
   swap : a + b ⇨ b + a
-  swap {a}{b} = subst (a + b ⇨_) (+-comm a b) (id {a + b})
-
-  -- swap {a}{b} = exr △ exl {a}
+  swap {a}{b} = exr △ exl {a}
 
   transpose : (a + b) + (c + d) ⇨ (a + c) + (b + d)
   transpose {a}{b}{c}{d} = (exl {a} ⊗ exl {c}) △ (exr {a} ⊗ exr {c})
@@ -307,51 +314,101 @@ module s where
       start : Bits σ
       transition : a + σ c.⇨ b + σ
 
-
 --   import Mealy as m
 
 --   ⟦_⟧ : a ⇨ b → ⟦ a ⟧ᵗ m.⇨ ⟦ b ⟧ᵗ
 --   ⟦ mealy s₀ f ⟧ = m.mealy s₀ c.⟦ f ⟧
 
---   comb : a c.⇨ b → a ⇨ b
---   comb f = mealy tt (c.first f)
+  comb : a c.⇨ b → a ⇨ b
+  comb f = mealy [] (c.first f)
 
---   id : A ⇨ A
---   id = comb c.id
+  id  : a ⇨ a
+  dup : a ⇨ a + a
+  exl : a + b ⇨ a
+  exr : a + b ⇨ b
+  !   : a ⇨ 0
 
---   delay : ⟦ A ⟧ᵗ → A ⇨ A
---   delay a₀ = mealy a₀ c.swap
+  id  = comb c.id
+  dup = comb c.dup
+  exl = comb c.exl
+  exr = comb c.exr
+  !   = comb c.!
 
---   infixr 9 _∘_
---   _∘_ : b ⇨ c → a ⇨ b → a ⇨ c
---   mealy t₀ g ∘ mealy s₀ f = mealy (s₀ , t₀)
---     (swiz₂ c.∘ c.second g c.∘ swiz₁ c.∘ c.first f c.∘ c.assocˡ)
---    where
---      swiz₁ : (b × σ) × τ c.⇨ σ × (b × τ)
---      swiz₁ = c.exr c.∘ c.exl c.△ c.first c.exl
---      swiz₂ : σ × (c × τ) c.⇨ c × (σ × τ)
---      swiz₂ = c.exl c.∘ c.exr c.△ c.second c.exr
+  prim : a p.⇨ b → a ⇨ b
+  prim p = comb (c.prim p)
 
---   infixr 7 _⊗_
---   _⊗_ : a ⇨ c → b ⇨ d → a × b ⇨ c × d
---   mealy s₀ f ⊗ mealy t₀ g = mealy (s₀ , t₀) (c.transpose c.∘ (f c.⊗ g) c.∘ c.transpose)
+  ∧ ∨ xor : 2 ⇨ 1
+  not : 1 ⇨ 1
+  ∧   = prim p.∧
+  ∨   = prim p.∨
+  xor = prim p.xor
+  not = prim p.not
 
---   infixr 7 _△_
---   _△_ : a ⇨ c → a ⇨ d → a ⇨ c × d
---   f △ g = (f ⊗ g) ∘ comb c.dup
+  delay : Bits a → a ⇨ a
+  delay {a} a₀ = mealy a₀ (c.swap {a})
+
+  infixr 9 _∘_
+  _∘_ : b ⇨ c → a ⇨ b → a ⇨ c
+  _∘_ {b}{c}{a} (mealy {t} t₀ g) (mealy {s} s₀ f) = mealy (s₀ ++ t₀)
+    (swiz₂ c.∘ c.second {b = b + t}{a = s} g c.∘ swiz₁
+     c.∘ c.first f c.∘ c.assocˡ {a}{s}{t})
+   where
+     swiz₁ : (b + s) + t c.⇨ s + (b + t)
+     swiz₁ = c.exr {b} c.∘ c.exl {b + s} c.△ c.first (c.exl {b})
+     swiz₂ : s + (c + t) c.⇨ c + (s + t)
+     swiz₂ = c.exl {c} c.∘ c.exr {s} c.△ c.second (c.exr {c}{t})
+
+  infixr 7 _⊗_
+  _⊗_ : a ⇨ c → b ⇨ d → a + b ⇨ c + d
+  _⊗_ {a}{c}{b}{d} (mealy {s} s₀ f) (mealy {t} t₀ g) =
+    mealy (s₀ ++ t₀)
+     (c.transpose {c}{s}{d}{t} c.∘ (f c.⊗ g) c.∘ c.transpose {a}{b}{s}{t})
+
+  -- Cartesian-categorical operations with standard definitions:
+
+  infixr 7 _△_
+  _△_ : a ⇨ c → a ⇨ d → a ⇨ c + d
+  f △ g = (f ⊗ g) ∘ comb c.dup
+
+  first : a ⇨ c → a + b ⇨ c + b
+  first f = f ⊗ id
+
+  second : b ⇨ d → a + b ⇨ a + d
+  second f = id ⊗ f
+
+  assocˡ : a + (b + c) ⇨ (a + b) + c
+  assocʳ : (a + b) + c ⇨ a + (b + c)
+
+  assocˡ {a}{b}{c} = subst (_⇨ (a + b) + c) (+-assoc a b c) id
+  assocʳ {a}{b}{c} = subst ((a + b) + c ⇨_) (+-assoc a b c) id
+
+  -- assocˡ {a}{b}{c} = second (exl {b}) △ exr {b} ∘ exr {a}
+  -- assocʳ {a}{b}{c} = exl {a} ∘ exl △ first (exr {a})
+
+  -- assocˡ = second exl △ exr ∘ exr
+  -- assocʳ = exl ∘ exl △ first exr
+
+  swap : a + b ⇨ b + a
+  swap {a}{b} = exr △ exl {a}
+
+  transpose : (a + b) + (c + d) ⇨ (a + c) + (b + d)
+  transpose {a}{b}{c}{d} = (exl {a} ⊗ exl {c}) △ (exr {a} ⊗ exr {c})
+
+  -- TODO: redo transpose via subst and Data.Nat.Properties
 
 
--- -- TODO: consider making categorical operations (most of the functionality in
--- -- this module) be methods of a common typeclass, so that (a) we can state and
--- -- prove laws conveniently, and (b) we needn't use clumsy names.
 
--- -- TODO: Rebuild this module in terms of semantic Mealy machines.
+-- TODO: consider making categorical operations (most of the functionality in
+-- this module) be methods of a common typeclass, so that (a) we can state and
+-- prove laws conveniently, and (b) we needn't use clumsy names.
 
--- -- TODO: Prove the cartesian category laws for _⇨_. Probably easier if
--- -- parametrized by denotation.
+-- TODO: Rebuild this module in terms of semantic Mealy machines.
 
--- -- TODO: Cocartesian.
+-- TODO: Prove the cartesian category laws for _⇨_. Probably easier if
+-- parametrized by denotation.
 
--- -- TODO: replicate compiling-to-categories using Agda reflection, and use to
--- -- make definitions like `_∘_` and `_⊗_` above read like their counterparts in
--- -- the Mealy module.
+-- TODO: Cocartesian.
+
+-- TODO: replicate compiling-to-categories using Agda reflection, and use to
+-- make definitions like `_∘_` and `_⊗_` above read like their counterparts in
+-- the Mealy module.
