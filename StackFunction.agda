@@ -29,8 +29,6 @@ module k where
     [_] : i + sⁱ r.⇨ o + sᵒ → i , sⁱ ⇨ o , sᵒ
     _∷ʳ_ : a , sᵃ ⇨ o , sᵒ → i , sⁱ i.⇨ a , sᵃ → i , sⁱ ⇨ o , sᵒ
 
-  -- TODO: reconsider indices vs parameters
-
   ⟦_⟧ : i , sⁱ ⇨ o , sᵒ → i + sⁱ b.⇨ o + sᵒ
   ⟦ [ r ] ⟧ = r.⟦ r ⟧
   ⟦_⟧ {i = i}{sⁱ = sⁱ} (f ∷ʳ inst) = ⟦ f ⟧ b.∘ i.⟦_⟧ {i = i}{sⁱ = sⁱ} inst
@@ -62,7 +60,14 @@ module k where
   pop : a , b + c ⇨ a + b , c
   pop {a} = route (r.assocˡ {a})
 
-open k using (push; pop)
+  stacked : (a , b + s ⇨ c , b + s) → (a + b , s) ⇨ (c + b , s)
+  stacked f = pop ∘ f ∘ push
+
+  prim : i p.⇨ o → i , sⁱ ⇨ o , sⁱ
+  prim {i} i⇨ₚo = [ r.id ] ∷ʳ (i , i⇨ₚo , r.id)
+
+
+open k using (stacked)
 
 -- Stack function
 module sf where
@@ -102,9 +107,7 @@ module sf where
   g ∘ f = g k.∘ f
   
   first : (a ⇨ c) → (a + b ⇨ c + b)
-  first f = pop k.∘ f k.∘ push
-
-  -- first {a}{c}{b} f {s} = k.pop {c}{b}{s} k.∘ f k.∘ k.push {a}{b}{s}
+  first f = stacked f
 
   second : (b ⇨ d) → (a + b ⇨ a + d)
   second {b}{d}{a} f = route (r.swap {d}{a}) ∘ first f ∘ route (r.swap {a}{b})
@@ -116,3 +119,6 @@ module sf where
   infixr 7 _△_
   _△_ : a ⇨ c → a ⇨ d → a ⇨ c + d
   f △ g = (f ⊗ g) ∘ dup
+
+  prim : i p.⇨ o → i ⇨ o
+  prim i⇨ₚo = k.prim i⇨ₚo
