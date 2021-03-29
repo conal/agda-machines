@@ -7,17 +7,17 @@ open import Data.Nat using (ℕ; _+_)
 
 open import Symbolic.ExtrinsicVec
 
-private variable a b c d i o s sⁱ sᵒ sᵃ : ℕ
+private variable a b c d i o z zⁱ zᵒ zᵃ : ℕ
 
 -- Primitive instance p with input routing for first p
 module i where
 
   infix 0 _⇨_
   _⇨_ : (ℕ × ℕ) → (ℕ × ℕ) → Set
-  i , sⁱ ⇨ o , sᵒ = ∃ λ a → (a p.⇨ o) × (i + sⁱ r.⇨ a + sᵒ)
+  i , zⁱ ⇨ o , zᵒ = ∃ λ a → (a p.⇨ o) × (i + zⁱ r.⇨ a + zᵒ)
 
-  ⟦_⟧ : i , sⁱ ⇨ o , sᵒ → i + sⁱ b.⇨ o + sᵒ
-  ⟦ a , a⇨ₚo , i+sⁱ⇨ᵣa+sᵒ ⟧ = b.first p.⟦ a⇨ₚo ⟧ b.∘ r.⟦ i+sⁱ⇨ᵣa+sᵒ ⟧
+  ⟦_⟧ : i , zⁱ ⇨ o , zᵒ → i + zⁱ b.⇨ o + zᵒ
+  ⟦ a , a⇨ₚo , i+zⁱ⇨ᵣa+zᵒ ⟧ = b.first p.⟦ a⇨ₚo ⟧ b.∘ r.⟦ i+zⁱ⇨ᵣa+zᵒ ⟧
 
 
 -- Stack operations
@@ -26,25 +26,25 @@ module k where
   infix 0 _⇨_
   infixl 5 _∷ʳ_
   data _⇨_ : (ℕ × ℕ) → (ℕ × ℕ) → Set where
-    [_]  : (i + sⁱ r.⇨ o + sᵒ) → (i , sⁱ ⇨ o , sᵒ)
-    _∷ʳ_ : (a , sᵃ ⇨ o , sᵒ) → (i , sⁱ i.⇨ a , sᵃ) → (i , sⁱ ⇨ o , sᵒ)
+    [_]  : (i + zⁱ r.⇨ o + zᵒ) → (i , zⁱ ⇨ o , zᵒ)
+    _∷ʳ_ : (a , zᵃ ⇨ o , zᵒ) → (i , zⁱ i.⇨ a , zᵃ) → (i , zⁱ ⇨ o , zᵒ)
 
-  ⟦_⟧ : i , sⁱ ⇨ o , sᵒ → i + sⁱ b.⇨ o + sᵒ
+  ⟦_⟧ : i , zⁱ ⇨ o , zᵒ → i + zⁱ b.⇨ o + zᵒ
   ⟦ [ r ] ⟧ = r.⟦ r ⟧
-  ⟦_⟧ {i = i}{sⁱ = sⁱ} (f ∷ʳ inst) = ⟦ f ⟧ b.∘ i.⟦_⟧ {i = i}{sⁱ = sⁱ} inst
+  ⟦_⟧ {i = i}{zⁱ = zⁱ} (f ∷ʳ inst) = ⟦ f ⟧ b.∘ i.⟦_⟧ {i = i}{zⁱ = zⁱ} inst
 
   -- I hope to eliminate explicit implicits by moving from ℕ back to Ty.
 
-  route : (i + sⁱ r.⇨ o + sᵒ) → (i , sⁱ ⇨ o , sᵒ)
+  route : (i + zⁱ r.⇨ o + zᵒ) → (i , zⁱ ⇨ o , zᵒ)
   route = [_]
 
   infixr 9 _∘ʳ_
-  _∘ʳ_ : (a , sᵃ ⇨ o , sᵒ) → (i + sⁱ r.⇨ a + sᵃ) → (i , sⁱ ⇨ o , sᵒ)
+  _∘ʳ_ : (a , zᵃ ⇨ o , zᵒ) → (i + zⁱ r.⇨ a + zᵃ) → (i , zⁱ ⇨ o , zᵒ)
   [ r₂ ] ∘ʳ r₁ = [ r₂ r.∘ r₁ ]
   (g ∷ʳ (d , d⇨ₚe , r₂)) ∘ʳ r₁ = g ∷ʳ (d , d⇨ₚe , r₂ r.∘ r₁)
 
   infixr 9 _∘_
-  _∘_ : (a , sᵃ ⇨ o , sᵒ) → (i , sⁱ ⇨ a , sᵃ) → (i , sⁱ ⇨ o , sᵒ)
+  _∘_ : (a , zᵃ ⇨ o , zᵒ) → (i , zⁱ ⇨ a , zᵃ) → (i , zⁱ ⇨ o , zᵒ)
   g ∘ [ r ] = g ∘ʳ r
   g ∘ (f ∷ʳ inst) = g ∘ f ∷ʳ inst
 
@@ -59,10 +59,10 @@ module k where
   pop : a , b + c ⇨ a + b , c
   pop {a} = route (r.assocˡ {a})
 
-  stacked : (a , b + s ⇨ c , b + s) → (a + b , s) ⇨ (c + b , s)
+  stacked : (a , b + z ⇨ c , b + z) → (a + b , z) ⇨ (c + b , z)
   stacked f = pop ∘ f ∘ push
 
-  prim : i p.⇨ o → i , sⁱ ⇨ o , sⁱ
+  prim : i p.⇨ o → i , zⁱ ⇨ o , zⁱ
   prim {i} i⇨ₚo = [ r.id ] ∷ʳ (i , i⇨ₚo , r.id)
 
 
@@ -73,7 +73,7 @@ module sf where
 
   infix 0 _⇨_
   _⇨_ : ℕ → ℕ → Set
-  i ⇨ o = ∀ {s} → i , s k.⇨ o , s
+  i ⇨ o = ∀ {z} → i , z k.⇨ o , z
 
   ⟦_⟧ : a ⇨ b → a b.⇨ b
   ⟦ f ⟧ = b.unitorᵉʳ b.∘ k.⟦ f ⟧ b.∘ b.unitorⁱʳ
@@ -121,6 +121,16 @@ module sf where
   infixr 7 _△_
   _△_ : a ⇨ c → a ⇨ d → a ⇨ c + d
   f △ g = (f ⊗ g) ∘ dup
+
+  unitorᵉˡ : 0 + a ⇨ a
+  unitorᵉʳ : a + 0 ⇨ a
+  unitorⁱˡ : a ⇨ 0 + a
+  unitorⁱʳ : a ⇨ a + 0
+
+  unitorᵉˡ = route r.unitorᵉˡ
+  unitorᵉʳ = route r.unitorᵉʳ
+  unitorⁱˡ = route r.unitorⁱˡ
+  unitorⁱʳ = route r.unitorⁱʳ
 
 open sf public
 
