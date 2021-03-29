@@ -1,23 +1,19 @@
 module DotStack where
 
+open import Function using (_∘′_)
 open import Data.Product using (∃; _×_; _,_)
 open import Data.Fin using (Fin; toℕ; suc; zero)
 open import Data.Fin.Show as FS
 open import Data.Nat using (ℕ; _+_; suc; zero)
 open import Data.Nat.Show as NS
 open import Data.String hiding (toList)
-open import Data.Vec hiding (_++_) renaming (map to mapV)
+open import Data.Vec renaming (map to mapV; _++_ to _++ⁿ_)
 open import Data.List using (List; []; _∷_; map; upTo)
   renaming (_++_ to _++ˡ_)
 open import Relation.Binary.PropositionalEquality using (_≡_; refl)
 
 open import Symbolic.ExtrinsicVec
 open import StackFunction
-
--- I didn't find this function in agda-std.
-map₂ : ∀ {a b c n} {A : Set a} {B : Set b} {C : Set c}
-     → (A → B → C) → Vec A n → Vec B n → Vec C n 
-map₂ f as bs = mapV f as ⊛ bs
 
 private variable a b c d i o s sⁱ sᵒ sᵃ : ℕ
 
@@ -51,17 +47,39 @@ comp {i} compName opName ins o =
    " [label=\"" ++
    braces (labelsⁱ i ++ "|" ++ opName ++ "|" ++ labelsᵒ o) ++
    "\"]")
-  ∷ toList (map₂ (wire compName) ins (allFin i))
+  ∷ toList (mapV (wire compName) ins ⊛ allFin i)
 
-dotˢ : ℕ → Vec OPort (i + sⁱ) → (i , sⁱ k.⇨ o , sᵒ) → List String
+oport : String → Fin a → OPort
+oport compName o = compName ++ ":Out" ++ FS.show o
 
-dotˢ comp# ins k.[ r ] = comp "output" "output" (r′.⟦ r ⟧ ins) comp#
+dotᵏ : ℕ → Vec OPort (i + sⁱ) → (i , sⁱ k.⇨ o , sᵒ) → List String
+dotᵏ comp# ins k.[ r ] =
+  comp "output" "output" (r′.⟦ r ⟧ ins) comp#
+dotᵏ comp# ins (f k.∷ʳ (a , a⇨ₚb , i+sⁱ⇨ᵣa+sᵃ)) =
+  let ins′ = r′.⟦ i+sⁱ⇨ᵣa+sᵃ ⟧ ins
+      #o = p.#outs a⇨ₚb  -- or get from an implicit
+      compName = "c" ++ NS.show comp#
+      oports = mapV (oport compName) (allFin #o)
+      compIns , restIns , _ = splitAt a ins′
+  in
+    comp compName (p.show a⇨ₚb) compIns #o
+    ++ˡ dotᵏ (suc comp#) (oports ++ⁿ restIns) f
 
-dotˢ comp# ins (f k.∷ʳ (a , a⇨ₚb , i+sⁱ⇨ᵣa+sᵃ)) =
-  comp ("c" ++ NS.show comp#) (p.show a⇨ₚb)
-    {!!} (p.#outs a⇨ₚb)
-  ++ˡ dotˢ (suc comp#) {!!} f
+prelude : List String
+prelude =
+  "margin=0" ∷
+  "rankdir=LR" ∷
+  "node [shape=Mrecord]" ∷
+  "bgcolor=transparent" ∷
+  "nslimit=20" ∷
+  "ranksep=0.75" ∷
+  []
 
--- dot : a sf.⇨ b → String
--- dot f = dotˢ (f {0})
+package : List String → String
+package = (_++ "\n}\n") ∘′ ("digraph {" ++_) ∘′ ("\n" ++_) ∘′ unlines ∘′ map (λ s → "  " ++ s ++ ";") ∘′ (prelude ++ˡ_) -- ∘′ init
+
+dot : a sf.⇨ b → String
+dot {a} f = package (
+  comp "input" "input" [] a ++ˡ
+  dotᵏ 0 (b′.unitorⁱʳ (mapV (oport "input") (allFin a))) (f {0}))
 
