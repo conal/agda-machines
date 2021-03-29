@@ -7,7 +7,7 @@ open import Data.Nat using (ℕ; _+_)
 
 open import Symbolic.ExtrinsicVec
 
-private variable a b c d j k i o s sⁱ sᵒ sᵃ : ℕ
+private variable a b c d i o s sⁱ sᵒ sᵃ : ℕ
 
 -- Primitive instance p with input routing for first p
 module i where
@@ -26,17 +26,16 @@ module k where
   infix 0 _⇨_
   infixl 5 _∷ʳ_
   data _⇨_ : (ℕ × ℕ) → (ℕ × ℕ) → Set where
-    [_] : i + sⁱ r.⇨ o + sᵒ → i , sⁱ ⇨ o , sᵒ
-    _∷ʳ_ : a , sᵃ ⇨ o , sᵒ → i , sⁱ i.⇨ a , sᵃ → i , sⁱ ⇨ o , sᵒ
+    [_]  : (i + sⁱ r.⇨ o + sᵒ) → (i , sⁱ ⇨ o , sᵒ)
+    _∷ʳ_ : (a , sᵃ ⇨ o , sᵒ) → (i , sⁱ i.⇨ a , sᵃ) → (i , sⁱ ⇨ o , sᵒ)
 
   ⟦_⟧ : i , sⁱ ⇨ o , sᵒ → i + sⁱ b.⇨ o + sᵒ
   ⟦ [ r ] ⟧ = r.⟦ r ⟧
   ⟦_⟧ {i = i}{sⁱ = sⁱ} (f ∷ʳ inst) = ⟦ f ⟧ b.∘ i.⟦_⟧ {i = i}{sⁱ = sⁱ} inst
 
-  -- I hope to chase away explicit implicits by moving from natural numbers back
-  -- to Ty.
+  -- I hope to eliminate explicit implicits by moving from ℕ back to Ty.
 
-  route : i + sⁱ r.⇨ o + sᵒ → i , sⁱ ⇨ o , sᵒ
+  route : (i + sⁱ r.⇨ o + sᵒ) → (i , sⁱ ⇨ o , sᵒ)
   route = [_]
 
   infixr 9 _∘ʳ_
@@ -79,6 +78,9 @@ module sf where
   ⟦_⟧ : a ⇨ b → a b.⇨ b
   ⟦ f ⟧ = b.unitorᵉʳ b.∘ k.⟦ f ⟧ b.∘ b.unitorⁱʳ
 
+  prim : i p.⇨ o → i ⇨ o
+  prim i⇨ₚo = k.prim i⇨ₚo
+
   route : i r.⇨ o → i ⇨ o
   route r = k.route (r.first r)
 
@@ -119,6 +121,3 @@ module sf where
   infixr 7 _△_
   _△_ : a ⇨ c → a ⇨ d → a ⇨ c + d
   f △ g = (f ⊗ g) ∘ dup
-
-  prim : i p.⇨ o → i ⇨ o
-  prim i⇨ₚo = k.prim i⇨ₚo
