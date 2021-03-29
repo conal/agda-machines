@@ -37,7 +37,7 @@ mergeᶠ {a}{b} = ⊎.[ inject+ b , raise a ]
 split′ : ∀ {ℓ}{X : Set ℓ} → Vec X (a + b) → Vec X a × Vec X b
 split′ {a = a} xs = let (u , v , _) = splitAt a xs in u , v
 
-module v (A : Set) where
+module b′ {A : Set} where
 
   infix 0 _⇨_
   _⇨_ : ℕ → ℕ → Set
@@ -106,23 +106,21 @@ module v (A : Set) where
   unitorⁱʳ {a} = subst (_⇨ a + 0) (+-identityʳ a) id
 
 module b where
-  open v Bool public
-
--- -- TODO: phase out _→ᵇ_ in favor of v._⇨_
--- infix 0 _→ᵇ_
--- _→ᵇ_ : ℕ → ℕ → Set
--- _→ᵇ_ = b._⇨_
+  open b′ {Bool} public
   
 
 -- Routing.  TODO: consider generalizing from Bool.
-module r where
+module r′ {A : Set} where
 
   infix 1 _⇨_
   _⇨_ : ℕ → ℕ → Set
   a ⇨ b = Fin b → Fin a
 
-  ⟦_⟧ : (a ⇨ b) → (a b.⇨ b)
+  ⟦_⟧ : (a ⇨ b) → b′._⇨_ {A} a b
   ⟦ f ⟧ a = tabulate (lookup a F.∘ f)
+
+  -- TODO: consider removing the A module parameter and universally quantifying
+  -- over A in the ⟦_⟧ signature.
 
   id : a ⇨ a
   id = F.id
@@ -175,6 +173,9 @@ module r where
   ! : a ⇨ 0
   ! ()
 
+module r where
+  open r′ {Bool} public
+
 -- Combinational primitives
 module p where
 
@@ -210,6 +211,9 @@ module p where
   show (const x) = showBits x
   show input     = "input"
   show output    = "output"
+
+  #outs : (a ⇨ b) → ℕ
+  #outs {b = b} _ = b
 
 -- Combinational circuits
 module c where
@@ -288,7 +292,8 @@ module c where
 
   -- TODO: redo transpose via subst and Data.Nat.Properties
 
-  -- If I parametrize by Ty instead of ℕ, the implicit arguments will be inferred.
+  -- If I parametrize by Ty instead of ℕ, I expect all of the implicit arguments
+  -- to be inferred, since Ty _×_ is injective, unlike ℕ _+_.
 
 -- Synchronous state machine.
 module s where
