@@ -121,3 +121,12 @@ module sf where
   infixr 7 _△_
   _△_ : a ⇨ c → a ⇨ d → a ⇨ c + d
   f △ g = (f ⊗ g) ∘ dup
+
+open sf public
+
+-- Functorial compilation
+compile : a c.⇨ b → a ⇨ b
+compile (c.route r) = route r
+compile (c.prim p)  = prim p
+compile (g c.∘ f)   = compile g ∘ compile f
+compile (f c.⊗ g)   = compile f ⊗ compile g
