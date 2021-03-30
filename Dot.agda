@@ -1,6 +1,6 @@
 module Dot where
 
-open import Function using (_∘′_)
+open import Function using (_∘′_; _∋_)
 open import Data.Fin using (Fin; toℕ; suc; zero)
 open import Data.Fin.Show as FS
 open import Data.Nat using (ℕ; suc; zero)
@@ -50,8 +50,9 @@ showIx = FS.show ∘′ toFin
 wire : String → TyIx a → OPort → String
 wire compName i oport = oport ++ " -> " ++  compName ++ ":In" ++ showIx i
 
--- _ : wire "Foo" (suc (suc (zero {5}))) "c2:Out4" ≡ "c2:Out4 -> Foo:In2"
--- _ = refl
+_ : wire "Foo" (TyIx (Bool ↑ 5) ∋ right (right (left here)))
+       "c2:Out4" ≡ "c2:Out4 -> Foo:In2"
+_ = refl
 
 comp : String → String → TyF OPort i → Ty → List String
 comp {i} compName opName ins o =
@@ -74,7 +75,6 @@ module _ {s} (state₀ : ⟦ s ⟧ᵗ) where
     comp ("reg" ++ showIx j) ("cons " ++ showBit (lookup state₀ j)) [ src ] Bool
 
   dotᵏ : ℕ → TyF OPort (i × zⁱ) → (i , zⁱ k.⇨ (o × s) , ⊤) → List String
-
   dotᵏ _ ins k.[ r ] with r.⟦ r.unitorᵉʳ r.∘ r ⟧′ ins
   ...                       | os ､ ss =
     concat (toList (mapᵀ register allIx ⊛ →TyF state₀ ⊛ ss))
@@ -82,7 +82,6 @@ module _ {s} (state₀ : ⟦ s ⟧ᵗ) where
 
   dotᵏ comp# ins (f k.∷ʳ (a , a⇨ₚb , i×zⁱ⇨ᵣa×zᵃ)) with r.⟦ i×zⁱ⇨ᵣa×zᵃ ⟧′ ins
   ...                                                | os ､ ss =
-
     let compName = "c" ++ NS.show comp# in
       comp compName (p.show a⇨ₚb) os (p.cod a⇨ₚb)
       ++ᴸ dotᵏ (suc comp#) (mapᵀ (oport compName) allIx ､ ss) f
