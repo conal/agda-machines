@@ -74,17 +74,17 @@ infixr 4 _､_
 
 -- Ty-indexed representable functor
 data TyF (X : Set) : Ty → Set where
-  • : TyF X ⊤
-  bit  : X → TyF X Bool
+  •   : TyF X ⊤
+  [_] : X → TyF X Bool
   _､_ : TyF X A → TyF X B → TyF X (A × B)
 
 tabulate′ : (TyIx A → X) → TyF X A
 tabulate′ {⊤} f = •
-tabulate′ {Bool} f = bit (f here)
+tabulate′ {Bool} f = [ f here ]
 tabulate′ {_ × _} f = tabulate′ (f F.∘ left) ､ tabulate′ (f F.∘ right)
 
 lookup′ : TyF X A → (TyIx A → X)
-lookup′ (bit x) here = x
+lookup′ [ x ] here = x
 lookup′ (l ､ r) (left  a) = lookup′ l a
 lookup′ (l ､ r) (right b) = lookup′ r b
 
@@ -93,12 +93,12 @@ swizzle′ r a = tabulate′ (lookup′ a F.∘ r)
 
 →TyF : ⟦ A ⟧ᵗ → TyF Boolᵗ A
 →TyF {⊤} tt = •
-→TyF {Bool} b = bit b
+→TyF {Bool} b = [ b ]
 →TyF {_ × _} (x , y) = →TyF x ､ →TyF y
 
 TyF→ : TyF Boolᵗ A → ⟦ A ⟧ᵗ
 TyF→ • = tt
-TyF→ (bit b) = b
+TyF→ [ b ] = b
 TyF→ (x ､ y) = TyF→ x , TyF→ y
 
 -- TODO: Finish ⟦ A ⟧ᵗ ↔ TyF Boolᵗ A . Proofs should be much easier than with vectors.
@@ -108,7 +108,7 @@ TyF→ (x ､ y) = TyF→ x , TyF→ y
 
 -- Relate Ty values to vectors
 
-open import Data.Vec using (Vec; []; [_]; _∷_)
+open import Data.Vec using (Vec; []; _∷_)
   renaming (_++_ to _++ⁿ_; toList to toListⁿ)
 
 size : Ty → ℕ
@@ -125,7 +125,7 @@ toFin (right j) = raise   _ (toFin j)
 
 toVec : TyF X A → Vec X (size A)
 toVec • = []
-toVec (bit x) = [ x ]
+toVec [ x ] = x ∷ []
 toVec (u ､ v) = toVec u ++ⁿ toVec v
 
 open import Data.List using (List)
@@ -135,23 +135,23 @@ toList = toListⁿ F.∘ toVec
 
 map : (X → Y) → TyF X A → TyF Y A
 map f • = •
-map f (bit x) = bit (f x)
+map f [ x ] = [ f x ]
 map f (u ､ v) = map f u ､ map f v
 
 allFin : TyF (Fin (size A)) A
 allFin {⊤} = •
-allFin {Bool} = bit zero
+allFin {Bool} = [ zero ]
 allFin {_ × _} = map (inject+ _) allFin ､ map (raise _) allFin
 
 allIx : TyF (TyIx A) A
 allIx {⊤} = •
-allIx {Bool} = bit here
+allIx {Bool} = [ here ]
 allIx {_ × _} = map left allIx ､ map right allIx
 
 infixl 4 _⊛_
 _⊛_ : TyF (X → Y) A → TyF X A → TyF Y A
 • ⊛ • = •
-bit f ⊛ bit x = bit (f x)
+[ f ] ⊛ [ x ] = [ f x ]
 (fs ､ gs) ⊛ (xs ､ ys) = (fs ⊛ xs) ､ (gs ⊛ ys)
 
 map₂ : (X → Y → Z) → TyF X A → TyF Y A → TyF Z A

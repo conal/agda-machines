@@ -71,7 +71,7 @@ module _ {s} (state₀ : ⟦ s ⟧ᵗ) where
 
   register : TyIx s → Boolᵗ → OPort → List String
   register j s₀ src =
-    comp ("reg" ++ showIx j) ("cons " ++ showBit (lookup state₀ j)) (bit src) Bool
+    comp ("reg" ++ showIx j) ("cons " ++ showBit (lookup state₀ j)) [ src ] Bool
 
   dotᵏ : ℕ → TyF OPort (i × zⁱ) → (i , zⁱ k.⇨ (o × s) , ⊤) → List String
 
