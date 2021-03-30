@@ -1,5 +1,5 @@
 *.agdai
 MAlonzo
-figures/*.dot
-figures/*.pdf
+Figures/*.dot
+Figures/*.pdf
 Test

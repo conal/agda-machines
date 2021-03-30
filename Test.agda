@@ -51,7 +51,7 @@ module se where
 exampleˢ : ∀ {i o} → String → i s.⇨ o → IO {0ℓ} ⊤
 exampleˢ {i = i} name (s.mealy {s} state₀ f) =
   do putStrLn name
-     writeFile ("figures/" ++ name ++ ".dot") (dot {s = s} state₀ {i = i} (compile f))
+     writeFile ("Figures/" ++ name ++ ".dot") (dot {s = s} state₀ {i = i} (compile f))
 
 exampleᶜ : ∀ {i o} → String → i c.⇨ o → IO {0ℓ} ⊤
 exampleᶜ name f = exampleˢ name (s.comb f)

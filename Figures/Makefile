@@ -1,10 +1,10 @@
-all: figures
+all: pdfs
 
 DOTS=$(shell echo *.dot) 
 
 PDFS=$(patsubst %.dot,%.pdf,$(DOTS))
 
-figures: $(PDFS)
+pdfs: $(PDFS)
 
 # Cap the size so that LaTeX doesn't choke.
 %.pdf: %.dot # Makefile

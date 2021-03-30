@@ -14,7 +14,7 @@ compile:
 
 tests: Test
 	./Test
-	make -C figures
+	make -C Figures
 
 listings:
 	@mkdir -p html
