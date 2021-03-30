@@ -23,3 +23,5 @@ A quick summary of the important modules:
     The Makefile uses relies on on having [GraphViz](https://graphviz.org/) installed for the `dot` executable.
     See above for `make` incantations.
 
+There are many semantic functions (`⟦_⟧`) mapping between categories.
+Every one of them should be functorial, which is to say that the representation faithfully implements its meaning.
