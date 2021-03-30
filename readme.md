@@ -1,7 +1,9 @@
 This Agda project plays with composable Mealy machines with compositional/functorial semantics to generate computational hardware.
 
+Circuit graph rendering requires [GraphViz](https://graphviz.org/).
+
 *   "`make compile`" to compile the test program, though faster from within the IDE (`∁-c C­x C-C`).
-*   "`make figures`" to generate circuit diagrams in the `figures` subdirectory.
+*   "`make tests`" to generate circuit diagrams in the `Figures` subdirectory (dot files and their PDF renderings).
 
 A quick summary of the important modules:
 
@@ -20,7 +22,7 @@ A quick summary of the important modules:
 *   `Dot`: generation of [GraphViz *dot* format](https://en.wikipedia.org/wiki/DOT_%28graph_description_language%29) from the stack program category.
 *   `Test`: examples with dot file generation.
     Compile this module, and run it to generate dot files and render them into PDFs.
-    The Makefile uses relies on on having [GraphViz](https://graphviz.org/) installed for the `dot` executable.
+    The Makefile uses relies on having [GraphViz](https://graphviz.org/) installed for the `dot` executable.
     See above for `make` incantations.
 
 There are many semantic functions (`⟦_⟧`) mapping between categories.
