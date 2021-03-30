@@ -68,7 +68,7 @@ oport compName o = compName ++ ":Out" ++ showIx o
 module _ {s} (state₀ : ⟦ s ⟧ᵗ) where
 
   reg : TyIx a → String
-  reg j = "reg" ++ FS.show (toFin j)
+  reg j = "reg" ++ showIx j
 
   register : TyIx s → Boolᵗ → OPort → List String
   register j s₀ src =
@@ -90,5 +90,5 @@ module _ {s} (state₀ : ⟦ s ⟧ᵗ) where
   dot {i = i} f = package (
     comp "input" "input" • i ++ᴸ
     dotᵏ 0 (( mapᵀ (oport "input") allIx ､
-              mapᵀ (λ r → oport ("reg" ++ showIx r) here) allIx) ､ •)
+              mapᵀ (λ r → oport (reg r) here) allIx) ､ •)
            f)
