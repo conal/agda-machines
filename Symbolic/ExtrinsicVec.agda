@@ -2,7 +2,10 @@
 -- generation (e.g., Verilog).
 
 -- This version uses size-indexed vectors, so categorical product is size *sum*.
--- (Sizes are exponents, so their sums represent products.)
+-- (Sizes are exponents, so their sums represent products.) The lack of
+-- injectivity of addition makes type inference much less helpful, so there are
+-- many explicitly given size arguments. This module is not long in use, since
+-- the Ty approach is much easier to work with.
 
 module Symbolic.ExtrinsicVec where
 
