@@ -1,5 +1,10 @@
 ## To do
 
+*   Replace bit vectors with `Ty`.
+    Non-injectivity of addition leads to a lot of tedious explicitly given implicit arguments.
+    Big overhaul, but well worth the effort.
+    Use `BitIdx` in `Ty` for routing.
+
 *   Add category classes to remove the need for many module prefixes and to share definitions of derived categorical operations.
     At some point, try using agda-categories.
 
