@@ -4,8 +4,10 @@ module Ty where
 
 open import Data.Unit renaming (⊤ to ⊤ᵗ) public
 open import Data.Bool using () renaming (Bool to Boolᵗ) public
+open import Data.Bool using (true; false; if_then_else_)
 open import Data.Bool.Show as BS
 open import Data.Product using (_,_; uncurry) renaming (_×_ to _×ᵗ_) public
+open import Data.Nat
 open import Data.String hiding (toVec; toList)
 
 import Misc as F
@@ -18,16 +20,26 @@ data Ty : Set where
 
 private variable A B C D : Ty
 
+infixl 8 _↑_
+_↑_ : Ty → ℕ → Ty
+A ↑ zero  = ⊤
+A ↑ suc zero = A
+A ↑ suc (suc n) = A × A ↑ suc n
+
 ⟦_⟧ᵗ : Ty → Set
 ⟦ ⊤ ⟧ᵗ     = ⊤ᵗ
 ⟦ σ × τ ⟧ᵗ = ⟦ σ ⟧ᵗ ×ᵗ ⟦ τ ⟧ᵗ
 ⟦ Bool ⟧ᵗ  = Boolᵗ
 
 showTy : ⟦ A ⟧ᵗ → String
-showTy {⊤} tt = "tt"
-showTy {Bool} b = BS.show b
-showTy {_ × _} (x , y) = showTy x ++ "," ++ showTy y
--- TODO: parenthesize as needed, considering infixr 4 _,_
+showTy = go true
+ where
+   -- flag says we're in the left part of a pair
+   go : Boolᵗ → ⟦ A ⟧ᵗ → String
+   go {⊤} _ tt = "tt"
+   go {Bool} _ b = BS.show b
+   go {_ × _} p (x , y) = (if p then parens else F.id)
+                          (go true x ++ "," ++ go false y)
 
 infix 0 _→ᵗ_
 _→ᵗ_ : Ty → Ty → Set
@@ -58,41 +70,44 @@ swizzle r a = tabulate (lookup a F.∘ r)
 
 private variable X Y Z : Set
 
+infixr 4 _､_
+
 -- Ty-indexed representable functor
 data TyF (X : Set) : Ty → Set where
-  unit : TyF X ⊤
+  • : TyF X ⊤
   bit  : X → TyF X Bool
-  pair : TyF X A → TyF X B → TyF X (A × B)
+  _､_ : TyF X A → TyF X B → TyF X (A × B)
 
 tabulate′ : (TyIx A → X) → TyF X A
-tabulate′ {⊤} f = unit
+tabulate′ {⊤} f = •
 tabulate′ {Bool} f = bit (f here)
-tabulate′ {_ × _} f = pair (tabulate′ (f F.∘ left)) (tabulate′ (f F.∘ right))
+tabulate′ {_ × _} f = tabulate′ (f F.∘ left) ､ tabulate′ (f F.∘ right)
 
 lookup′ : TyF X A → (TyIx A → X)
 lookup′ (bit x) here = x
-lookup′ (pair l r) (left  a) = lookup′ l a
-lookup′ (pair l r) (right b) = lookup′ r b
+lookup′ (l ､ r) (left  a) = lookup′ l a
+lookup′ (l ､ r) (right b) = lookup′ r b
 
 swizzle′ : (TyIx B → TyIx A) → ∀ {X} → TyF X A → TyF X B
 swizzle′ r a = tabulate′ (lookup′ a F.∘ r)
 
 →TyF : ⟦ A ⟧ᵗ → TyF Boolᵗ A
-→TyF {⊤} tt = unit
+→TyF {⊤} tt = •
 →TyF {Bool} b = bit b
-→TyF {_ × _} (x , y) = pair (→TyF x) (→TyF y)
+→TyF {_ × _} (x , y) = →TyF x ､ →TyF y
 
 TyF→ : TyF Boolᵗ A → ⟦ A ⟧ᵗ
-TyF→ unit = tt
+TyF→ • = tt
 TyF→ (bit b) = b
-TyF→ (pair x y) = TyF→ x , TyF→ y
+TyF→ (x ､ y) = TyF→ x , TyF→ y
+
+-- TODO: Finish ⟦ A ⟧ᵗ ↔ TyF Boolᵗ A . Proofs should be much easier than with vectors.
 
 -- Agsy synthesized all of the TyF operations above. (Tidying needed for most,
 -- -c for all but swizzle′, and tabulate′ and lookup′ hints for swizzle′.)
 
 -- Relate Ty values to vectors
 
-open import Data.Nat
 open import Data.Vec using (Vec; []; [_]; _∷_)
   renaming (_++_ to _++ⁿ_; toList to toListⁿ)
 
@@ -109,9 +124,9 @@ toFin (left  i) = inject+ _ (toFin i)
 toFin (right j) = raise   _ (toFin j)
 
 toVec : TyF X A → Vec X (size A)
-toVec unit = []
+toVec • = []
 toVec (bit x) = [ x ]
-toVec (pair u v) = toVec u ++ⁿ toVec v
+toVec (u ､ v) = toVec u ++ⁿ toVec v
 
 open import Data.List using (List)
 
@@ -119,25 +134,25 @@ toList : TyF X A → List X
 toList = toListⁿ F.∘ toVec
 
 map : (X → Y) → TyF X A → TyF Y A
-map f unit = unit
+map f • = •
 map f (bit x) = bit (f x)
-map f (pair u v) = pair (map f u) (map f v)
+map f (u ､ v) = map f u ､ map f v
 
 allFin : TyF (Fin (size A)) A
-allFin {⊤} = unit
+allFin {⊤} = •
 allFin {Bool} = bit zero
-allFin {_ × _} = pair (map (inject+ _) allFin) (map (raise _) allFin)
+allFin {_ × _} = map (inject+ _) allFin ､ map (raise _) allFin
 
 allIx : TyF (TyIx A) A
-allIx {⊤} = unit
+allIx {⊤} = •
 allIx {Bool} = bit here
-allIx {_ × _} = pair (map left allIx) (map right allIx)
+allIx {_ × _} = map left allIx ､ map right allIx
 
 infixl 4 _⊛_
 _⊛_ : TyF (X → Y) A → TyF X A → TyF Y A
-unit ⊛ unit = unit
+• ⊛ • = •
 bit f ⊛ bit x = bit (f x)
-pair fs gs ⊛ pair xs ys = pair (fs ⊛ xs) (gs ⊛ ys)
+(fs ､ gs) ⊛ (xs ､ ys) = (fs ⊛ xs) ､ (gs ⊛ ys)
 
 map₂ : (X → Y → Z) → TyF X A → TyF Y A → TyF Z A
 map₂ f u v = map f u ⊛ v
