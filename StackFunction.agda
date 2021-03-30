@@ -2,44 +2,42 @@
 
 module StackFunction where
 
-open import Data.Product using (∃; _×_; _,_)
-open import Data.Nat using (ℕ; _+_)
+open import Data.Product using (∃; _,_) renaming (_×_ to _×ᵗ_)
 
-open import Symbolic.ExtrinsicVec
+open import Ty
+import Misc as F
+open import Symbolic.ExtrinsicTy
 
-private variable a b c d i o z zⁱ zᵒ zᵃ : ℕ
+private variable a b c d i o z zⁱ zᵒ zᵃ : Ty
 
 -- Primitive instance p with input routing for first p
 module i where
 
   infix 0 _⇨_
-  _⇨_ : (ℕ × ℕ) → (ℕ × ℕ) → Set
-  i , zⁱ ⇨ o , zᵒ = ∃ λ a → (a p.⇨ o) × (i + zⁱ r.⇨ a + zᵒ)
+  _⇨_ : (Ty ×ᵗ Ty) → (Ty ×ᵗ Ty) → Set
+  (i , zⁱ ⇨ o , zᵒ) = ∃ λ a → (a p.⇨ o) ×ᵗ (i × zⁱ r.⇨ a × zᵒ)
 
-  ⟦_⟧ : i , zⁱ ⇨ o , zᵒ → i + zⁱ b.⇨ o + zᵒ
-  ⟦ a , a⇨ₚo , i+zⁱ⇨ᵣa+zᵒ ⟧ = b.first p.⟦ a⇨ₚo ⟧ b.∘ r.⟦ i+zⁱ⇨ᵣa+zᵒ ⟧
-
+  ⟦_⟧ : i , zⁱ ⇨ o , zᵒ → i × zⁱ →ᵗ o × zᵒ
+  ⟦ a , a⇨ₚo , i×zⁱ⇨ᵣa×zᵒ ⟧ = F.first p.⟦ a⇨ₚo ⟧ F.∘ r.⟦ i×zⁱ⇨ᵣa×zᵒ ⟧
 
 -- Stack operations
 module k where
 
   infix 0 _⇨_
   infixl 5 _∷ʳ_
-  data _⇨_ : (ℕ × ℕ) → (ℕ × ℕ) → Set where
-    [_]  : (i + zⁱ r.⇨ o + zᵒ) → (i , zⁱ ⇨ o , zᵒ)
+  data _⇨_ : (Ty ×ᵗ Ty) → (Ty ×ᵗ Ty) → Set where
+    [_]  : (i × zⁱ r.⇨ o × zᵒ) → (i , zⁱ ⇨ o , zᵒ)
     _∷ʳ_ : (a , zᵃ ⇨ o , zᵒ) → (i , zⁱ i.⇨ a , zᵃ) → (i , zⁱ ⇨ o , zᵒ)
 
-  ⟦_⟧ : i , zⁱ ⇨ o , zᵒ → i + zⁱ b.⇨ o + zᵒ
+  ⟦_⟧ : i , zⁱ ⇨ o , zᵒ → i × zⁱ →ᵗ o × zᵒ
   ⟦ [ r ] ⟧ = r.⟦ r ⟧
-  ⟦_⟧ {i = i}{zⁱ = zⁱ} (f ∷ʳ inst) = ⟦ f ⟧ b.∘ i.⟦_⟧ {i = i}{zⁱ = zⁱ} inst
+  ⟦ f ∷ʳ inst ⟧ = ⟦ f ⟧ F.∘ i.⟦_⟧ inst
 
-  -- I hope to eliminate explicit implicits by moving from ℕ back to Ty.
-
-  route : (i + zⁱ r.⇨ o + zᵒ) → (i , zⁱ ⇨ o , zᵒ)
+  route : (i × zⁱ r.⇨ o × zᵒ) → (i , zⁱ ⇨ o , zᵒ)
   route = [_]
 
   infixr 9 _∘ʳ_
-  _∘ʳ_ : (a , zᵃ ⇨ o , zᵒ) → (i + zⁱ r.⇨ a + zᵃ) → (i , zⁱ ⇨ o , zᵒ)
+  _∘ʳ_ : (a , zᵃ ⇨ o , zᵒ) → (i × zⁱ r.⇨ a × zᵃ) → (i , zⁱ ⇨ o , zᵒ)
   [ r₂ ] ∘ʳ r₁ = [ r₂ r.∘ r₁ ]
   (g ∷ʳ (d , d⇨ₚe , r₂)) ∘ʳ r₁ = g ∷ʳ (d , d⇨ₚe , r₂ r.∘ r₁)
 
@@ -53,13 +51,13 @@ module k where
   -- (g ∷ʳ (d , d⇨ₚe , r₂)) ∘ [ r₁ ] = g ∷ʳ (d , d⇨ₚe , r₂ r.∘ r₁)
   -- g ∘ (f ∷ʳ inst) = g ∘ f ∷ʳ inst
 
-  push : a + b , c ⇨ a , b + c
-  push {a} = route (r.assocʳ {a})
+  push : (a × b) , c ⇨ a , (b × c)
+  push = route r.assocʳ
 
-  pop : a , b + c ⇨ a + b , c
-  pop {a} = route (r.assocˡ {a})
+  pop : a , (b × c) ⇨ (a × b) , c
+  pop = route r.assocˡ
 
-  stacked : (a , b + z ⇨ c , b + z) → (a + b , z) ⇨ (c + b , z)
+  stacked : (a , (b × z) ⇨ c , (b × z)) → ((a × b) , z) ⇨ ((c × b) , z)
   stacked f = pop ∘ f ∘ push
 
   prim : i p.⇨ o → i , zⁱ ⇨ o , zⁱ
@@ -72,11 +70,11 @@ open k using (stacked)
 module sf where
 
   infix 0 _⇨_
-  _⇨_ : ℕ → ℕ → Set
+  _⇨_ : Ty → Ty → Set
   i ⇨ o = ∀ {z} → i , z k.⇨ o , z
 
-  ⟦_⟧ : a ⇨ b → a b.⇨ b
-  ⟦ f ⟧ = b.unitorᵉʳ b.∘ k.⟦ f ⟧ b.∘ b.unitorⁱʳ
+  ⟦_⟧ : a ⇨ b → a →ᵗ b
+  ⟦ f ⟧ = F.unitorᵉʳ F.∘ k.⟦ f ⟧ F.∘ F.unitorⁱʳ
 
   prim : i p.⇨ o → i ⇨ o
   prim i⇨ₚo = k.prim i⇨ₚo
@@ -85,10 +83,10 @@ module sf where
   route r = k.route (r.first r)
 
   id  : a ⇨ a
-  dup : a ⇨ a + a
-  exl : a + b ⇨ a
-  exr : a + b ⇨ b
-  !   : a ⇨ 0
+  dup : a ⇨ a × a
+  exl : a × b ⇨ a
+  exr : a × b ⇨ b
+  !   : a ⇨ ⊤
 
   id  = route r.id
   dup = route r.dup
@@ -96,36 +94,36 @@ module sf where
   exr = route r.exr
   !   = route λ ()
 
-  swap : a + b ⇨ b + a
-  assocˡ : a + (b + c) ⇨ (a + b) + c
-  assocʳ : (a + b) + c ⇨ a + (b + c)
+  swap : a × b ⇨ b × a
+  assocˡ : a × (b × c) ⇨ (a × b) × c
+  assocʳ : (a × b) × c ⇨ a × (b × c)
 
-  swap   {a}{b}    = route (r.swap   {a}{b})
-  assocˡ {a}{b}{c} = route (r.assocˡ {a}{b}{c})
-  assocʳ {a}{b}{c} = route (r.assocʳ {a}{b}{c})
+  swap   = route r.swap
+  assocˡ = route r.assocˡ
+  assocʳ = route r.assocʳ
 
   infixr 9 _∘_
   _∘_ : (b ⇨ c) → (a ⇨ b) → (a ⇨ c)
   g ∘ f = g k.∘ f
   
-  first : (a ⇨ c) → (a + b ⇨ c + b)
+  first : (a ⇨ c) → (a × b ⇨ c × b)
   first f = stacked f
 
-  second : (b ⇨ d) → (a + b ⇨ a + d)
-  second {b}{d}{a} f = route (r.swap {d}{a}) ∘ first f ∘ route (r.swap {a}{b})
+  second : (b ⇨ d) → (a × b ⇨ a × d)
+  second f = route r.swap ∘ first f ∘ route r.swap
 
   infixr 7 _⊗_
-  _⊗_ : a ⇨ c → b ⇨ d → a + b ⇨ c + d
+  _⊗_ : a ⇨ c → b ⇨ d → a × b ⇨ c × d
   f ⊗ g = second g ∘ first f
 
   infixr 7 _△_
-  _△_ : a ⇨ c → a ⇨ d → a ⇨ c + d
+  _△_ : a ⇨ c → a ⇨ d → a ⇨ c × d
   f △ g = (f ⊗ g) ∘ dup
 
-  unitorᵉˡ : 0 + a ⇨ a
-  unitorᵉʳ : a + 0 ⇨ a
-  unitorⁱˡ : a ⇨ 0 + a
-  unitorⁱʳ : a ⇨ a + 0
+  unitorᵉˡ : ⊤ × a ⇨ a
+  unitorᵉʳ : a × ⊤ ⇨ a
+  unitorⁱˡ : a ⇨ ⊤ × a
+  unitorⁱʳ : a ⇨ a × ⊤
 
   unitorᵉˡ = route r.unitorᵉˡ
   unitorᵉʳ = route r.unitorᵉʳ
