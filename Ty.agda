@@ -76,6 +76,8 @@ BitF→ unit = tt
 BitF→ (bit b) = b
 BitF→ (pair x y) = BitF→ x , BitF→ y
 
+-- Agsy synthesized all of the BitF operations above. (Tidying needed for most,
+-- -c for all but swizzleF, and tabulate′ and lookup′ hints for swizzleF.)
 
 -- Relate Ty values to vectors
 
