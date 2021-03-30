@@ -5,7 +5,7 @@ open import Function using (_∘′_)
 -- open import Data.Product using (∃; _×_; _,_)
 open import Data.Fin using (Fin; toℕ; suc; zero)
 open import Data.Fin.Show as FS
--- open import Data.Nat using (ℕ; _+_; suc; zero)
+open import Data.Nat using (ℕ; suc; zero)
 open import Data.Nat.Show as NS
 open import Data.String hiding (toList)
 open import Data.Vec renaming (map to mapⁿ; _++_ to _++ⁿ_; toList to toListⁿ)
@@ -77,34 +77,23 @@ module _ {s} (state₀ : ⟦ s ⟧ᵗ) where
   register j s₀ src =
     comp ("reg" ++ showIx j) ("cons " ++ showBit (lookup state₀ j)) (bit src) Bool
 
-  dotᵏ : Ty → TyF OPort (i × zⁱ) → (i , zⁱ k.⇨ (o × s) , ⊤) → List String
+  dotᵏ : ℕ → TyF OPort (i × zⁱ) → (i , zⁱ k.⇨ (o × s) , ⊤) → List String
 
-  dotᵏ comp# ins k.[ r ] with r.⟦ r.unitorᵉʳ r.∘ r ⟧′ ins
-  ...                       | pair os ss =
+  dotᵏ _ ins k.[ r ] with r.⟦ r.unitorᵉʳ r.∘ r ⟧′ ins
+  ...                       | os ､ ss =
     concatˡ (toList (mapT register allIx ⊛ →TyF state₀ ⊛ ss))
-    ++ˡ comp "output" "output" os comp#
+    ++ˡ comp "output" "output" os ⊤
 
-  dotᵏ comp# ins (f k.∷ʳ x) = {!!}
+  dotᵏ comp# ins (f k.∷ʳ (a , a⇨ₚb , i×zⁱ⇨ᵣa×zᵃ)) with r.⟦ i×zⁱ⇨ᵣa×zᵃ ⟧′ ins
+  ...                                                | os ､ ss =
 
-  -- dotᵏ {o = o} comp# ins k.[ r ] =
-  --   let os , q , _ = splitAt o (r′.⟦ r′.assocʳ {A = OPort}{a = o}{s} r.∘ r ⟧ ins)
-  --       ss , _ , _ = splitAt s q in
-  --   concatˡ (toList (mapⁿ register (allFin s) ⊛ state₀ ⊛ ss))
-  --   ++ˡ comp "output" "output" os comp#
-  --   -- TODO: I think zᵒ must be zero here (empty stack). Can I enforce with types?
-  -- dotᵏ {o = o} comp# ins (f k.∷ʳ (a , a⇨ₚb , i×zⁱ⇨ᵣa×zᵃ)) =
-  --   let ins′ = r′.⟦ i×zⁱ⇨ᵣa×zᵃ ⟧ ins
-  --       #o = p.#outs a⇨ₚb  -- or get from an implicit
-  --       compName = "c" ++ NS.show comp#
-  --       oports = mapⁿ (oport compName) (allFin #o)
-  --       compIns , restIns , _ = splitAt a ins′
-  --   in
-  --     comp compName (p.show a⇨ₚb) compIns #o
-  --     ++ˡ dotᵏ {o = o} (suc comp#) (oports ++ⁿ restIns) f
+    let compName = "c" ++ NS.show comp# in
+      comp compName (p.show a⇨ₚb) os (p.cod a⇨ₚb)
+      ++ˡ dotᵏ (suc comp#) (mapT (oport compName) allIx ､ ss) f
 
---   dot : i + s sf.⇨ o + s → String
---   dot {i = i} f = package (
---     comp "input" "input" [] i ++ˡ
---     dotᵏ 0 (b′.unitorⁱʳ (mapⁿ (oport "input") (allFin i) ++ⁿ
---                          mapⁿ (λ r → oport ("reg" ++ FS.show r) (zero {1})) (allFin s)))
---            (f {0}))
+  dot : i × s sf.⇨ o × s → String
+  dot {i = i} f = package (
+    comp "input" "input" • i ++ˡ
+    dotᵏ 0 (( mapT (oport "input") allIx ､
+              mapT (λ r → oport ("reg" ++ showIx r) here) allIx) ､ •)
+           f)
