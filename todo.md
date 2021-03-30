@@ -2,7 +2,8 @@
 
 *   Add category classes to remove the need for many module prefixes and to share definitions of derived categorical operations.
     At some point, try using [agda-categories](https://github.com/agda/agda-categories) instead.
-*   Recreate compiling-to-categories so we can write and read lambda notation instead of combinators.
+*   Recreate compiling-to-categories so we can write and read lambda notation instead of combinators!
+    See how far we can get with Agda's reflection mechanism.
 
 *   Maybe parametrize machines by the stream functions they implement.
 *   Consider making machines universe-level-polymorphic (easy).
