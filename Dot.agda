@@ -72,13 +72,12 @@ module _ {s} (state₀ : Bits s) where
   register j s₀ src =
     comp ("reg" ++ FS.show j) ("cons " ++ showBit (lookup state₀ j)) [ src ] 1
 
-  dotᵏ : ℕ → Vec OPort (i + zⁱ) → (i , zⁱ k.⇨ o + s , zᵒ) → List String
+  dotᵏ : ℕ → Vec OPort (i + zⁱ) → (i , zⁱ k.⇨ o + s , 0) → List String
   dotᵏ {o = o} comp# ins k.[ r ] =
     let os , q , _ = splitAt o (r′.⟦ r′.assocʳ {A = OPort}{a = o}{s} r.∘ r ⟧ ins)
         ss , _ , _ = splitAt s q in
     concatˡ (toList (mapV register (allFin s) ⊛ state₀ ⊛ ss))
-    ++ˡ comp "output" "output" os comp#
-    -- TODO: I think zᵒ must be zero here (empty stack). Can I enforce with types?
+    ++ˡ comp "output" "output" os zero
   dotᵏ {o = o} comp# ins (f k.∷ʳ (a , a⇨ₚb , i+zⁱ⇨ᵣa+zᵃ)) =
     let ins′ = r′.⟦ i+zⁱ⇨ᵣa+zᵃ ⟧ ins
         #o = p.#outs a⇨ₚb  -- or get from an implicit
