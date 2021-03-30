@@ -77,13 +77,12 @@ module _ {s} (state₀ : ⟦ s ⟧ᵗ) where
   register j s₀ src =
     comp ("reg" ++ showIx j) ("cons " ++ showBit (lookup state₀ j)) (bit src) Bool
 
-  dotᵏ : Ty → TyF OPort (i × zⁱ) → (i , zⁱ k.⇨ (o × s) , zᵒ) → List String
+  dotᵏ : Ty → TyF OPort (i × zⁱ) → (i , zⁱ k.⇨ (o × s) , ⊤) → List String
 
-  dotᵏ comp# ins k.[ r ] with r.⟦ r.assocʳ r.∘ r ⟧′ ins
-  ... | pair os (pair ss _) =
-    concatˡ (toList (mapT register allIx ⊛ state₀ ⊛ ss))
+  dotᵏ comp# ins k.[ r ] with r.⟦ r.unitorᵉʳ r.∘ r ⟧′ ins
+  ...                       | pair os ss =
+    concatˡ (toList (mapT register allIx ⊛ →TyF state₀ ⊛ ss))
     ++ˡ comp "output" "output" os comp#
-    -- TODO: I think zᵒ must be zero here (empty stack). Can I enforce with types?
 
   dotᵏ comp# ins (f k.∷ʳ x) = {!!}
 
