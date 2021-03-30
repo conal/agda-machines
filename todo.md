@@ -1,7 +1,7 @@
 ## To do
 
 *   Replace bit vectors with `Ty`.
-    Non-injectivity of addition leads to a lot of tedious explicitly given implicit arguments.
+    Non-injectivity of addition really hurts type inference, leading to a lot of tedious explicitly given implicit arguments.
     Big overhaul, but worth doing.
     *   Use `TyIx` in `Ty` for routing.
     *   The `Dot` module now uses vectors of output port names, manipulating them with routings.
