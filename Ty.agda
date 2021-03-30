@@ -4,7 +4,9 @@ module Ty where
 
 open import Data.Unit renaming (⊤ to ⊤ᵗ) public
 open import Data.Bool using () renaming (Bool to Boolᵗ) public
+open import Data.Bool.Show as BS
 open import Data.Product using (_,_; uncurry) renaming (_×_ to _×ᵗ_) public
+open import Data.String
 
 import Misc as F
 
@@ -20,6 +22,12 @@ private variable A B C D : Ty
 ⟦ ⊤ ⟧ᵗ     = ⊤ᵗ
 ⟦ σ × τ ⟧ᵗ = ⟦ σ ⟧ᵗ ×ᵗ ⟦ τ ⟧ᵗ
 ⟦ Bool ⟧ᵗ  = Boolᵗ
+
+showTy : ⟦ A ⟧ᵗ → String
+showTy {⊤} tt = "tt"
+showTy {Bool} b = BS.show b
+showTy {_ × _} (x , y) = showTy x ++ "," ++ showTy y
+-- TODO: parenthesize as needed, considering infixr 4 _,_
 
 infix 0 _→ᵗ_
 _→ᵗ_ : Ty → Ty → Set
@@ -45,9 +53,12 @@ tabulate {_ × _} f = tabulate (f F.∘ left) , tabulate (f F.∘ right)
 lookup : ⟦ A ⟧ᵗ → (TyIx A → Boolᵗ)
 lookup a i = ⟦ i ⟧ᵇ a
 
+swizzle : (TyIx B → TyIx A) → (⟦ A ⟧ᵗ → ⟦ B ⟧ᵗ)
+swizzle r a = tabulate (lookup a F.∘ r)
+
 private variable X : Set
 
--- Ty-indexed container
+-- Ty-indexed representable functor
 data TyF (X : Set) : Ty → Set where
   unit : TyF X ⊤
   bit  : X → TyF X Bool
@@ -63,8 +74,8 @@ lookup′ (bit x) here = x
 lookup′ (pair l r) (left  a) = lookup′ l a
 lookup′ (pair l r) (right b) = lookup′ r b
 
-swizzleF : (TyIx B → TyIx A) → TyF X A → TyF X B
-swizzleF r a = tabulate′ (lookup′ a F.∘ r)
+swizzle′ : (TyIx B → TyIx A) → ∀ {X} → TyF X A → TyF X B
+swizzle′ r a = tabulate′ (lookup′ a F.∘ r)
 
 →TyF : ⟦ A ⟧ᵗ → TyF Boolᵗ A
 →TyF {⊤} tt = unit
@@ -77,12 +88,12 @@ TyF→ (bit b) = b
 TyF→ (pair x y) = TyF→ x , TyF→ y
 
 -- Agsy synthesized all of the TyF operations above. (Tidying needed for most,
--- -c for all but swizzleF, and tabulate′ and lookup′ hints for swizzleF.)
+-- -c for all but swizzle′, and tabulate′ and lookup′ hints for swizzle′.)
 
 -- Relate Ty values to vectors
 
 open import Data.Nat
-open import Data.Vec
+open import Data.Vec renaming (_++_ to _++ⁿ_)
 open import Data.Vec.Properties using (++-injective)
 open import Function using (_↔_; mk↔′)
 open import Relation.Binary.PropositionalEquality
@@ -96,7 +107,7 @@ size (A × B) = size A + size B
 →Vec : ⟦ A ⟧ᵗ → Vec Boolᵗ (size A)
 →Vec {⊤} tt = []
 →Vec {Bool} b = b ∷ []
-→Vec {_ × _} (x , y) = →Vec x ++ →Vec y
+→Vec {_ × _} (x , y) = →Vec x ++ⁿ →Vec y
 
 Vec→ : Vec Boolᵗ (size A) → ⟦ A ⟧ᵗ
 Vec→ {⊤} [] = tt
@@ -107,7 +118,7 @@ Vec→ {A × B} bs = let u , v , _ = splitAt (size A) bs in Vec→ u , Vec→ v
 →Vec∘Vec→ {⊤} [] = refl
 →Vec∘Vec→ {Bool} (b ∷ []) = refl
 →Vec∘Vec→ {A × B} uv with splitAt (size A) uv
-... | u , v , refl = cong₂ _++_ (→Vec∘Vec→ {A} u) (→Vec∘Vec→ {B} v)
+... | u , v , refl = cong₂ _++ⁿ_ (→Vec∘Vec→ {A} u) (→Vec∘Vec→ {B} v)
 
 {-
 -- In progress
