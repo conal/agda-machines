@@ -1,6 +1,9 @@
 -- Symbolic representation or Mealy machines, suitable for analysis and code
 -- generation (e.g., Verilog).
 
+-- This version uses size-indexed vectors, so categorical product is size *sum*.
+-- (Sizes are exponents, so their sums represent products.)
+
 module Symbolic.ExtrinsicVec where
 
 open import Data.Nat
