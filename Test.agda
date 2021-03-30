@@ -10,7 +10,7 @@ open import IO
 
 open import Ty
 open import Symbolic.Extrinsic
-open import StackFunction using (compile)
+open import Symbolic.StackProg using (compile)
 open import Dot
 
 -- Combinational examples

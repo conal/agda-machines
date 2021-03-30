@@ -12,7 +12,7 @@ open import Relation.Binary.PropositionalEquality using (_≡_; refl)
 
 open import Ty renaming (map to mapᵀ)
 open import Symbolic.Extrinsic
-open import StackFunction
+open import Symbolic.StackProg
 
 private variable a b c d i o s z zⁱ zᵒ zᵃ : Ty
 
