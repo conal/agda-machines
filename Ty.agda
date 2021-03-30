@@ -6,7 +6,7 @@ open import Data.Unit renaming (⊤ to ⊤ᵗ) public
 open import Data.Bool using () renaming (Bool to Boolᵗ) public
 open import Data.Bool.Show as BS
 open import Data.Product using (_,_; uncurry) renaming (_×_ to _×ᵗ_) public
-open import Data.String
+open import Data.String hiding (toVec; toList)
 
 import Misc as F
 
@@ -56,7 +56,7 @@ lookup a i = ⟦ i ⟧ᵇ a
 swizzle : (TyIx B → TyIx A) → (⟦ A ⟧ᵗ → ⟦ B ⟧ᵗ)
 swizzle r a = tabulate (lookup a F.∘ r)
 
-private variable X : Set
+private variable X Y Z : Set
 
 -- Ty-indexed representable functor
 data TyF (X : Set) : Ty → Set where
@@ -93,6 +93,59 @@ TyF→ (pair x y) = TyF→ x , TyF→ y
 -- Relate Ty values to vectors
 
 open import Data.Nat
+open import Data.Vec using (Vec; []; [_]; _∷_)
+  renaming (_++_ to _++ⁿ_; toList to toListⁿ)
+
+size : Ty → ℕ
+size ⊤       = 0
+size Bool    = 1
+size (A × B) = size A + size B
+
+open import Data.Fin
+
+toFin : TyIx A → Fin (size A)
+toFin here      = zero
+toFin (left  i) = inject+ _ (toFin i)
+toFin (right j) = raise   _ (toFin j)
+
+toVec : TyF X A → Vec X (size A)
+toVec unit = []
+toVec (bit x) = [ x ]
+toVec (pair u v) = toVec u ++ⁿ toVec v
+
+open import Data.List using (List)
+
+toList : TyF X A → List X
+toList = toListⁿ F.∘ toVec
+
+map : (X → Y) → TyF X A → TyF Y A
+map f unit = unit
+map f (bit x) = bit (f x)
+map f (pair u v) = pair (map f u) (map f v)
+
+allFin : TyF (Fin (size A)) A
+allFin {⊤} = unit
+allFin {Bool} = bit zero
+allFin {_ × _} = pair (map (inject+ _) allFin) (map (raise _) allFin)
+
+allIx : TyF (TyIx A) A
+allIx {⊤} = unit
+allIx {Bool} = bit here
+allIx {_ × _} = pair (map left allIx) (map right allIx)
+
+infixl 4 _⊛_
+_⊛_ : TyF (X → Y) A → TyF X A → TyF Y A
+unit ⊛ unit = unit
+bit f ⊛ bit x = bit (f x)
+pair fs gs ⊛ pair xs ys = pair (fs ⊛ xs) (gs ⊛ ys)
+
+map₂ : (X → Y → Z) → TyF X A → TyF Y A → TyF Z A
+map₂ f u v = map f u ⊛ v
+
+
+{-
+
+open import Data.Nat
 open import Data.Vec renaming (_++_ to _++ⁿ_)
 open import Data.Vec.Properties using (++-injective)
 open import Function using (_↔_; mk↔′)
@@ -120,7 +173,6 @@ Vec→ {A × B} bs = let u , v , _ = splitAt (size A) bs in Vec→ u , Vec→ v
 →Vec∘Vec→ {A × B} uv with splitAt (size A) uv
 ... | u , v , refl = cong₂ _++ⁿ_ (→Vec∘Vec→ {A} u) (→Vec∘Vec→ {B} v)
 
-{-
 -- In progress
 Vec→∘→Vec : ∀ (x : ⟦ A ⟧ᵗ) → Vec→ (→Vec x) ≡ x
 Vec→∘→Vec {⊤} tt = refl
