@@ -45,6 +45,38 @@ tabulate {_ × _} f = tabulate (f F.∘ left) , tabulate (f F.∘ right)
 lookup : ⟦ A ⟧ᵗ → (BitIx A → Boolᵗ)
 lookup a i = ⟦ i ⟧ᵇ a
 
+private variable X : Set
+
+-- Ty-indexed container
+data BitF (X : Set) : Ty → Set where
+  unit : BitF X ⊤
+  bit  : X → BitF X Bool
+  pair : BitF X A → BitF X B → BitF X (A × B)
+
+tabulate′ : (BitIx A → X) → BitF X A
+tabulate′ {⊤} f = unit
+tabulate′ {Bool} f = bit (f here)
+tabulate′ {_ × _} f = pair (tabulate′ (f F.∘ left)) (tabulate′ (f F.∘ right))
+
+lookup′ : BitF X A → (BitIx A → X)
+lookup′ (bit x) here = x
+lookup′ (pair l r) (left  a) = lookup′ l a
+lookup′ (pair l r) (right b) = lookup′ r b
+
+swizzleF : (BitIx B → BitIx A) → BitF X A → BitF X B
+swizzleF r a = tabulate′ (lookup′ a F.∘ r)
+
+→BitF : ⟦ A ⟧ᵗ → BitF Boolᵗ A
+→BitF {⊤} tt = unit
+→BitF {Bool} b = bit b
+→BitF {_ × _} (x , y) = pair (→BitF x) (→BitF y)
+
+BitF→ : BitF Boolᵗ A → ⟦ A ⟧ᵗ
+BitF→ unit = tt
+BitF→ (bit b) = b
+BitF→ (pair x y) = BitF→ x , BitF→ y
+
+
 -- Relate Ty values to vectors
 
 open import Data.Nat
