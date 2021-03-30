@@ -62,6 +62,20 @@ swap× = ×.swap
 transpose : (A × B) × (C × D) → (A × C) × (B × D)
 transpose ((a , b) , (c , d)) = (a , c) , (b , d)
 
+-- Elimination half of unitor isomorphisms
+unitorᵉˡ : ⊤ × A → A
+unitorᵉˡ = exr
+
+unitorᵉʳ : A × ⊤ → A
+unitorᵉʳ = exl
+
+-- Introduction half of unitor isomorphisms
+unitorⁱˡ : A → ⊤ × A
+unitorⁱˡ = tt ,_
+
+unitorⁱʳ : A → A × ⊤
+unitorⁱʳ = _, tt
+
 ! : A → ⊤
 ! _ = tt
 
