@@ -6,7 +6,7 @@ open import Data.Product using (∃; _,_) renaming (_×_ to _×ᵗ_)
 
 open import Ty
 import Misc as F
-open import Symbolic.ExtrinsicTy
+open import Symbolic.Extrinsic
 
 private variable a b c d i o z zⁱ zᵒ zᵃ : Ty
 

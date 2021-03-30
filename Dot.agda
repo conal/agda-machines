@@ -15,7 +15,7 @@ open import Data.List using (List; []; _∷_; map; upTo)
 open import Relation.Binary.PropositionalEquality using (_≡_; refl)
 
 open import Ty renaming (map to mapT)
-open import Symbolic.ExtrinsicTy
+open import Symbolic.Extrinsic
 open import StackFunction
 
 private variable a b c d i o s z zⁱ zᵒ zᵃ : Ty

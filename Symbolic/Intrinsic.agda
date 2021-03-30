@@ -4,21 +4,19 @@
 
 module Symbolic.Intrinsic where
 
-open import Data.Unit
 import Data.Bool as Bool
-open import Data.Product using (_×_; _,_; uncurry)
-open import Relation.Binary.PropositionalEquality
 
+open import Ty
 import Misc as F  -- categorical operations on functions
 
 private
   variable
-    A B C D σ τ : Set
+    A B C D σ τ : Ty
 
 -- Routing
 module r where
 
-  data Route : {A B : Set} → (A → B) → Set₁ where
+  data Route : {A B : Ty} → (A →ᵗ B) → Set₁ where
     id  : Route {A} F.id
     dup : Route {A} F.dup
     exl : Route {A × B} F.exl
@@ -30,7 +28,7 @@ open r using (Route)
 -- Combinational primitives
 module p where
 
-  data Prim : {A B : Set} → (A → B) → Set₁ where
+  data Prim : {A B : Ty} → (A →ᵗ B) → Set₁ where
     ∧   : Prim (uncurry Bool._∧_)
     ∨   : Prim (uncurry Bool._∨_)
     xor : Prim (uncurry Bool._xor_)
@@ -41,16 +39,21 @@ open p using (Prim)
 -- Combinational circuits
 module c where
 
-  data Comb : ∀ {A B : Set} → (A → B) → Set₁ where
-    route : ∀ {f : A → B} (r : Route f) → Comb f
-    prim : ∀ {f : A → B} (p : Prim f) → Comb f
-    _∘_ : ∀ {f : A → B} {g : B → C} → Comb g → Comb f → Comb (g F.∘ f)
-    _⊗_ : ∀ {f : A → C} {g : B → D} → Comb f → Comb g → Comb (f F.⊗ g)
+  data Comb : ∀ {A B : Ty} → (A →ᵗ B) → Set₁ where
+    route : ∀ {f} (r : Route {A}{B} f) → Comb f
+    prim : ∀ {f} (p : Prim {A}{B} f) → Comb f
+    _∘_ : ∀ {f}{g} → Comb {B}{C} g → Comb {A}{B} f → Comb (g F.∘ f)
+    _⊗_ : ∀ {f}{g} → Comb {A}{C} f → Comb {B}{D} g → Comb (f F.⊗ g)
+
+  -- Alternatively,
+    -- prim : ∀ {f : A →ᵗ B} (p : Prim f) → Comb f
+    -- _∘_ : ∀ {f : A →ᵗ B} {g : B →ᵗ C} → Comb g → Comb f → Comb (g F.∘ f)
+    -- _⊗_ : ∀ {f : A →ᵗ C} {g : B →ᵗ D} → Comb f → Comb g → Comb (f F.⊗ g)
 
   infixr 7 _⊗_
   infixr 9 _∘_
 
-  ⟦_⟧ : ∀ {f : A → B} → Comb f → A → B
+  ⟦_⟧ : ∀ {f : A →ᵗ B} → Comb f → A →ᵗ B
   ⟦_⟧ {f = f} _ = f
 
   id  : Comb {A} F.id
@@ -78,13 +81,13 @@ module c where
   -- Cartesian-categorical operations with standard definitions:
 
   infixr 7 _△_
-  _△_ : ∀ {f : A → C} {g : A → D} → Comb f → Comb g → Comb (f F.△ g)
+  _△_ : ∀ {f : A →ᵗ C} {g : A →ᵗ D} → Comb f → Comb g → Comb (f F.△ g)
   f △ g = (f ⊗ g) ∘ dup
 
-  first : ∀ {f : A → C} → Comb f → Comb {A × B} {C × B} (F.first f)
+  first : ∀ {f : A →ᵗ C} → Comb f → Comb {A × B} {C × B} (F.first f)
   first f = f ⊗ id
 
-  second : ∀ {g : B → D} → Comb g → Comb {A × B} {A × D} (F.second g)
+  second : ∀ {g : B →ᵗ D} → Comb g → Comb {A × B} {A × D} (F.second g)
   second f = id ⊗ f
 
   assocˡ : Comb {A × (B × C)} {(A × B) × C} F.assocˡ
@@ -114,14 +117,15 @@ module s where
   ⟦_⟧ : {f : A m.⇨ B} (m : Mealy f) → A m.⇨ B
   ⟦_⟧ {f = f} _ = f
 
-  comb : ∀ {f : A → B} (c : Comb f) → Mealy (m.arr f)
+  comb : ∀ {f : A →ᵗ B} (c : Comb f) → Mealy (m.arr f)
   comb c = mealy (c.first c)
 
   id : Mealy (m.id {A})
   id = comb c.id
 
-  delay : (a₀ : A) → Mealy (m.delay a₀)
-  delay _ = mealy c.swap
+  delay : { a₀ : ⟦ A ⟧ᵗ} → Mealy (m.delay a₀)
+  delay = mealy c.swap
+  -- TODO: should a₀ be an implicit or explicit parameter?
 
   infixr 9 _∘_
   _∘_ : {g : B m.⇨ C} {f : A m.⇨ B} → Mealy g → Mealy f → Mealy (g m.∘ f)
@@ -154,4 +158,4 @@ module s where
 
 -- TODO: Cocartesian.
 
--- TODO: are the semantic functions worth keeping explicitly?
+-- TODO: are the explicit semantic functions worth keeping?

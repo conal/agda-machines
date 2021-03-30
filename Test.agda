@@ -9,7 +9,7 @@ open import Data.String
 open import IO
 
 open import Ty
-open import Symbolic.ExtrinsicTy
+open import Symbolic.Extrinsic
 open import StackFunction using (compile)
 open import Dot
 
