@@ -2,7 +2,7 @@
 
 {-# OPTIONS --safe --without-K --copatterns --guardedness #-}
 
-module FunFun where
+module Tinkering.FunFun where
 
 open import Function using (_∘′_; case_of_) renaming
   (id to id′; const to const′)

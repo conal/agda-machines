@@ -1,6 +1,6 @@
 -- Decompose functions-to-sums
 
-module SumIso where
+module Tinkering.SumIso where
 
 open import Data.Unit
 open import Data.Sum

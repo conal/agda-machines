@@ -2,7 +2,7 @@
 
 {-# OPTIONS --safe --without-K --copatterns --guardedness #-}
 
-module StreamFun where
+module Tinkering.StreamFun where
 
 open import Function using (_∘′_; case_of_) renaming (id to id→)
 open import Data.Product hiding (zip) renaming (map to map×; map₁ to map×₁; swap to swap×)
