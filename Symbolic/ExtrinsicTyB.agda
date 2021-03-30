@@ -121,6 +121,11 @@ module p where
   show not       = "not"
   show (const a) = showTy a
 
+  dom : A ⇨ B → Ty
+  dom {A}{B} _ = A
+
+  cod : A ⇨ B → Ty
+  cod {A}{B} _ = B
 
 -- Combinational circuits
 module c where
