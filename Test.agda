@@ -11,7 +11,7 @@ open import IO
 open import Symbolic.ExtrinsicVec
 
 open import StackFunction using (compile)
-open import DotStackB
+open import Dot
 
 -- Combinational examples
 module ce where

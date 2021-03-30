@@ -16,6 +16,7 @@ import Symbolic.ExtrinsicTy
 import Symbolic.IntrinsicTy
 import Symbolic.ExtrinsicVec
 
-import NetlistA
-import NetlistB
-import NetlistE
+import StackFunction
+import Dot
+import Test
+
