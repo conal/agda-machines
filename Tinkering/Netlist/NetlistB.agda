@@ -42,7 +42,7 @@ mutual
   data Source : Netlist A → Ty → Set where
     tt  : Source nets ⊤
     _∙_ : Source nets B → Source nets C → Source nets (B × C)
-    bit : B ∈ nets → BitIx B → Source nets Bool
+    bit : B ∈ nets → TyIx B → Source nets Bool
 
 mutual
 

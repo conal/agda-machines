@@ -26,57 +26,57 @@ _→ᵗ_ : Ty → Ty → Set
 A →ᵗ B = ⟦ A ⟧ᵗ → ⟦ B ⟧ᵗ
 
 -- Index of a bit in a type
-data BitIx : Ty → Set where
-  here : BitIx Bool
-  left  : BitIx A → BitIx (A × B)
-  right : BitIx B → BitIx (A × B)
+data TyIx : Ty → Set where
+  here : TyIx Bool
+  left  : TyIx A → TyIx (A × B)
+  right : TyIx B → TyIx (A × B)
 
 -- Extract a bit
-⟦_⟧ᵇ : ∀ {A} → BitIx A → A →ᵗ Bool
+⟦_⟧ᵇ : ∀ {A} → TyIx A → A →ᵗ Bool
 ⟦ here    ⟧ᵇ x = x
 ⟦ left  i ⟧ᵇ (x , y) = ⟦ i ⟧ᵇ x
 ⟦ right i ⟧ᵇ (x , y) = ⟦ i ⟧ᵇ y
 
-tabulate : (BitIx A → Boolᵗ) → ⟦ A ⟧ᵗ
+tabulate : (TyIx A → Boolᵗ) → ⟦ A ⟧ᵗ
 tabulate {⊤} f = tt
 tabulate {Bool} f = f here
 tabulate {_ × _} f = tabulate (f F.∘ left) , tabulate (f F.∘ right)
 
-lookup : ⟦ A ⟧ᵗ → (BitIx A → Boolᵗ)
+lookup : ⟦ A ⟧ᵗ → (TyIx A → Boolᵗ)
 lookup a i = ⟦ i ⟧ᵇ a
 
 private variable X : Set
 
 -- Ty-indexed container
-data BitF (X : Set) : Ty → Set where
-  unit : BitF X ⊤
-  bit  : X → BitF X Bool
-  pair : BitF X A → BitF X B → BitF X (A × B)
+data TyF (X : Set) : Ty → Set where
+  unit : TyF X ⊤
+  bit  : X → TyF X Bool
+  pair : TyF X A → TyF X B → TyF X (A × B)
 
-tabulate′ : (BitIx A → X) → BitF X A
+tabulate′ : (TyIx A → X) → TyF X A
 tabulate′ {⊤} f = unit
 tabulate′ {Bool} f = bit (f here)
 tabulate′ {_ × _} f = pair (tabulate′ (f F.∘ left)) (tabulate′ (f F.∘ right))
 
-lookup′ : BitF X A → (BitIx A → X)
+lookup′ : TyF X A → (TyIx A → X)
 lookup′ (bit x) here = x
 lookup′ (pair l r) (left  a) = lookup′ l a
 lookup′ (pair l r) (right b) = lookup′ r b
 
-swizzleF : (BitIx B → BitIx A) → BitF X A → BitF X B
+swizzleF : (TyIx B → TyIx A) → TyF X A → TyF X B
 swizzleF r a = tabulate′ (lookup′ a F.∘ r)
 
-→BitF : ⟦ A ⟧ᵗ → BitF Boolᵗ A
-→BitF {⊤} tt = unit
-→BitF {Bool} b = bit b
-→BitF {_ × _} (x , y) = pair (→BitF x) (→BitF y)
+→TyF : ⟦ A ⟧ᵗ → TyF Boolᵗ A
+→TyF {⊤} tt = unit
+→TyF {Bool} b = bit b
+→TyF {_ × _} (x , y) = pair (→TyF x) (→TyF y)
 
-BitF→ : BitF Boolᵗ A → ⟦ A ⟧ᵗ
-BitF→ unit = tt
-BitF→ (bit b) = b
-BitF→ (pair x y) = BitF→ x , BitF→ y
+TyF→ : TyF Boolᵗ A → ⟦ A ⟧ᵗ
+TyF→ unit = tt
+TyF→ (bit b) = b
+TyF→ (pair x y) = TyF→ x , TyF→ y
 
--- Agsy synthesized all of the BitF operations above. (Tidying needed for most,
+-- Agsy synthesized all of the TyF operations above. (Tidying needed for most,
 -- -c for all but swizzleF, and tabulate′ and lookup′ hints for swizzleF.)
 
 -- Relate Ty values to vectors
@@ -136,7 +136,7 @@ Vec→∘→Vec {A × B} (x , y) =
 -- TODO: rework ↔Vec as a equational style proof.
 
 
--- TODO: Maybe phase out BitIx and ⟦_⟧ᵇ. More likely, drop its
+-- TODO: Maybe phase out TyIx and ⟦_⟧ᵇ. More likely, drop its
 -- generalization below.
 
 -- Index of a subvalue in a type

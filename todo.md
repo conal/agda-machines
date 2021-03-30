@@ -2,8 +2,10 @@
 
 *   Replace bit vectors with `Ty`.
     Non-injectivity of addition leads to a lot of tedious explicitly given implicit arguments.
-    Big overhaul, but well worth the effort.
-    Use `BitIdx` in `Ty` for routing.
+    Big overhaul, but worth doing.
+    *   Use `TyIx` in `Ty` for routing.
+    *   The `Dot` module now uses vectors of output port names, manipulating them with routings.
+        Instead, use `TyF` in `Ty`.
 
 *   Add category classes to remove the need for many module prefixes and to share definitions of derived categorical operations.
     At some point, try using agda-categories.

@@ -1,6 +1,9 @@
 -- Symbolic representation or Mealy machines, suitable for analysis and code
 -- generation (e.g., Verilog).
 
+-- Relative to Symbolic.ExtrinsicTy, replace the inductive routing type with a
+-- reverse TyIx mapping.
+
 module Symbolic.ExtrinsicTyB where
 
 import Data.Bool as Bool
@@ -18,7 +21,7 @@ module r where
 
   infix 1 _⇨_
   _⇨_ : Ty → Ty → Set
-  A ⇨ B = BitIx B → BitIx A
+  A ⇨ B = TyIx B → TyIx A
 
   ⟦_⟧ : A ⇨ B → A →ᵗ B
   ⟦ f ⟧ a = tabulate (lookup a F.∘ f)
