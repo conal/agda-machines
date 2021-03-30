@@ -17,6 +17,10 @@ private
   variable
     A B C D σ τ : Ty
 
+showBit : Boolᵗ → String
+showBit Bool.false = "0"
+showBit Bool.true  = "1"
+
 -- Generalized routing.
 module r where
 
@@ -64,6 +68,12 @@ module r where
 
   swap : A × B ⇨ B × A
   swap = exr △ exl
+
+  assocˡ : A × (B × C) ⇨ (A × B) × C
+  assocʳ : (A × B) × C ⇨ A × (B × C)
+
+  assocˡ = second exl △ exr ∘ exr
+  assocʳ = exl ∘ exl △ first exr
 
   transpose : (A × B) × (C × D) ⇨ (A × C) × (B × D)
   transpose = (exl ⊗ exl) △ (exr ⊗ exr)
