@@ -18,8 +18,8 @@ record Category {o ℓ}{obj : Set o} (_⇨_ : obj → obj → Set ℓ) : Set (su
     _∘_ : ∀ {a b c} → (b ⇨ c) → (a ⇨ b) → (a ⇨ c)
     -- _≈_ : ∀ {a b} (f g : a ⇨ b) → Set
 
-    -- .id-l  : ∀ {a b}{f : a ⇨ b} → id ∘ f ≈ f
-    -- .id-r  : ∀ {a b}{f : a ⇨ b} → f ∘ id ≈ f
+    -- .identityˡ : ∀ {a b}{f : a ⇨ b} → id ∘ f ≈ f
+    -- .identityʳ : ∀ {a b}{f : a ⇨ b} → f ∘ id ≈ f
     -- .assoc : ∀ {a b c d}{h : c ⇨ d} {g : b ⇨ c} {f : a ⇨ b}
     --        → (h ∘ g) ∘ f ≈ h ∘ (g ∘ f)
 

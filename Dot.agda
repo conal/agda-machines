@@ -19,19 +19,19 @@ open C hiding (⊤; _×_)
 
 private variable a b c d i o s z zⁱ zᵒ zᵃ : Ty
 
-prelude : List String
-prelude =
-  "margin=0" ∷
-  "rankdir=LR" ∷
-  "node [shape=Mrecord]" ∷
-  "bgcolor=transparent" ∷
-  "nslimit=20" ∷
-  "ranksep=0.75" ∷
-  []
-
 package : List String → String
 package = (_++ "\n}\n") ∘′ ("digraph {" ++_) ∘′ ("\n" ++_) ∘′
           unlines ∘′ map (λ s → "  " ++ s ++ ";") ∘′ (prelude ++ᴸ_)
+ where
+   prelude : List String
+   prelude =
+     "margin=0" ∷
+     "rankdir=LR" ∷
+     "node [shape=Mrecord]" ∷
+     "bgcolor=transparent" ∷
+     "nslimit=20" ∷
+     "ranksep=0.75" ∷
+     []
 
 -- Output port name
 OPort : Set
@@ -39,7 +39,7 @@ OPort = String
 
 labels : String → (String → String) → Ty → String
 labels tag f a with size a
-... | zero = ""  -- No braces or "|", to avoid port appearance
+... | zero = ""   -- No braces or "|", to avoid port appearance
 ... | n@(suc _) = f (braces (
  intersperse "|" (map (λ i → "<" ++ tag ++ NS.show i ++ ">") (upTo n))))
 

@@ -46,21 +46,6 @@ module k where
   route : (i × zⁱ r.⇨ o × zᵒ) → (i , zⁱ ⇨ o , zᵒ)
   route = [_]
 
-  infixr 9 _∘ʳ_
-  _∘ʳ_ : (a , zᵃ ⇨ o , zᵒ) → (i × zⁱ r.⇨ a × zᵃ) → (i , zⁱ ⇨ o , zᵒ)
-  [ r₂ ] ∘ʳ r₁ = [ r₂ ∘ r₁ ]
-  (g ∷ʳ (d , d⇨ₚe , r₂)) ∘ʳ r₁ = g ∷ʳ (d , d⇨ₚe , r₂ ∘ r₁)
-
-  infixr 9 _∘′_
-  _∘′_ : (a , zᵃ ⇨ o , zᵒ) → (i , zⁱ ⇨ a , zᵃ) → (i , zⁱ ⇨ o , zᵒ)
-  g ∘′ [ r ] = g ∘ʳ r
-  g ∘′ (f ∷ʳ inst) = g ∘′ f ∷ʳ inst
-
-  -- -- Or drop _∘ʳ_, although Agda shades the last clause gray.
-  -- [ r₂ ] ∘′ [ r₁ ] = [ r₂ ∘ r₁ ]
-  -- (g ∷ʳ (d , d⇨ₚe , r₂)) ∘′ [ r₁ ] = g ∷ʳ (d , d⇨ₚe , r₂ ∘ r₁)
-  -- g ∘′ (f ∷ʳ inst) = g ∘′ f ∷ʳ inst
-
   instance
 
     meaningful : Meaningful (i , zⁱ ⇨ o , zᵒ)
@@ -68,6 +53,21 @@ module k where
 
     category : Category _⇨_
     category = record { id = route id ; _∘_ = _∘′_ }
+     where
+       infixr 9 _∘ʳ_
+       _∘ʳ_ : (a , zᵃ ⇨ o , zᵒ) → (i × zⁱ r.⇨ a × zᵃ) → (i , zⁱ ⇨ o , zᵒ)
+       [ r₂ ] ∘ʳ r₁ = [ r₂ ∘ r₁ ]
+       (g ∷ʳ (d , d⇨ₚe , r₂)) ∘ʳ r₁ = g ∷ʳ (d , d⇨ₚe , r₂ ∘ r₁)
+
+       infixr 9 _∘′_
+       _∘′_ : (a , zᵃ ⇨ o , zᵒ) → (i , zⁱ ⇨ a , zᵃ) → (i , zⁱ ⇨ o , zᵒ)
+       g ∘′ [ r ] = g ∘ʳ r
+       g ∘′ (f ∷ʳ inst) = g ∘′ f ∷ʳ inst
+
+       -- -- Or drop _∘ʳ_, although Agda shades the last clause gray.
+       -- [ r₂ ] ∘′ [ r₁ ] = [ r₂ ∘ r₁ ]
+       -- (g ∷ʳ (d , d⇨ₚe , r₂)) ∘′ [ r₁ ] = g ∷ʳ (d , d⇨ₚe , r₂ ∘ r₁)
+       -- g ∘′ (f ∷ʳ inst) = g ∘′ f ∷ʳ inst
 
   push : (a × b) , c ⇨ a , (b × c)
   push = route assocʳ
@@ -83,7 +83,7 @@ module k where
 
 open k using (stacked)
 
--- Stack function
+-- Stack-preserving function
 module sf where
 
   infix 0 _⇨_

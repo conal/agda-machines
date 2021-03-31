@@ -3,7 +3,7 @@
 
 module Symbolic.Extrinsic where
 
-import Data.Bool as Bool
+import Data.Bool as B
 open import Data.String using (String)
 open import Relation.Binary.PropositionalEquality using (_≗_; refl)
 open import Function using (_on_)
@@ -19,8 +19,8 @@ private
     A B C D σ τ : Ty
 
 showBit : Boolᵗ → String
-showBit Bool.false = "0"
-showBit Bool.true  = "1"
+showBit B.false = "0"
+showBit B.true  = "1"
 
 -- Generalized routing. Maybe move to Ty.
 module r where
@@ -43,10 +43,6 @@ module r where
     category = record
       { id = mk F.id
       ; _∘_ = λ (mk f) (mk g) → mk (g F.∘ f)
-      -- ; _≈_ = _≗_
-      -- ; id-l = λ _ → refl
-      -- ; id-r = λ _ → refl
-      -- ; assoc = λ _ → refl
       }
 
     monoidal : Monoidal _⇨_
@@ -54,8 +50,8 @@ module r where
       { ⊤ = Ty.⊤
       ; _×_ = Ty._×_
       ; _⊗_ = λ (mk f) (mk g) → mk λ { (left x) → left (f x) ; (right x) → right (g x) }
-      ; unitorᵉˡ = mk right -- unitorⁱˡ
-      ; unitorᵉʳ = mk left -- unitorⁱʳ
+      ; unitorᵉˡ = mk right
+      ; unitorᵉʳ = mk left
       ; unitorⁱˡ = mk λ { (right x) → x }
       ; unitorⁱʳ = mk λ { (left  x) → x }
       ; assocʳ = mk λ { (left x) → left (left x)
@@ -92,10 +88,10 @@ module p where
     meaningful : ∀ {a b} → Meaningful (a ⇨ b)
     meaningful {a}{b} = record
       { Meaning = a ty.⇨ b
-      ; ⟦_⟧ = λ { ∧ → ty.mk (uncurry Bool._∧_)
-                ; ∨ → ty.mk (uncurry Bool._∨_)
-                ; xor → ty.mk (uncurry Bool._xor_)
-                ; not → ty.mk (Bool.not)
+      ; ⟦_⟧ = λ { ∧ → ty.mk (uncurry B._∧_)
+                ; ∨ → ty.mk (uncurry B._∨_)
+                ; xor → ty.mk (uncurry B._xor_)
+                ; not → ty.mk (B.not)
                 ; (const a) → ty.mk (F.const a) }
       }
 
@@ -114,7 +110,6 @@ module p where
   cod : A ⇨ B → Ty
   cod {A}{B} _ = B
 
--- open p hiding (_⇨_; dom; cod; ∧; ∨; xor; not; const)
 
 -- Combinational circuits
 module c where
@@ -144,11 +139,6 @@ module c where
     category = record
                  { id = route id
                  ; _∘_ = _∘ᶜ_
-                 -- ; _≈_ = λ f g → ⟦ f ⟧ ≈ ⟦ g ⟧
-                         -- _≈_ on ⟦_⟧
-                 -- ; id-l = {!!}
-                 -- ; id-r = {!!}
-                 -- ; assoc = {!!}
                  }
 
     monoidal : C.Monoidal _⇨_
@@ -171,12 +161,10 @@ module c where
     cartesian : C.Cartesian _⇨_
     cartesian = record { exl = route exl ; exr = route exr ; dup = route dup }
 
--- open c hiding (_⇨_; _∘_; _⊗_; prim; ⟦_⟧ᶜ)
-
 -- Synchronous state machine.
 module s where
 
-  -- For composability, the state type is not visible in the type.
+  -- For composability, the state type is invisible in the type.
   infix  0 _⇨_
   record _⇨_ (A B : Ty) : Set where
     constructor mealy
@@ -224,18 +212,18 @@ module s where
 
     monoidal : Monoidal _⇨_
     monoidal = record
-                   { ⊤ = ⊤
-                   ; _×_ = _×_
-                   ; _⊗_ = λ { (mealy s₀ f) (mealy t₀ g) →
-                       mealy (s₀ , t₀) (transpose ∘ (f ⊗ g) ∘ transpose) }
-                   ; ! = comb !
-                   ; unitorᵉˡ = comb unitorᵉˡ
-                   ; unitorᵉʳ = comb unitorᵉʳ
-                   ; unitorⁱˡ = comb unitorⁱˡ
-                   ; unitorⁱʳ = comb unitorⁱʳ
-                   ; assocʳ   = comb assocʳ
-                   ; assocˡ   = comb assocˡ
-                   }
+      { ⊤ = ⊤
+      ; _×_ = _×_
+      ; _⊗_ = λ { (mealy s₀ f) (mealy t₀ g) →
+                mealy (s₀ , t₀) (transpose ∘ (f ⊗ g) ∘ transpose) }
+      ; ! = comb !
+      ; unitorᵉˡ = comb unitorᵉˡ
+      ; unitorᵉʳ = comb unitorᵉʳ
+      ; unitorⁱˡ = comb unitorⁱˡ
+      ; unitorⁱʳ = comb unitorⁱʳ
+      ; assocʳ = comb assocʳ
+      ; assocˡ = comb assocˡ
+      }
 
     braided : Braided _⇨_
     braided = record { swap = comb swap }
