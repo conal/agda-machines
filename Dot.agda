@@ -92,7 +92,7 @@ module _ {s} (state₀ : ⟦ s ⟧) where
       ++ᴸ dotᵏ (suc comp#) (mapᵀ (oport compName) allIx ､ ss) f
 
   dot : i × s sf.⇨ o × s → String
-  dot {i = i} (sf.sf f) = package (
+  dot {i = i} (sf.mk f) = package (
     comp "input" "input" • i ++ᴸ
     dotᵏ 0 (( mapᵀ (oport "input") allIx ､
               mapᵀ (λ r → oport (reg r) here) allIx) ､ •) f)

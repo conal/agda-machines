@@ -88,28 +88,28 @@ module sf where
 
   infix 0 _⇨_
   record _⇨_ (i o : Ty) : Set where
-    constructor sf
+    constructor mk
     field
       f : ∀ {z} → i , z k.⇨ o , z
 
   prim : i p.⇨ o → i ⇨ o
-  prim i⇨ₚo = sf (k.prim i⇨ₚo)
+  prim i⇨ₚo = mk (k.prim i⇨ₚo)
 
   route : i r.⇨ o → i ⇨ o
-  route r = sf (k.route (first r))
+  route r = mk (k.route (first r))
 
   instance
 
     meaningful : ∀ {a b} → Meaningful (a ⇨ b)
     meaningful {a}{b} = record
       { Meaning = a ty.⇨ b
-      ; ⟦_⟧ = λ (sf f) → unitorᵉʳ ∘ ⟦ f ⟧ ∘ unitorⁱʳ
+      ; ⟦_⟧ = λ (mk f) → unitorᵉʳ ∘ ⟦ f ⟧ ∘ unitorⁱʳ
       }
 
     category : Category _⇨_
     category = record
       { id = route id
-      ; _∘_ = λ (sf g) (sf f) → sf (g ∘ f)
+      ; _∘_ = λ (mk g) (mk f) → mk (g ∘ f)
       }
 
     monoidal : Monoidal _⇨_
@@ -127,7 +127,7 @@ module sf where
       }
      where
        first′ : (a ⇨ c) → (a × b ⇨ c × b)
-       first′ (sf f) = sf (stacked f)
+       first′ (mk f) = mk (stacked f)
 
        second′ : (b ⇨ d) → (a × b ⇨ a × d)
        second′ f = route swap ∘ first′ f ∘ route swap
