@@ -1,18 +1,19 @@
 ## To do
 
-*   Add category classes to remove the need for many module prefixes and to share definitions of derived categorical operations.
-    Then drop `Misc` in favor of `Category`.
-
-    At some point, try using [agda-categories](https://github.com/agda/agda-categories) instead.
+*   Add laws to the category classes.
 *   Recreate compiling-to-categories so we can write and read lambda notation instead of combinators!
     See how far we can get with Agda's reflection mechanism.
-*   Add causality to `VecFun`.
+*   Add causality definition and proofs to `VecFun`.
 
+*   At some point, try using [agda-categories](https://github.com/agda/agda-categories) instead our own.
 *   Maybe parametrize machines by the stream functions they implement.
 *   Consider making machines universe-level-polymorphic (easy).
 
 ## Did
 
+
+*   Add category classes to remove the need for many module prefixes and to share definitions of derived categorical operations.
+    Then drop `Misc` in favor of `Category`.
 *   Replace bit vectors with `TyF`.
     Non-injectivity of addition really hurts type inference, leading to a lot of tedious explicitly given implicit arguments.
     Big overhaul, but worth doing.
