@@ -21,27 +21,29 @@ showBit : Boolᵗ → String
 showBit Bool.false = "0"
 showBit Bool.true  = "1"
 
--- Generalized routing.
+-- Generalized routing. Maybe move to Ty.
 module r where
 
   infix 1 _⇨_
-  _⇨_ : Ty → Ty → Set
-  A ⇨ B = TyIx B → TyIx A
+  record _⇨_ (A B : Ty) : Set where
+    constructor mk
+    field
+      f : TyIx B → TyIx A
 
   ⟦_⟧′ : A ⇨ B → ∀ {X} → TyF X A → TyF X B
-  ⟦_⟧′ = swizzle′
+  ⟦ mk f ⟧′ = swizzle′ f
 
   open C
 
   instance
 
     meaningful : ∀ {a b} → Meaningful (a ⇨ b)
-    meaningful {a}{b} = record { Meaning = a →ᵗ b ; ⟦_⟧ = λ r → tyfun (swizzle r) }
+    meaningful {a}{b} = record { Meaning = a →ᵗ b ; ⟦_⟧ = λ (mk r) → tyfun (swizzle r) }
 
     category : Category _⇨_
     category = record
-      { id = F.id
-      ; _∘_ = λ f g → g F.∘ f
+      { id = mk F.id
+      ; _∘_ = λ (mk f) (mk g) → mk (g F.∘ f)
       -- ; _≈_ = _≗_
       -- ; id-l = λ _ → refl
       -- ; id-r = λ _ → refl
@@ -52,27 +54,27 @@ module r where
     monoidal = record
       { ⊤ = Ty.⊤
       ; _×_ = Ty._×_
-      ; _⊗_ = λ f g → λ { (left x) → left (f x) ; (right x) → right (g x) }
-      ; unitorᵉˡ = right
-      ; unitorᵉʳ = left
-      ; unitorⁱˡ = λ { (right y) → y }
-      ; unitorⁱʳ = λ { (left  x) → x }
-      ; assocʳ = λ { (left x) → left (left x)
-                   ; (right (left x)) → left (right x)
-                   ; (right (right x)) → right x
-                   }
-      ; assocˡ = λ { (left (left x)) → left x
-                   ; (left (right x)) → right (left x)
-                   ; (right x) → right (right x)
-                   }
-      ; ! = λ ()
+      ; _⊗_ = λ (mk f) (mk g) → mk λ { (left x) → left (f x) ; (right x) → right (g x) }
+      ; unitorᵉˡ = mk right -- unitorⁱˡ
+      ; unitorᵉʳ = mk left -- unitorⁱʳ
+      ; unitorⁱˡ = mk λ { (right x) → x }
+      ; unitorⁱʳ = mk λ { (left  x) → x }
+      ; assocʳ = mk λ { (left x) → left (left x)
+                      ; (right (left x)) → left (right x)
+                      ; (right (right x)) → right x
+                      }
+      ; assocˡ = mk λ { (left (left x)) → left x
+                      ; (left (right x)) → right (left x)
+                      ; (right x) → right (right x)
+                      }
+      ; ! = mk λ ()
       }
 
     braided : Braided _⇨_
-    braided = record { swap = λ { (left x) → right x ; (right x) → left x } }
+    braided = record { swap = mk λ { (left x) → right x ; (right x) → left x } }
 
     cartesian : Cartesian _⇨_
-    cartesian = record { exl = left ; exr = right ; dup = λ { (left x) → x ; (right x) → x } }
+    cartesian = record { exl = mk left ; exr = mk right ; dup = mk λ { (left x) → x ; (right x) → x } }
 
 -- open r hiding (_⇨_)
 
@@ -121,22 +123,22 @@ module p where
 module c where
 
   infix  0 _⇨_
-  infixr 7 _⊗_
-  infixr 9 _∘_
+  infixr 7 _⊗ᶜ_
+  infixr 9 _∘ᶜ_
 
   data _⇨_ : Ty → Ty → Set where
     route : A r.⇨ B → A ⇨ B
     prim : A p.⇨ B → A ⇨ B
-    _∘_ : B ⇨ C → A ⇨ B → A ⇨ C
-    _⊗_ : A ⇨ C → B ⇨ D → A × B ⇨ C × D
+    _∘ᶜ_ : B ⇨ C → A ⇨ B → A ⇨ C
+    _⊗ᶜ_ : A ⇨ C → B ⇨ D → A × B ⇨ C × D
 
-  open C hiding (_∘_; _⊗_; ⊤; _×_)
+  open C hiding (⊤; _×_)
 
   ⟦_⟧ᶜ : A ⇨ B → A →ᵗ B
   ⟦ route f ⟧ᶜ = ⟦ f ⟧
   ⟦ prim  p ⟧ᶜ = ⟦ p ⟧
-  ⟦  g ∘ f  ⟧ᶜ = ⟦ g ⟧ᶜ C.∘ ⟦ f ⟧ᶜ
-  ⟦  f ⊗ g  ⟧ᶜ = ⟦ f ⟧ᶜ C.⊗ ⟦ g ⟧ᶜ
+  ⟦  g ∘ᶜ f  ⟧ᶜ = ⟦ g ⟧ᶜ ∘ ⟦ f ⟧ᶜ
+  ⟦  f ⊗ᶜ g  ⟧ᶜ = ⟦ f ⟧ᶜ ⊗ ⟦ g ⟧ᶜ
 
   instance
 
@@ -145,8 +147,8 @@ module c where
 
     category : Category _⇨_
     category = record
-                 { id = route F.id
-                 ; _∘_ = _∘_
+                 { id = route id
+                 ; _∘_ = _∘ᶜ_
                  -- ; _≈_ = λ f g → ⟦ f ⟧ ≈ ⟦ g ⟧
                          -- _≈_ on ⟦_⟧
                  -- ; id-l = {!!}
@@ -158,7 +160,7 @@ module c where
     monoidal = record
                  { ⊤ = ⊤
                  ; _×_ = _×_
-                 ; _⊗_ = _⊗_
+                 ; _⊗_ = _⊗ᶜ_
                  ; ! = route !
                  ; unitorᵉˡ = route unitorᵉˡ
                  ; unitorᵉʳ = route unitorᵉʳ
