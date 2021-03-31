@@ -8,16 +8,18 @@ open import Data.Vec using ([_]; []; _∷_)
 open import Data.String
 open import IO
 
+open import Category hiding (⊤)
 open import Ty
 open import Symbolic.Extrinsic
-open import Symbolic.StackProg using (compile)
+open import Symbolic.StackProg
 open import Dot
 
 -- Combinational examples
 module ce where
   open c
 
-  t₁ = id {Bool ↑ 5}
+  t₁ : Bool ↑ 5 ⇨ Bool ↑ 5
+  t₁ = id
 
   t₂ = prim p.∧
 
@@ -34,12 +36,12 @@ module se where
 
   -- Toggle
   t₁ : ⊤ ⇨ Bool
-  t₁ = mealy true (c.dup c.∘ c.prim p.not c.∘ c.exr)
+  t₁ = mealy true (dup ∘ c.prim p.not ∘ exr)
   -- λ { (tt , s) → (not s , not s) }
 
   -- Cumulative or
   t₂ : Bool ⇨ Bool
-  t₂ = mealy false (c.dup c.∘ c.prim p.∨)
+  t₂ = mealy false (dup ∘ c.prim p.∨)
   -- λ { (b , s) → (b ∨ s , b ∨ s) }
 
   t₃ = delay false
@@ -51,7 +53,7 @@ module se where
 exampleˢ : ∀ {i o} → String → i s.⇨ o → IO {0ℓ} ⊤′
 exampleˢ name (s.mealy {s} state₀ f) =
   do putStrLn name
-     writeFile ("Figures/" ++ name ++ ".dot") (dot state₀ (compile f))
+     writeFile ("Figures/" ++ name ++ ".dot") (dot state₀ (sf.compile f))
 
 exampleᶜ : ∀ {i o} → String → i c.⇨ o → IO {0ℓ} ⊤′
 exampleᶜ name f = exampleˢ name (s.comb f)
