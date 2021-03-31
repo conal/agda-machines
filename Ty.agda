@@ -171,48 +171,44 @@ _⊛_ : TyF (X → Y) A → TyF X A → TyF Y A
 map₂ : (X → Y → Z) → TyF X A → TyF Y A → TyF Z A
 map₂ f u v = map f u ⊛ v
 
+module ty where
 
--- Experiment
-infix 0 _→ᵗ_
-record _→ᵗ_ (A B : Ty) : Set where
-  constructor tyfun
-  field
-    f : ⟦ A ⟧ → ⟦ B ⟧
+  infix 0 _⇨_
+  record _⇨_ (A B : Ty) : Set where
+    constructor mk
+    field
+      f : ⟦ A ⟧ → ⟦ B ⟧
 
-tyfun⁻¹ : (A →ᵗ B) → (⟦ A ⟧ → ⟦ B ⟧)
-tyfun⁻¹ (tyfun f) = f
-
-module TyInstance where
-
-  -- open import Relation.Binary.PropositionalEquality using (_≡_; refl)
+  mk⁻¹ : (A ⇨ B) → (⟦ A ⟧ → ⟦ B ⟧)
+  mk⁻¹ (mk f) = f
 
   instance
-    category : Category _→ᵗ_
+    category : Category _⇨_
     category = record
-      { id    = tyfun F.id
-      ; _∘_   = λ { (tyfun g) (tyfun f) → tyfun (g ∘ f) }
+      { id    = mk F.id
+      ; _∘_   = λ { (mk g) (mk f) → mk (g ∘ f) }
       -- ; _≈_   = ?
       -- ; id-l  = refl
       -- ; id-r  = refl
       -- ; assoc = refl
       }
 
-    monoidal : Monoidal _→ᵗ_
+    monoidal : Monoidal _⇨_
     monoidal = record
       { ⊤ = ⊤
       ; _×_ = _×_
-      ; _⊗_ = λ (tyfun f) (tyfun g) → tyfun λ (x , y) → f x , g y
-      ; ! = tyfun λ _ → tt
-      ; unitorᵉˡ = tyfun unitorᵉˡ
-      ; unitorᵉʳ = tyfun unitorᵉʳ
-      ; unitorⁱˡ = tyfun unitorⁱˡ
-      ; unitorⁱʳ = tyfun unitorⁱʳ
-      ; assocʳ = tyfun assocʳ
-      ; assocˡ = tyfun assocˡ
+      ; _⊗_ = λ (mk f) (mk g) → mk λ (x , y) → f x , g y
+      ; ! = mk λ _ → tt
+      ; unitorᵉˡ = mk unitorᵉˡ
+      ; unitorᵉʳ = mk unitorᵉʳ
+      ; unitorⁱˡ = mk unitorⁱˡ
+      ; unitorⁱʳ = mk unitorⁱʳ
+      ; assocʳ = mk assocʳ
+      ; assocˡ = mk assocˡ
       }
 
-    braided : Braided _→ᵗ_
-    braided = record { swap = tyfun swap }
+    braided : Braided _⇨_
+    braided = record { swap = mk swap }
 
-    cartesian : Cartesian _→ᵗ_
-    cartesian = record { exl = tyfun exl ; exr = tyfun exr ; dup = tyfun dup }
+    cartesian : Cartesian _⇨_
+    cartesian = record { exl = mk exl ; exr = mk exr ; dup = mk dup }

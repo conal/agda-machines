@@ -25,7 +25,7 @@ module i where
 
     meaningful : Meaningful (i , zⁱ ⇨ o , zᵒ)
     meaningful {i}{zⁱ}{o}{zᵒ} = record
-      { Meaning = i × zⁱ →ᵗ o × zᵒ
+      { Meaning = i × zⁱ ty.⇨ o × zᵒ
       ; ⟦_⟧ = λ (a , a⇨ₚo , i×zⁱ⇨ᵣa×zᵒ) → first ⟦ a⇨ₚo ⟧ ∘ ⟦ i×zⁱ⇨ᵣa×zᵒ ⟧
       }
 
@@ -39,7 +39,7 @@ module k where
     _∷ʳ_ : (a , zᵃ ⇨ o , zᵒ) → (i , zⁱ i.⇨ a , zᵃ) → (i , zⁱ ⇨ o , zᵒ)
 
 
-  ⟦_⟧ᵏ : (i , zⁱ ⇨ o , zᵒ) → (i × zⁱ →ᵗ o × zᵒ)
+  ⟦_⟧ᵏ : (i , zⁱ ⇨ o , zᵒ) → (i × zⁱ ty.⇨ o × zᵒ)
   ⟦ [ r ] ⟧ᵏ = ⟦ r ⟧
   ⟦ f ∷ʳ inst ⟧ᵏ = ⟦ f ⟧ᵏ ∘ ⟦ inst ⟧
 
@@ -102,7 +102,7 @@ module sf where
 
     meaningful : ∀ {a b} → Meaningful (a ⇨ b)
     meaningful {a}{b} = record
-      { Meaning = a →ᵗ b
+      { Meaning = a ty.⇨ b
       ; ⟦_⟧ = λ (sf f) → unitorᵉʳ ∘ ⟦ f ⟧ ∘ unitorⁱʳ
       }
 

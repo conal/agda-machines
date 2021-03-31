@@ -37,7 +37,7 @@ module r where
   instance
 
     meaningful : ∀ {a b} → Meaningful (a ⇨ b)
-    meaningful {a}{b} = record { Meaning = a →ᵗ b ; ⟦_⟧ = λ (mk r) → tyfun (swizzle r) }
+    meaningful {a}{b} = record { Meaning = a ty.⇨ b ; ⟦_⟧ = λ (mk r) → ty.mk (swizzle r) }
 
     category : Category _⇨_
     category = record
@@ -91,12 +91,12 @@ module p where
 
     meaningful : ∀ {a b} → Meaningful (a ⇨ b)
     meaningful {a}{b} = record
-      { Meaning = a →ᵗ b
-      ; ⟦_⟧ = λ { ∧ → tyfun (uncurry Bool._∧_)
-                ; ∨ → tyfun (uncurry Bool._∨_)
-                ; xor → tyfun (uncurry Bool._xor_)
-                ; not → tyfun (Bool.not)
-                ; (const a) → tyfun (F.const a) }
+      { Meaning = a ty.⇨ b
+      ; ⟦_⟧ = λ { ∧ → ty.mk (uncurry Bool._∧_)
+                ; ∨ → ty.mk (uncurry Bool._∨_)
+                ; xor → ty.mk (uncurry Bool._xor_)
+                ; not → ty.mk (Bool.not)
+                ; (const a) → ty.mk (F.const a) }
       }
 
     p-show : ∀ {a b} → Show (a ⇨ b)
@@ -129,7 +129,7 @@ module c where
     _∘ᶜ_ : B ⇨ C → A ⇨ B → A ⇨ C
     _⊗ᶜ_ : A ⇨ C → B ⇨ D → A × B ⇨ C × D
 
-  ⟦_⟧ᶜ : A ⇨ B → A →ᵗ B
+  ⟦_⟧ᶜ : A ⇨ B → A ty.⇨ B
   ⟦ route f ⟧ᶜ = ⟦ f ⟧
   ⟦ prim  p ⟧ᶜ = ⟦ p ⟧
   ⟦  g ∘ᶜ f  ⟧ᶜ = ⟦ g ⟧ᶜ ∘ ⟦ f ⟧ᶜ
@@ -207,7 +207,7 @@ module s where
     meaningful : ∀ {A B} → Meaningful (A ⇨ B)
     meaningful {A}{B} = record
       { Meaning = ⟦ A ⟧ m.⇨ ⟦ B ⟧
-      ; ⟦_⟧ = λ { (mealy s₀ f) → m.mealy s₀ (tyfun⁻¹ ⟦ f ⟧) }
+      ; ⟦_⟧ = λ { (mealy s₀ f) → m.mealy s₀ (ty.mk⁻¹ ⟦ f ⟧) }
       }
 
     category : Category _⇨_
