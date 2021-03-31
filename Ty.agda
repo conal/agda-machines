@@ -13,8 +13,6 @@ open import Data.String hiding (toVec; toList)
 import Category as C
 open C hiding (⊤; _×_)
 
-import Misc as F
-
 infixr 2 _×_
 data Ty : Set where
   ⊤    : Ty
@@ -46,7 +44,7 @@ showTy = go true
    go : Boolᵗ → ⟦ A ⟧ → String
    go {⊤} _ tt = "tt"
    go {Bool} _ b = BS.show b
-   go {_ × _} p (x , y) = (if p then parens else F.id)
+   go {_ × _} p (x , y) = (if p then parens else id)
                           (go true x ++ "," ++ go false y)
 
 -- infix 0 _→ᵗ_
@@ -74,13 +72,13 @@ instance
 tabulate : (TyIx A → Boolᵗ) → ⟦ A ⟧
 tabulate {⊤} f = tt
 tabulate {Bool} f = f here
-tabulate {_ × _} f = tabulate (f F.∘ left) , tabulate (f F.∘ right)
+tabulate {_ × _} f = tabulate (f ∘ left) , tabulate (f ∘ right)
 
 lookup : ⟦ A ⟧ → (TyIx A → Boolᵗ)
 lookup a i = ⟦ i ⟧ᵇ a
 
 swizzle : (TyIx B → TyIx A) → (⟦ A ⟧ → ⟦ B ⟧)
-swizzle r a = tabulate (lookup a F.∘ r)
+swizzle r a = tabulate (lookup a ∘ r)
 
 private variable X Y Z : Set
 
@@ -95,7 +93,7 @@ data TyF (X : Set) : Ty → Set where
 tabulate′ : (TyIx A → X) → TyF X A
 tabulate′ {⊤} f = •
 tabulate′ {Bool} f = [ f here ]
-tabulate′ {_ × _} f = tabulate′ (f F.∘ left) ､ tabulate′ (f F.∘ right)
+tabulate′ {_ × _} f = tabulate′ (f ∘ left) ､ tabulate′ (f ∘ right)
 
 lookup′ : TyF X A → (TyIx A → X)
 lookup′ [ x ] here = x
@@ -103,7 +101,7 @@ lookup′ (l ､ r) (left  a) = lookup′ l a
 lookup′ (l ､ r) (right b) = lookup′ r b
 
 swizzle′ : (TyIx B → TyIx A) → ∀ {X} → TyF X A → TyF X B
-swizzle′ r a = tabulate′ (lookup′ a F.∘ r)
+swizzle′ r a = tabulate′ (lookup′ a ∘ r)
 
 →TyF : ⟦ A ⟧ → TyF Boolᵗ A
 →TyF {⊤} tt = •
@@ -145,7 +143,7 @@ toVec (u ､ v) = toVec u ++ⁿ toVec v
 open import Data.List using (List)
 
 toList : TyF X A → List X
-toList = toListⁿ F.∘ toVec
+toList = toListⁿ ∘ toVec
 
 map : (X → Y) → TyF X A → TyF Y A
 map f • = •
@@ -185,7 +183,7 @@ module ty where
   instance
     category : Category _⇨_
     category = record
-      { id    = mk F.id
+      { id    = mk id
       ; _∘_   = λ { (mk g) (mk f) → mk (g ∘ f) }
       -- ; _≈_   = ?
       -- ; id-l  = refl

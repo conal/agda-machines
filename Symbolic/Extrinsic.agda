@@ -6,11 +6,10 @@ module Symbolic.Extrinsic where
 import Data.Bool as B
 open import Data.String using (String)
 open import Relation.Binary.PropositionalEquality using (_≗_; refl)
-open import Function using (_on_)
+open import Function using (_on_) renaming (const to const′)
 
 open import Ty
 
-import Misc as F
 import Category as C
 open C hiding (⊤; _×_)
 
@@ -41,8 +40,8 @@ module r where
 
     category : Category _⇨_
     category = record
-      { id = mk F.id
-      ; _∘_ = λ (mk f) (mk g) → mk (g F.∘ f)
+      { id = mk id
+      ; _∘_ = λ (mk f) (mk g) → mk (g ∘ f)
       }
 
     monoidal : Monoidal _⇨_
@@ -92,7 +91,7 @@ module p where
                 ; ∨ → ty.mk (uncurry B._∨_)
                 ; xor → ty.mk (uncurry B._xor_)
                 ; not → ty.mk (B.not)
-                ; (const a) → ty.mk (F.const a) }
+                ; (const a) → ty.mk (const′ a) }
       }
 
     p-show : ∀ {a b} → Show (a ⇨ b)
