@@ -34,15 +34,17 @@ package = (_++ "\n}\n") ∘′ ("digraph {" ++_) ∘′ ("\n" ++_) ∘′
 OPort : Set
 OPort = String
 
-labels : String → Ty → String
-labels tag a =
-  braces (intersperse "|" (map (λ i → "<" ++ tag ++ NS.show i ++ ">") (upTo (size a))))
+labels : String → (String → String) → Ty → String
+labels tag f a with size a
+... | zero = ""  -- No braces or "|", to avoid port appearance
+... | n@(suc _) = f (braces (
+ intersperse "|" (map (λ i → "<" ++ tag ++ NS.show i ++ ">") (upTo n))))
 
 labelsⁱ : Ty → String
-labelsⁱ = labels "In"
+labelsⁱ = labels "In" (_++ "|")
 
 labelsᵒ : Ty → String
-labelsᵒ = labels "Out"
+labelsᵒ = labels "Out" ("|" ++_)
 
 showIx : TyIx a → String
 showIx = FS.show ∘′ toFin
@@ -58,7 +60,7 @@ comp : String → String → TyF OPort i → Ty → List String
 comp {i} compName opName ins o =
   (compName ++
    " [label=\"" ++
-   braces (labelsⁱ i ++ "|" ++ opName ++ "|" ++ labelsᵒ o) ++
+   braces (labelsⁱ i ++ opName ++ labelsᵒ o) ++
    "\"]")
   ∷ toList (mapᵀ (wire compName) allIx ⊛ ins)
 
