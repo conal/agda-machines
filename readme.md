@@ -9,6 +9,8 @@ Makefile targets:
 
 A quick summary of the important modules:
 
+*   `Category`: Simple type classes for flavors of categories.
+    The main programming interface for most types in the implementation.
 *   `VecFun`: The main semantic model: `∀ {n} → Vec A n → Vec B n`.
     Intended to be causal, i.e., something like `∀ m → f ∘ take m ≡ take m ∘ f`.
 *   `Mealy`: Semantic Mealy machines with a homomorphic mapping into `VecFun`.
