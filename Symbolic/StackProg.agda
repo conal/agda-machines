@@ -64,10 +64,10 @@ module k where
   instance
 
     meaningful : Meaningful (i , zⁱ ⇨ o , zᵒ)
-    meaningful {i}{zⁱ}{o}{zᵒ} = record { ⟦_⟧ = ⟦_⟧ᵏ }
+    meaningful = record { ⟦_⟧ = ⟦_⟧ᵏ }
 
     category : Category _⇨_
-    category = record { id = route λ z → z ; _∘_ = _∘′_ }
+    category = record { id = route id ; _∘_ = _∘′_ }
 
   push : (a × b) , c ⇨ a , (b × c)
   push = route assocʳ
@@ -79,7 +79,7 @@ module k where
   stacked f = pop ∘ f ∘ push
 
   prim : i p.⇨ o → i , zⁱ ⇨ o , zⁱ
-  prim {i} i⇨ₚo = [ id′ ] ∷ʳ (i , i⇨ₚo , id′)
+  prim {i} i⇨ₚo = [ id ] ∷ʳ (i , i⇨ₚo , id)
 
 open k using (stacked)
 
@@ -108,7 +108,7 @@ module sf where
 
     category : Category _⇨_
     category = record
-      { id = route (λ z → z)
+      { id = route id
       ; _∘_ = λ (sf g) (sf f) → sf (g ∘ f)
       }
 
@@ -136,6 +136,5 @@ module sf where
   compile : a c.⇨ b → a ⇨ b
   compile (c.route r) = route r
   compile (c.prim p)  = prim p
-  compile (g c.∘ f)   = compile g ∘ compile f
-  compile (f c.⊗ g)   = compile f ⊗ compile g
-
+  compile (g c.∘ᶜ f)  = compile g ∘ compile f
+  compile (f c.⊗ᶜ g)  = compile f ⊗ compile g
