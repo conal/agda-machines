@@ -10,9 +10,12 @@ open import Data.List using (List; []; _∷_; concat; map; upTo)
   renaming (_++_ to _++ᴸ_)
 open import Relation.Binary.PropositionalEquality using (_≡_; refl)
 
+import Category as C
 open import Ty renaming (map to mapᵀ)
 open import Symbolic.Extrinsic
 open import Symbolic.StackProg
+
+open C hiding (⊤; _×_)
 
 private variable a b c d i o s z zⁱ zᵒ zᵃ : Ty
 
@@ -77,20 +80,22 @@ module _ {s} (state₀ : ⟦ s ⟧ᵗ) where
     comp (reg j) ("cons " ++ showBit (lookup state₀ j)) [ src ] Bool
 
   dotᵏ : ℕ → TyF OPort (i × zⁱ) → (i , zⁱ k.⇨ (o × s) , ⊤) → List String
-  dotᵏ _ ins k.[ r ] with r.⟦ r.unitorᵉʳ r.∘ r ⟧′ ins
-  ...                       | os ､ ss =
-    concat (toList (mapᵀ register allIx ⊛ →TyF state₀ ⊛ ss))
-    ++ᴸ comp "output" "output" os ⊤
+  dotᵏ _ ins k.[ r ] with r.⟦ unitorᵉʳ ∘ r ⟧′ ins
+  ... | z = {!!}
+
+  -- dotᵏ _ ins k.[ r ] with r.⟦ unitorᵉʳ ∘ r ⟧′ ins
+  -- ...                       | os ､ ss =
+  --   concat (toList (mapᵀ register allIx ⊛ →TyF state₀ ⊛ ss))
+  --   ++ᴸ comp "output" "output" os ⊤
 
   dotᵏ comp# ins (f k.∷ʳ (a , a⇨ₚb , i×zⁱ⇨ᵣa×zᵃ)) with r.⟦ i×zⁱ⇨ᵣa×zᵃ ⟧′ ins
   ...                                                | os ､ ss =
     let compName = "c" ++ NS.show comp# in
-      comp compName (p.show a⇨ₚb) os (p.cod a⇨ₚb)
+      comp compName (C.show a⇨ₚb) os (p.cod a⇨ₚb)
       ++ᴸ dotᵏ (suc comp#) (mapᵀ (oport compName) allIx ､ ss) f
 
   dot : i × s sf.⇨ o × s → String
-  dot {i = i} f = package (
+  dot {i = i} (sf.sf f) = package (
     comp "input" "input" • i ++ᴸ
     dotᵏ 0 (( mapᵀ (oport "input") allIx ､
-              mapᵀ (λ r → oport (reg r) here) allIx) ､ •)
-           f)
+              mapᵀ (λ r → oport (reg r) here) allIx) ､ •) f)

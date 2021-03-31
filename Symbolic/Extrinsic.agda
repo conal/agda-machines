@@ -5,10 +5,13 @@ module Symbolic.Extrinsic where
 
 import Data.Bool as Bool
 open import Data.String using (String)
+open import Relation.Binary.PropositionalEquality using (_≗_; refl)
+open import Function using (_on_)
 
 open import Ty
 
 import Misc as F
+import Category as C
 
 private
   variable
@@ -25,74 +28,53 @@ module r where
   _⇨_ : Ty → Ty → Set
   A ⇨ B = TyIx B → TyIx A
 
-  ⟦_⟧ : A ⇨ B → A →ᵗ B
-  ⟦_⟧ = swizzle
-
   ⟦_⟧′ : A ⇨ B → ∀ {X} → TyF X A → TyF X B
   ⟦_⟧′ = swizzle′
 
-  id : A ⇨ A
-  id = F.id
+  open C
 
-  infixr 9 _∘_
-  _∘_ : B ⇨ C → A ⇨ B → A ⇨ C
-  g ∘ f = f F.∘ g
+  instance
 
-  infixr 7 _⊗_
-  _⊗_ : A ⇨ C → B ⇨ D → A × B ⇨ C × D
-  (f ⊗ g) (left  c) = left  (f c)
-  (f ⊗ g) (right d) = right (g d)
+    meaningful : ∀ {a b} → Meaningful (a ⇨ b)
+    meaningful {a}{b} = record { Meaning = a →ᵗ b ; ⟦_⟧ = λ r → tyfun (swizzle r) }
 
-  first : A ⇨ C → A × B ⇨ C × B
-  first f = f ⊗ id
+    category : Category _⇨_
+    category = record
+      { id = F.id
+      ; _∘_ = λ f g → g F.∘ f
+      -- ; _≈_ = _≗_
+      -- ; id-l = λ _ → refl
+      -- ; id-r = λ _ → refl
+      -- ; assoc = λ _ → refl
+      }
 
-  second : B ⇨ D → A × B ⇨ A × D
-  second g = id ⊗ g
+    monoidal : Monoidal _⇨_
+    monoidal = record
+      { ⊤ = Ty.⊤
+      ; _×_ = Ty._×_
+      ; _⊗_ = λ f g → λ { (left x) → left (f x) ; (right x) → right (g x) }
+      ; unitorᵉˡ = right
+      ; unitorᵉʳ = left
+      ; unitorⁱˡ = λ { (right y) → y }
+      ; unitorⁱʳ = λ { (left  x) → x }
+      ; assocʳ = λ { (left x) → left (left x)
+                   ; (right (left x)) → left (right x)
+                   ; (right (right x)) → right x
+                   }
+      ; assocˡ = λ { (left (left x)) → left x
+                   ; (left (right x)) → right (left x)
+                   ; (right x) → right (right x)
+                   }
+      ; ! = λ ()
+      }
 
-  exl : A × B ⇨ A
-  exl = left
+    braided : Braided _⇨_
+    braided = record { swap = λ { (left x) → right x ; (right x) → left x } }
 
-  exr : A × B ⇨ B
-  exr = right
+    cartesian : Cartesian _⇨_
+    cartesian = record { exl = left ; exr = right ; dup = λ { (left x) → x ; (right x) → x } }
 
-  dup : A ⇨ A × A
-  dup (left  a) = a
-  dup (right a) = a
-
-  infixr 7 _△_
-  _△_ : A ⇨ C → A ⇨ D → A ⇨ C × D
-  f △ g = (f ⊗ g) ∘ dup
-
-  swap : A × B ⇨ B × A
-  swap = exr △ exl
-
-  assocˡ : A × (B × C) ⇨ (A × B) × C
-  assocʳ : (A × B) × C ⇨ A × (B × C)
-
-  assocˡ = second exl △ exr ∘ exr
-  assocʳ = exl ∘ exl △ first exr
-
-  transpose : (A × B) × (C × D) ⇨ (A × C) × (B × D)
-  transpose = (exl ⊗ exl) △ (exr ⊗ exr)
-
-  ! : A ⇨ ⊤
-  ! ()
-
-  -- Elimination half of unitor isomorphisms
-  unitorᵉˡ : ⊤ × A ⇨ A
-  unitorᵉˡ = right
-
-  unitorᵉʳ : A × ⊤ ⇨ A
-  unitorᵉʳ = left
-
-  -- Introduction half of unitor isomorphisms
-  unitorⁱˡ : A ⇨ ⊤ × A
-  unitorⁱˡ (left ())
-  unitorⁱˡ (right y) = y
-
-  unitorⁱʳ : A ⇨ A × ⊤
-  unitorⁱʳ (left y) = y
-  unitorⁱʳ (right ())
+-- open r hiding (_⇨_)
 
 
 -- Combinational primitives
@@ -104,25 +86,36 @@ module p where
     not : Bool ⇨ Bool
     const : ⟦ A ⟧ᵗ → ⊤ ⇨ A
 
-  ⟦_⟧ : A ⇨ B → A →ᵗ B
-  ⟦ ∧ ⟧       = uncurry Bool._∧_
-  ⟦ ∨ ⟧       = uncurry Bool._∨_
-  ⟦ xor ⟧     = uncurry Bool._xor_
-  ⟦ not ⟧     = Bool.not
-  ⟦ const a ⟧ = F.const a
+  open C
 
-  show : A ⇨ B → String
-  show ∧         = "∧"
-  show ∨         = "∨"
-  show xor       = "xor"
-  show not       = "not"
-  show (const a) = showTy a
+  instance
+
+    meaningful : ∀ {a b} → Meaningful (a ⇨ b)
+    meaningful {a}{b} = record
+      { Meaning = a →ᵗ b
+      ; ⟦_⟧ = λ { ∧ → tyfun (uncurry Bool._∧_)
+                ; ∨ → tyfun (uncurry Bool._∨_)
+                ; xor → tyfun (uncurry Bool._xor_)
+                ; not → tyfun (Bool.not)
+                ; (const a) → tyfun (F.const a) }
+      }
+
+    p-show : ∀ {a b} → Show (a ⇨ b)
+    p-show = record { show = λ { ∧ → "∧"
+                               ; ∨ → "∨"
+                               ; xor → "xor"
+                               ; not → "not"
+                               ; (const x) → showTy x
+                               }
+                    }
 
   dom : A ⇨ B → Ty
   dom {A}{B} _ = A
 
   cod : A ⇨ B → Ty
   cod {A}{B} _ = B
+
+-- open p hiding (_⇨_; dom; cod; ∧; ∨; xor; not; const)
 
 -- Combinational circuits
 module c where
@@ -137,60 +130,56 @@ module c where
     _∘_ : B ⇨ C → A ⇨ B → A ⇨ C
     _⊗_ : A ⇨ C → B ⇨ D → A × B ⇨ C × D
 
-  ⟦_⟧ : A ⇨ B → A →ᵗ B
-  ⟦ route f ⟧ = r.⟦ f ⟧
-  ⟦ prim  f ⟧ = p.⟦ f ⟧
-  ⟦  g ∘ f  ⟧ = ⟦ g ⟧ F.∘ ⟦ f ⟧
-  ⟦  f ⊗ g  ⟧ = ⟦ f ⟧ F.⊗ ⟦ g ⟧
+  open C hiding (_∘_; _⊗_; ⊤; _×_)
 
-  -- TODO: Prove the cartesian category laws for _⇨_. Probably easier if
-  -- parametrized by denotation.
+  ⟦_⟧ᶜ : A ⇨ B → A →ᵗ B
+  ⟦ route f ⟧ᶜ = ⟦ f ⟧
+  ⟦ prim  p ⟧ᶜ = ⟦ p ⟧
+  ⟦  g ∘ f  ⟧ᶜ = ⟦ g ⟧ᶜ C.∘ ⟦ f ⟧ᶜ
+  ⟦  f ⊗ g  ⟧ᶜ = ⟦ f ⟧ᶜ C.⊗ ⟦ g ⟧ᶜ
 
-  id : A ⇨ A
-  dup : A ⇨ A × A
-  exl : A × B ⇨ A
-  exr : A × B ⇨ B
-  !   : A ⇨ ⊤
+  instance
 
-  id  = route r.id
-  dup = route r.dup
-  exl = route r.exl
-  exr = route r.exr
-  !   = route r.!
+    meaningful : ∀ {a b} → Meaningful (a ⇨ b)
+    meaningful {a}{b} = record { ⟦_⟧ = ⟦_⟧ᶜ }
 
-  -- Cartesian-categorical operations with standard definitions:
+    category : Category _⇨_
+    category = record
+                 { id = route F.id
+                 ; _∘_ = _∘_
+                 -- ; _≈_ = λ f g → ⟦ f ⟧ ≈ ⟦ g ⟧
+                         -- _≈_ on ⟦_⟧
+                 -- ; id-l = {!!}
+                 -- ; id-r = {!!}
+                 -- ; assoc = {!!}
+                 }
 
-  infixr 7 _△_
-  _△_ : A ⇨ C → A ⇨ D → A ⇨ C × D
-  f △ g = (f ⊗ g) ∘ dup
+    monoidal : C.Monoidal _⇨_
+    monoidal = record
+                 { ⊤ = ⊤
+                 ; _×_ = _×_
+                 ; _⊗_ = _⊗_
+                 ; ! = route !
+                 ; unitorᵉˡ = route unitorᵉˡ
+                 ; unitorᵉʳ = route unitorᵉʳ
+                 ; unitorⁱˡ = route unitorⁱˡ
+                 ; unitorⁱʳ = route unitorⁱʳ
+                 ; assocʳ   = route assocʳ
+                 ; assocˡ   = route assocˡ
+                 }
 
-  first : A ⇨ C → A × B ⇨ C × B
-  first f = f ⊗ id
+    braided : C.Braided _⇨_
+    braided = record { swap = route swap }
 
-  second : B ⇨ D → A × B ⇨ A × D
-  second f = id ⊗ f
+    cartesian : C.Cartesian _⇨_
+    cartesian = record { exl = route exl ; exr = route exr ; dup = route dup }
 
-  -- Some useful composite combinational circuits
-
-  assocˡ : A × (B × C) ⇨ (A × B) × C
-  assocʳ : (A × B) × C ⇨ A × (B × C)
-
-  assocˡ = second exl △ exr ∘ exr
-  assocʳ = exl ∘ exl △ first exr
-
-  swap : A × B ⇨ B × A
-  swap = exr △ exl
-
-  transpose : (A × B) × (C × D) ⇨ (A × C) × (B × D)
-  transpose = (exl ⊗ exl) △ (exr ⊗ exr)
-
-  -- Agsy can synthesize most of these definitions, thought not most succinctly.
-  -- Where _△_ is used, I gave it explicitly ("? △ ?").
-  -- On the other hand, we can give these definitions elsewhere for *all*
-  -- cartesian categories and then remove them here.
+-- open c hiding (_⇨_; _∘_; _⊗_; prim; ⟦_⟧ᶜ)
 
 -- Synchronous state machine.
 module s where
+
+  open C hiding (⊤; _×_)
 
   -- For composability, the state type is not visible in the type.
   infix  0 _⇨_
@@ -198,28 +187,11 @@ module s where
     constructor mealy
     field
       { State } : Ty
-      start : ⟦ State ⟧ᵗ
+      start : ⟦ State ⟧
       transition : A × State c.⇨ B × State
 
-  import Mealy as m
-
-  ⟦_⟧ : A ⇨ B → A m.⇨ B
-  ⟦ mealy s₀ f ⟧ = m.mealy s₀ c.⟦ f ⟧
-
   comb : A c.⇨ B → A ⇨ B
-  comb f = mealy tt (c.first f)
-
-  id  : A ⇨ A
-  dup : A ⇨ A × A
-  exl : A × B ⇨ A
-  exr : A × B ⇨ B
-  !   : A ⇨ ⊤
-
-  id  = comb c.id
-  dup = comb c.dup
-  exl = comb c.exl
-  exr = comb c.exr
-  !   = comb c.!
+  comb f = mealy tt (first f)
 
   prim : A p.⇨ B → A ⇨ B
   prim p = comb (c.prim p)
@@ -232,56 +204,46 @@ module s where
   not = prim p.not
 
   delay : ⟦ A ⟧ᵗ → A ⇨ A
-  delay a₀ = mealy a₀ c.swap
+  delay a₀ = mealy a₀ swap
 
-  infixr 9 _∘_
-  _∘_ : B ⇨ C → A ⇨ B → A ⇨ C
-  mealy t₀ g ∘ mealy s₀ f = mealy (s₀ , t₀)
-    (swiz₂ c.∘ c.second g c.∘ swiz₁ c.∘ c.first f c.∘ c.assocˡ)
-   where
-     swiz₁ : (B × σ) × τ c.⇨ σ × (B × τ)
-     swiz₁ = c.exr c.∘ c.exl c.△ c.first c.exl
-     swiz₂ : σ × (C × τ) c.⇨ C × (σ × τ)
-     swiz₂ = c.exl c.∘ c.exr c.△ c.second c.exr
+  import Mealy as m
 
-  infixr 7 _⊗_
-  _⊗_ : A ⇨ C → B ⇨ D → A × B ⇨ C × D
-  mealy s₀ f ⊗ mealy t₀ g = mealy (s₀ , t₀) (c.transpose c.∘ (f c.⊗ g) c.∘ c.transpose)
+  instance
+    meaningful : ∀ {A B} → Meaningful (A ⇨ B)
+    meaningful {A}{B} = record
+      { Meaning = ⟦ A ⟧ m.⇨ ⟦ B ⟧
+      ; ⟦_⟧ = λ { (mealy s₀ f) → m.mealy s₀ (tyfun⁻¹ ⟦ f ⟧) }
+      }
 
-  infixr 7 _△_
-  _△_ : A ⇨ C → A ⇨ D → A ⇨ C × D
-  f △ g = (f ⊗ g) ∘ comb c.dup
+    category : Category _⇨_
+    category = record { id = comb id ; _∘_ = _⊙_ }
+     where
+       _⊙_ : B ⇨ C → A ⇨ B → A ⇨ C
+       mealy t₀ g ⊙ mealy s₀ f = mealy (s₀ , t₀)
+         (swiz₂ ∘ second g ∘ swiz₁ ∘ first f ∘ assocˡ)
+        where
+          swiz₁ : (B × σ) × τ c.⇨ σ × (B × τ)
+          swiz₁ = exr ∘ exl △ first exl
+          swiz₂ : σ × (C × τ) c.⇨ C × (σ × τ)
+          swiz₂ = exl ∘ exr △ second exr
 
-  first : A ⇨ C → A × B ⇨ C × B
-  first f = f ⊗ id
+    monoidal : Monoidal _⇨_
+    monoidal = record
+                   { ⊤ = ⊤
+                   ; _×_ = _×_
+                   ; _⊗_ = λ { (mealy s₀ f) (mealy t₀ g) →
+                       mealy (s₀ , t₀) (transpose ∘ (f ⊗ g) ∘ transpose) }
+                   ; ! = comb !
+                   ; unitorᵉˡ = comb unitorᵉˡ
+                   ; unitorᵉʳ = comb unitorᵉʳ
+                   ; unitorⁱˡ = comb unitorⁱˡ
+                   ; unitorⁱʳ = comb unitorⁱʳ
+                   ; assocʳ   = comb assocʳ
+                   ; assocˡ   = comb assocˡ
+                   }
 
-  second : B ⇨ D → A × B ⇨ A × D
-  second f = id ⊗ f
+    braided : Braided _⇨_
+    braided = record { swap = comb swap }
 
-  assocˡ : A × (B × C) ⇨ (A × B) × C
-  assocʳ : (A × B) × C ⇨ A × (B × C)
-
-  assocˡ = comb c.assocˡ
-  assocʳ = comb c.assocʳ
-
-  swap : A × B ⇨ B × A
-  swap = exr △ exl
-
-  transpose : (A × B) × (C × D) ⇨ (A × C) × (B × D)
-  transpose = (exl ⊗ exl) △ (exr ⊗ exr)
-
-
--- TODO: consider making categorical operations (most of the functionality in
--- this module) be methods of a common typeclass, so that (a) we can state and
--- prove laws conveniently, and (b) we needn't use clumsy names.
-
--- TODO: Rebuild this module in terms of semantic Mealy machines.
-
--- TODO: Prove the cartesian category laws for _⇨_. Probably easier if
--- parametrized by denotation.
-
--- TODO: Cocartesian.
-
--- TODO: replicate compiling-to-categories using Agda reflection, and use to
--- make definitions like `_∘_` and `_⊗_` above read like their counterparts in
--- the Mealy module.
+    cartesian : Cartesian _⇨_
+    cartesian = record { exl = comb exl ; exr = comb exr ; dup = comb dup }

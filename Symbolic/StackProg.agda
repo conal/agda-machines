@@ -2,6 +2,7 @@
 
 module Symbolic.StackProg where
 
+open import Function using () renaming (id to id′)
 open import Data.Product using (∃; _,_) renaming (_×_ to _×ᵗ_)
 
 open import Ty
@@ -10,6 +11,9 @@ open import Symbolic.Extrinsic
 
 private variable a b c d i o z zⁱ zᵒ zᵃ : Ty
 
+import Category as C
+open C hiding (⊤; _×_)
+
 -- Primitive instance p with input routing for first p
 module i where
 
@@ -17,8 +21,13 @@ module i where
   _⇨_ : (Ty ×ᵗ Ty) → (Ty ×ᵗ Ty) → Set
   (i , zⁱ ⇨ o , zᵒ) = ∃ λ a → (a p.⇨ o) ×ᵗ (i × zⁱ r.⇨ a × zᵒ)
 
-  ⟦_⟧ : i , zⁱ ⇨ o , zᵒ → i × zⁱ →ᵗ o × zᵒ
-  ⟦ a , a⇨ₚo , i×zⁱ⇨ᵣa×zᵒ ⟧ = F.first p.⟦ a⇨ₚo ⟧ F.∘ r.⟦ i×zⁱ⇨ᵣa×zᵒ ⟧
+  instance
+
+    meaningful : Meaningful (i , zⁱ ⇨ o , zᵒ)
+    meaningful {i}{zⁱ}{o}{zᵒ} = record
+      { Meaning = i × zⁱ →ᵗ o × zᵒ
+      ; ⟦_⟧ = λ (a , a⇨ₚo , i×zⁱ⇨ᵣa×zᵒ) → first ⟦ a⇨ₚo ⟧ ∘ ⟦ i×zⁱ⇨ᵣa×zᵒ ⟧
+      }
 
 -- Stack operations
 module k where
@@ -29,40 +38,48 @@ module k where
     [_]  : (i × zⁱ r.⇨ o × zᵒ) → (i , zⁱ ⇨ o , zᵒ)
     _∷ʳ_ : (a , zᵃ ⇨ o , zᵒ) → (i , zⁱ i.⇨ a , zᵃ) → (i , zⁱ ⇨ o , zᵒ)
 
-  ⟦_⟧ : i , zⁱ ⇨ o , zᵒ → i × zⁱ →ᵗ o × zᵒ
-  ⟦ [ r ] ⟧ = r.⟦ r ⟧
-  ⟦ f ∷ʳ inst ⟧ = ⟦ f ⟧ F.∘ i.⟦_⟧ inst
+
+  ⟦_⟧ᵏ : (i , zⁱ ⇨ o , zᵒ) → (i × zⁱ →ᵗ o × zᵒ)
+  ⟦ [ r ] ⟧ᵏ = ⟦ r ⟧
+  ⟦ f ∷ʳ inst ⟧ᵏ = ⟦ f ⟧ᵏ ∘ ⟦ inst ⟧
 
   route : (i × zⁱ r.⇨ o × zᵒ) → (i , zⁱ ⇨ o , zᵒ)
   route = [_]
 
   infixr 9 _∘ʳ_
   _∘ʳ_ : (a , zᵃ ⇨ o , zᵒ) → (i × zⁱ r.⇨ a × zᵃ) → (i , zⁱ ⇨ o , zᵒ)
-  [ r₂ ] ∘ʳ r₁ = [ r₂ r.∘ r₁ ]
-  (g ∷ʳ (d , d⇨ₚe , r₂)) ∘ʳ r₁ = g ∷ʳ (d , d⇨ₚe , r₂ r.∘ r₁)
+  [ r₂ ] ∘ʳ r₁ = [ r₂ ∘ r₁ ]
+  (g ∷ʳ (d , d⇨ₚe , r₂)) ∘ʳ r₁ = g ∷ʳ (d , d⇨ₚe , r₂ ∘ r₁)
 
-  infixr 9 _∘_
-  _∘_ : (a , zᵃ ⇨ o , zᵒ) → (i , zⁱ ⇨ a , zᵃ) → (i , zⁱ ⇨ o , zᵒ)
-  g ∘ [ r ] = g ∘ʳ r
-  g ∘ (f ∷ʳ inst) = g ∘ f ∷ʳ inst
+  infixr 9 _∘′_
+  _∘′_ : (a , zᵃ ⇨ o , zᵒ) → (i , zⁱ ⇨ a , zᵃ) → (i , zⁱ ⇨ o , zᵒ)
+  g ∘′ [ r ] = g ∘ʳ r
+  g ∘′ (f ∷ʳ inst) = g ∘′ f ∷ʳ inst
 
   -- -- Or drop _∘ʳ_, although Agda shades the last clause gray.
-  -- [ r₂ ] ∘ [ r₁ ] = [ r₂ r.∘ r₁ ]
-  -- (g ∷ʳ (d , d⇨ₚe , r₂)) ∘ [ r₁ ] = g ∷ʳ (d , d⇨ₚe , r₂ r.∘ r₁)
-  -- g ∘ (f ∷ʳ inst) = g ∘ f ∷ʳ inst
+  -- [ r₂ ] ∘′ [ r₁ ] = [ r₂ ∘ r₁ ]
+  -- (g ∷ʳ (d , d⇨ₚe , r₂)) ∘′ [ r₁ ] = g ∷ʳ (d , d⇨ₚe , r₂ ∘ r₁)
+  -- g ∘′ (f ∷ʳ inst) = g ∘′ f ∷ʳ inst
+
+  instance
+
+    meaningful : Meaningful (i , zⁱ ⇨ o , zᵒ)
+    meaningful {i}{zⁱ}{o}{zᵒ} = record { ⟦_⟧ = ⟦_⟧ᵏ }
+
+    category : Category _⇨_
+    category = record { id = route λ z → z ; _∘_ = _∘′_ }
 
   push : (a × b) , c ⇨ a , (b × c)
-  push = route r.assocʳ
+  push = route assocʳ
 
   pop : a , (b × c) ⇨ (a × b) , c
-  pop = route r.assocˡ
+  pop = route assocˡ
 
   stacked : (a , (b × z) ⇨ c , (b × z)) → ((a × b) , z) ⇨ ((c × b) , z)
   stacked f = pop ∘ f ∘ push
 
   prim : i p.⇨ o → i , zⁱ ⇨ o , zⁱ
-  prim {i} i⇨ₚo = [ r.id ] ∷ʳ (i , i⇨ₚo , r.id)
-
+  prim {i} i⇨ₚo = [ id′ ] ∷ʳ (i , i⇨ₚo , id′)
 
 open k using (stacked)
 
@@ -70,71 +87,55 @@ open k using (stacked)
 module sf where
 
   infix 0 _⇨_
-  _⇨_ : Ty → Ty → Set
-  i ⇨ o = ∀ {z} → i , z k.⇨ o , z
-
-  ⟦_⟧ : a ⇨ b → a →ᵗ b
-  ⟦ f ⟧ = F.unitorᵉʳ F.∘ k.⟦ f ⟧ F.∘ F.unitorⁱʳ
+  record _⇨_ (i o : Ty) : Set where
+    constructor sf
+    field
+      f : ∀ {z} → i , z k.⇨ o , z
 
   prim : i p.⇨ o → i ⇨ o
-  prim i⇨ₚo = k.prim i⇨ₚo
+  prim i⇨ₚo = sf (k.prim i⇨ₚo)
 
   route : i r.⇨ o → i ⇨ o
-  route r = k.route (r.first r)
+  route r = sf (k.route (first r))
 
-  id  : a ⇨ a
-  dup : a ⇨ a × a
-  exl : a × b ⇨ a
-  exr : a × b ⇨ b
-  !   : a ⇨ ⊤
+  instance
 
-  id  = route r.id
-  dup = route r.dup
-  exl = route r.exl
-  exr = route r.exr
-  !   = route λ ()
+    meaningful : ∀ {a b} → Meaningful (a ⇨ b)
+    meaningful {a}{b} = record
+      { Meaning = a →ᵗ b
+      ; ⟦_⟧ = λ (sf f) → unitorᵉʳ ∘ ⟦ f ⟧ ∘ unitorⁱʳ
+      }
 
-  swap : a × b ⇨ b × a
-  assocˡ : a × (b × c) ⇨ (a × b) × c
-  assocʳ : (a × b) × c ⇨ a × (b × c)
+    category : Category _⇨_
+    category = record
+      { id = route (λ z → z)
+      ; _∘_ = λ (sf g) (sf f) → sf (g ∘ f)
+      }
 
-  swap   = route r.swap
-  assocˡ = route r.assocˡ
-  assocʳ = route r.assocʳ
+    monoidal : Monoidal _⇨_
+    monoidal = record
+      { ⊤ = ⊤
+      ; _×_ = _×_
+      ; _⊗_ = λ f g → second′ g ∘ first′ f
+      ; ! = route !
+      ; unitorᵉˡ = route unitorᵉˡ
+      ; unitorᵉʳ = route unitorᵉʳ
+      ; unitorⁱˡ = route unitorⁱˡ
+      ; unitorⁱʳ = route unitorⁱʳ
+      ; assocʳ = route assocʳ
+      ; assocˡ = route assocˡ
+      }
+     where
+       first′ : (a ⇨ c) → (a × b ⇨ c × b)
+       first′ (sf f) = sf (stacked f)
 
-  infixr 9 _∘_
-  _∘_ : (b ⇨ c) → (a ⇨ b) → (a ⇨ c)
-  g ∘ f = g k.∘ f
-  
-  first : (a ⇨ c) → (a × b ⇨ c × b)
-  first f = stacked f
+       second′ : (b ⇨ d) → (a × b ⇨ a × d)
+       second′ f = route swap ∘ first′ f ∘ route swap
 
-  second : (b ⇨ d) → (a × b ⇨ a × d)
-  second f = route r.swap ∘ first f ∘ route r.swap
+  -- Functorial compilation
+  compile : a c.⇨ b → a ⇨ b
+  compile (c.route r) = route r
+  compile (c.prim p)  = prim p
+  compile (g c.∘ f)   = compile g ∘ compile f
+  compile (f c.⊗ g)   = compile f ⊗ compile g
 
-  infixr 7 _⊗_
-  _⊗_ : a ⇨ c → b ⇨ d → a × b ⇨ c × d
-  f ⊗ g = second g ∘ first f
-
-  infixr 7 _△_
-  _△_ : a ⇨ c → a ⇨ d → a ⇨ c × d
-  f △ g = (f ⊗ g) ∘ dup
-
-  unitorᵉˡ : ⊤ × a ⇨ a
-  unitorᵉʳ : a × ⊤ ⇨ a
-  unitorⁱˡ : a ⇨ ⊤ × a
-  unitorⁱʳ : a ⇨ a × ⊤
-
-  unitorᵉˡ = route r.unitorᵉˡ
-  unitorᵉʳ = route r.unitorᵉʳ
-  unitorⁱˡ = route r.unitorⁱˡ
-  unitorⁱʳ = route r.unitorⁱʳ
-
-open sf public
-
--- Functorial compilation
-compile : a c.⇨ b → a ⇨ b
-compile (c.route r) = route r
-compile (c.prim p)  = prim p
-compile (g c.∘ f)   = compile g ∘ compile f
-compile (f c.⊗ g)   = compile f ⊗ compile g

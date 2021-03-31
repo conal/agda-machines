@@ -2,6 +2,8 @@
 
 -- Miscellaneous simply-typed categorical operations on functions
 
+-- TODO: drop this module in favor of Category
+
 open import Level
 open import Data.Unit
 import Data.Product as ×

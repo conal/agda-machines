@@ -6,9 +6,12 @@ open import Data.Unit renaming (⊤ to ⊤ᵗ) public
 open import Data.Bool using () renaming (Bool to Boolᵗ) public
 open import Data.Bool using (true; false; if_then_else_)
 open import Data.Bool.Show as BS
-open import Data.Product using (_,_; uncurry) renaming (_×_ to _×ᵗ_) public
+open import Data.Product using (_,_; uncurry; proj₁; proj₂) renaming (_×_ to _×ᵗ_) public
 open import Data.Nat
 open import Data.String hiding (toVec; toList)
+
+import Category as C
+open C hiding (⊤; _×_)
 
 import Misc as F
 
@@ -31,6 +34,11 @@ A ↑ suc (suc n) = A × A ↑ suc n
 ⟦ σ × τ ⟧ᵗ = ⟦ σ ⟧ᵗ ×ᵗ ⟦ τ ⟧ᵗ
 ⟦ Bool ⟧ᵗ  = Boolᵗ
 
+instance
+
+  Ty-Meaningful : Meaningful Ty
+  Ty-Meaningful = record { ⟦_⟧ = ⟦_⟧ᵗ }
+
 showTy : ⟦ A ⟧ᵗ → String
 showTy = go true
  where
@@ -41,9 +49,9 @@ showTy = go true
    go {_ × _} p (x , y) = (if p then parens else F.id)
                           (go true x ++ "," ++ go false y)
 
-infix 0 _→ᵗ_
-_→ᵗ_ : Ty → Ty → Set
-A →ᵗ B = ⟦ A ⟧ᵗ → ⟦ B ⟧ᵗ
+-- infix 0 _→ᵗ_
+-- _→ᵗ_ : Ty → Ty → Set
+-- A →ᵗ B = ⟦ A ⟧ → ⟦ B ⟧
 
 -- Index of a bit in a type
 data TyIx : Ty → Set where
@@ -52,10 +60,16 @@ data TyIx : Ty → Set where
   right : TyIx B → TyIx (A × B)
 
 -- Extract a bit
-⟦_⟧ᵇ : ∀ {A} → TyIx A → A →ᵗ Bool
+-- ⟦_⟧ᵇ : ∀ {A} → TyIx A → A →ᵗ Bool
+⟦_⟧ᵇ : ∀ {A} → TyIx A → ⟦ A ⟧ → Boolᵗ
 ⟦ here    ⟧ᵇ x = x
 ⟦ left  i ⟧ᵇ (x , y) = ⟦ i ⟧ᵇ x
 ⟦ right i ⟧ᵇ (x , y) = ⟦ i ⟧ᵇ y
+
+instance
+
+  TyIx-Meaningful : ∀ {A} → Meaningful (TyIx A)
+  TyIx-Meaningful = record { ⟦_⟧ = ⟦_⟧ᵇ }
 
 tabulate : (TyIx A → Boolᵗ) → ⟦ A ⟧ᵗ
 tabulate {⊤} f = tt
@@ -156,3 +170,49 @@ _⊛_ : TyF (X → Y) A → TyF X A → TyF Y A
 
 map₂ : (X → Y → Z) → TyF X A → TyF Y A → TyF Z A
 map₂ f u v = map f u ⊛ v
+
+
+-- Experiment
+infix 0 _→ᵗ_
+record _→ᵗ_ (A B : Ty) : Set where
+  constructor tyfun
+  field
+    f : ⟦ A ⟧ → ⟦ B ⟧
+
+tyfun⁻¹ : (A →ᵗ B) → (⟦ A ⟧ → ⟦ B ⟧)
+tyfun⁻¹ (tyfun f) = f
+
+module TyInstance where
+
+  -- open import Relation.Binary.PropositionalEquality using (_≡_; refl)
+
+  instance
+    category : Category _→ᵗ_
+    category = record
+      { id    = tyfun F.id
+      ; _∘_   = λ { (tyfun g) (tyfun f) → tyfun (g ∘ f) }
+      -- ; _≈_   = ?
+      -- ; id-l  = refl
+      -- ; id-r  = refl
+      -- ; assoc = refl
+      }
+
+    monoidal : Monoidal _→ᵗ_
+    monoidal = record
+      { ⊤ = ⊤
+      ; _×_ = _×_
+      ; _⊗_ = λ (tyfun f) (tyfun g) → tyfun λ (x , y) → f x , g y
+      ; ! = tyfun λ _ → tt
+      ; unitorᵉˡ = tyfun unitorᵉˡ
+      ; unitorᵉʳ = tyfun unitorᵉʳ
+      ; unitorⁱˡ = tyfun unitorⁱˡ
+      ; unitorⁱʳ = tyfun unitorⁱʳ
+      ; assocʳ = tyfun assocʳ
+      ; assocˡ = tyfun assocˡ
+      }
+
+    braided : Braided _→ᵗ_
+    braided = record { swap = tyfun swap }
+
+    cartesian : Cartesian _→ᵗ_
+    cartesian = record { exl = tyfun exl ; exr = tyfun exr ; dup = tyfun dup }

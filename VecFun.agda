@@ -15,6 +15,9 @@ open import Relation.Binary.PropositionalEquality hiding (_≗_)
 
 open ≡-Reasoning
 
+import Category as C
+open C hiding (⊤; _×_)
+
 private
   variable
     A B C D : Set
@@ -32,24 +35,29 @@ f ≗ g = ∀ {n} (as : Vec _ n) → f as ≡ g as
 arr : (A → B) → (A ↠ B)
 arr f = map f
 
-id : A ↠ A
-id = id′
+module VecFunInstances where
 
-infixr 9 _∘_
-_∘_ : (B ↠ C) → (A ↠ B) → (A ↠ C)
-g ∘ f = g ∘′ f
+  instance
 
--- Parallel composition
-infixr 10 _⊗_
-_⊗_ : (A ↠ C) → (B ↠ D) → (A × B ↠ C × D)
-f ⊗ g = uncurry zip ∘′ map× f g ∘′ unzip
--- (f ⊗ g) ps = let as , bs = unzip ps in zip (f as) (g bs)
+    category : Category _↠_
+    category = record { id = id′ ; _∘_ = λ g f → g ∘′ f }
 
--- -- Conditional/choice composition
--- infixr 6 _⊕_
--- _⊕_ : (A ↠ C) → (B ↠ D) → ((A ⊎ B) ↠ (C ⊎ D))
+    monoidal : Monoidal _↠_
+    monoidal = record
+                 { ⊤ = ⊤
+                 ; _×_ = _×_
+                 ; _⊗_ = λ f g →  uncurry zip ∘′ map× f g ∘′ unzip
+                 ; ! = λ _ → replicate tt
+                 ; unitorᵉˡ = arr unitorᵉˡ
+                 ; unitorᵉʳ = arr unitorᵉʳ
+                 ; unitorⁱˡ = arr unitorⁱˡ
+                 ; unitorⁱʳ = arr unitorⁱʳ
+                 ; assocʳ = arr C.assocʳ
+                 ; assocˡ = arr C.assocˡ
+                 }
 
--- Puzzle: how to define _⊕_?
+    braided : Braided _↠_
+    braided = record { swap = arr C.swap }
 
 -- Cons (memory/register)
 delay : A → (A ↠ A)
@@ -137,6 +145,8 @@ init∷ʳ (a ∷ as) {x = x} =
   ∎
 
 
+{-
+
 -------------------------------------------------------------------------------
 -- Examples
 -------------------------------------------------------------------------------
@@ -209,6 +219,10 @@ open import Data.Nat.Properties
 
 -}
 
+-}
+
+{-
+
 -- Equivalence relation for easier reasoning.
 
 refl≗ : ∀ {f : A ↠ B} → f ≗ f
@@ -241,3 +255,5 @@ isEq = record { refl = λ {f} → refl≗ {f = f} ; sym = sym≗ ; trans = trans
 --   ≡⟨ {!!} ⟩
 --     P g as
 --   ∎
+
+-}
