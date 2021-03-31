@@ -81,12 +81,9 @@ module _ {s} (state₀ : ⟦ s ⟧ᵗ) where
 
   dotᵏ : ℕ → TyF OPort (i × zⁱ) → (i , zⁱ k.⇨ (o × s) , ⊤) → List String
   dotᵏ _ ins k.[ r ] with r.⟦ unitorᵉʳ ∘ r ⟧′ ins
-  ... | z = {!!}
-
-  -- dotᵏ _ ins k.[ r ] with r.⟦ unitorᵉʳ ∘ r ⟧′ ins
-  -- ...                       | os ､ ss =
-  --   concat (toList (mapᵀ register allIx ⊛ →TyF state₀ ⊛ ss))
-  --   ++ᴸ comp "output" "output" os ⊤
+  ...                       | os ､ ss =
+    concat (toList (mapᵀ register allIx ⊛ →TyF state₀ ⊛ ss))
+    ++ᴸ comp "output" "output" os ⊤
 
   dotᵏ comp# ins (f k.∷ʳ (a , a⇨ₚb , i×zⁱ⇨ᵣa×zᵃ)) with r.⟦ i×zⁱ⇨ᵣa×zᵃ ⟧′ ins
   ...                                                | os ､ ss =
