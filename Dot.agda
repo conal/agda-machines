@@ -70,7 +70,7 @@ comp {i} compName opName ins o =
 oport : String → TyIx a → OPort
 oport compName o = compName ++ ":Out" ++ showIx o
 
-module _ {s} (state₀ : ⟦ s ⟧ᵗ) where
+module _ {s} (state₀ : ⟦ s ⟧) where
 
   reg : TyIx a → String
   reg j = "reg" ++ showIx j

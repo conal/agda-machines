@@ -39,11 +39,11 @@ instance
   Ty-Meaningful : Meaningful Ty
   Ty-Meaningful = record { ⟦_⟧ = ⟦_⟧ᵗ }
 
-showTy : ⟦ A ⟧ᵗ → String
+showTy : ⟦ A ⟧ → String
 showTy = go true
  where
    -- flag says we're in the left part of a pair
-   go : Boolᵗ → ⟦ A ⟧ᵗ → String
+   go : Boolᵗ → ⟦ A ⟧ → String
    go {⊤} _ tt = "tt"
    go {Bool} _ b = BS.show b
    go {_ × _} p (x , y) = (if p then parens else F.id)
@@ -71,15 +71,15 @@ instance
   TyIx-Meaningful : ∀ {A} → Meaningful (TyIx A)
   TyIx-Meaningful = record { ⟦_⟧ = ⟦_⟧ᵇ }
 
-tabulate : (TyIx A → Boolᵗ) → ⟦ A ⟧ᵗ
+tabulate : (TyIx A → Boolᵗ) → ⟦ A ⟧
 tabulate {⊤} f = tt
 tabulate {Bool} f = f here
 tabulate {_ × _} f = tabulate (f F.∘ left) , tabulate (f F.∘ right)
 
-lookup : ⟦ A ⟧ᵗ → (TyIx A → Boolᵗ)
+lookup : ⟦ A ⟧ → (TyIx A → Boolᵗ)
 lookup a i = ⟦ i ⟧ᵇ a
 
-swizzle : (TyIx B → TyIx A) → (⟦ A ⟧ᵗ → ⟦ B ⟧ᵗ)
+swizzle : (TyIx B → TyIx A) → (⟦ A ⟧ → ⟦ B ⟧)
 swizzle r a = tabulate (lookup a F.∘ r)
 
 private variable X Y Z : Set
@@ -105,17 +105,17 @@ lookup′ (l ､ r) (right b) = lookup′ r b
 swizzle′ : (TyIx B → TyIx A) → ∀ {X} → TyF X A → TyF X B
 swizzle′ r a = tabulate′ (lookup′ a F.∘ r)
 
-→TyF : ⟦ A ⟧ᵗ → TyF Boolᵗ A
+→TyF : ⟦ A ⟧ → TyF Boolᵗ A
 →TyF {⊤} tt = •
 →TyF {Bool} b = [ b ]
 →TyF {_ × _} (x , y) = →TyF x ､ →TyF y
 
-TyF→ : TyF Boolᵗ A → ⟦ A ⟧ᵗ
+TyF→ : TyF Boolᵗ A → ⟦ A ⟧
 TyF→ • = tt
 TyF→ [ b ] = b
 TyF→ (x ､ y) = TyF→ x , TyF→ y
 
--- TODO: Finish ⟦ A ⟧ᵗ ↔ TyF Boolᵗ A . Proofs should be much easier than with vectors.
+-- TODO: Finish ⟦ A ⟧ ↔ TyF Boolᵗ A . Proofs should be much easier than with vectors.
 
 -- Agsy synthesized all of the TyF operations above. (Tidying needed for most,
 -- -c for all but swizzle′, and tabulate′ and lookup′ hints for swizzle′.)

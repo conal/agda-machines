@@ -12,6 +12,7 @@ open import Ty
 
 import Misc as F
 import Category as C
+open C hiding (⊤; _×_)
 
 private
   variable
@@ -32,8 +33,6 @@ module r where
 
   ⟦_⟧′ : A ⇨ B → ∀ {X} → TyF X A → TyF X B
   ⟦ mk f ⟧′ = swizzle′ f
-
-  open C
 
   instance
 
@@ -86,9 +85,7 @@ module p where
   data _⇨_ : Ty → Ty → Set where
     ∧ ∨ xor : Bool × Bool ⇨ Bool
     not : Bool ⇨ Bool
-    const : ⟦ A ⟧ᵗ → ⊤ ⇨ A
-
-  open C
+    const : ⟦ A ⟧ → ⊤ ⇨ A
 
   instance
 
@@ -131,8 +128,6 @@ module c where
     prim : A p.⇨ B → A ⇨ B
     _∘ᶜ_ : B ⇨ C → A ⇨ B → A ⇨ C
     _⊗ᶜ_ : A ⇨ C → B ⇨ D → A × B ⇨ C × D
-
-  open C hiding (⊤; _×_)
 
   ⟦_⟧ᶜ : A ⇨ B → A →ᵗ B
   ⟦ route f ⟧ᶜ = ⟦ f ⟧
@@ -181,8 +176,6 @@ module c where
 -- Synchronous state machine.
 module s where
 
-  open C hiding (⊤; _×_)
-
   -- For composability, the state type is not visible in the type.
   infix  0 _⇨_
   record _⇨_ (A B : Ty) : Set where
@@ -205,7 +198,7 @@ module s where
   xor = prim p.xor
   not = prim p.not
 
-  delay : ⟦ A ⟧ᵗ → A ⇨ A
+  delay : ⟦ A ⟧ → A ⇨ A
   delay a₀ = mealy a₀ swap
 
   import Mealy as m

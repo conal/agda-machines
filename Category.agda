@@ -50,7 +50,7 @@ record Monoidal {obj : Set o} (_⇨_ : obj → obj → Set ℓ) : Set (suc o ⊔
   infixr 2 _×_
   infixr 7 _⊗_
   field
-    ⦃ cat ⦄ : Category _⇨_
+    ⦃ ⇨cat ⦄ : Category _⇨_
     ⊤ : obj
     _×_ : obj → obj → obj
     _⊗_ : (a ⇨ c) → (b ⇨ d) → ((a × b) ⇨ (c × d))
@@ -73,20 +73,20 @@ open × using (_,_)
 instance
   →-Monoidal : Monoidal Fun
   →-Monoidal = record
-                  { ⊤ = ⊤.⊤
-                  ; _×_ = ×._×_
-                  ; _⊗_ = λ f g (x , y) → (f x , g y)
-                  ; unitorᵉˡ = ×.proj₂
-                  ; unitorᵉʳ = ×.proj₁
-                  ; unitorⁱˡ = λ z → ⊤.tt , z
-                  ; unitorⁱʳ = λ z → z , ⊤.tt
-                  ; assocʳ = λ { ((x , y) , z) → x , (y , z) }
-                  ; assocˡ = λ { (x , (y , z)) → (x , y) , z }
-                  }
+                 { ⊤ = ⊤.⊤
+                 ; _×_ = ×._×_
+                 ; _⊗_ = λ f g (x , y) → (f x , g y)
+                 ; unitorᵉˡ = ×.proj₂
+                 ; unitorᵉʳ = ×.proj₁
+                 ; unitorⁱˡ = λ z → ⊤.tt , z
+                 ; unitorⁱʳ = λ z → z , ⊤.tt
+                 ; assocʳ = λ { ((x , y) , z) → x , (y , z) }
+                 ; assocˡ = λ { (x , (y , z)) → (x , y) , z }
+                 }
 
 record Braided {obj : Set o} (_⇨_ : obj → obj → Set ℓ) : Set (suc o ⊔ ℓ) where
   field
-    ⦃ _⇨_Monoidal ⦄ : Monoidal _⇨_
+    ⦃ ⇨Monoidal ⦄ : Monoidal _⇨_
     swap : (a × b) ⇨ (b × a)
 
 open Braided ⦃ … ⦄ public
@@ -98,7 +98,7 @@ instance
 
 record Cartesian {obj : Set o} (_⇨_ : obj → obj → Set ℓ) : Set (suc o ⊔ ℓ) where
   field
-    ⦃ _⇨_Braided ⦄ : Braided _⇨_
+    ⦃ ⇨Braided ⦄ : Braided _⇨_
     exl : (a × b) ⇨ a
     exr : (a × b) ⇨ b
     dup : a ⇨ (a × a)

@@ -115,7 +115,7 @@ module AsVecFun where
 
   -- infix 0 _↠ᵗ_
   -- _↠ᵗ_ : Ty → Ty → Set
-  -- A ↠ᵗ B = ⟦ A ⟧ᵗ ↠ ⟦ B ⟧ᵗ
+  -- A ↠ᵗ B = ⟦ A ⟧ ↠ ⟦ B ⟧
 
   -- ⟦_⟧ : (A ⇨ B) → (A ↠ᵗ B)
   -- ⟦ mealy _ _ ⟧ [] = []
@@ -145,7 +145,7 @@ module AsVecFun where
   -- _⟦⊕⟧_ : ∀ (f : A ⇨ C) (g : B ⇨ D) → ⟦ f ⊕ g ⟧ ≗ ⟦ f ⟧ ◇.⊕ ⟦ g ⟧
   -- f ⟦⊕⟧ g = ?
 
-  ⟦delay⟧ : (a₀ : ⟦ A ⟧ᵗ) → ⟦ delay a₀ ⟧ ≗ ◇.delay a₀
+  ⟦delay⟧ : (a₀ : ⟦ A ⟧) → ⟦ delay a₀ ⟧ ≗ ◇.delay a₀
   ⟦delay⟧ a₀ [] = refl
   ⟦delay⟧ a₀ (a ∷ as) =
     begin
@@ -158,7 +158,7 @@ module AsVecFun where
       ◇.delay a₀ (a ∷ as)
     ∎
 
-  ⟦scanl⟧ : ∀ (f : ⟦ B ⟧ᵗ → A →ᵗ B) → (s₀ : ⟦ B ⟧ᵗ) → ⟦ scanl f s₀ ⟧ ≗ ◇.scanl f s₀
+  ⟦scanl⟧ : ∀ (f : ⟦ B ⟧ → A →ᵗ B) → (s₀ : ⟦ B ⟧) → ⟦ scanl f s₀ ⟧ ≗ ◇.scanl f s₀
   ⟦scanl⟧ f s₀ [] = refl
   ⟦scanl⟧ f s₀ (a ∷ as) rewrite ⟦scanl⟧ f (f s₀ a) as = refl
 
