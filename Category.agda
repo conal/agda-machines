@@ -194,7 +194,6 @@ record Boolean {obj : Set o} ⦃ _ : Products obj ⦄
   private infix 0 _⇨_; _⇨_ = _⇨′_
   field
     Bool : obj
-    true false : ⊤ ⇨ Bool
     ∧ ∨ xor : Bool × Bool ⇨ Bool
     not : Bool ⇨ Bool
 open Boolean ⦃ … ⦄ public
@@ -205,13 +204,11 @@ instance
 
   →-Boolean : Boolean Function
   →-Boolean = record
-                { Bool = B.Bool
-                ; true = const B.true
-                ; false = const B.false
-                ; ∧ = uncurry B._∧_
-                ; ∨ = uncurry B._∨_
-                ; xor = uncurry B._xor_
-                ; not = B.not
+                { Bool  = B.Bool
+                ; ∧     = uncurry B._∧_
+                ; ∨     = uncurry B._∨_
+                ; xor   = uncurry B._xor_
+                ; not   = B.not
                 }
 
 

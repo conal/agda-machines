@@ -9,7 +9,7 @@ open import Data.String
 open import IO
 
 import Category as C
-open C hiding (⊤; _×_; Bool; true; false) ; open CartUtils
+open C hiding (⊤; _×_; Bool) ; open CartUtils
 open import Ty hiding (Boolᵗ)
 open import Symbolic.Extrinsic
 open import Symbolic.StackProg

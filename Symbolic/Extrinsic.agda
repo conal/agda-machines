@@ -3,7 +3,7 @@
 
 module Symbolic.Extrinsic where
 
-import Data.Bool as B
+open import Data.Bool using (false;true)
 open import Data.String using (String)
 open import Relation.Binary.PropositionalEquality using (_≗_; refl)
 open import Function using (_on_) renaming (const to const′)
@@ -18,8 +18,8 @@ private
     A B C D σ τ : Ty
 
 showBit : Boolᵗ → String
-showBit B.false = "0"
-showBit B.true  = "1"
+showBit false = "0"
+showBit true  = "1"
 
 -- Generalized routing. Maybe move to Ty.
 module r where
@@ -105,8 +105,6 @@ module p where
     boolean : Boolean _⇨_
     boolean = record
                 { Bool  = Bool
-                ; true  = const B.true
-                ; false = const B.false
                 ; ∧     = `∧
                 ; ∨     = `∨
                 ; xor   = `xor
@@ -171,8 +169,6 @@ module c where
     boolean : Boolean _⇨_
     boolean = record
                 { Bool  = Bool
-                ; true  = prim true
-                ; false = prim false
                 ; ∧     = prim ∧
                 ; ∨     = prim ∨
                 ; xor   = prim xor
@@ -245,8 +241,6 @@ module s where
     boolean : Boolean _⇨_
     boolean = record
                 { Bool  = Bool
-                ; true  = comb true
-                ; false = comb false
                 ; ∧     = comb ∧
                 ; ∨     = comb ∨
                 ; xor   = comb xor

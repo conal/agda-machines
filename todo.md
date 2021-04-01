@@ -1,17 +1,12 @@
 ## To do
 
-*   Add type classes for primitives and for constants, with many instances.
-    Obviates explicit use of embedding functions like `prim` and `comb`.
-    Define the semantics of symbolic instances as the instances of the semantic instances.
-
-*   Rename `Ty` constructors to start with backquote.
-    Revisit all `Category` imports to remove `hiding` of the old `Ty` names.
-    Remove `Boolᵗ` now that `Bool` has many meanings.
-*   Remove `false` and `true` from `Boolean` in favor of `const`.
-    Then fix all module-qualified uses of `false` and `true`.
 *   Gather all of the instances in `Category` under one `instance` heading.
     Then submerge in a local module, and replace the names by generic names (as used elsewhere).
 *   Do I need to name instances at all?
+*   Rename `Constants` class to "`Constant`".
+*   Rename `Ty` constructors to start with backquote.
+    Revisit all `Category` imports to remove `hiding` of the old `Ty` names.
+    Remove `Boolᵗ` now that `Bool` has many meanings.
 
 *   Add laws to the category classes.
 *   Recreate compiling-to-categories so we can write and read lambda notation instead of combinators!
@@ -24,7 +19,11 @@
 
 ## Did
 
-
+*   Remove `false` and `true` from `Boolean` in favor of `const`.
+    Then fix all module-qualified uses of `false` and `true`.
+*   Add type classes for primitives and for constants, with many instances.
+    Obviates explicit use of embedding functions like `prim` and `comb`.
+    Define the semantics of symbolic instances as the instances of the semantic instances.
 *   Add category classes to remove the need for many module prefixes and to share definitions of derived categorical operations.
     Then drop `Misc` in favor of `Category`.
 *   Replace bit vectors with `TyF`.
