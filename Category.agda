@@ -26,11 +26,11 @@ record Category {obj : Set o} (_⇨_ : obj → obj → Set ℓ) : Set (suc o ⊔
 
 open Category ⦃ … ⦄ public
 
-Fun : Set → Set → Set
-Fun a b = a → b
+Function : Set o → Set o → Set o
+Function a b = a → b
 
 instance
-  →-Category : Category Fun
+  →-Category : Category (Function {o})
   →-Category = record
                  { id    = F.id
                  ; _∘_   = F._∘′_
@@ -103,7 +103,7 @@ instance
   →-Products : Products Set
   →-Products = record { ⊤ = ⊤′ ; _×_ = _×′_ }
 
-  →-Monoidal : Monoidal Fun
+  →-Monoidal : Monoidal Function
   →-Monoidal = record
                  { _⊗_ = λ f g (x , y) → (f x , g y)
                  ; unitorᵉˡ = proj₂
@@ -122,8 +122,9 @@ record Braided {obj : Set o} ⦃ _ : Products obj ⦄
     swap : a × b ⇨ b × a
 
   transpose : (a × b) × (c × d) ⇨ (a × c) × (b × d)
-  -- transpose = (inAssocʳ F.∘ second F.∘ inAssocˡ F.∘ first) swap
-  transpose = inAssocʳ (second (inAssocˡ (first swap)))
+  transpose = (inAssocʳ ∘ second ∘ inAssocˡ ∘ first) swap
+
+  -- transpose = inAssocʳ (second (inAssocˡ (first swap)))
   -- transpose = assocˡ ∘ second (assocʳ ∘ first swap ∘ assocˡ) ∘ assocʳ
 
   -- (a × b) × (c × d)
@@ -136,7 +137,7 @@ record Braided {obj : Set o} ⦃ _ : Products obj ⦄
 open Braided ⦃ … ⦄ public
 
 instance
-  →-Braided : Braided Fun
+  →-Braided : Braided Function
   →-Braided = record { swap = λ (a , b) → b , a }
 
 
@@ -157,7 +158,7 @@ record Cartesian {obj : Set o} ⦃ _ : Products obj ⦄
 open Cartesian ⦃ … ⦄ public
 
 instance
-  →-Cartesian : Cartesian Fun
+  →-Cartesian : Cartesian Function
   →-Cartesian = record { exl = proj₁ ; exr = proj₂ ; dup = λ z → z , z }
 
 
