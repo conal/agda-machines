@@ -72,10 +72,10 @@ module se where
   toggle₁ : Bool ⇨ Bool × Bool
   toggle₁ = mealy false ((id △ exl) ∘ ce.halfAdd)
 
-  toggle₂ = toggle₁ ⟫ toggle₁
-  toggle₄ = toggle₂ ⟫ toggle₂
+  toggle₂ = toggle₁ ◂ toggle₁
+  toggle₄ = toggle₂ ◂ toggle₂
 
-  toggles = toggle₁ ⟫^ 5
+  toggles = toggle₁ ↱ 5
 
 
 exampleˢ : ∀ {i o} → String → i s.⇨ o → IO {0ℓ} ⊤′
