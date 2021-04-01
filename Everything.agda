@@ -1,8 +1,10 @@
 module Everything where
 
+-- Denotations
 import VecFun
 import Mealy
 
+-- Symbolic
 import Ty
 import Symbolic.Extrinsic
 import Symbolic.StackProg
