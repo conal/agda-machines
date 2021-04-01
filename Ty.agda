@@ -21,15 +21,15 @@ data Ty : Set where
 
 private variable A B C D : Ty
 
-⟦_⟧ᵗ : Ty → Set
-⟦ ⊤ ⟧ᵗ     = ⊤ᵗ
-⟦ σ × τ ⟧ᵗ = ⟦ σ ⟧ᵗ ×ᵗ ⟦ τ ⟧ᵗ
-⟦ Bool ⟧ᵗ  = Boolᵗ
-
 instance
 
   Ty-Meaningful : Meaningful Ty
   Ty-Meaningful = record { ⟦_⟧ = ⟦_⟧ᵗ }
+   where
+     ⟦_⟧ᵗ : Ty → Set
+     ⟦ ⊤ ⟧ᵗ     = ⊤ᵗ
+     ⟦ σ × τ ⟧ᵗ = ⟦ σ ⟧ᵗ ×ᵗ ⟦ τ ⟧ᵗ
+     ⟦ Bool ⟧ᵗ  = Boolᵗ
 
 showTy : ⟦ A ⟧ → String
 showTy = go true
@@ -207,29 +207,39 @@ module ty where
     cartesian = record { exl = mk exl ; exr = mk exr ; dup = mk dup }
 
 -- Miscellaneous utilities, perhaps to move elsewhere
-module TyMisc {ℓ} {_⇨_ : Ty → Ty → Set ℓ} (let infix 0 _⇨_; _⇨_ = _⇨_)
-              ⦃ _ : Braided ⦃ ty.products ⦄ _⇨_ ⦄ where
+module TyUtils {ℓ} {_⇨_ : Ty → Ty → Set ℓ} (let infix 0 _⇨_; _⇨_ = _⇨_)
+               where
 
-  shiftR : Bool × A ⇨ A × Bool
-  shiftR {⊤}     = swap
-  shiftR {Bool}  = id
-  shiftR {_ × _} = assocˡ ∘ second shiftR ∘ assocʳ ∘ first shiftR ∘ assocˡ
+  module _ ⦃ _ : Braided ⦃ ty.products ⦄ _⇨_ ⦄ where
 
-  -- i , (u , v)
-  -- (i , u) , v
-  -- (u′ , m) , v
-  -- u′ , (m , v)
-  -- u′ , (v′ , o)
-  -- (u′ , v′) , o
+    shiftR′ : Bool × A ⇨ A × Bool
+    shiftR′ {⊤}     = swap
+    shiftR′ {Bool}  = id
+    shiftR′ {_ × _} = assocˡ ∘ second shiftR′ ∘ assocʳ ∘ first shiftR′ ∘ assocˡ
 
-  shiftL : A × Bool ⇨ Bool × A
-  shiftL {⊤}     = swap
-  shiftL {Bool}  = id
-  shiftL {_ × _} = assocʳ ∘ first shiftL ∘ assocˡ ∘ second shiftL ∘ assocʳ
+    -- i , (u , v)
+    -- (i , u) , v
+    -- (u′ , m) , v
+    -- u′ , (m , v)
+    -- u′ , (v′ , o)
+    -- (u′ , v′) , o
 
-  -- (u , v) , i
-  -- u , (v , i)
-  -- u , (m , v′)
-  -- (u , m) , v′
-  -- (o , u′) , v′
-  -- o , (u′ , v′)
+    shiftL′ : A × Bool ⇨ Bool × A
+    shiftL′ {⊤}     = swap
+    shiftL′ {Bool}  = id
+    shiftL′ {_ × _} = assocʳ ∘ first shiftL′ ∘ assocˡ ∘ second shiftL′ ∘ assocʳ
+
+    -- (u , v) , i
+    -- u , (v , i)
+    -- u , (m , v′)
+    -- (u , m) , v′
+    -- (o , u′) , v′
+    -- o , (u′ , v′)
+
+  module _ ⦃ _ : Cartesian ⦃ ty.products ⦄ _⇨_ ⦄ where
+
+    shiftR : Bool × A ⇨ A
+    shiftR = exl ∘ shiftR′
+
+    shiftL : A × Bool ⇨ A
+    shiftL = exr ∘ shiftL′

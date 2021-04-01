@@ -35,8 +35,8 @@ module r where
 
   instance
 
-    meaningful : ∀ {a b} → Meaningful (a ⇨ b)
-    meaningful {a}{b} = record { Meaning = a ty.⇨ b ; ⟦_⟧ = λ (mk r) → ty.mk (swizzle r) }
+    meaningful : ∀ {a b} → Meaningful {μ = a ty.⇨ b} (a ⇨ b)
+    meaningful {a}{b} = record { ⟦_⟧ = λ (mk r) → ty.mk (swizzle r) }
 
     category : Category _⇨_
     category = record
@@ -82,15 +82,13 @@ module p where
 
   instance
 
-    meaningful : ∀ {a b} → Meaningful (a ⇨ b)
+    meaningful : ∀ {a b} → Meaningful {μ = a ty.⇨ b} (a ⇨ b)
     meaningful {a}{b} = record
-      { Meaning = a ty.⇨ b
-      ; ⟦_⟧ = λ { ∧ → ty.mk (uncurry B._∧_)
+      { ⟦_⟧ = λ { ∧ → ty.mk (uncurry B._∧_)
                 ; ∨ → ty.mk (uncurry B._∨_)
                 ; xor → ty.mk (uncurry B._xor_)
                 ; not → ty.mk (B.not)
-                ; (const a) → ty.mk (const′ a) }
-      }
+                ; (const a) → ty.mk (const′ a) } }
 
     p-show : ∀ {a b} → Show (a ⇨ b)
     p-show = record { show = λ { ∧ → "∧"
@@ -121,22 +119,19 @@ module c where
     _∘ᶜ_ : B ⇨ C → A ⇨ B → A ⇨ C
     _⊗ᶜ_ : A ⇨ C → B ⇨ D → A × B ⇨ C × D
 
-  ⟦_⟧ᶜ : A ⇨ B → A ty.⇨ B
-  ⟦ route f ⟧ᶜ = ⟦ f ⟧
-  ⟦ prim  p ⟧ᶜ = ⟦ p ⟧
-  ⟦  g ∘ᶜ f  ⟧ᶜ = ⟦ g ⟧ᶜ ∘ ⟦ f ⟧ᶜ
-  ⟦  f ⊗ᶜ g  ⟧ᶜ = ⟦ f ⟧ᶜ ⊗ ⟦ g ⟧ᶜ
-
   instance
 
     meaningful : ∀ {a b} → Meaningful (a ⇨ b)
     meaningful {a}{b} = record { ⟦_⟧ = ⟦_⟧ᶜ }
+     where
+       ⟦_⟧ᶜ : A ⇨ B → A ty.⇨ B
+       ⟦ route f ⟧ᶜ = ⟦ f ⟧
+       ⟦ prim  p ⟧ᶜ = ⟦ p ⟧
+       ⟦  g ∘ᶜ f  ⟧ᶜ = ⟦ g ⟧ᶜ ∘ ⟦ f ⟧ᶜ
+       ⟦  f ⊗ᶜ g  ⟧ᶜ = ⟦ f ⟧ᶜ ⊗ ⟦ g ⟧ᶜ
 
     category : Category _⇨_
-    category = record
-                 { id = route id
-                 ; _∘_ = _∘ᶜ_
-                 }
+    category = record { id = route id ; _∘_ = _∘ᶜ_ }
 
     monoidal : Monoidal _⇨_
     monoidal = record
@@ -187,11 +182,9 @@ module s where
   import Mealy as m
 
   instance
-    meaningful : ∀ {A B} → Meaningful (A ⇨ B)
-    meaningful {A}{B} = record
-      { Meaning = ⟦ A ⟧ m.⇨ ⟦ B ⟧
-      ; ⟦_⟧ = λ { (mealy s₀ f) → m.mealy s₀ (ty.mk⁻¹ ⟦ f ⟧) }
-      }
+    meaningful : ∀ {A B} → Meaningful {μ = ⟦ A ⟧ m.⇨ ⟦ B ⟧} (A ⇨ B)
+    meaningful {A}{B} =
+      record { ⟦_⟧ = λ { (mealy s₀ f) → m.mealy s₀ (ty.mk⁻¹ ⟦ f ⟧) } }
 
     category : Category _⇨_
     category = record { id = comb id ; _∘_ = _⊙_ }

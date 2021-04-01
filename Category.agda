@@ -162,13 +162,23 @@ instance
   →-Cartesian = record { exl = proj₁ ; exr = proj₂ ; dup = λ z → z , z }
 
 
-record Meaningful {m} (A : Set o) : Set (suc (m ⊔ o)) where
+record Meaningful {m} {μ : Set m} (A : Set o) : Set (suc (m ⊔ o)) where
   field
-    Meaning : Set m
-    ⟦_⟧ : A → Meaning
+    ⟦_⟧ : A → μ
 open Meaningful ⦃ … ⦄ public
 
 {-
+
+record Constants {obj : Set o} ⦃ _ : Products obj ⦄
+         {m} ⦃ _ : Meaningful {μ = Set m} obj ⦄
+         (_⇨′_ : obj → obj → Set ℓ) : Set (suc o ⊔ ℓ ⊔ m) where
+  private infix 0 _⇨_; _⇨_ = _⇨′_
+  field
+    ⦃ ⇨Monoidal ⦄ : Monoidal _⇨_
+    -- Maybe add a constraint
+    -- constraint : obj → Set -- level?
+    const : ∀ {A : obj} {- → constraint A -} → ⟦ A ⟧ → ⊤ ⇨ A  -- In another class
+open Constants ⦃ … ⦄ public
 
 record Boolean {obj : Set o} ⦃ _ : Products obj ⦄
          (_⇨′_ : obj → obj → Set ℓ) : Set (suc o ⊔ ℓ) where
@@ -179,17 +189,10 @@ record Boolean {obj : Set o} ⦃ _ : Products obj ⦄
     true false : ⊤ ⇨ Bool
     ∧ ∨ xor : Bool × Bool ⇨ Bool
     not : Bool ⇨ Bool
-
--- record Constants {obj : Set o} ⦃ _ : Products obj ⦄
---          {m} ⦃ _ : Meaningful {m = m} obj ⦄
---          (_⇨′_ : obj → obj → Set ℓ) : Set (suc o ⊔ ℓ) where
---   private infix 0 _⇨_; _⇨_ = _⇨′_
---   field
---     ⦃ ⇨Monoidal ⦄ : Monoidal _⇨_
---   --   constraint : obj → Set -- level?
---     const : ∀ {A : obj} {- → constraint A -} → ⟦ A ⟧ → ⊤ ⇨ A  -- In another class
+open Boolean ⦃ … ⦄ public
 
 -}
+
 
 import Data.String as S
 open S using (String)

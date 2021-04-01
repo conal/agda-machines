@@ -42,14 +42,14 @@ open import Data.Vec
 
 module _ where
 
-  ⟦_⟧ᵐ : (A ⇨ B) → (A ↠ B)
-  ⟦ mealy _ _ ⟧ᵐ [] = []
-  ⟦ mealy s f ⟧ᵐ (a ∷ as) = let b , s′ = f (a , s) in b ∷ ⟦ mealy s′ f ⟧ᵐ as
-
   instance
 
     meaningful : ∀ {A B} → Meaningful (A ⇨ B)
-    meaningful {A}{B} = record { Meaning = A ↠ B ; ⟦_⟧ = ⟦_⟧ᵐ }
+    meaningful {A}{B} = record { ⟦_⟧ = ⟦_⟧ᵐ }
+     where
+       ⟦_⟧ᵐ : (A ⇨ B) → (A ↠ B)
+       ⟦ mealy _ _ ⟧ᵐ [] = []
+       ⟦ mealy s f ⟧ᵐ (a ∷ as) = let b , s′ = f (a , s) in b ∷ ⟦ mealy s′ f ⟧ᵐ as
 
     category : Category _⇨_
     category = record { id = arr id ; _∘_ = _∘′_ }

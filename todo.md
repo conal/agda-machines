@@ -1,5 +1,8 @@
 ## To do
 
+*   Add type classes for primitives and for constants, with many instances.
+    Obviates explicit use of embedding functions like `prim` and `comb`.
+
 *   Add laws to the category classes.
 *   Recreate compiling-to-categories so we can write and read lambda notation instead of combinators!
     See how far we can get with Agda's reflection mechanism.

@@ -22,11 +22,9 @@ module i where
 
   instance
 
-    meaningful : Meaningful (i , zⁱ ⇨ o , zᵒ)
+    meaningful : Meaningful {μ = i × zⁱ ty.⇨ o × zᵒ} (i , zⁱ ⇨ o , zᵒ)
     meaningful {i}{zⁱ}{o}{zᵒ} = record
-      { Meaning = i × zⁱ ty.⇨ o × zᵒ
-      ; ⟦_⟧ = λ (a , a⇨ₚo , i×zⁱ⇨ᵣa×zᵒ) → first ⟦ a⇨ₚo ⟧ ∘ ⟦ i×zⁱ⇨ᵣa×zᵒ ⟧
-      }
+      { ⟦_⟧ = λ (a , a⇨ₚo , i×zⁱ⇨ᵣa×zᵒ) → first ⟦ a⇨ₚo ⟧ ∘ ⟦ i×zⁱ⇨ᵣa×zᵒ ⟧ }
 
 -- Stack operations
 module k where
@@ -38,10 +36,6 @@ module k where
     _∷ʳ_ : (a , zᵃ ⇨ o , zᵒ) → (i , zⁱ i.⇨ a , zᵃ) → (i , zⁱ ⇨ o , zᵒ)
 
 
-  ⟦_⟧ᵏ : (i , zⁱ ⇨ o , zᵒ) → (i × zⁱ ty.⇨ o × zᵒ)
-  ⟦ [ r ] ⟧ᵏ = ⟦ r ⟧
-  ⟦ f ∷ʳ inst ⟧ᵏ = ⟦ f ⟧ᵏ ∘ ⟦ inst ⟧
-
   route : (i × zⁱ r.⇨ o × zᵒ) → (i , zⁱ ⇨ o , zᵒ)
   route = [_]
 
@@ -49,6 +43,10 @@ module k where
 
     meaningful : Meaningful (i , zⁱ ⇨ o , zᵒ)
     meaningful = record { ⟦_⟧ = ⟦_⟧ᵏ }
+     where
+       ⟦_⟧ᵏ : (i , zⁱ ⇨ o , zᵒ) → (i × zⁱ ty.⇨ o × zᵒ)
+       ⟦ [ r ] ⟧ᵏ = ⟦ r ⟧
+       ⟦ f ∷ʳ inst ⟧ᵏ = ⟦ f ⟧ᵏ ∘ ⟦ inst ⟧
 
     category : Category _⇨_
     category = record { id = route id ; _∘_ = _∘′_ }
@@ -99,11 +97,8 @@ module sf where
 
   instance
 
-    meaningful : ∀ {a b} → Meaningful (a ⇨ b)
-    meaningful {a}{b} = record
-      { Meaning = a ty.⇨ b
-      ; ⟦_⟧ = λ (mk f) → unitorᵉʳ ∘ ⟦ f ⟧ ∘ unitorⁱʳ
-      }
+    meaningful : ∀ {a b} → Meaningful {μ = a ty.⇨ b} (a ⇨ b)
+    meaningful {a}{b} = record { ⟦_⟧ = λ (mk f) → unitorᵉʳ ∘ ⟦ f ⟧ ∘ unitorⁱʳ }
 
     category : Category _⇨_
     category = record

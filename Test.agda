@@ -16,12 +16,14 @@ open import Symbolic.StackProg
 open import Dot
 
 -- open CartUtils
-  
+
+open TyUtils
+
 -- Combinational examples
 module ce where
   open c
 
-  t₁ : (Bool ↑ 5) ⇨ (Bool ↑ 5)
+  t₁ : Bool ↑ 5 ⇨ Bool ↑ 5
   t₁ = id
 
   t₂ = prim p.∧
@@ -37,6 +39,9 @@ module ce where
   -- λ (a , b) → (a ⊕ b , a ∧ b)
   halfAdd : Bool × Bool ⇨ Bool × Bool
   halfAdd = prim p.xor △ prim p.∧
+
+  shiftRs : ∀ {n} → Bool × Bool ↑ n ⇨ Bool ↑ n
+  shiftRs = shiftR
 
 -- Sequential examples
 module se where
@@ -83,6 +88,13 @@ module se where
   shifts : ∀ n → Bool ⇨ Bool ↑ n
   shifts n = exl ∘ (shift₁ ↱ n)
 
+  -- General feedback right-shift register
+  fsr : ∀ {n} → (Bool ↑ n ⇨ Bool) → Bool ↑ n ⇨ Bool ↑ n
+  fsr f = shiftR ∘ (f △ id)
+
+  -- linear : ∀ {n} → ⟦ Bool ↑ n ⟧ → Bool ↑ n ⇨ Bool
+  -- linear {zero}  cs = {!!}
+  -- linear {suc n} cs = {!!}
 
 exampleˢ : ∀ {i o} → String → i s.⇨ o → IO {0ℓ} ⊤′
 exampleˢ name (s.mealy {s} state₀ f) =
@@ -117,5 +129,6 @@ main = run do
   -- exampleˢ "toggles"    se.toggles
 
   -- exampleˢ "shift-1" se.shift₁
-  exampleˢ "shift-5" (se.shifts 5)
-  
+  -- exampleˢ "shift-5" (se.shifts 5)
+
+  exampleᶜ "shiftR-5" (ce.shiftRs {5})
