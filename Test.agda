@@ -9,8 +9,8 @@ open import Data.String
 open import IO
 
 import Category as C
-open C hiding (⊤; _×_) ; open CartUtils
-open import Ty
+open C hiding (⊤; _×_; Bool; true; false) ; open CartUtils
+open import Ty hiding (Boolᵗ)
 open import Symbolic.Extrinsic
 open import Symbolic.StackProg
 open import Dot
@@ -26,19 +26,21 @@ module ce where
   t₁ : Bool ↑ 5 ⇨ Bool ↑ 5
   t₁ = id
 
-  t₂ = prim p.∧
+  t₂ : Bool × Bool ⇨ Bool
+  t₂ = ∧
 
-  t₃ = prim p.not ∘ prim p.∧
+  t₃ : Bool × Bool ⇨ Bool
+  t₃ = not ∘ ∧
 
   t₄ : Bool ↑ 3 ⇨ Bool ↑ 3
-  t₄ = first (prim p.not)
+  t₄ = first (not)
 
-  t₅ = prim p.not
+  t₅ = not
 
   -- Summands ⇨ sum , carry
   -- λ (a , b) → (a ⊕ b , a ∧ b)
   halfAdd : Bool × Bool ⇨ Bool × Bool
-  halfAdd = prim p.xor △ prim p.∧
+  halfAdd = xor △ ∧
 
   shiftRs : ∀ {n} → Bool × Bool ↑ n ⇨ Bool ↑ n
   shiftRs = shiftR
@@ -49,17 +51,17 @@ module se where
 
   -- Toggle
   t₁ : ⊤ ⇨ Bool
-  t₁ = mealy true (dup ∘ c.prim p.not ∘ exr)
+  t₁ = mealy true (dup ∘ not ∘ exr)
   -- λ { (tt , s) → (not s , not s) }
 
   -- Toggle
   t₁′ : ⊤ ⇨ Bool
-  t₁′ = mealy true (first (c.prim p.not) ∘ dup ∘ exr)
+  t₁′ = mealy true (first (not) ∘ dup ∘ exr)
   -- λ { (tt , s) → (s , not s) }
 
   -- Cumulative or
   t₂ : Bool ⇨ Bool
-  t₂ = mealy false (dup ∘ c.prim p.∨)
+  t₂ = mealy false (dup ∘ ∨)
   -- λ { (b , s) → (b ∨ s , b ∨ s) }
 
   t₃ = delay false

@@ -11,7 +11,7 @@ open import Function using (_on_) renaming (const to const′)
 open import Ty
 
 import Category as C
-open C hiding (⊤; _×_)
+open C hiding (⊤; _×_; Bool)
 
 private
   variable
@@ -76,28 +76,42 @@ module p where
 
   infix 1 _⇨_
   data _⇨_ : Ty → Ty → Set where
-    ∧ ∨ xor : Bool × Bool ⇨ Bool
-    not : Bool ⇨ Bool
-    const : ⟦ A ⟧ → ⊤ ⇨ A
+    `∧ `∨ `xor : Bool × Bool ⇨ Bool
+    `not : Bool ⇨ Bool
+    `const : ⟦ A ⟧ → ⊤ ⇨ A
 
   instance
 
     meaningful : ∀ {a b} → Meaningful {μ = a ty.⇨ b} (a ⇨ b)
     meaningful {a}{b} = record
-      { ⟦_⟧ = λ { ∧ → ty.mk (uncurry B._∧_)
-                ; ∨ → ty.mk (uncurry B._∨_)
-                ; xor → ty.mk (uncurry B._xor_)
-                ; not → ty.mk (B.not)
-                ; (const a) → ty.mk (const′ a) } }
+      { ⟦_⟧ = λ { `∧         → ty.mk ∧
+                ; `∨         → ty.mk ∨
+                ; `xor       → ty.mk xor
+                ; `not       → ty.mk not
+                ; (`const a) → ty.mk (const a) } }
 
     p-show : ∀ {a b} → Show (a ⇨ b)
-    p-show = record { show = λ { ∧ → "∧"
-                               ; ∨ → "∨"
-                               ; xor → "⊕"
-                               ; not → "not"
-                               ; (const x) → showTy x
+    p-show = record { show = λ { `∧ → "∧"
+                               ; `∨ → "∨"
+                               ; `xor → "⊕"
+                               ; `not → "not"
+                               ; (`const x) → showTy x
                                }
                     }
+
+    constants : Constants _⇨_
+    constants = record { const = `const }
+
+    boolean : Boolean _⇨_
+    boolean = record
+                { Bool  = Bool
+                ; true  = const B.true
+                ; false = const B.false
+                ; ∧     = `∧
+                ; ∨     = `∨
+                ; xor   = `xor
+                ; not   = `not
+                }
 
   dom : A ⇨ B → Ty
   dom {A}{B} _ = A
@@ -151,6 +165,20 @@ module c where
     cartesian : Cartesian _⇨_
     cartesian = record { exl = route exl ; exr = route exr ; dup = route dup }
 
+    constants : Constants _⇨_
+    constants = record { const = prim ∘ const }
+
+    boolean : Boolean _⇨_
+    boolean = record
+                { Bool  = Bool
+                ; true  = prim true
+                ; false = prim false
+                ; ∧     = prim ∧
+                ; ∨     = prim ∨
+                ; xor   = prim xor
+                ; not   = prim not
+                }
+
 -- Synchronous state machine.
 module s where
 
@@ -166,25 +194,19 @@ module s where
   comb : A c.⇨ B → A ⇨ B
   comb f = mealy tt (first f)
 
-  prim : A p.⇨ B → A ⇨ B
-  prim p = comb (c.prim p)
-
-  ∧ ∨ xor : Bool × Bool ⇨ Bool
-  not : Bool ⇨ Bool
-  ∧   = prim p.∧
-  ∨   = prim p.∨
-  xor = prim p.xor
-  not = prim p.not
+  -- prim : A p.⇨ B → A ⇨ B
+  -- prim p = comb (c.prim p)
 
   delay : ⟦ A ⟧ → A ⇨ A
   delay a₀ = mealy a₀ swap
 
-  import Mealy as m
+  -- import Mealy as m
 
   instance
-    meaningful : ∀ {A B} → Meaningful {μ = ⟦ A ⟧ m.⇨ ⟦ B ⟧} (A ⇨ B)
-    meaningful {A}{B} =
-      record { ⟦_⟧ = λ { (mealy s₀ f) → m.mealy s₀ (ty.mk⁻¹ ⟦ f ⟧) } }
+
+    -- meaningful : ∀ {A B} → Meaningful {μ = ⟦ A ⟧ m.⇨ ⟦ B ⟧} (A ⇨ B)
+    -- meaningful {A}{B} =
+    --   record { ⟦_⟧ = λ { (mealy s₀ f) → m.mealy s₀ (ty.mk⁻¹ ⟦ f ⟧) } }
 
     category : Category _⇨_
     category = record { id = comb id ; _∘_ = _⊙_ }
@@ -216,3 +238,17 @@ module s where
 
     cartesian : Cartesian _⇨_
     cartesian = record { exl = comb exl ; exr = comb exr ; dup = comb dup }
+
+    constants : Constants _⇨_
+    constants = record { const = comb ∘ const }
+
+    boolean : Boolean _⇨_
+    boolean = record
+                { Bool  = Bool
+                ; true  = comb true
+                ; false = comb false
+                ; ∧     = comb ∧
+                ; ∨     = comb ∨
+                ; xor   = comb xor
+                ; not   = comb not
+                }

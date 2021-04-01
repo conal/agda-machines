@@ -3,15 +3,16 @@
 module Ty where
 
 open import Data.Unit renaming (⊤ to ⊤ᵗ) public
-open import Data.Bool using () renaming (Bool to Boolᵗ) public
-open import Data.Bool using (true; false; if_then_else_)
+import Data.Bool as B
+open B using () renaming (Bool to Boolᵗ) public
+open B using (if_then_else_)
 open import Data.Bool.Show as BS
 open import Data.Product using (_,_; uncurry; proj₁; proj₂) renaming (_×_ to _×ᵗ_) public
 open import Data.Nat
 open import Data.String hiding (toVec; toList)
 
 import Category as C
-open C hiding (⊤; _×_)
+open C hiding (⊤; _×_; Bool)
 
 infixr 2 _×_
 data Ty : Set where
@@ -32,14 +33,14 @@ instance
      ⟦ Bool ⟧ᵗ  = Boolᵗ
 
 showTy : ⟦ A ⟧ → String
-showTy = go true
+showTy = go B.true
  where
    -- flag says we're in the left part of a pair
    go : Boolᵗ → ⟦ A ⟧ → String
    go {⊤} _ tt = "tt"
    go {Bool} _ b = BS.show b
    go {_ × _} p (x , y) = (if p then parens else id)
-                          (go true x ++ "," ++ go false y)
+                          (go B.true x ++ "," ++ go B.false y)
 
 -- infix 0 _→ᵗ_
 -- _→ᵗ_ : Ty → Ty → Set

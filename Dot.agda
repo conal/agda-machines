@@ -15,7 +15,7 @@ open import Ty renaming (map to mapᵀ)
 open import Symbolic.Extrinsic
 open import Symbolic.StackProg
 
-open C hiding (⊤; _×_)
+open C hiding (⊤; _×_; Bool)
 
 private variable a b c d i o s z zⁱ zᵒ zᵃ : Ty
 

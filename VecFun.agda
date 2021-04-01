@@ -4,7 +4,7 @@
 
 module VecFun where
 
-open import Function using (_∘′_; case_of_; const) renaming (id to id′)
+open import Function using (_∘′_; case_of_) renaming (id to id′)
 open import Data.Sum hiding (map; [_,_])
 open import Data.Product hiding (zip)
   renaming (map to map×; map₁ to map×₁; map₂ to map×₂)
@@ -59,6 +59,21 @@ module VecFunInstances where
 
     braided : Braided _↠_
     braided = record { swap = arr C.swap }
+
+    constants : Constants _↠_
+    constants = record { const = arr ∘′ const }
+
+    import Data.Bool as B
+    boolean : Boolean _↠_
+    boolean = record
+                { Bool = B.Bool
+                ; true = {!const ?!}
+                ; false = {!!}
+                ; ∧ = {!!}
+                ; ∨ = {!!}
+                ; xor = {!!}
+                ; not = {!!}
+                }
 
 -- Cons (memory/register)
 delay : A → (A ↠ A)
