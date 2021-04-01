@@ -58,12 +58,13 @@ record Products (obj : Set o) : Set (suc o) where
 
 open Products ⦃ … ⦄ public
 
-record Monoidal {obj : Set o} (_⇨_ : obj → obj → Set ℓ) : Set (suc o ⊔ ℓ) where
+record Monoidal {obj : Set o}
+         ⦃ obj-products : Products obj ⦄
+         (_⇨_ : obj → obj → Set ℓ) : Set (suc o ⊔ ℓ) where
   -- infixr 2 _×_
   infixr 7 _⊗_
   field
     ⦃ ⇨cat ⦄ : Category _⇨_
-    ⦃ obj-products ⦄ : Products obj
     -- ⊤ : obj
     -- _×_ : obj → obj → obj
     _⊗_ : (a ⇨ c) → (b ⇨ d) → ((a × b) ⇨ (c × d))
@@ -77,6 +78,12 @@ record Monoidal {obj : Set o} (_⇨_ : obj → obj → Set ℓ) : Set (suc o ⊔
 
     assocʳ : ((a × b) × c) ⇨ (a × (b × c))
     assocˡ : (a × (b × c)) ⇨ ((a × b) × c)
+
+  first : a ⇨ c → (a × b) ⇨ (c × b)
+  first f = f ⊗ id
+
+  second : b ⇨ d → (a × b) ⇨ (a × d)
+  second g = id ⊗ g
 
 open Monoidal ⦃ … ⦄ public
 
@@ -99,10 +106,22 @@ instance
                  ; assocˡ = λ { (x , (y , z)) → (x , y) , z }
                  }
 
-record Braided {obj : Set o} (_⇨_ : obj → obj → Set ℓ) : Set (suc o ⊔ ℓ) where
+record Braided {obj : Set o}
+         ⦃ obj-products : Products obj ⦄
+         (_⇨_ : obj → obj → Set ℓ) : Set (suc o ⊔ ℓ) where
   field
     ⦃ ⇨Monoidal ⦄ : Monoidal _⇨_
     swap : (a × b) ⇨ (b × a)
+
+  transpose : ((a × b) × (c × d)) ⇨ ((a × c) × (b × d))
+  transpose = assocˡ ∘ second (assocʳ ∘ first swap ∘ assocˡ) ∘ assocʳ
+
+  -- (a × b) × (c × d)
+  -- a × (b × (c × d))
+  -- a × ((b × c) × d)
+  -- a × ((c × b) × d)
+  -- a × (c × (b × d))
+  -- (a × c) × (b × d)
 
 open Braided ⦃ … ⦄ public
 
@@ -111,7 +130,9 @@ instance
   →-Braided = record { swap = λ (a , b) → b , a }
 
 
-record Cartesian {obj : Set o} (_⇨_ : obj → obj → Set ℓ) : Set (suc o ⊔ ℓ) where
+record Cartesian {obj : Set o}
+         ⦃ obj-products : Products obj ⦄
+         (_⇨_ : obj → obj → Set ℓ) : Set (suc o ⊔ ℓ) where
   field
     ⦃ ⇨Braided ⦄ : Braided _⇨_
     exl : (a × b) ⇨ a
@@ -122,14 +143,6 @@ record Cartesian {obj : Set o} (_⇨_ : obj → obj → Set ℓ) : Set (suc o �
   _△_ : ∀ {a c d} → (a ⇨ c) → (a ⇨ d) → (a ⇨ (c × d))
   f △ g = (f ⊗ g) ∘ dup
 
-  first : a ⇨ c → (a × b) ⇨ (c × b)
-  first f = f ⊗ id
-
-  second : b ⇨ d → (a × b) ⇨ (a × d)
-  second g = id ⊗ g
-
-  transpose : ((a × b) × (c × d)) ⇨ ((a × c) × (b × d))
-  transpose = (exl ⊗ exl) △ (exr ⊗ exr)
 
 open Cartesian ⦃ … ⦄ public
 
@@ -165,9 +178,11 @@ instance
   -- etc
 
 -- Some category-polymorphic idioms
-module CartUtils {o ℓ}{obj : Set o} {_⇨_ : obj → obj → Set ℓ}
-       (let infix 0 _⇨_; _⇨_ = _⇨_) -- https://github.com/agda/agda/issues/1235
-       ⦃ cart : Cartesian _⇨_ ⦄ where
+module CartUtils {o ℓ}{obj : Set o}
+         ⦃ obj-products : Products obj ⦄
+         {_⇨_ : obj → obj → Set ℓ}
+         (let infix 0 _⇨_; _⇨_ = _⇨_) -- https://github.com/agda/agda/issues/1235
+         ⦃ cart : Cartesian _⇨_ ⦄ where
 
   -- Like _∘_, but accumulating extra outputs
   -- (g ◂ f) a = let u , b = f a ; v , c = g b in (u , v) , c
