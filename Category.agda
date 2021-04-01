@@ -9,7 +9,9 @@ open import Level
 import Function as F
 open import Relation.Binary.PropositionalEquality
 
-record Category {o ℓ}{obj : Set o} (_⇨_ : obj → obj → Set ℓ) : Set (suc o ⊔ ℓ) where
+private variable o ℓ : Level
+
+record Category {obj : Set o} (_⇨_ : obj → obj → Set ℓ) : Set (suc o ⊔ ℓ) where
   infixr 9 _∘_
   -- infix 4 _≈_
   field
@@ -40,7 +42,6 @@ instance
 
 private
   variable
-    o ℓ : Level
     obj : Set o
     a b c d e : obj
 
@@ -60,7 +61,6 @@ open Products ⦃ … ⦄ public
 
 record Monoidal {obj : Set o} ⦃ _ : Products obj ⦄
          (_⇨_ : obj → obj → Set ℓ) : Set (suc o ⊔ ℓ) where
-  -- infixr 2 _×_
   infixr 7 _⊗_
   field
     ⦃ ⇨cat ⦄ : Category _⇨_
@@ -86,23 +86,22 @@ record Monoidal {obj : Set o} ⦃ _ : Products obj ⦄
 
 open Monoidal ⦃ … ⦄ public
 
-import Data.Unit as ⊤
-import Data.Product as ×
-open × using (_,_)
+open import Data.Unit using (tt) renaming (⊤ to ⊤′)
+open import Data.Product using (_,_; proj₁; proj₂) renaming (_×_ to _×′_)
 
 instance
   →-Products : Products Set
-  →-Products = record { ⊤ = ⊤.⊤ ; _×_ = ×._×_ }
+  →-Products = record { ⊤ = ⊤′ ; _×_ = _×′_ }
 
   →-Monoidal : Monoidal Fun
   →-Monoidal = record
                  { _⊗_ = λ f g (x , y) → (f x , g y)
-                 ; unitorᵉˡ = ×.proj₂
-                 ; unitorᵉʳ = ×.proj₁
-                 ; unitorⁱˡ = λ z → ⊤.tt , z
-                 ; unitorⁱʳ = λ z → z , ⊤.tt
-                 ; assocʳ = λ { ((x , y) , z) → x , (y , z) }
-                 ; assocˡ = λ { (x , (y , z)) → (x , y) , z }
+                 ; unitorᵉˡ = proj₂
+                 ; unitorᵉʳ = proj₁
+                 ; unitorⁱˡ = tt ,_
+                 ; unitorⁱʳ = _, tt
+                 ; assocʳ = λ ((x , y) , z) → x , (y , z)
+                 ; assocˡ = λ (x , (y , z)) → (x , y) , z
                  }
 
 record Braided {obj : Set o} ⦃ _ : Products obj ⦄
@@ -145,7 +144,7 @@ open Cartesian ⦃ … ⦄ public
 
 instance
   →-Cartesian : Cartesian Fun
-  →-Cartesian = record { exl = ×.proj₁ ; exr = ×.proj₂ ; dup = λ z → z , z }
+  →-Cartesian = record { exl = proj₁ ; exr = proj₂ ; dup = λ z → z , z }
 
 
 -- Not really about categories, so maybe move elsewhere
@@ -175,10 +174,11 @@ instance
   -- etc
 
 -- Some category-polymorphic idioms
-module CartUtils {o ℓ}{obj : Set o} ⦃ _ : Products obj ⦄
-  {_⇨_ : obj → obj → Set ℓ}
-  (let infix 0 _⇨_;_⇨_ = _⇨_) -- https://github.com/agda/agda/issues/1235
+module CartUtils ⦃ _ : Products obj ⦄
+  {_⇨_ : obj → obj → Set ℓ} (let infix 0 _⇨_;_⇨_ = _⇨_) -- Note
   ⦃ cart : Cartesian _⇨_ ⦄ where
+
+  -- Note: fixity hack. See https://github.com/agda/agda/issues/1235
 
   -- Like _∘_, but accumulating extra outputs
   -- (g ◂ f) a = let u , b = f a ; v , c = g b in (u , v) , c
