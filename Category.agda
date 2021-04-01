@@ -44,6 +44,7 @@ private
   variable
     obj : Set o
     a b c d e : obj
+    a′ b′ c′ d′ e′ : obj
 
 record Products (obj : Set o) : Set (suc o) where
   infixr 2 _×_
@@ -85,6 +86,14 @@ record Monoidal {obj : Set o} ⦃ _ : Products obj ⦄
   second : b ⇨ d → a × b ⇨ a × d
   second g = id ⊗ g
 
+  inAssocˡ : ((a × b) × c ⇨ (a′ × b′) × c′)
+           → (a × (b × c) ⇨ a′ × (b′ × c′))
+  inAssocˡ f = assocʳ ∘ f ∘ assocˡ
+
+  inAssocʳ : (a × (b × c) ⇨ a′ × (b′ × c′))
+           → ((a × b) × c ⇨ (a′ × b′) × c′)
+  inAssocʳ f = assocˡ ∘ f ∘ assocʳ
+
 open Monoidal ⦃ … ⦄ public
 
 open import Data.Unit using (tt) renaming (⊤ to ⊤′)
@@ -113,7 +122,9 @@ record Braided {obj : Set o} ⦃ _ : Products obj ⦄
     swap : a × b ⇨ b × a
 
   transpose : (a × b) × (c × d) ⇨ (a × c) × (b × d)
-  transpose = assocˡ ∘ second (assocʳ ∘ first swap ∘ assocˡ) ∘ assocʳ
+  -- transpose = (inAssocʳ F.∘ second F.∘ inAssocˡ F.∘ first) swap
+  transpose = inAssocʳ (second (inAssocˡ (first swap)))
+  -- transpose = assocˡ ∘ second (assocʳ ∘ first swap ∘ assocˡ) ∘ assocʳ
 
   -- (a × b) × (c × d)
   -- a × (b × (c × d))
