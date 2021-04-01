@@ -55,9 +55,9 @@ showIx = FS.show ∘′ toFin
 wire : String → TyIx a → OPort → String
 wire compName i oport = oport ++ " -> " ++  compName ++ ":In" ++ showIx i
 
-_ : wire "Foo" (TyIx (Bool ↑ 5) ∋ right (right (left here)))
-       "c2:Out4" ≡ "c2:Out4 -> Foo:In2"
-_ = refl
+-- _ : wire "Foo" (TyIx (Bool ↑ 5) ∋ right (right (left here)))
+--        "c2:Out4" ≡ "c2:Out4 -> Foo:In2"
+-- _ = refl
 
 comp : String → String → TyF OPort i → Ty → List String
 comp {i} compName opName ins o =

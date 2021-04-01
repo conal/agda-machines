@@ -21,12 +21,6 @@ data Ty : Set where
 
 private variable A B C D : Ty
 
-infixl 8 _↑_
-_↑_ : Ty → ℕ → Ty
-A ↑ zero  = ⊤
-A ↑ suc zero = A
-A ↑ suc (suc n) = A × A ↑ suc n
-
 ⟦_⟧ᵗ : Ty → Set
 ⟦ ⊤ ⟧ᵗ     = ⊤ᵗ
 ⟦ σ × τ ⟧ᵗ = ⟦ σ ⟧ᵗ ×ᵗ ⟦ τ ⟧ᵗ
@@ -191,11 +185,12 @@ module ty where
       -- ; assoc = refl
       }
 
+    products : Products Ty
+    products = record { ⊤ = ⊤ ; _×_ = _×_ }
+
     monoidal : Monoidal _⇨_
     monoidal = record
-      { ⊤ = ⊤
-      ; _×_ = _×_
-      ; _⊗_ = λ (mk f) (mk g) → mk λ (x , y) → f x , g y
+      { _⊗_ = λ (mk f) (mk g) → mk λ (x , y) → f x , g y
       ; ! = mk λ _ → tt
       ; unitorᵉˡ = mk unitorᵉˡ
       ; unitorᵉʳ = mk unitorᵉʳ

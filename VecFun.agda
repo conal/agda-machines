@@ -42,11 +42,12 @@ module VecFunInstances where
     category : Category _↠_
     category = record { id = id′ ; _∘_ = λ g f → g ∘′ f }
 
+    products : Products Set
+    products = record { ⊤ = ⊤ ; _×_ = _×_ }
+
     monoidal : Monoidal _↠_
     monoidal = record
-                 { ⊤ = ⊤
-                 ; _×_ = _×_
-                 ; _⊗_ = λ f g →  uncurry zip ∘′ map× f g ∘′ unzip
+                 { _⊗_ = λ f g →  uncurry zip ∘′ map× f g ∘′ unzip
                  ; ! = λ _ → replicate tt
                  ; unitorᵉˡ = arr unitorᵉˡ
                  ; unitorᵉʳ = arr unitorᵉʳ

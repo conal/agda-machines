@@ -113,9 +113,7 @@ module sf where
 
     monoidal : Monoidal _⇨_
     monoidal = record
-      { ⊤ = ⊤
-      ; _×_ = _×_
-      ; _⊗_ = λ f g → second′ g ∘ first′ f
+      { _⊗_ = λ f g → second′ g ∘ first′ f
       ; ! = route !
       ; unitorᵉˡ = route unitorᵉˡ
       ; unitorᵉʳ = route unitorᵉʳ

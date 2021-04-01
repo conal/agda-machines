@@ -46,9 +46,7 @@ module r where
 
     monoidal : Monoidal _⇨_
     monoidal = record
-      { ⊤ = Ty.⊤
-      ; _×_ = Ty._×_
-      ; _⊗_ = λ (mk f) (mk g) → mk λ { (left x) → left (f x) ; (right x) → right (g x) }
+      { _⊗_ = λ (mk f) (mk g) → mk λ { (left x) → left (f x) ; (right x) → right (g x) }
       ; unitorᵉˡ = mk right
       ; unitorᵉʳ = mk left
       ; unitorⁱˡ = mk λ { (right x) → x }
@@ -97,7 +95,7 @@ module p where
     p-show : ∀ {a b} → Show (a ⇨ b)
     p-show = record { show = λ { ∧ → "∧"
                                ; ∨ → "∨"
-                               ; xor → "xor"
+                               ; xor → "⊕"
                                ; not → "not"
                                ; (const x) → showTy x
                                }
@@ -140,11 +138,9 @@ module c where
                  ; _∘_ = _∘ᶜ_
                  }
 
-    monoidal : C.Monoidal _⇨_
+    monoidal : Monoidal _⇨_
     monoidal = record
-                 { ⊤ = ⊤
-                 ; _×_ = _×_
-                 ; _⊗_ = _⊗ᶜ_
+                 { _⊗_ = _⊗ᶜ_
                  ; ! = route !
                  ; unitorᵉˡ = route unitorᵉˡ
                  ; unitorᵉʳ = route unitorᵉʳ
@@ -154,10 +150,10 @@ module c where
                  ; assocˡ   = route assocˡ
                  }
 
-    braided : C.Braided _⇨_
+    braided : Braided _⇨_
     braided = record { swap = route swap }
 
-    cartesian : C.Cartesian _⇨_
+    cartesian : Cartesian _⇨_
     cartesian = record { exl = route exl ; exr = route exr ; dup = route dup }
 
 -- Synchronous state machine.
@@ -211,9 +207,7 @@ module s where
 
     monoidal : Monoidal _⇨_
     monoidal = record
-      { ⊤ = ⊤
-      ; _×_ = _×_
-      ; _⊗_ = λ { (mealy s₀ f) (mealy t₀ g) →
+      { _⊗_ = λ { (mealy s₀ f) (mealy t₀ g) →
                 mealy (s₀ , t₀) (transpose ∘ (f ⊗ g) ∘ transpose) }
       ; ! = comb !
       ; unitorᵉˡ = comb unitorᵉˡ

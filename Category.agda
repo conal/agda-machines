@@ -9,7 +9,6 @@ open import Level
 import Function as F
 open import Relation.Binary.PropositionalEquality
 
-
 record Category {o ℓ}{obj : Set o} (_⇨_ : obj → obj → Set ℓ) : Set (suc o ⊔ ℓ) where
   infixr 9 _∘_
   -- infix 4 _≈_
@@ -43,16 +42,30 @@ private
   variable
     o ℓ : Level
     obj : Set o
-    a b c d : obj
+    a b c d e : obj
 
+record Products (obj : Set o) : Set (suc o) where
+  infixr 2 _×_
+  field
+    ⊤ : obj
+    _×_ : obj → obj → obj
+
+  open import Data.Nat
+  infixl 8 _↑_
+  _↑_ : obj → ℕ → obj
+  A ↑ zero  = ⊤
+  A ↑ suc n = A × A ↑ n
+
+open Products ⦃ … ⦄ public
 
 record Monoidal {obj : Set o} (_⇨_ : obj → obj → Set ℓ) : Set (suc o ⊔ ℓ) where
-  infixr 2 _×_
+  -- infixr 2 _×_
   infixr 7 _⊗_
   field
     ⦃ ⇨cat ⦄ : Category _⇨_
-    ⊤ : obj
-    _×_ : obj → obj → obj
+    ⦃ obj-products ⦄ : Products obj
+    -- ⊤ : obj
+    -- _×_ : obj → obj → obj
     _⊗_ : (a ⇨ c) → (b ⇨ d) → ((a × b) ⇨ (c × d))
 
     ! : a ⇨ ⊤
@@ -64,6 +77,7 @@ record Monoidal {obj : Set o} (_⇨_ : obj → obj → Set ℓ) : Set (suc o ⊔
 
     assocʳ : ((a × b) × c) ⇨ (a × (b × c))
     assocˡ : (a × (b × c)) ⇨ ((a × b) × c)
+
 open Monoidal ⦃ … ⦄ public
 
 import Data.Unit as ⊤
@@ -71,11 +85,12 @@ import Data.Product as ×
 open × using (_,_)
 
 instance
+  →-Products : Products Set
+  →-Products = record { ⊤ = ⊤.⊤ ; _×_ = ×._×_ }
+
   →-Monoidal : Monoidal Fun
   →-Monoidal = record
-                 { ⊤ = ⊤.⊤
-                 ; _×_ = ×._×_
-                 ; _⊗_ = λ f g (x , y) → (f x , g y)
+                 { _⊗_ = λ f g (x , y) → (f x , g y)
                  ; unitorᵉˡ = ×.proj₂
                  ; unitorᵉʳ = ×.proj₁
                  ; unitorⁱˡ = λ z → ⊤.tt , z
@@ -148,3 +163,18 @@ instance
   ℕ-Show = record { show = NS.show }
 
   -- etc
+
+-- Some category-polymorphic idioms
+module CartUtils {o ℓ}{obj : Set o} {_⇨_ : obj → obj → Set ℓ}
+       ⦃ cart : Cartesian _⇨_ ⦄ where
+  -- open Cartesian cart
+
+  infixl 1 _⟫_
+  _⟫_ : (a ⇨ (b × c)) → (c ⇨ (d × e)) → (a ⇨ ((b × d) × e))
+  f ⟫ g = assocˡ ∘ second g ∘ f
+
+  infixl 1 _⟫^_
+  _⟫^_ : (a ⇨ (b × a)) → (n : ℕ) → (a ⇨ (b ↑ n × a))
+  f ⟫^ zero = unitorⁱˡ
+  f ⟫^ suc n = f ⟫ (f ⟫^ n)
+

@@ -52,7 +52,7 @@ module _ where
     meaningful {A}{B} = record { Meaning = A ↠ B ; ⟦_⟧ = ⟦_⟧ᵐ }
 
     category : Category _⇨_
-    category = record { id = arr λ z → z ; _∘_ = _∘′_ }
+    category = record { id = arr id ; _∘_ = _∘′_ }
      where
         _∘′_ : (B ⇨ C) → (A ⇨ B) → (A ⇨ C)
         mealy t₀ g ∘′ mealy s₀ f = mealy (s₀ , t₀) λ (a , (s , t)) →
@@ -61,12 +61,9 @@ module _ where
          in
             c , (s′ , t′)
 
-
     monoidal : Monoidal _⇨_
     monoidal = record
-                 { ⊤ = ⊤
-                 ; _×_ = _×_
-                 ; _⊗_ = _⊗′_
+                 { _⊗_ = _⊗′_
                  ; ! = arr !
                  ; unitorᵉˡ = arr unitorᵉˡ
                  ; unitorᵉʳ = arr unitorᵉʳ
