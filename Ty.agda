@@ -207,17 +207,15 @@ module ty where
     cartesian = record { exl = mk exl ; exr = mk exr ; dup = mk dup }
 
 -- Miscellaneous utilities, perhaps to move elsewhere
-module TyMisc where
+module TyMisc {ℓ}
+         {_⇨_ : Ty → Ty → Set ℓ} 
+         (let infix 0 _⇨_; _⇨_ = _⇨_)
+         ⦃ _ : Braided ⦃ ty.products ⦄ _⇨_ ⦄ where
 
-  shiftR : Bool × A ty.⇨ A × Bool
+  shiftR : Bool × A ⇨ A × Bool
   shiftR {⊤}     = swap
   shiftR {Bool}  = id
-  shiftR {A × B} = assocˡ ∘ second shiftR ∘ assocʳ ∘ first shiftR ∘ assocˡ
-
-  -- λ i , (u , v) → let u′ , m = shiftR (i , u)
-  --                     v′ , o = shiftR (m , v)
-  --                 in
-  --                   (u′ , v′) , o
+  shiftR {_ × _} = assocˡ ∘ second shiftR ∘ assocʳ ∘ first shiftR ∘ assocˡ
 
   -- i , (u , v)
   -- (i , u) , v
@@ -225,3 +223,15 @@ module TyMisc where
   -- u′ , (m , v)
   -- u′ , (v′ , o)
   -- (u′ , v′) , o
+
+  shiftL : A × Bool ⇨ Bool × A
+  shiftL {⊤}     = swap
+  shiftL {Bool}  = id
+  shiftL {_ × _} = assocʳ ∘ first shiftL ∘ assocˡ ∘ second shiftL ∘ assocʳ
+
+  -- (u , v) , i
+  -- u , (v , i)
+  -- u , (m , v′)
+  -- (u , m) , v′
+  -- (o , u′) , v′
+  -- o , (u′ , v′)
