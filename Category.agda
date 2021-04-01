@@ -6,7 +6,7 @@
 module Category where
 
 open import Level
-import Function as F
+open import Function using (_∘′_) renaming (id to id′; const to const′)
 open import Relation.Binary.PropositionalEquality
 
 private variable o ℓ : Level
@@ -28,17 +28,6 @@ open Category ⦃ … ⦄ public
 
 Function : Set o → Set o → Set o
 Function a b = a → b
-
-instance
-  →-Category : Category (Function {o})
-  →-Category = record
-                 { id    = F.id
-                 ; _∘_   = F._∘′_
-                 -- ; _≈_   = λ f g → ∀ {x} → f x ≡ g x
-                 -- ; id-l  = refl
-                 -- ; id-r  = refl
-                 -- ; assoc = refl
-                 }
 
 private
   variable
@@ -100,21 +89,6 @@ open import Data.Unit using (tt) renaming (⊤ to ⊤′)
 open import Data.Product using (_,_; proj₁; proj₂; uncurry)
   renaming (_×_ to _×′_)
 
-instance
-  →-Products : Products Set
-  →-Products = record { ⊤ = ⊤′ ; _×_ = _×′_ }
-
-  →-Monoidal : Monoidal Function
-  →-Monoidal = record
-                 { _⊗_ = λ f g (x , y) → (f x , g y)
-                 ; unitorᵉˡ = proj₂
-                 ; unitorᵉʳ = proj₁
-                 ; unitorⁱˡ = tt ,_
-                 ; unitorⁱʳ = _, tt
-                 ; assocʳ = λ ((x , y) , z) → x , (y , z)
-                 ; assocˡ = λ (x , (y , z)) → (x , y) , z
-                 }
-
 record Braided {obj : Set o} ⦃ _ : Products obj ⦄
          (_⇨′_ : obj → obj → Set ℓ) : Set (suc o ⊔ ℓ) where
   private infix 0 _⇨_; _⇨_ = _⇨′_
@@ -123,7 +97,7 @@ record Braided {obj : Set o} ⦃ _ : Products obj ⦄
     swap : a × b ⇨ b × a
 
   transpose : (a × b) × (c × d) ⇨ (a × c) × (b × d)
-  transpose = (inAssocʳ ∘ second ∘ inAssocˡ ∘ first) swap
+  transpose = (inAssocʳ ∘′ second ∘′ inAssocˡ ∘′ first) swap
 
   -- transpose = inAssocʳ (second (inAssocˡ (first swap)))
   -- transpose = assocˡ ∘ second (assocʳ ∘ first swap ∘ assocˡ) ∘ assocʳ
@@ -136,10 +110,6 @@ record Braided {obj : Set o} ⦃ _ : Products obj ⦄
   -- (a × c) × (b × d)
 
 open Braided ⦃ … ⦄ public
-
-instance
-  →-Braided : Braided Function
-  →-Braided = record { swap = λ (a , b) → b , a }
 
 
 record Cartesian {obj : Set o} ⦃ _ : Products obj ⦄
@@ -158,20 +128,11 @@ record Cartesian {obj : Set o} ⦃ _ : Products obj ⦄
 
 open Cartesian ⦃ … ⦄ public
 
-instance
-  →-Cartesian : Cartesian Function
-  →-Cartesian = record { exl = proj₁ ; exr = proj₂ ; dup = λ z → z , z }
-
 
 record Meaningful {m} {μ : Set m} (A : Set o) : Set (suc (m ⊔ o)) where
   field
     ⟦_⟧ : A → μ
 open Meaningful ⦃ … ⦄ public
-
-instance
-
-  Set-Meaningful : Meaningful (Set ℓ)
-  Set-Meaningful = record { ⟦_⟧ = id }
 
 record Constants {obj : Set o} ⦃ _ : Products obj ⦄
          {m} ⦃ _ : Meaningful {μ = Set m} obj ⦄
@@ -183,11 +144,6 @@ record Constants {obj : Set o} ⦃ _ : Products obj ⦄
     const : ∀ {A : obj} {- → constraint A -} → ⟦ A ⟧ → ⊤ ⇨ A  -- In another class
 open Constants ⦃ … ⦄ public
 
-instance
-
-  →-Constants : Constants Function
-  →-Constants = record { const = F.const }
-
 
 record Boolean {obj : Set o} ⦃ _ : Products obj ⦄
          (_⇨′_ : obj → obj → Set ℓ) : Set (suc o ⊔ ℓ) where
@@ -197,19 +153,6 @@ record Boolean {obj : Set o} ⦃ _ : Products obj ⦄
     ∧ ∨ xor : Bool × Bool ⇨ Bool
     not : Bool ⇨ Bool
 open Boolean ⦃ … ⦄ public
-
-instance
-
-  import Data.Bool as B
-
-  →-Boolean : Boolean Function
-  →-Boolean = record
-                { Bool  = B.Bool
-                ; ∧     = uncurry B._∧_
-                ; ∨     = uncurry B._∨_
-                ; xor   = uncurry B._xor_
-                ; not   = B.not
-                }
 
 
 
@@ -225,7 +168,55 @@ open Show ⦃ … ⦄ public
 open import Data.Nat
 import Data.Nat.Show as NS
 
+
 instance
+
+  →-Category : Category (Function {o})
+  →-Category = record
+                 { id    = id′
+                 ; _∘_   = _∘′_
+                 -- ; _≈_   = λ f g → ∀ {x} → f x ≡ g x
+                 -- ; id-l  = refl
+                 -- ; id-r  = refl
+                 -- ; assoc = refl
+                 }
+
+  →-Products : Products Set
+  →-Products = record { ⊤ = ⊤′ ; _×_ = _×′_ }
+
+  →-Monoidal : Monoidal Function
+  →-Monoidal = record
+                 { _⊗_ = λ f g (x , y) → (f x , g y)
+                 ; unitorᵉˡ = proj₂
+                 ; unitorᵉʳ = proj₁
+                 ; unitorⁱˡ = tt ,_
+                 ; unitorⁱʳ = _, tt
+                 ; assocʳ = λ ((x , y) , z) → x , (y , z)
+                 ; assocˡ = λ (x , (y , z)) → (x , y) , z
+                 }
+
+  →-Braided : Braided Function
+  →-Braided = record { swap = λ (a , b) → b , a }
+
+  →-Cartesian : Cartesian Function
+  →-Cartesian = record { exl = proj₁ ; exr = proj₂ ; dup = λ z → z , z }
+
+  Set-Meaningful : Meaningful (Set ℓ)
+  Set-Meaningful = record { ⟦_⟧ = id }
+
+  →-Constants : Constants Function
+  →-Constants = record { const = const′ }
+
+  import Data.Bool as B
+
+  →-Boolean : Boolean Function
+  →-Boolean = record
+                { Bool  = B.Bool
+                ; ∧     = uncurry B._∧_
+                ; ∨     = uncurry B._∨_
+                ; xor   = uncurry B._xor_
+                ; not   = B.not
+                }
 
   ℕ-Show : Show ℕ
   ℕ-Show = record { show = NS.show }
