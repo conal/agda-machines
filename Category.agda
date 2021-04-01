@@ -58,8 +58,7 @@ record Products (obj : Set o) : Set (suc o) where
 
 open Products ⦃ … ⦄ public
 
-record Monoidal {obj : Set o}
-         ⦃ obj-products : Products obj ⦄
+record Monoidal {obj : Set o} ⦃ _ : Products obj ⦄
          (_⇨_ : obj → obj → Set ℓ) : Set (suc o ⊔ ℓ) where
   -- infixr 2 _×_
   infixr 7 _⊗_
@@ -106,8 +105,7 @@ instance
                  ; assocˡ = λ { (x , (y , z)) → (x , y) , z }
                  }
 
-record Braided {obj : Set o}
-         ⦃ obj-products : Products obj ⦄
+record Braided {obj : Set o} ⦃ _ : Products obj ⦄
          (_⇨_ : obj → obj → Set ℓ) : Set (suc o ⊔ ℓ) where
   field
     ⦃ ⇨Monoidal ⦄ : Monoidal _⇨_
@@ -130,8 +128,7 @@ instance
   →-Braided = record { swap = λ (a , b) → b , a }
 
 
-record Cartesian {obj : Set o}
-         ⦃ obj-products : Products obj ⦄
+record Cartesian {obj : Set o} ⦃ _ : Products obj ⦄
          (_⇨_ : obj → obj → Set ℓ) : Set (suc o ⊔ ℓ) where
   field
     ⦃ ⇨Braided ⦄ : Braided _⇨_
@@ -178,11 +175,10 @@ instance
   -- etc
 
 -- Some category-polymorphic idioms
-module CartUtils {o ℓ}{obj : Set o}
-         ⦃ obj-products : Products obj ⦄
-         {_⇨_ : obj → obj → Set ℓ}
-         (let infix 0 _⇨_; _⇨_ = _⇨_) -- https://github.com/agda/agda/issues/1235
-         ⦃ cart : Cartesian _⇨_ ⦄ where
+module CartUtils {o ℓ}{obj : Set o} ⦃ _ : Products obj ⦄
+  {_⇨_ : obj → obj → Set ℓ}
+  (let infix 0 _⇨_;_⇨_ = _⇨_) -- https://github.com/agda/agda/issues/1235
+  ⦃ cart : Cartesian _⇨_ ⦄ where
 
   -- Like _∘_, but accumulating extra outputs
   -- (g ◂ f) a = let u , b = f a ; v , c = g b in (u , v) , c

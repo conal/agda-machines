@@ -207,10 +207,8 @@ module ty where
     cartesian = record { exl = mk exl ; exr = mk exr ; dup = mk dup }
 
 -- Miscellaneous utilities, perhaps to move elsewhere
-module TyMisc {ℓ}
-         {_⇨_ : Ty → Ty → Set ℓ} 
-         (let infix 0 _⇨_; _⇨_ = _⇨_)
-         ⦃ _ : Braided ⦃ ty.products ⦄ _⇨_ ⦄ where
+module TyMisc {ℓ} {_⇨_ : Ty → Ty → Set ℓ} (let infix 0 _⇨_; _⇨_ = _⇨_)
+              ⦃ _ : Braided ⦃ ty.products ⦄ _⇨_ ⦄ where
 
   shiftR : Bool × A ⇨ A × Bool
   shiftR {⊤}     = swap
