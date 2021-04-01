@@ -60,7 +60,8 @@ record Products (obj : Set o) : Set (suc o) where
 open Products ⦃ … ⦄ public
 
 record Monoidal {obj : Set o} ⦃ _ : Products obj ⦄
-         (_⇨_ : obj → obj → Set ℓ) : Set (suc o ⊔ ℓ) where
+         (_⇨′_ : obj → obj → Set ℓ) : Set (suc o ⊔ ℓ) where
+  private infix 0 _⇨_;_⇨_ = _⇨′_
   infixr 7 _⊗_
   field
     ⦃ ⇨cat ⦄ : Category _⇨_
@@ -70,18 +71,18 @@ record Monoidal {obj : Set o} ⦃ _ : Products obj ⦄
 
     ! : a ⇨ ⊤
 
-    unitorᵉˡ : (⊤ × a) ⇨ a
-    unitorᵉʳ : (a × ⊤) ⇨ a
-    unitorⁱˡ : a ⇨ (⊤ × a)
-    unitorⁱʳ : a ⇨ (a × ⊤)
+    unitorᵉˡ : ⊤ × a ⇨ a
+    unitorᵉʳ : a × ⊤ ⇨ a
+    unitorⁱˡ : a ⇨ ⊤ × a
+    unitorⁱʳ : a ⇨ a × ⊤
 
-    assocʳ : ((a × b) × c) ⇨ (a × (b × c))
-    assocˡ : (a × (b × c)) ⇨ ((a × b) × c)
+    assocʳ : (a × b) × c ⇨ a × (b × c)
+    assocˡ : a × (b × c) ⇨ (a × b) × c
 
-  first : a ⇨ c → (a × b) ⇨ (c × b)
+  first : a ⇨ c → a × b ⇨ c × b
   first f = f ⊗ id
 
-  second : b ⇨ d → (a × b) ⇨ (a × d)
+  second : b ⇨ d → a × b ⇨ a × d
   second g = id ⊗ g
 
 open Monoidal ⦃ … ⦄ public
@@ -105,12 +106,13 @@ instance
                  }
 
 record Braided {obj : Set o} ⦃ _ : Products obj ⦄
-         (_⇨_ : obj → obj → Set ℓ) : Set (suc o ⊔ ℓ) where
+         (_⇨′_ : obj → obj → Set ℓ) : Set (suc o ⊔ ℓ) where
+  private infix 0 _⇨_;_⇨_ = _⇨′_
   field
     ⦃ ⇨Monoidal ⦄ : Monoidal _⇨_
-    swap : (a × b) ⇨ (b × a)
+    swap : a × b ⇨ b × a
 
-  transpose : ((a × b) × (c × d)) ⇨ ((a × c) × (b × d))
+  transpose : (a × b) × (c × d) ⇨ (a × c) × (b × d)
   transpose = assocˡ ∘ second (assocʳ ∘ first swap ∘ assocˡ) ∘ assocʳ
 
   -- (a × b) × (c × d)
@@ -128,15 +130,16 @@ instance
 
 
 record Cartesian {obj : Set o} ⦃ _ : Products obj ⦄
-         (_⇨_ : obj → obj → Set ℓ) : Set (suc o ⊔ ℓ) where
+         (_⇨′_ : obj → obj → Set ℓ) : Set (suc o ⊔ ℓ) where
+  private infix 0 _⇨_;_⇨_ = _⇨′_
   field
     ⦃ ⇨Braided ⦄ : Braided _⇨_
-    exl : (a × b) ⇨ a
-    exr : (a × b) ⇨ b
-    dup : a ⇨ (a × a)
+    exl : a × b ⇨ a
+    exr : a × b ⇨ b
+    dup : a ⇨ a × a
 
   infixr 7 _△_
-  _△_ : ∀ {a c d} → (a ⇨ c) → (a ⇨ d) → (a ⇨ (c × d))
+  _△_ : ∀ {a c d} → a ⇨ c → (a ⇨ d) → (a ⇨ c × d)
   f △ g = (f ⊗ g) ∘ dup
 
 
