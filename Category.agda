@@ -171,7 +171,7 @@ module CartUtils {o ℓ}{obj : Set o} {_⇨_ : obj → obj → Set ℓ}
 
   -- Like _∘_, but accumulating extra outputs
   -- (g ◂ f) a = let u , b = f a ; v , c = g b in (u , v) , c
-  infixl 1 _◂_
+  infixr 9 _◂_
   _◂_ : ∀ {u v} → (b ⇨ v × c) → (a ⇨ u × b) → (a ⇨ (u × v) × c)
   g ◂ f = assocˡ ∘ second g ∘ f
 
