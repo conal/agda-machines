@@ -1,8 +1,5 @@
 ## To do
 
-*   Gather all of the instances in `Category` under one `instance` heading.
-    Then submerge in a local module, and replace the names by generic names (as used elsewhere).
-*   Do I need to name instances at all?
 *   Rename `Constants` class to "`Constant`".
 *   Rename `Ty` constructors to start with backquote.
     Revisit all `Category` imports to remove `hiding` of the old `Ty` names.
@@ -19,6 +16,9 @@
 
 ## Did
 
+*   Gather all of the instances in `Category` under one `instance` heading.
+    Then submerge in a local module, and replace the names by generic names (as used elsewhere).
+*   Do I need to name instances at all? Yes.
 *   Remove `false` and `true` from `Boolean` in favor of `const`.
     Then fix all module-qualified uses of `false` and `true`.
 *   Add type classes for primitives and for constants, with many instances.
