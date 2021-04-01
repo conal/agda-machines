@@ -77,6 +77,12 @@ module se where
 
   toggles = toggle₁ ↱ 5
 
+  shift₁ : Bool ⇨ Bool × Bool
+  shift₁ = dup ∘ delay false
+
+  shifts : ∀ n → Bool ⇨ Bool ↑ n
+  shifts n = exl ∘ (shift₁ ↱ n)
+
 
 exampleˢ : ∀ {i o} → String → i s.⇨ o → IO {0ℓ} ⊤′
 exampleˢ name (s.mealy {s} state₀ f) =
@@ -108,4 +114,8 @@ main = run do
   -- exampleˢ "toggle-1"   se.toggle₁
   -- exampleˢ "toggle-2"   se.toggle₂
   -- exampleˢ "toggle-4"   se.toggle₄
-  exampleˢ "toggles"    se.toggles
+  -- exampleˢ "toggles"    se.toggles
+
+  -- exampleˢ "shift-1" se.shift₁
+  exampleˢ "shift-5" (se.shifts 5)
+  
