@@ -169,59 +169,61 @@ open import Data.Nat
 import Data.Nat.Show as NS
 
 
-instance
+module →Instances where
 
-  →-Category : Category (Function {o})
-  →-Category = record
-                 { id    = id′
-                 ; _∘_   = _∘′_
-                 -- ; _≈_   = λ f g → ∀ {x} → f x ≡ g x
-                 -- ; id-l  = refl
-                 -- ; id-r  = refl
-                 -- ; assoc = refl
+  instance
+
+    category : Category (Function {o})
+    category = record
+                  { id    = id′
+                  ; _∘_   = _∘′_
+                  -- ; _≈_   = λ f g → ∀ {x} → f x ≡ g x
+                  -- ; id-l  = refl
+                  -- ; id-r  = refl
+                  -- ; assoc = refl
+                  }
+
+    products : Products Set
+    products = record { ⊤ = ⊤′ ; _×_ = _×′_ }
+
+    monoidal : Monoidal Function
+    monoidal = record
+                  { _⊗_ = λ f g (x , y) → (f x , g y)
+                  ; unitorᵉˡ = proj₂
+                  ; unitorᵉʳ = proj₁
+                  ; unitorⁱˡ = tt ,_
+                  ; unitorⁱʳ = _, tt
+                  ; assocʳ = λ ((x , y) , z) → x , (y , z)
+                  ; assocˡ = λ (x , (y , z)) → (x , y) , z
+                  }
+
+    braided : Braided Function
+    braided = record { swap = λ (a , b) → b , a }
+
+    cartesian : Cartesian Function
+    cartesian = record { exl = proj₁ ; exr = proj₂ ; dup = λ z → z , z }
+
+    meaningful : Meaningful (Set ℓ)
+    meaningful = record { ⟦_⟧ = id }
+
+    constants : Constants Function
+    constants = record { const = const′ }
+
+    import Data.Bool as B
+
+    boolean : Boolean Function
+    boolean = record
+                 { Bool  = B.Bool
+                 ; ∧     = uncurry B._∧_
+                 ; ∨     = uncurry B._∨_
+                 ; xor   = uncurry B._xor_
+                 ; not   = B.not
                  }
 
-  →-Products : Products Set
-  →-Products = record { ⊤ = ⊤′ ; _×_ = _×′_ }
+    ℕ-Show : Show ℕ
+    ℕ-Show = record { show = NS.show }
 
-  →-Monoidal : Monoidal Function
-  →-Monoidal = record
-                 { _⊗_ = λ f g (x , y) → (f x , g y)
-                 ; unitorᵉˡ = proj₂
-                 ; unitorᵉʳ = proj₁
-                 ; unitorⁱˡ = tt ,_
-                 ; unitorⁱʳ = _, tt
-                 ; assocʳ = λ ((x , y) , z) → x , (y , z)
-                 ; assocˡ = λ (x , (y , z)) → (x , y) , z
-                 }
-
-  →-Braided : Braided Function
-  →-Braided = record { swap = λ (a , b) → b , a }
-
-  →-Cartesian : Cartesian Function
-  →-Cartesian = record { exl = proj₁ ; exr = proj₂ ; dup = λ z → z , z }
-
-  Set-Meaningful : Meaningful (Set ℓ)
-  Set-Meaningful = record { ⟦_⟧ = id }
-
-  →-Constants : Constants Function
-  →-Constants = record { const = const′ }
-
-  import Data.Bool as B
-
-  →-Boolean : Boolean Function
-  →-Boolean = record
-                { Bool  = B.Bool
-                ; ∧     = uncurry B._∧_
-                ; ∨     = uncurry B._∨_
-                ; xor   = uncurry B._xor_
-                ; not   = B.not
-                }
-
-  ℕ-Show : Show ℕ
-  ℕ-Show = record { show = NS.show }
-
-  -- etc
+    -- etc
 
 -- Some category-polymorphic idioms
 module CartUtils ⦃ _ : Products obj ⦄
