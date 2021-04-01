@@ -97,7 +97,8 @@ record Monoidal {obj : Set o} ⦃ _ : Products obj ⦄
 open Monoidal ⦃ … ⦄ public
 
 open import Data.Unit using (tt) renaming (⊤ to ⊤′)
-open import Data.Product using (_,_; proj₁; proj₂) renaming (_×_ to _×′_)
+open import Data.Product using (_,_; proj₁; proj₂; uncurry)
+  renaming (_×_ to _×′_)
 
 instance
   →-Products : Products Set
@@ -167,31 +168,52 @@ record Meaningful {m} {μ : Set m} (A : Set o) : Set (suc (m ⊔ o)) where
     ⟦_⟧ : A → μ
 open Meaningful ⦃ … ⦄ public
 
-{-
+instance
+
+  Set-Meaningful : Meaningful (Set ℓ)
+  Set-Meaningful = record { ⟦_⟧ = id }
 
 record Constants {obj : Set o} ⦃ _ : Products obj ⦄
          {m} ⦃ _ : Meaningful {μ = Set m} obj ⦄
          (_⇨′_ : obj → obj → Set ℓ) : Set (suc o ⊔ ℓ ⊔ m) where
   private infix 0 _⇨_; _⇨_ = _⇨′_
   field
-    ⦃ ⇨Monoidal ⦄ : Monoidal _⇨_
     -- Maybe add a constraint
     -- constraint : obj → Set -- level?
     const : ∀ {A : obj} {- → constraint A -} → ⟦ A ⟧ → ⊤ ⇨ A  -- In another class
 open Constants ⦃ … ⦄ public
 
+instance
+
+  →-Constants : Constants Function
+  →-Constants = record { const = F.const }
+
+
 record Boolean {obj : Set o} ⦃ _ : Products obj ⦄
          (_⇨′_ : obj → obj → Set ℓ) : Set (suc o ⊔ ℓ) where
   private infix 0 _⇨_; _⇨_ = _⇨′_
   field
-    ⦃ ⇨Monoidal ⦄ : Monoidal _⇨_
     Bool : obj
     true false : ⊤ ⇨ Bool
     ∧ ∨ xor : Bool × Bool ⇨ Bool
     not : Bool ⇨ Bool
 open Boolean ⦃ … ⦄ public
 
--}
+instance
+
+  import Data.Bool as B
+
+  →-Boolean : Boolean Function
+  →-Boolean = record
+                { Bool = B.Bool
+                ; true = const B.true
+                ; false = const B.false
+                ; ∧ = uncurry B._∧_
+                ; ∨ = uncurry B._∨_
+                ; xor = uncurry B._xor_
+                ; not = B.not
+                }
+
 
 
 import Data.String as S
