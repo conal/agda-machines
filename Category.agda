@@ -162,17 +162,39 @@ instance
   →-Cartesian = record { exl = proj₁ ; exr = proj₂ ; dup = λ z → z , z }
 
 
--- Not really about categories, so maybe move elsewhere
-
 record Meaningful {m} (A : Set o) : Set (suc (m ⊔ o)) where
   field
     Meaning : Set m
     ⟦_⟧ : A → Meaning
 open Meaningful ⦃ … ⦄ public
 
+{-
+
+record Boolean {obj : Set o} ⦃ _ : Products obj ⦄
+         (_⇨′_ : obj → obj → Set ℓ) : Set (suc o ⊔ ℓ) where
+  private infix 0 _⇨_; _⇨_ = _⇨′_
+  field
+    ⦃ ⇨Monoidal ⦄ : Monoidal _⇨_
+    Bool : obj
+    true false : ⊤ ⇨ Bool
+    ∧ ∨ xor : Bool × Bool ⇨ Bool
+    not : Bool ⇨ Bool
+
+-- record Constants {obj : Set o} ⦃ _ : Products obj ⦄
+--          {m} ⦃ _ : Meaningful {m = m} obj ⦄
+--          (_⇨′_ : obj → obj → Set ℓ) : Set (suc o ⊔ ℓ) where
+--   private infix 0 _⇨_; _⇨_ = _⇨′_
+--   field
+--     ⦃ ⇨Monoidal ⦄ : Monoidal _⇨_
+--   --   constraint : obj → Set -- level?
+--     const : ∀ {A : obj} {- → constraint A -} → ⟦ A ⟧ → ⊤ ⇨ A  -- In another class
+
+-}
+
 import Data.String as S
 open S using (String)
 
+-- Not really about categories, so maybe move elsewhere
 record Show (A : Set o) : Set (suc o) where
   field
     show : A → String
