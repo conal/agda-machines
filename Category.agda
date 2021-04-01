@@ -134,7 +134,7 @@ record Meaningful {m} {μ : Set m} (A : Set o) : Set (suc (m ⊔ o)) where
     ⟦_⟧ : A → μ
 open Meaningful ⦃ … ⦄ public
 
-record Constants {obj : Set o} ⦃ _ : Products obj ⦄
+record Constant {obj : Set o} ⦃ _ : Products obj ⦄
          {m} ⦃ _ : Meaningful {μ = Set m} obj ⦄
          (_⇨′_ : obj → obj → Set ℓ) : Set (suc o ⊔ ℓ ⊔ m) where
   private infix 0 _⇨_; _⇨_ = _⇨′_
@@ -142,7 +142,7 @@ record Constants {obj : Set o} ⦃ _ : Products obj ⦄
     -- Maybe add a constraint
     -- constraint : obj → Set -- level?
     const : ∀ {A : obj} {- → constraint A -} → ⟦ A ⟧ → ⊤ ⇨ A  -- In another class
-open Constants ⦃ … ⦄ public
+open Constant ⦃ … ⦄ public
 
 
 record Boolean {obj : Set o} ⦃ _ : Products obj ⦄
@@ -206,7 +206,7 @@ module →Instances where
     meaningful : Meaningful (Set ℓ)
     meaningful = record { ⟦_⟧ = id }
 
-    constants : Constants Function
+    constants : Constant Function
     constants = record { const = const′ }
 
     import Data.Bool as B

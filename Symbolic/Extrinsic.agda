@@ -99,7 +99,7 @@ module p where
                                }
                     }
 
-    constants : Constants _⇨_
+    constants : Constant _⇨_
     constants = record { const = `const }
 
     boolean : Boolean _⇨_
@@ -163,7 +163,7 @@ module c where
     cartesian : Cartesian _⇨_
     cartesian = record { exl = route exl ; exr = route exr ; dup = route dup }
 
-    constants : Constants _⇨_
+    constants : Constant _⇨_
     constants = record { const = prim ∘ const }
 
     boolean : Boolean _⇨_
@@ -235,7 +235,7 @@ module s where
     cartesian : Cartesian _⇨_
     cartesian = record { exl = comb exl ; exr = comb exr ; dup = comb dup }
 
-    constants : Constants _⇨_
+    constants : Constant _⇨_
     constants = record { const = comb ∘ const }
 
     boolean : Boolean _⇨_
