@@ -205,3 +205,23 @@ module ty where
 
     cartesian : Cartesian _⇨_
     cartesian = record { exl = mk exl ; exr = mk exr ; dup = mk dup }
+
+-- Miscellaneous utilities, perhaps to move elsewhere
+module TyMisc where
+
+  shiftR : Bool × A ty.⇨ A × Bool
+  shiftR {⊤}     = swap
+  shiftR {Bool}  = id
+  shiftR {A × B} = assocˡ ∘ second shiftR ∘ assocʳ ∘ first shiftR ∘ assocˡ
+
+  -- λ i , (u , v) → let u′ , m = shiftR (i , u)
+  --                     v′ , o = shiftR (m , v)
+  --                 in
+  --                   (u′ , v′) , o
+
+  -- i , (u , v)
+  -- (i , u) , v
+  -- (u′ , m) , v
+  -- u′ , (m , v)
+  -- u′ , (v′ , o)
+  -- (u′ , v′) , o
