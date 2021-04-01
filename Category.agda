@@ -166,15 +166,17 @@ instance
 
 -- Some category-polymorphic idioms
 module CartUtils {o ℓ}{obj : Set o} {_⇨_ : obj → obj → Set ℓ}
+       (let infix 0 _⇨_; _⇨_ = _⇨_) -- https://github.com/agda/agda/issues/1235
        ⦃ cart : Cartesian _⇨_ ⦄ where
-  -- open Cartesian cart
 
-  infixl 1 _⟫_
-  _⟫_ : (a ⇨ (b × c)) → (c ⇨ (d × e)) → (a ⇨ ((b × d) × e))
-  f ⟫ g = assocˡ ∘ second g ∘ f
+  -- Like _∘_, but accumulating extra outputs
+  -- (g ◂ f) a = let u , b = f a ; v , c = g b in (u , v) , c
+  infixl 1 _◂_
+  _◂_ : ∀ {u v} → (b ⇨ v × c) → (a ⇨ u × b) → (a ⇨ (u × v) × c)
+  g ◂ f = assocˡ ∘ second g ∘ f
 
-  infixl 1 _⟫^_
-  _⟫^_ : (a ⇨ (b × a)) → (n : ℕ) → (a ⇨ (b ↑ n × a))
-  f ⟫^ zero = unitorⁱˡ
-  f ⟫^ suc n = f ⟫ (f ⟫^ n)
-
+  -- Repeated _◂_
+  infixl 5 _↱_
+  _↱_ : (a ⇨ b × a) → (n : ℕ) → (a ⇨ b ↑ n × a)
+  f ↱ zero  = unitorⁱˡ
+  f ↱ suc n = (f ↱ n) ◂ f
