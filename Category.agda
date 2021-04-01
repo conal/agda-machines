@@ -61,7 +61,7 @@ open Products ⦃ … ⦄ public
 
 record Monoidal {obj : Set o} ⦃ _ : Products obj ⦄
          (_⇨′_ : obj → obj → Set ℓ) : Set (suc o ⊔ ℓ) where
-  private infix 0 _⇨_;_⇨_ = _⇨′_
+  private infix 0 _⇨_; _⇨_ = _⇨′_
   infixr 7 _⊗_
   field
     ⦃ ⇨cat ⦄ : Category _⇨_
@@ -107,7 +107,7 @@ instance
 
 record Braided {obj : Set o} ⦃ _ : Products obj ⦄
          (_⇨′_ : obj → obj → Set ℓ) : Set (suc o ⊔ ℓ) where
-  private infix 0 _⇨_;_⇨_ = _⇨′_
+  private infix 0 _⇨_; _⇨_ = _⇨′_
   field
     ⦃ ⇨Monoidal ⦄ : Monoidal _⇨_
     swap : a × b ⇨ b × a
@@ -131,7 +131,7 @@ instance
 
 record Cartesian {obj : Set o} ⦃ _ : Products obj ⦄
          (_⇨′_ : obj → obj → Set ℓ) : Set (suc o ⊔ ℓ) where
-  private infix 0 _⇨_;_⇨_ = _⇨′_
+  private infix 0 _⇨_; _⇨_ = _⇨′_
   field
     ⦃ ⇨Braided ⦄ : Braided _⇨_
     exl : a × b ⇨ a
@@ -178,7 +178,7 @@ instance
 
 -- Some category-polymorphic idioms
 module CartUtils ⦃ _ : Products obj ⦄
-  {_⇨_ : obj → obj → Set ℓ} (let infix 0 _⇨_;_⇨_ = _⇨_) -- Note
+  {_⇨_ : obj → obj → Set ℓ} (let infix 0 _⇨_; _⇨_ = _⇨_) -- Note
   ⦃ cart : Cartesian _⇨_ ⦄ where
 
   -- Note: fixity hack. See https://github.com/agda/agda/issues/1235
