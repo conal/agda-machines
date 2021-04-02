@@ -1,6 +1,7 @@
 ## To do
 
 *   LFSR (linear feedback shift register) example (in progress).
+    *   Change to size `suc n`, eliminating the `false` for `zero`.
 
 *   Level-generalize the instances of `products` and `boolean` for functions in `Category`.
     This one is trickier than I expected, as there are so many uses of that category.
