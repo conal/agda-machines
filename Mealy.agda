@@ -5,11 +5,11 @@
 
 module Mealy where
 
-open import Data.Sum     hiding (map)
-open import Data.Product hiding (map) renaming (map₁ to map×₁; swap to swap×)
+-- open import Data.Sum     hiding (map)
+open import Data.Product using (_,_)
 open import Data.Unit
 
--- open import Ty
+open import Category
 
 -- TODO: Use Set instead of Ty here, introducing Ty in Symbolic.Extrinsic.
 
@@ -30,11 +30,8 @@ record _⇨_ (A B : Set) : Set₁ where
 
 -- Mapping a function (empty state, i.e., combinational logic)
 arr : (A → B) → (A ⇨ B)
-arr f = mealy tt (map×₁ f)
+arr f = mealy tt (first f)
                  -- λ (a , tt) → f a , tt
-
-import Category as C
-open import Category hiding (⊤; _×_)
 
 import VecFun as VF
 open VF hiding (delay; arr; scanl)
@@ -69,8 +66,8 @@ module _ where
                  ; unitorᵉʳ = arr unitorᵉʳ
                  ; unitorⁱˡ = arr unitorⁱˡ
                  ; unitorⁱʳ = arr unitorⁱʳ
-                 ; assocʳ = arr C.assocʳ
-                 ; assocˡ = arr C.assocˡ
+                 ; assocʳ = arr assocʳ
+                 ; assocˡ = arr assocˡ
                  }
      where
         _⊗′_ : (A ⇨ C) → (B ⇨ D) → (A × B ⇨ C × D)
@@ -81,7 +78,10 @@ module _ where
             (c , d) , (s′ , t′)
 
     braided : Braided _⇨_
-    braided = record { swap = arr C.swap }
+    braided = record { swap = arr swap }
+
+    logic : Logic _⇨_
+    logic = record { ∧ = arr ∧ ; ∨ = arr ∨ ; xor = arr xor ; not = arr not }
 
 -- -- Conditional/choice composition / coproduct tensor
 -- infixr 6 _⊕_
@@ -92,7 +92,7 @@ module _ where
 
 -- Cons (memory/register)
 delay : A → (A ⇨ A)
-delay a₀ = mealy a₀ swap×
+delay a₀ = mealy a₀ swap
                     -- (λ (next , prev) → prev , next)
 
 scanl : (B → A → B) → B → A ⇨ B
