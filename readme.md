@@ -14,6 +14,8 @@ Makefile targets:
 
 *   `compile`: compiles the `Test` module, but you can compile faster from within the Emacs mode (`∁-c C­x C-c`).
 *   `tests`: generates circuit diagrams in the `Figures` subdirectory (dot files and their PDF renderings).
+*   `listings`: renders source code to deeply hyper-linked HTML.
+    Start perusing at `html/Everything.html`.
 
 ## Summary of important modules
 
