@@ -1,5 +1,7 @@
 ## To do
 
+*   LFSR (linear feedback shift register) example (in progress).
+
 *   Level-generalize the instances of `products` and `boolean` for functions in `Category`.
     This one is trickier than I expected, as there are so many uses of that category.
 *   Add laws to the category classes.
