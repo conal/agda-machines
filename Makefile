@@ -14,9 +14,6 @@ Test:
 
 compile: Test
 
-
-# compile: Test
-
 tests: Test
 	./Test
 	make -C Figures
