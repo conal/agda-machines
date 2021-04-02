@@ -2,6 +2,7 @@ module Test where
 
 open import Level using (0ℓ)
 open import Data.Nat
+open import Data.Product using (_,_)
 open import Data.Unit.Polymorphic renaming (⊤ to ⊤′)
 open import Data.Bool using (true; false)
 open import Data.Vec using ([_]; []; _∷_)
