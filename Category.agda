@@ -5,13 +5,14 @@
 
 module Category where
 
-open import Level
+open import Level renaming (suc to lsuc)
 open import Function using (_∘′_) renaming (id to id′; const to const′)
 open import Relation.Binary.PropositionalEquality
+open import Data.Nat using (ℕ; zero; suc)
 
 private variable o ℓ : Level
 
-record Category {obj : Set o} (_⇨_ : obj → obj → Set ℓ) : Set (suc o ⊔ ℓ) where
+record Category {obj : Set o} (_⇨_ : obj → obj → Set ℓ) : Set (lsuc o ⊔ ℓ) where
   infixr 9 _∘_
   -- infix 4 _≈_
   field
@@ -35,7 +36,7 @@ private
     a b c d e : obj
     a′ b′ c′ d′ e′ : obj
 
-record Products (obj : Set o) : Set (suc o) where
+record Products (obj : Set o) : Set (lsuc o) where
   infixr 2 _×_
   field
     ⊤ : obj
@@ -50,7 +51,7 @@ record Products (obj : Set o) : Set (suc o) where
 open Products ⦃ … ⦄ public
 
 record Monoidal {obj : Set o} ⦃ _ : Products obj ⦄
-         (_⇨′_ : obj → obj → Set ℓ) : Set (suc o ⊔ ℓ) where
+         (_⇨′_ : obj → obj → Set ℓ) : Set (lsuc o ⊔ ℓ) where
   private infix 0 _⇨_; _⇨_ = _⇨′_
   infixr 7 _⊗_
   field
@@ -90,7 +91,7 @@ open import Data.Product using (_,_; proj₁; proj₂; uncurry)
   renaming (_×_ to _×′_)
 
 record Braided {obj : Set o} ⦃ _ : Products obj ⦄
-         (_⇨′_ : obj → obj → Set ℓ) : Set (suc o ⊔ ℓ) where
+         (_⇨′_ : obj → obj → Set ℓ) : Set (lsuc o ⊔ ℓ) where
   private infix 0 _⇨_; _⇨_ = _⇨′_
   field
     ⦃ ⇨Monoidal ⦄ : Monoidal _⇨_
@@ -113,7 +114,7 @@ open Braided ⦃ … ⦄ public
 
 
 record Cartesian {obj : Set o} ⦃ _ : Products obj ⦄
-         (_⇨′_ : obj → obj → Set ℓ) : Set (suc o ⊔ ℓ) where
+         (_⇨′_ : obj → obj → Set ℓ) : Set (lsuc o ⊔ ℓ) where
   private infix 0 _⇨_; _⇨_ = _⇨′_
   field
     ⦃ ⇨Braided ⦄ : Braided _⇨_
@@ -129,14 +130,14 @@ record Cartesian {obj : Set o} ⦃ _ : Products obj ⦄
 open Cartesian ⦃ … ⦄ public
 
 
-record Meaningful {m} {μ : Set m} (A : Set o) : Set (suc (m ⊔ o)) where
+record Meaningful {m} {μ : Set m} (A : Set o) : Set (lsuc (m ⊔ o)) where
   field
     ⟦_⟧ : A → μ
 open Meaningful ⦃ … ⦄ public
 
 record Constant {obj : Set o} ⦃ _ : Products obj ⦄
          {m} ⦃ _ : Meaningful {μ = Set m} obj ⦄
-         (_⇨′_ : obj → obj → Set ℓ) : Set (suc o ⊔ ℓ ⊔ m) where
+         (_⇨′_ : obj → obj → Set ℓ) : Set (lsuc o ⊔ ℓ ⊔ m) where
   private infix 0 _⇨_; _⇨_ = _⇨′_
   field
     -- Maybe add a constraint
@@ -145,14 +146,18 @@ record Constant {obj : Set o} ⦃ _ : Products obj ⦄
 open Constant ⦃ … ⦄ public
 
 
-record Boolean {obj : Set o} ⦃ _ : Products obj ⦄
-         (_⇨′_ : obj → obj → Set ℓ) : Set (suc o ⊔ ℓ) where
-  private infix 0 _⇨_; _⇨_ = _⇨′_
+record Boolean (obj : Set o) : Set (lsuc o) where
   field
     Bool : obj
+open Boolean ⦃ … ⦄ public
+
+record Logic {obj : Set o} ⦃ _ : Products obj ⦄ ⦃ _ : Boolean obj ⦄
+         (_⇨′_ : obj → obj → Set ℓ) : Set (lsuc o ⊔ ℓ) where
+  private infix 0 _⇨_; _⇨_ = _⇨′_
+  field
     ∧ ∨ xor : Bool × Bool ⇨ Bool
     not : Bool ⇨ Bool
-open Boolean ⦃ … ⦄ public
+open Logic ⦃ … ⦄ public
 
 
 
@@ -160,14 +165,10 @@ import Data.String as S
 open S using (String)
 
 -- Not really about categories, so maybe move elsewhere
-record Show (A : Set o) : Set (suc o) where
+record Show (A : Set o) : Set (lsuc o) where
   field
     show : A → String
 open Show ⦃ … ⦄ public
-
-open import Data.Nat
-import Data.Nat.Show as NS
-
 
 module →Instances where
 
@@ -211,17 +212,30 @@ module →Instances where
 
     import Data.Bool as B
 
-    boolean : Boolean Function
-    boolean = record
-                 { Bool  = B.Bool
-                 ; ∧     = uncurry B._∧_
-                 ; ∨     = uncurry B._∨_
-                 ; xor   = uncurry B._xor_
-                 ; not   = B.not
-                 }
+    boolean : Boolean Set
+    boolean = record { Bool  = B.Bool }
+
+    logic : Logic Function
+    logic = record
+              { ∧     = uncurry B._∧_
+              ; ∨     = uncurry B._∨_
+              ; xor   = uncurry B._xor_
+              ; not   = B.not
+              }
+
+    import Data.Nat.Show as NS
+    open import Data.Fin using (Fin)
+    import Data.Fin.Show as FS
 
     ℕ-Show : Show ℕ
     ℕ-Show = record { show = NS.show }
+
+    Fin-Show : ∀ {n} → Show (Fin n)
+    Fin-Show = record { show = FS.show }
+
+    import Data.String as S
+    String-Show : Show S.String
+    String-Show = record { show = S.show }
 
     -- etc
 

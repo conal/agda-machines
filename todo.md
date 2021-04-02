@@ -1,5 +1,7 @@
 ## To do
 
+*   Replace most uses of `_∘′_` with `_∘_` (now that `Function` is a category).
+*   Level-generalize the `products` and `boolean` instances in `Category`.
 *   Rename `Ty` constructors to start with backquote.
     Revisit all `Category` imports to remove `hiding` of the old `Ty` names.
     Remove `Boolᵗ` now that `Bool` has many meanings.
@@ -15,6 +17,9 @@
 
 ## Did
 
+*   Treat `Bool` like `⊤` and `_×_`, hoisting out of `Boolean` into a class of objects rather than of morphisms.
+    Rename the morphism class from "`Boolean`" to "`Logic`".
+    Revisit `TyUtils`, replacing ``Bool` by `Bool`.
 *   Rename `Constants` class to "`Constant`".
 *   Gather all of the instances in `Category` under one `instance` heading.
     Then submerge in a local module, and replace the names by generic names (as used elsewhere).

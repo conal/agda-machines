@@ -2,20 +2,16 @@ module Dot where
 
 open import Function using (_∘′_; _∋_)
 open import Data.Fin using (Fin; toℕ; suc; zero)
-open import Data.Fin.Show as FS
 open import Data.Nat using (ℕ; suc; zero)
-open import Data.Nat.Show as NS
-open import Data.String hiding (toList; concat)
+open import Data.String hiding (toList; concat; show)
 open import Data.List using (List; []; _∷_; concat; map; upTo)
   renaming (_++_ to _++ᴸ_)
 open import Relation.Binary.PropositionalEquality using (_≡_; refl)
 
-import Category as C
+open import Category
 open import Ty renaming (map to mapᵀ)
 open import Symbolic.Extrinsic
 open import Symbolic.StackProg
-
-open C hiding (⊤; _×_; Bool)
 
 private variable a b c d i o s z zⁱ zᵒ zᵃ : Ty
 
@@ -41,7 +37,7 @@ labels : String → (String → String) → Ty → String
 labels tag f a with size a
 ... | zero = ""   -- No braces or "|", to avoid port appearance
 ... | n@(suc _) = f (braces (
- intersperse "|" (map (λ i → "<" ++ tag ++ NS.show i ++ ">") (upTo n))))
+ intersperse "|" (map (λ i → "<" ++ tag ++ show i ++ ">") (upTo n))))
 
 labelsⁱ : Ty → String
 labelsⁱ = labels "In" (_++ "|")
@@ -50,7 +46,7 @@ labelsᵒ : Ty → String
 labelsᵒ = labels "Out" ("|" ++_)
 
 showIx : TyIx a → String
-showIx = FS.show ∘′ toFin
+showIx = show ∘′ toFin
 
 wire : String → TyIx a → OPort → String
 wire compName i oport = oport ++ " -> " ++  compName ++ ":In" ++ showIx i
@@ -87,8 +83,8 @@ module _ {s} (state₀ : ⟦ s ⟧) where
 
   dotᵏ comp# ins (f k.∷ʳ (a , a⇨ₚb , i×zⁱ⇨ᵣa×zᵃ)) with r.⟦ i×zⁱ⇨ᵣa×zᵃ ⟧′ ins
   ...                                                | os ､ ss =
-    let compName = "c" ++ NS.show comp# in
-      comp compName (C.show a⇨ₚb) os (p.cod a⇨ₚb)
+    let compName = "c" ++ show comp# in
+      comp compName (show a⇨ₚb) os (p.cod a⇨ₚb)
       ++ᴸ dotᵏ (suc comp#) (mapᵀ (oport compName) allIx ､ ss) f
 
   dot : i × s sf.⇨ o × s → String

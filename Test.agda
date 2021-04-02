@@ -9,7 +9,7 @@ open import Data.String
 open import IO
 
 import Category as C
-open C hiding (⊤; _×_; Bool) ; open CartUtils
+open C ; open CartUtils
 open import Ty hiding (Boolᵗ)
 open import Symbolic.Extrinsic
 open import Symbolic.StackProg
@@ -128,9 +128,9 @@ main = run do
   -- exampleˢ "toggle-1"   se.toggle₁
   -- exampleˢ "toggle-2"   se.toggle₂
   -- exampleˢ "toggle-4"   se.toggle₄
-  -- exampleˢ "toggles"    se.toggles
+  exampleˢ "toggles"    se.toggles
 
   -- exampleˢ "shift-1" se.shift₁
   -- exampleˢ "shift-5" (se.shifts 5)
 
-  exampleᶜ "shiftR-5" (ce.shiftRs {5})
+  -- exampleᶜ "shiftR-5" (ce.shiftRs {5})

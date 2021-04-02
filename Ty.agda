@@ -12,35 +12,42 @@ open import Data.Nat
 open import Data.String hiding (toVec; toList)
 
 import Category as C
-open C hiding (⊤; _×_; Bool)
+open C
 
-infixr 2 _×_
+infixr 2 _`×_
 data Ty : Set where
-  ⊤    : Ty
-  Bool : Ty
-  _×_  : Ty → Ty → Ty
+  `⊤    : Ty
+  `Bool : Ty
+  _`×_  : Ty → Ty → Ty
 
 private variable A B C D : Ty
 
-instance
+module tyv where
+  instance
 
-  Ty-Meaningful : Meaningful Ty
-  Ty-Meaningful = record { ⟦_⟧ = ⟦_⟧ᵗ }
-   where
-     ⟦_⟧ᵗ : Ty → Set
-     ⟦ ⊤ ⟧ᵗ     = ⊤ᵗ
-     ⟦ σ × τ ⟧ᵗ = ⟦ σ ⟧ᵗ ×ᵗ ⟦ τ ⟧ᵗ
-     ⟦ Bool ⟧ᵗ  = Boolᵗ
+    meaningful : Meaningful Ty
+    meaningful = record { ⟦_⟧ = ⟦_⟧ᵗ }
+     where
+       ⟦_⟧ᵗ : Ty → Set
+       ⟦ `⊤ ⟧ᵗ     = ⊤ᵗ
+       ⟦ σ `× τ ⟧ᵗ = ⟦ σ ⟧ᵗ ×ᵗ ⟦ τ ⟧ᵗ
+       ⟦ `Bool ⟧ᵗ  = Boolᵗ
+
+    products : Products Ty
+    products = record { ⊤ = `⊤ ; _×_ = _`×_ }
+
+    boolean : Boolean Ty
+    boolean = record { Bool = `Bool }
 
 showTy : ⟦ A ⟧ → String
 showTy = go true
  where
    -- flag says we're in the left part of a pair
    go : Boolᵗ → ⟦ A ⟧ → String
-   go {⊤} _ tt = "tt"
-   go {Bool} _ b = BS.show b
-   go {_ × _} p (x , y) = (if p then parens else id)
-                          (go true x ++ "," ++ go false y)
+   go {`⊤} _ tt = "tt"
+   go {`Bool} _ b = BS.show b
+   go {_ `× _} p (x , y) = (if p then parens else id)
+                           (go true x ++ "," ++ go false y)
 
 -- infix 0 _→ᵗ_
 -- _→ᵗ_ : Ty → Ty → Set
@@ -65,9 +72,9 @@ instance
   TyIx-Meaningful = record { ⟦_⟧ = ⟦_⟧ᵇ }
 
 tabulate : (TyIx A → Boolᵗ) → ⟦ A ⟧
-tabulate {⊤} f = tt
-tabulate {Bool} f = f here
-tabulate {_ × _} f = tabulate (f ∘ left) , tabulate (f ∘ right)
+tabulate {`⊤} f = tt
+tabulate {`Bool} f = f here
+tabulate {_ `× _} f = tabulate (f ∘ left) , tabulate (f ∘ right)
 
 lookup : ⟦ A ⟧ → (TyIx A → Boolᵗ)
 lookup a i = ⟦ i ⟧ᵇ a
@@ -86,9 +93,9 @@ data TyF (X : Set) : Ty → Set where
   _､_ : TyF X A → TyF X B → TyF X (A × B)
 
 tabulate′ : (TyIx A → X) → TyF X A
-tabulate′ {⊤} f = •
-tabulate′ {Bool} f = [ f here ]
-tabulate′ {_ × _} f = tabulate′ (f ∘ left) ､ tabulate′ (f ∘ right)
+tabulate′ {`⊤} f = •
+tabulate′ {`Bool} f = [ f here ]
+tabulate′ {_ `× _} f = tabulate′ (f ∘ left) ､ tabulate′ (f ∘ right)
 
 lookup′ : TyF X A → (TyIx A → X)
 lookup′ [ x ] here = x
@@ -99,9 +106,9 @@ swizzle′ : (TyIx B → TyIx A) → ∀ {X} → TyF X A → TyF X B
 swizzle′ r a = tabulate′ (lookup′ a ∘ r)
 
 →TyF : ⟦ A ⟧ → TyF Boolᵗ A
-→TyF {⊤} tt = •
-→TyF {Bool} b = [ b ]
-→TyF {_ × _} (x , y) = →TyF x ､ →TyF y
+→TyF {`⊤} tt = •
+→TyF {`Bool} b = [ b ]
+→TyF {_ `× _} (x , y) = →TyF x ､ →TyF y
 
 TyF→ : TyF Boolᵗ A → ⟦ A ⟧
 TyF→ • = tt
@@ -119,9 +126,9 @@ open import Data.Vec using (Vec; []; _∷_)
   renaming (_++_ to _++ⁿ_; toList to toListⁿ)
 
 size : Ty → ℕ
-size ⊤       = 0
-size Bool    = 1
-size (A × B) = size A + size B
+size `⊤       = 0
+size `Bool    = 1
+size (A `× B) = size A + size B
 
 open import Data.Fin
 
@@ -146,14 +153,14 @@ map f [ x ] = [ f x ]
 map f (u ､ v) = map f u ､ map f v
 
 allFin : TyF (Fin (size A)) A
-allFin {⊤} = •
-allFin {Bool} = [ zero ]
-allFin {_ × _} = map (inject+ _) allFin ､ map (raise _) allFin
+allFin {`⊤} = •
+allFin {`Bool} = [ zero ]
+allFin {_ `× _} = map (inject+ _) allFin ､ map (raise _) allFin
 
 allIx : TyF (TyIx A) A
-allIx {⊤} = •
-allIx {Bool} = [ here ]
-allIx {_ × _} = map left allIx ､ map right allIx
+allIx {`⊤} = •
+allIx {`Bool} = [ here ]
+allIx {_ `× _} = map left allIx ､ map right allIx
 
 infixl 4 _⊛_
 _⊛_ : TyF (X → Y) A → TyF X A → TyF Y A
@@ -186,9 +193,6 @@ module ty where
       -- ; assoc = refl
       }
 
-    products : Products Ty
-    products = record { ⊤ = ⊤ ; _×_ = _×_ }
-
     monoidal : Monoidal _⇨_
     monoidal = record
       { _⊗_ = λ (mk f) (mk g) → mk λ (x , y) → f x , g y
@@ -211,12 +215,12 @@ module ty where
 module TyUtils {ℓ} {_⇨_ : Ty → Ty → Set ℓ} (let infix 0 _⇨_; _⇨_ = _⇨_)
                where
 
-  module _ ⦃ _ : Braided ⦃ ty.products ⦄ _⇨_ ⦄ where
+  module _ ⦃ _ : Braided ⦃ tyv.products ⦄ _⇨_ ⦄ where
 
     shiftR′ : Bool × A ⇨ A × Bool
-    shiftR′ {⊤}     = swap
-    shiftR′ {Bool}  = id
-    shiftR′ {_ × _} = assocˡ ∘ second shiftR′ ∘ assocʳ ∘ first shiftR′ ∘ assocˡ
+    shiftR′ {`⊤}     = swap
+    shiftR′ {`Bool}  = id
+    shiftR′ {_ `× _} = assocˡ ∘ second shiftR′ ∘ assocʳ ∘ first shiftR′ ∘ assocˡ
 
     -- i , (u , v)
     -- (i , u) , v
@@ -226,9 +230,9 @@ module TyUtils {ℓ} {_⇨_ : Ty → Ty → Set ℓ} (let infix 0 _⇨_; _⇨_ =
     -- (u′ , v′) , o
 
     shiftL′ : A × Bool ⇨ Bool × A
-    shiftL′ {⊤}     = swap
-    shiftL′ {Bool}  = id
-    shiftL′ {_ × _} = assocʳ ∘ first shiftL′ ∘ assocˡ ∘ second shiftL′ ∘ assocʳ
+    shiftL′ {`⊤}     = swap
+    shiftL′ {`Bool}  = id
+    shiftL′ {_ `× _} = assocʳ ∘ first shiftL′ ∘ assocˡ ∘ second shiftL′ ∘ assocʳ
 
     -- (u , v) , i
     -- u , (v , i)
@@ -237,7 +241,7 @@ module TyUtils {ℓ} {_⇨_ : Ty → Ty → Set ℓ} (let infix 0 _⇨_; _⇨_ =
     -- (o , u′) , v′
     -- o , (u′ , v′)
 
-  module _ ⦃ _ : Cartesian ⦃ ty.products ⦄ _⇨_ ⦄ where
+  module _ ⦃ _ : Cartesian ⦃ tyv.products ⦄ _⇨_ ⦄ where
 
     shiftR : Bool × A ⇨ A
     shiftR = exl ∘ shiftR′

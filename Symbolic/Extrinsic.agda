@@ -11,7 +11,7 @@ open import Function using (_on_) renaming (const to const′)
 open import Ty
 
 import Category as C
-open C hiding (⊤; _×_; Bool)
+open C
 
 private
   variable
@@ -102,14 +102,8 @@ module p where
     constants : Constant _⇨_
     constants = record { const = `const }
 
-    boolean : Boolean _⇨_
-    boolean = record
-                { Bool  = Bool
-                ; ∧     = `∧
-                ; ∨     = `∨
-                ; xor   = `xor
-                ; not   = `not
-                }
+    logic : Logic _⇨_
+    logic = record { ∧ = `∧ ; ∨ = `∨ ; xor = `xor ; not = `not }
 
   dom : A ⇨ B → Ty
   dom {A}{B} _ = A
@@ -166,14 +160,9 @@ module c where
     constants : Constant _⇨_
     constants = record { const = prim ∘ const }
 
-    boolean : Boolean _⇨_
-    boolean = record
-                { Bool  = Bool
-                ; ∧     = prim ∧
-                ; ∨     = prim ∨
-                ; xor   = prim xor
-                ; not   = prim not
-                }
+    logic : Logic _⇨_
+    logic =
+      record { ∧ = prim ∧ ; ∨ = prim ∨ ; xor = prim xor ; not = prim not}
 
 -- Synchronous state machine.
 module s where
@@ -238,11 +227,5 @@ module s where
     constants : Constant _⇨_
     constants = record { const = comb ∘ const }
 
-    boolean : Boolean _⇨_
-    boolean = record
-                { Bool  = Bool
-                ; ∧     = comb ∧
-                ; ∨     = comb ∨
-                ; xor   = comb xor
-                ; not   = comb not
-                }
+    logic : Logic _⇨_
+    logic = record { ∧ = comb ∧ ; ∨ = comb ∨ ; xor = comb xor ; not = comb not }
