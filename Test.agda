@@ -115,11 +115,10 @@ module se where
   -- lfsr : ∀ n → Bool ↑ n → Bool ↑ n → Bool ↑ n ⇨ Bool ↑ n
   -- lfsr n cs s₀ = mealy {!s₀!} (second (ce.lfsr n cs))
 
-  lfsr₅ : ⊤ ⇨ ⊤
+  lfsr₅ : ⊤ ⇨ Bool ↑ 6
   lfsr₅ =
-    mealy (false , true , false , true , true , false , tt) (second ce.lfsr₅)
-
-  -- Oh, oops! I need to fork the output!
+    mealy (false , true , false , true , true , false , tt)
+          (dup ∘ ce.lfsr₅ ∘ unitorᵉˡ)
 
 exampleˢ : ∀ {i o} → String → i s.⇨ o → IO {0ℓ} ⊤′
 exampleˢ name (s.mealy {s} state₀ f) =
