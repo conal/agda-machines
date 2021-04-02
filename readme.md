@@ -4,26 +4,18 @@ This Agda project plays with composable Mealy machines with compositional/functo
 
 ## Dependencies
 
-Circuit graph rendering requires [GraphViz](https://graphviz.org/).
-
-https://github.com/agda/agda/issues/3619
+*   [Agda compiler](https://agda.readthedocs.io/en/latest/getting-started/installation.html#installing-the-agda-and-the-agda-mode-programs)
+*   Haskell [ieee754 package](https://github.com/agda/agda/issues/3619) (as described under Troubleshooting below)
+*   [GraphViz](https://graphviz.org/) for circuit graph rendering
 
 ## Building
 
 Makefile targets:
 
-*   `compile`: compiles the `Test` module, but you can compile faster from within the Emacs mode (`∁-c C­x C-C`).
+*   `compile`: compiles the `Test` module, but you can compile faster from within the Emacs mode (`∁-c C­x C-c`).
 *   `tests`: generates circuit diagrams in the `Figures` subdirectory (dot files and their PDF renderings).
 
-
 ## Summary of important modules
-=======
-
-If you get an error message "`Could not find module ‘Numeric.IEEE’`", then there is one Haskell package [you need to have installed](https://github.com/agda/agda/issues/3619#issuecomment-665232148):
-```
-cabal v1-install ieee754
-```
->>>>>>> origin/main
 
 A quick summary of the important modules:
 
