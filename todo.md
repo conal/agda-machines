@@ -1,8 +1,5 @@
 ## To do
 
-*   LFSR (linear feedback shift register) example (in progress).
-    *   Change to size `suc n`, eliminating the `false` for `zero`.
-
 *   Level-generalize the instances of `products` and `boolean` for functions in `Category`.
     This one is trickier than I expected, as there are so many uses of that category.
 *   Add laws to the category classes.
@@ -16,6 +13,8 @@
 
 ## Did
 
+*   LFSR (linear feedback shift register) example (in progress).
+    Change to size `suc n`, eliminating the `false` for `zero`.
 *   Omit components if inputs and outputs are both empty (hence disconnected).
     Or maybe just for `input` and `output` at first, to see if any other disconnected components appear.
 *   Update `VecFun` with a record wrapper and use of category vocabulary.
