@@ -9,8 +9,10 @@ all : tests
 # Is there a build tool for Agda that tracks dependencies?
 
 # Compile unconditionally
-compile:
+Test:
 	agda --compile Test.agda
+
+compile: Test
 
 tests: Test
 	./Test
@@ -20,3 +22,6 @@ listings:
 	@mkdir -p html
 	agda -i. --html Everything.agda
 
+
+clean:
+	rm -f Test

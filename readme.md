@@ -1,19 +1,21 @@
+## Introduction
+
 This Agda project plays with composable Mealy machines with compositional/functorial semantics to generate computational hardware.
+
+## Dependencies
 
 Circuit graph rendering requires [GraphViz](https://graphviz.org/).
 
 https://github.com/agda/agda/issues/3619
+
+## Building
 
 Makefile targets:
 
 *   `compile`: compiles the `Test` module, though doing so faster from within the Emacs mode (`∁-c C­x C-C`).
 *   `tests`: generates circuit diagrams in the `Figures` subdirectory (dot files and their PDF renderings).
 
-
-If you get an error message "`Could not find module ‘Numeric.IEEE’`", then there is one Haskell package you need to have installed:
-```
-cabal v1-install ieee754
-```
+## Summary of important modules
 
 A quick summary of the important modules:
 
@@ -38,3 +40,26 @@ A quick summary of the important modules:
 
 There are many semantic functions (`⟦_⟧`) mapping between categories.
 Every one of them should be functorial, which is to say that the representation faithfully implements its meaning.
+
+## Troubleshooting
+
+If you get an error message "`Could not find module ‘Numeric.IEEE’`", then there is one Haskell package you need to have installed:
+```
+cabal v2-install ieee754
+```
+
+```
+Calling: ghc -O -o /Users/sseefried/code/agda-machines/Test -Werror -i/Users/sseefried/code/agda-machines -main-is MAlonzo.Code.Test /Users/sseefried/code/agda-machines/MAlonzo/Code/Test.hs --make -fwarn-incomplete-patterns -fno-warn-overlapping-patterns
+[  1 of 153] Compiling MAlonzo.RTE      ( MAlonzo/RTE.hs, MAlonzo/RTE.o )
+Compilation error:
+
+MAlonzo/RTE.hs:9:1: error:
+    Could not find module ‘Numeric.IEEE’
+    Use -v (or `:set -v` in ghci) to see a list of the files searched for.
+  |
+9 | import Numeric.IEEE ( IEEE(identicalIEEE, nan) )
+  | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+```
+
+You can find out how to more about how to solve this problem [here](https://agda.readthedocs.io/en/latest/getting-started/installation.html)
+under the heading "Installing the agda and agda-mode programs".
