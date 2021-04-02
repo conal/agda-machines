@@ -15,6 +15,8 @@
 
 ## Did
 
+*   Omit components if inputs and outputs are both empty (hence disconnected).
+    Or maybe just for `input` and `output` at first, to see if any other disconnected components appear.
 *   Update `VecFun` with a record wrapper and use of category vocabulary.
 *   Get `VecFun` and `Mealy` back in the game.
 *   Replace most uses of `_∘′_` with `_∘_` (now that `Function` is a category).
