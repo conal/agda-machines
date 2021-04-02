@@ -2,8 +2,6 @@
 
 *   Level-generalize the instances of `products` and `boolean` for functions in `Category`.
     This one is trickier than I expected, as there are so many uses of that category.
-*   Update `VecFun` with a record wrapper and use of category vocabulary.
-*   Get `VecFun` and `Mealy` back in the game.
 *   Add laws to the category classes.
 *   Recreate compiling-to-categories so we can write and read lambda notation instead of combinators!
     See how far we can get with Agda's reflection mechanism.
@@ -15,6 +13,8 @@
 
 ## Did
 
+*   Update `VecFun` with a record wrapper and use of category vocabulary.
+*   Get `VecFun` and `Mealy` back in the game.
 *   Replace most uses of `_∘′_` with `_∘_` (now that `Function` is a category).
 *   Remove `Boolᵗ` now that `Bool` has many meanings.
 *   Rename `Ty` constructors to start with backquote.
