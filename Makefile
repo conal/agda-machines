@@ -1,5 +1,4 @@
 all : tests
-# all : listings
 
 .PHONY: listings tests
 
@@ -24,4 +23,4 @@ listings:
 
 
 clean:
-	rm -f Test
+	rm -rf Test html
