@@ -43,10 +43,7 @@ Every one of them should be functorial, which is to say that the representation 
 
 ## Troubleshooting
 
-If you get an error message "`Could not find module ‘Numeric.IEEE’`", then there is one Haskell package you need to have installed:
-```
-cabal v2-install ieee754
-```
+You might see an error message like this:
 
 ```
 Calling: ghc -O -o /Users/sseefried/code/agda-machines/Test -Werror -i/Users/sseefried/code/agda-machines -main-is MAlonzo.Code.Test /Users/sseefried/code/agda-machines/MAlonzo/Code/Test.hs --make -fwarn-incomplete-patterns -fno-warn-overlapping-patterns
@@ -61,5 +58,10 @@ MAlonzo/RTE.hs:9:1: error:
   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ```
 
-You can find out how to more about how to solve this problem [here](https://agda.readthedocs.io/en/latest/getting-started/installation.html)
-under the heading "Installing the agda and agda-mode programs".
+You can fix this with:
+
+```
+cabal v2-install ieee754
+```
+
+You can find out how to more about how to solve this problem [here](https://agda.readthedocs.io/en/latest/getting-started/installation.html#installing-the-agda-and-the-agda-mode-programs).
