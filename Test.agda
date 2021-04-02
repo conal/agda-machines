@@ -9,6 +9,7 @@ import Data.Bool as B  -- temporary
 open import Data.Bool using (true; false; if_then_else_)
 open import Data.Vec using ([_]; []; _∷_)
 open import Data.String
+open import Relation.Binary.PropositionalEquality using (subst)
 open import IO
 
 import Category as C
@@ -107,18 +108,17 @@ module se where
   shifts : ∀ n → Bool ⇨ Bool ↑ n
   shifts n = exl ∘ (shift₁ ↱ n)
 
-  -- -- General feedback right-shift register
-  -- fsr : ∀ n → {!B.Bool ↑ n!} → (Bool ↑ n c.⇨ Bool) → (⊤ ⇨ ⊤)
-  -- fsr n s₀ f =
-  --   mealy {State = `Bool ↑ n} s₀ (second (ce.fsr n f))
+  -- General feedback right-shift register
+  fsr : ∀ n → (Bool ↑ n c.⇨ Bool) → Bool ↑ n → ⊤ ⇨ Bool ↑ n
+  fsr n f s₀ = mealy (subst id (Bool ⟦↑⟧ n) s₀) (dup ∘ ce.fsr n f ∘ unitorᵉˡ)
 
-  -- lfsr : ∀ n → Bool ↑ n → Bool ↑ n → Bool ↑ n ⇨ Bool ↑ n
-  -- lfsr n cs s₀ = mealy {!s₀!} (second (ce.lfsr n cs))
+  -- Linear feedback right-shift register, given coefficients and initial value
+  lfsr : ∀ n → Bool ↑ n → Bool ↑ n → ⊤ ⇨ Bool ↑ n
+  lfsr n cs s₀ = fsr n (ce.linear n cs) s₀
 
   lfsr₅ : ⊤ ⇨ Bool ↑ 6
-  lfsr₅ =
-    mealy (false , true , false , true , true , false , tt)
-          (dup ∘ ce.lfsr₅ ∘ unitorᵉˡ)
+  lfsr₅ = lfsr 6 (true , false , false , true , false , true , tt)
+                 (false , true , false , true , true , false , tt)
 
 exampleˢ : ∀ {i o} → String → i s.⇨ o → IO {0ℓ} ⊤′
 exampleˢ name (s.mealy {s} state₀ f) =
@@ -137,6 +137,8 @@ main = run do
   -- exampleᶜ "first-not" ce.t₄
   -- exampleᶜ "not"       ce.t₅
   -- exampleᶜ "half-add-c"   ce.halfAdd
+  -- exampleᶜ "shiftR-5" (ce.shiftRs {5})
+  -- exampleᶜ "lfsr-c5" ce.lfsr₅
 
   -- exampleˢ "toggle"    se.t₁
   -- exampleˢ "toggleB"   se.t₁′
@@ -154,9 +156,5 @@ main = run do
 
   -- exampleˢ "shift-1" se.shift₁
   -- exampleˢ "shift-5" (se.shifts 5)
-
-  -- exampleᶜ "shiftR-5" (ce.shiftRs {5})
-
-  exampleᶜ "lfsr-c5" ce.lfsr₅
 
   exampleˢ "lfsr-s5" se.lfsr₅
