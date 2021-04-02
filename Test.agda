@@ -18,8 +18,6 @@ open import Symbolic.Extrinsic
 open import Symbolic.StackProg
 open import Dot
 
-open import Data.Product using (_,_)
-
 -- open CartUtils
 
 open TyUtils
