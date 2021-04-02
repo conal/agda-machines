@@ -60,20 +60,17 @@ module VecFunInstances where
     braided : Braided _↠_
     braided = record { swap = arr C.swap }
 
-    constants : Constants _↠_
+    constants : Constant _↠_
     constants = record { const = arr ∘′ const }
 
     import Data.Bool as B
-    boolean : Boolean _↠_
-    boolean = record
-                { Bool = B.Bool
-                ; true = {!const ?!}
-                ; false = {!!}
-                ; ∧ = {!!}
-                ; ∨ = {!!}
-                ; xor = {!!}
-                ; not = {!!}
-                }
+    logic : Logic _↠_
+    logic = record
+              { ∧   = arr (uncurry B._∧_)
+              ; ∨   = arr (uncurry B._∨_)
+              ; xor = arr (uncurry B._xor_)
+              ; not = arr B.not
+              }
 
 -- Cons (memory/register)
 delay : A → (A ↠ A)
