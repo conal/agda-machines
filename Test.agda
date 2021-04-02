@@ -10,7 +10,7 @@ open import IO
 
 import Category as C
 open C ; open CartUtils
-open import Ty hiding (Boolᵗ)
+open import Ty
 open import Symbolic.Extrinsic
 open import Symbolic.StackProg
 open import Dot

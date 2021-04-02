@@ -17,7 +17,7 @@ private
   variable
     A B C D σ τ : Ty
 
-showBit : Boolᵗ → String
+showBit : Bool → String
 showBit false = "0"
 showBit true  = "1"
 

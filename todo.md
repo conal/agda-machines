@@ -2,9 +2,6 @@
 
 *   Replace most uses of `_∘′_` with `_∘_` (now that `Function` is a category).
 *   Level-generalize the `products` and `boolean` instances in `Category`.
-*   Rename `Ty` constructors to start with backquote.
-    Revisit all `Category` imports to remove `hiding` of the old `Ty` names.
-    Remove `Boolᵗ` now that `Bool` has many meanings.
 
 *   Add laws to the category classes.
 *   Recreate compiling-to-categories so we can write and read lambda notation instead of combinators!
@@ -17,6 +14,9 @@
 
 ## Did
 
+*   Remove `Boolᵗ` now that `Bool` has many meanings.
+*   Rename `Ty` constructors to start with backquote.
+    Revisit all `Category` imports to remove `hiding` of the old `Ty` names.
 *   Treat `Bool` like `⊤` and `_×_`, hoisting out of `Boolean` into a class of objects rather than of morphisms.
     Rename the morphism class from "`Boolean`" to "`Logic`".
     Revisit `TyUtils`, replacing ``Bool` by `Bool`.

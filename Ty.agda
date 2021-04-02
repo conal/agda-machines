@@ -4,7 +4,6 @@ module Ty where
 
 open import Data.Unit renaming (⊤ to ⊤ᵗ) public
 import Data.Bool as B
-open B using () renaming (Bool to Boolᵗ) public
 open B using (if_then_else_; false; true)
 open import Data.Bool.Show as BS
 open import Data.Product using (_,_; uncurry; proj₁; proj₂) renaming (_×_ to _×ᵗ_) public
@@ -31,7 +30,7 @@ module tyv where
        ⟦_⟧ᵗ : Ty → Set
        ⟦ `⊤ ⟧ᵗ     = ⊤ᵗ
        ⟦ σ `× τ ⟧ᵗ = ⟦ σ ⟧ᵗ ×ᵗ ⟦ τ ⟧ᵗ
-       ⟦ `Bool ⟧ᵗ  = Boolᵗ
+       ⟦ `Bool ⟧ᵗ  = Bool
 
     products : Products Ty
     products = record { ⊤ = `⊤ ; _×_ = _`×_ }
@@ -43,7 +42,7 @@ showTy : ⟦ A ⟧ → String
 showTy = go true
  where
    -- flag says we're in the left part of a pair
-   go : Boolᵗ → ⟦ A ⟧ → String
+   go : Bool → ⟦ A ⟧ → String
    go {`⊤} _ tt = "tt"
    go {`Bool} _ b = BS.show b
    go {_ `× _} p (x , y) = (if p then parens else id)
@@ -61,7 +60,7 @@ data TyIx : Ty → Set where
 
 -- Extract a bit
 -- ⟦_⟧ᵇ : ∀ {A} → TyIx A → A →ᵗ Bool
-⟦_⟧ᵇ : ∀ {A} → TyIx A → ⟦ A ⟧ → Boolᵗ
+⟦_⟧ᵇ : ∀ {A} → TyIx A → ⟦ A ⟧ → Bool
 ⟦ here    ⟧ᵇ x = x
 ⟦ left  i ⟧ᵇ (x , y) = ⟦ i ⟧ᵇ x
 ⟦ right i ⟧ᵇ (x , y) = ⟦ i ⟧ᵇ y
@@ -71,12 +70,12 @@ instance
   TyIx-Meaningful : ∀ {A} → Meaningful (TyIx A)
   TyIx-Meaningful = record { ⟦_⟧ = ⟦_⟧ᵇ }
 
-tabulate : (TyIx A → Boolᵗ) → ⟦ A ⟧
+tabulate : (TyIx A → Bool) → ⟦ A ⟧
 tabulate {`⊤} f = tt
 tabulate {`Bool} f = f here
 tabulate {_ `× _} f = tabulate (f ∘ left) , tabulate (f ∘ right)
 
-lookup : ⟦ A ⟧ → (TyIx A → Boolᵗ)
+lookup : ⟦ A ⟧ → (TyIx A → Bool)
 lookup a i = ⟦ i ⟧ᵇ a
 
 swizzle : (TyIx B → TyIx A) → (⟦ A ⟧ → ⟦ B ⟧)
@@ -105,17 +104,17 @@ lookup′ (l ､ r) (right b) = lookup′ r b
 swizzle′ : (TyIx B → TyIx A) → ∀ {X} → TyF X A → TyF X B
 swizzle′ r a = tabulate′ (lookup′ a ∘ r)
 
-→TyF : ⟦ A ⟧ → TyF Boolᵗ A
+→TyF : ⟦ A ⟧ → TyF Bool A
 →TyF {`⊤} tt = •
 →TyF {`Bool} b = [ b ]
 →TyF {_ `× _} (x , y) = →TyF x ､ →TyF y
 
-TyF→ : TyF Boolᵗ A → ⟦ A ⟧
+TyF→ : TyF Bool A → ⟦ A ⟧
 TyF→ • = tt
 TyF→ [ b ] = b
 TyF→ (x ､ y) = TyF→ x , TyF→ y
 
--- TODO: Finish ⟦ A ⟧ ↔ TyF Boolᵗ A . Proofs should be much easier than with vectors.
+-- TODO: Finish ⟦ A ⟧ ↔ TyF Bool A . Proofs should be much easier than with vectors.
 
 -- Agsy synthesized all of the TyF operations above. (Tidying needed for most,
 -- -c for all but swizzle′, and tabulate′ and lookup′ hints for swizzle′.)

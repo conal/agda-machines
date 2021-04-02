@@ -71,7 +71,7 @@ module _ {s} (state₀ : ⟦ s ⟧) where
   reg : TyIx a → String
   reg j = "reg" ++ showIx j
 
-  register : TyIx s → Boolᵗ → OPort → List String
+  register : TyIx s → Bool → OPort → List String
   register j s₀ src =
     comp (reg j) ("cons " ++ showBit (lookup state₀ j)) [ src ] Bool
 
