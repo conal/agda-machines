@@ -209,9 +209,14 @@ module ty where
     cartesian : Cartesian _⇨_
     cartesian = record { exl = mk exl ; exr = mk exr ; dup = mk dup }
 
+open import Relation.Binary.PropositionalEquality
+
+_⟦↑⟧_ : ∀ (A : Ty) n → ⟦ A ⟧ ↑ n ≡ ⟦ A ↑ n ⟧
+A ⟦↑⟧ zero = refl
+A ⟦↑⟧ suc n rewrite A ⟦↑⟧ n = refl
+
 -- Miscellaneous utilities, perhaps to move elsewhere
-module TyUtils {ℓ} {_⇨_ : Ty → Ty → Set ℓ} (let infix 0 _⇨_; _⇨_ = _⇨_)
-               where
+module TyUtils {ℓ} {_⇨_ : Ty → Ty → Set ℓ} (let infix 0 _⇨_; _⇨_ = _⇨_) where
 
   module _ ⦃ _ : Braided ⦃ tyv.products ⦄ _⇨_ ⦄ where
 
@@ -246,3 +251,4 @@ module TyUtils {ℓ} {_⇨_ : Ty → Ty → Set ℓ} (let infix 0 _⇨_; _⇨_ =
 
     shiftL : A × Bool ⇨ A
     shiftL = exr ∘ shiftL′
+
