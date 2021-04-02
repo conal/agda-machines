@@ -1,8 +1,8 @@
 module Everything where
 
--- -- Denotations
--- import VecFun
--- import Mealy
+-- Denotations
+import VecFun
+import Mealy
 
 import Category
 

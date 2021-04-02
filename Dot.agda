@@ -1,6 +1,5 @@
 module Dot where
 
-open import Function using (_∘′_; _∋_)
 open import Data.Fin using (Fin; toℕ; suc; zero)
 open import Data.Nat using (ℕ; suc; zero)
 open import Data.String hiding (toList; concat; show)
@@ -16,8 +15,8 @@ open import Symbolic.StackProg
 private variable a b c d i o s z zⁱ zᵒ zᵃ : Ty
 
 package : List String → String
-package = (_++ "\n}\n") ∘′ ("digraph {" ++_) ∘′ ("\n" ++_) ∘′
-          unlines ∘′ map (λ s → "  " ++ s ++ ";") ∘′ (prelude ++ᴸ_)
+package = (_++ "\n}\n") ∘ ("digraph {" ++_) ∘ ("\n" ++_) ∘
+          unlines ∘ map (λ s → "  " ++ s ++ ";") ∘ (prelude ++ᴸ_)
  where
    prelude : List String
    prelude =
@@ -46,7 +45,7 @@ labelsᵒ : Ty → String
 labelsᵒ = labels "Out" ("|" ++_)
 
 showIx : TyIx a → String
-showIx = show ∘′ toFin
+showIx = show ∘ toFin
 
 wire : String → TyIx a → OPort → String
 wire compName i oport = oport ++ " -> " ++  compName ++ ":In" ++ showIx i
