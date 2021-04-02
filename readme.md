@@ -10,7 +10,7 @@ Makefile targets:
 *   `tests`: generates circuit diagrams in the `Figures` subdirectory (dot files and their PDF renderings).
 
 
-If you get an error message "`Could not find module ‘Numeric.IEEE’`", then there is one Haskell package you need to have installed:
+If you get an error message "`Could not find module ‘Numeric.IEEE’`", then there is one Haskell package [you need to have installed](https://github.com/agda/agda/issues/3619#issuecomment-665232148):
 ```
 cabal v1-install ieee754
 ```
