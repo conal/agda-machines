@@ -59,6 +59,7 @@ module ce where
   lfsr : ∀ n → Bool ↑ n → Bool ↑ n ⇨ Bool ↑ n
   lfsr n cs = fsr n (linear n cs)
 
+  lfsr₅ : Bool ↑ 6 ⇨ Bool ↑ 6
   lfsr₅ = lfsr 6 (true , false , false , true , false , true , tt)
 
 -- Sequential examples
@@ -106,15 +107,19 @@ module se where
   shifts : ∀ n → Bool ⇨ Bool ↑ n
   shifts n = exl ∘ (shift₁ ↱ n)
 
-  -- General feedback right-shift register
-  fsr : ∀ n → {!B.Bool ↑ n!} → (Bool ↑ n c.⇨ Bool) → (⊤ ⇨ ⊤)
-  fsr n s₀ f =
-    mealy {State = `Bool ↑ n} s₀ (second (ce.fsr n f))
+  -- -- General feedback right-shift register
+  -- fsr : ∀ n → {!B.Bool ↑ n!} → (Bool ↑ n c.⇨ Bool) → (⊤ ⇨ ⊤)
+  -- fsr n s₀ f =
+  --   mealy {State = `Bool ↑ n} s₀ (second (ce.fsr n f))
 
-  -- lfsr : ∀ n → Bool ↑ n → Bool ↑ n ⇨ Bool ↑ n
-  -- lfsr n cs = mealy cs (second (fsr n ∘ linear n))
+  -- lfsr : ∀ n → Bool ↑ n → Bool ↑ n → Bool ↑ n ⇨ Bool ↑ n
+  -- lfsr n cs s₀ = mealy {!s₀!} (second (ce.lfsr n cs))
 
-  -- lfsr₅ = lfsr 6 (true , false , false , true , false , true , tt)
+  lfsr₅ : ⊤ ⇨ ⊤
+  lfsr₅ =
+    mealy (false , true , false , true , true , false , tt) (second ce.lfsr₅)
+
+  -- Oh, oops! I need to fork the output!
 
 exampleˢ : ∀ {i o} → String → i s.⇨ o → IO {0ℓ} ⊤′
 exampleˢ name (s.mealy {s} state₀ f) =
@@ -153,4 +158,6 @@ main = run do
 
   -- exampleᶜ "shiftR-5" (ce.shiftRs {5})
 
-  exampleᶜ "lfsr-5" ce.lfsr₅
+  exampleᶜ "lfsr-c5" ce.lfsr₅
+
+  exampleˢ "lfsr-s5" se.lfsr₅
