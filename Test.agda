@@ -47,11 +47,11 @@ module ce where
   halfAdd = xor △ ∧
 
   shiftRs : ∀ {n} → Bool × Bool ↑ n ⇨ Bool ↑ n
-  shiftRs = shiftR
+  shiftRs = shiftR⇃
 
   -- General feedback right-shift register
   fsr : ∀ n → (Bool ↑ n ⇨ Bool) → (Bool ↑ n ⇨ Bool ↑ n)
-  fsr _ f = shiftR ∘ (f △ id)
+  fsr _ f = shiftR⇃ ∘ (f △ id)
 
   linear : ∀ n → Bool ↑ suc n → Bool ↑ suc n ⇨ Bool
   linear zero (c , tt) = unitorᵉʳ
