@@ -220,10 +220,10 @@ module TyUtils {ℓ} {_⇨_ : Ty → Ty → Set ℓ} (let infix 0 _⇨_; _⇨_ =
 
   module _ ⦃ _ : Braided ⦃ tyv.products ⦄ _⇨_ ⦄ where
 
-    shiftR′ : Bool × A ⇨ A × Bool
-    shiftR′ {`⊤}     = swap
-    shiftR′ {`Bool}  = id
-    shiftR′ {_ `× _} = assocˡ ∘ second shiftR′ ∘ assocʳ ∘ first shiftR′ ∘ assocˡ
+    shiftR : Bool × A ⇨ A × Bool
+    shiftR {`⊤}     = swap
+    shiftR {`Bool}  = id
+    shiftR {_ `× _} = assocˡ ∘ second shiftR ∘ assocʳ ∘ first shiftR ∘ assocˡ
 
     -- i , (u , v)
     -- (i , u) , v
@@ -232,10 +232,10 @@ module TyUtils {ℓ} {_⇨_ : Ty → Ty → Set ℓ} (let infix 0 _⇨_; _⇨_ =
     -- u′ , (v′ , o)
     -- (u′ , v′) , o
 
-    shiftL′ : A × Bool ⇨ Bool × A
-    shiftL′ {`⊤}     = swap
-    shiftL′ {`Bool}  = id
-    shiftL′ {_ `× _} = assocʳ ∘ first shiftL′ ∘ assocˡ ∘ second shiftL′ ∘ assocʳ
+    shiftL : A × Bool ⇨ Bool × A
+    shiftL {`⊤}     = swap
+    shiftL {`Bool}  = id
+    shiftL {_ `× _} = assocʳ ∘ first shiftL ∘ assocˡ ∘ second shiftL ∘ assocʳ
 
     -- (u , v) , i
     -- u , (v , i)
@@ -246,9 +246,9 @@ module TyUtils {ℓ} {_⇨_ : Ty → Ty → Set ℓ} (let infix 0 _⇨_; _⇨_ =
 
   module _ ⦃ _ : Cartesian ⦃ tyv.products ⦄ _⇨_ ⦄ where
 
-    shiftR : Bool × A ⇨ A
-    shiftR = exl ∘ shiftR′
+    shiftR⇃ : Bool × A ⇨ A
+    shiftR⇃ = exl ∘ shiftR
 
-    shiftL : A × Bool ⇨ A
-    shiftL = exr ∘ shiftL′
+    shiftL⇃ : A × Bool ⇨ A
+    shiftL⇃ = exr ∘ shiftL
 
