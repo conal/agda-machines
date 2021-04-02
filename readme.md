@@ -15,7 +15,15 @@ Makefile targets:
 *   `compile`: compiles the `Test` module, but you can compile faster from within the Emacs mode (`∁-c C­x C-C`).
 *   `tests`: generates circuit diagrams in the `Figures` subdirectory (dot files and their PDF renderings).
 
+
 ## Summary of important modules
+=======
+
+If you get an error message "`Could not find module ‘Numeric.IEEE’`", then there is one Haskell package [you need to have installed](https://github.com/agda/agda/issues/3619#issuecomment-665232148):
+```
+cabal v1-install ieee754
+```
+>>>>>>> origin/main
 
 A quick summary of the important modules:
 
@@ -64,4 +72,5 @@ You can fix this with:
 cabal v2-install ieee754
 ```
 
-You can find out how to more about how to solve this problem [here](https://agda.readthedocs.io/en/latest/getting-started/installation.html#installing-the-agda-and-the-agda-mode-programs).
+You can find out how to more about this issue [here](https://github.com/agda/agda/issues/3619#issuecomment-665232148) and
+[here](https://agda.readthedocs.io/en/latest/getting-started/installation.html#installing-the-agda-and-the-agda-mode-programs).

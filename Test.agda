@@ -1,10 +1,12 @@
 module Test where
 
 open import Level using (0ℓ)
-open import Data.Nat
+open import Data.Unit using (tt)
 open import Data.Product using (_,_)
-open import Data.Unit.Polymorphic renaming (⊤ to ⊤′)
-open import Data.Bool using (true; false)
+open import Data.Nat
+open import Data.Unit.Polymorphic using () renaming (⊤ to ⊤′)
+import Data.Bool as B  -- temporary
+open import Data.Bool using (true; false; if_then_else_)
 open import Data.Vec using ([_]; []; _∷_)
 open import Data.String
 open import IO
@@ -47,6 +49,20 @@ module ce where
 
   shiftRs : ∀ {n} → Bool × Bool ↑ n ⇨ Bool ↑ n
   shiftRs = shiftR
+
+  -- General feedback right-shift register
+  fsr : ∀ n → (Bool ↑ n ⇨ Bool) → (Bool ↑ n ⇨ Bool ↑ n)
+  fsr _ f = shiftR ∘ (f △ id)
+
+  linear : ∀ n → Bool ↑ n → Bool ↑ n ⇨ Bool
+  linear zero    tt       = const false
+  linear (suc n) (c , cs) = (if c then xor else exr) ∘ second (linear n cs)
+
+  lfsr : ∀ n → Bool ↑ n → Bool ↑ n ⇨ Bool ↑ n
+  lfsr n cs = fsr n (linear n cs)
+
+  lfsr₅ : Bool ↑ 6 ⇨ Bool ↑ 6
+  lfsr₅ = lfsr 6 (true , false , false , true , false , true , tt)
 
 -- Sequential examples
 module se where
@@ -93,13 +109,18 @@ module se where
   shifts : ∀ n → Bool ⇨ Bool ↑ n
   shifts n = exl ∘ (shift₁ ↱ n)
 
-  -- General feedback right-shift register
-  fsr : ∀ {n} → (Bool ↑ n ⇨ Bool) → Bool ↑ n ⇨ Bool ↑ n
-  fsr f = shiftR ∘ (f △ id)
+  -- -- General feedback right-shift register
+  -- fsr : ∀ n → {!B.Bool ↑ n!} → (Bool ↑ n c.⇨ Bool) → (⊤ ⇨ ⊤)
+  -- fsr n s₀ f =
+  --   mealy {State = `Bool ↑ n} s₀ (second (ce.fsr n f))
 
-  -- linear : ∀ {n} → ⟦ Bool ↑ n ⟧ → Bool ↑ n ⇨ Bool
-  -- linear {zero}  cs = {!!}
-  -- linear {suc n} cs = {!!}
+  -- lfsr : ∀ n → Bool ↑ n → Bool ↑ n → Bool ↑ n ⇨ Bool ↑ n
+  -- lfsr n cs s₀ = mealy {!s₀!} (second (ce.lfsr n cs))
+
+  lfsr₅ : ⊤ ⇨ Bool ↑ 6
+  lfsr₅ =
+    mealy (false , true , false , true , true , false , tt)
+          (dup ∘ ce.lfsr₅ ∘ unitorᵉˡ)
 
 exampleˢ : ∀ {i o} → String → i s.⇨ o → IO {0ℓ} ⊤′
 exampleˢ name (s.mealy {s} state₀ f) =
@@ -131,9 +152,13 @@ main = run do
   -- exampleˢ "toggle-1"   se.toggle₁
   -- exampleˢ "toggle-2"   se.toggle₂
   -- exampleˢ "toggle-4"   se.toggle₄
-  exampleˢ "toggles"    se.toggles
+  -- exampleˢ "toggles"    se.toggles
 
   -- exampleˢ "shift-1" se.shift₁
   -- exampleˢ "shift-5" (se.shifts 5)
 
   -- exampleᶜ "shiftR-5" (ce.shiftRs {5})
+
+  exampleᶜ "lfsr-c5" ce.lfsr₅
+
+  exampleˢ "lfsr-s5" se.lfsr₅

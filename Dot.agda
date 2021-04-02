@@ -56,7 +56,9 @@ wire compName i oport = oport ++ " -> " ++  compName ++ ":In" ++ showIx i
 -- _ = refl
 
 comp : String → String → TyF OPort i → Ty → List String
-comp {i} compName opName ins o =
+comp {i} compName opName ins o with size i | size o
+... | zero | zero = []  -- drop disconnected components (input or output)
+... | _    | _    =
   (compName ++
    " [label=\"" ++
    braces (labelsⁱ i ++ opName ++ labelsᵒ o) ++
