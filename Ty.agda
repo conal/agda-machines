@@ -2,11 +2,10 @@
 
 module Ty where
 
-open import Data.Unit renaming (⊤ to ⊤ᵗ) public
-import Data.Bool as B
-open B using (if_then_else_; false; true)
+open import Data.Unit using (tt)
+open import Data.Bool using (if_then_else_; false; true)
 open import Data.Bool.Show as BS
-open import Data.Product using (_,_; uncurry; proj₁; proj₂) renaming (_×_ to _×ᵗ_) public
+open import Data.Product using (_,_; uncurry)
 open import Data.Nat
 open import Data.String hiding (toVec; toList)
 
@@ -28,8 +27,8 @@ module tyv where
     meaningful = record { ⟦_⟧ = ⟦_⟧ᵗ }
      where
        ⟦_⟧ᵗ : Ty → Set
-       ⟦ `⊤ ⟧ᵗ     = ⊤ᵗ
-       ⟦ σ `× τ ⟧ᵗ = ⟦ σ ⟧ᵗ ×ᵗ ⟦ τ ⟧ᵗ
+       ⟦ `⊤ ⟧ᵗ     = ⊤
+       ⟦ σ `× τ ⟧ᵗ = ⟦ σ ⟧ᵗ × ⟦ τ ⟧ᵗ
        ⟦ `Bool ⟧ᵗ  = Bool
 
     products : Products Ty

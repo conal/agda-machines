@@ -3,6 +3,8 @@
 
 module Symbolic.Extrinsic where
 
+open import Data.Product using (_,_)
+open import Data.Unit using (tt)
 open import Data.Bool using (false;true)
 open import Data.String using (String)
 open import Relation.Binary.PropositionalEquality using (_≗_; refl)

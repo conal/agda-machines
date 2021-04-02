@@ -1,5 +1,6 @@
 module Dot where
 
+open import Data.Product using (_,_)
 open import Data.Fin using (Fin; toℕ; suc; zero)
 open import Data.Nat using (ℕ; suc; zero)
 open import Data.String hiding (toList; concat; show)
