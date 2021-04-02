@@ -53,25 +53,15 @@ module ce where
   fsr : ∀ n → (Bool ↑ n ⇨ Bool) → (Bool ↑ n ⇨ Bool ↑ n)
   fsr _ f = shiftR ∘ (f △ id)
 
-  linear : ∀ n → Bool ↑ n → Bool ↑ n ⇨ Bool
-  linear zero    tt       = const false
+  linear : ∀ n → Bool ↑ suc n → Bool ↑ suc n ⇨ Bool
+  linear zero (c , tt) = unitorᵉʳ
   linear (suc n) (c , cs) = (if c then xor else exr) ∘ second (linear n cs)
 
-  linear′ : ∀ n → Bool ↑ suc n → Bool ↑ suc n ⇨ Bool
-  linear′ zero (c , tt) = unitorᵉʳ
-  linear′ (suc n) (c , cs) = (if c then xor else exr) ∘ second (linear′ n cs)
-
-  lfsr : ∀ n → Bool ↑ n → Bool ↑ n ⇨ Bool ↑ n
-  lfsr n cs = fsr n (linear n cs)
-
-  lfsr′ : ∀ n → Bool ↑ suc n → Bool ↑ suc n ⇨ Bool ↑ suc n
-  lfsr′ n cs = fsr (suc n) (linear′ n cs)
+  lfsr : ∀ n → Bool ↑ suc n → Bool ↑ suc n ⇨ Bool ↑ suc n
+  lfsr n cs = fsr (suc n) (linear n cs)
 
   lfsr₅ : Bool ↑ 6 ⇨ Bool ↑ 6
-  lfsr₅ = lfsr 6 (true , false , false , true , false , true , tt)
-
-  lfsr₅′ : Bool ↑ 6 ⇨ Bool ↑ 6
-  lfsr₅′ = lfsr′ 5 (true , false , false , true , false , true , tt)
+  lfsr₅ = lfsr 5 (true , false , false , true , false , true , tt)
 
 -- Sequential examples
 module se where
@@ -118,26 +108,14 @@ module se where
   shifts : ∀ n → Bool ⇨ Bool ↑ n
   shifts n = exl ∘ (shift₁ ↱ n)
 
-  -- General feedback right-shift register
-  fsr : ∀ n → (Bool ↑ n c.⇨ Bool) → Bool ↑ n → ⊤ ⇨ Bool ↑ n
-  fsr n f s₀ = mealy (subst id (Bool ⟦↑⟧ n) s₀) (dup ∘ ce.fsr n f ∘ unitorᵉˡ)
-
   -- Linear feedback right-shift register, given coefficients and initial value
-  lfsr : ∀ n → Bool ↑ n → Bool ↑ n → ⊤ ⇨ Bool ↑ n
-  lfsr n cs s₀ = fsr n (ce.linear n cs) s₀
-
-  -- Linear feedback right-shift register, given coefficients and initial value
-  lfsr′ : ∀ n → Bool ↑ suc n → Bool ↑ suc n → ⊤ ⇨ Bool ↑ suc n
-  lfsr′ n cs s₀ =
-    mealy (subst id (Bool ⟦↑⟧ suc n) s₀) (dup ∘ ce.lfsr′ n cs ∘ unitorᵉˡ)
+  lfsr : ∀ n → Bool ↑ suc n → Bool ↑ suc n → ⊤ ⇨ Bool ↑ suc n
+  lfsr n cs s₀ =
+    mealy (subst id (Bool ⟦↑⟧ suc n) s₀) (dup ∘ ce.lfsr n cs ∘ unitorᵉˡ)
 
   lfsr₅ : ⊤ ⇨ Bool ↑ 6
-  lfsr₅ = lfsr 6 (true , false , false , true , false , true , tt)
+  lfsr₅ = lfsr 5 (true , false , false , true , false , true , tt)
                  (false , true , false , true , true , false , tt)
-
-  lfsr₅′ : ⊤ ⇨ Bool ↑ 6
-  lfsr₅′ = lfsr′ 5 (true , false , false , true , false , true , tt)
-                   (false , true , false , true , true , false , tt)
 
 exampleˢ : ∀ {i o} → String → i s.⇨ o → IO {0ℓ} ⊤′
 exampleˢ name (s.mealy {s} state₀ f) =
@@ -177,5 +155,3 @@ main = run do
   -- exampleˢ "shift-5" (se.shifts 5)
 
   exampleˢ "lfsr-s5" se.lfsr₅
-
-  exampleˢ "lfsr-s5p" se.lfsr₅′
