@@ -11,6 +11,7 @@ open import Data.Product hiding (zip)
 open import Data.Unit
 open import Data.Nat
 open import Data.Vec
+open import Data.Vec.Properties
 open import Relation.Binary.PropositionalEquality hiding (_≗_)
 
 open ≡-Reasoning
@@ -30,6 +31,12 @@ A ↠ B = ∀ {n} → Vec A n → Vec B n
 infix 4 _≗_
 _≗_ : (f g : A ↠ B) → Set _
 f ≗ g = ∀ {n} (as : Vec _ n) → f as ≡ g as
+
+causal : A ↠ B → Set
+causal f = ∀ m {n} (as : Vec _ (m + n)) → f (take m as) ≡ take m (f as)
+
+-- -- I'd rather write the following, but it doesn't type
+-- causal f = ∀ m n → take m {n} ∘ f ≗ f ∘ take m {n}
 
 -- Mapping a function (combinational logic)
 arr : (A → B) → (A ↠ B)
@@ -106,6 +113,47 @@ scanl≡mealy _∙_ e (a ∷ as) rewrite scanl≡mealy _∙_ (e ∙ a) as = refl
 -------------------------------------------------------------------------------
 -- Properties
 -------------------------------------------------------------------------------
+
+-- Causality
+
+causal-id : causal {A} id
+causal-id = λ m as → refl
+
+take-zero : ∀ {a}{A : Set a}{n} (as : Vec A n) → take zero as ≡ []
+take-zero as = refl
+
+↠[] : ∀ (f : A ↠ B) → f [] ≡ []
+↠[] f with f [] ; ... | [] = refl
+
+causal-arr : ∀ (f : A → B) → causal (arr f)
+causal-arr f zero as = refl
+causal-arr f (suc m) (a ∷ as) =
+  begin
+    arr f (take (suc m) (a ∷ as))
+  ≡⟨ cong (arr f) (unfold-take m a as) ⟩
+    arr f (a ∷ take m as)
+  ≡⟨⟩
+    f a ∷ arr f (take m as)
+  ≡⟨ cong (f a ∷_) (causal-arr f m as) ⟩
+    f a ∷ take m (arr f as)
+  ≡˘⟨ unfold-take m (f a) (map f as) ⟩
+    take (suc m) (f a ∷ arr f as)
+  ≡⟨⟩
+    take (suc m) (arr f (a ∷ as))
+  ∎
+
+causal-∘ : ∀ {f : A ↠ B}{g : B ↠ C} → causal g → causal f → causal (g ∘ f)
+causal-∘ {f = f}{g} cg cf m as =
+  begin
+    g (f (take m as))
+  ≡⟨ cong g (cf m as) ⟩
+    g (take m (f as))
+  ≡⟨ cg m (f as) ⟩
+    take m (g (f as))
+  ∎
+
+-- causal-⊗ : ∀ {f : A ↠ C}{g : B ↠ D} → causal f → causal g → causal (f ⊗ g)
+-- causal-⊗ cf cg = ?
 
 init∷ : ∀ {a : A} (as : Vec A (suc n)) → init (a ∷ as) ≡ a ∷ init as
 init∷ as with initLast as
