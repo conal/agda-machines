@@ -4,7 +4,7 @@
 {-# OPTIONS --safe --without-K #-}
 open import Level
 
-module Existential where
+module Tinkering.Existential where
 
 open import Algebra
 open import Data.Product
