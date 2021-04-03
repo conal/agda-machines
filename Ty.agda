@@ -7,7 +7,7 @@ open import Data.Bool using (if_then_else_; false; true)
 open import Data.Bool.Show as BS
 open import Data.Product using (_,_; uncurry)
 open import Data.Nat
-open import Data.String hiding (toVec; toList)
+open import Data.String hiding (toVec; toList; replicate)
 
 import Category as C
 open C
@@ -214,6 +214,10 @@ open import Relation.Binary.PropositionalEquality
 _⟦↑⟧_ : ∀ (A : Ty) n → ⟦ A ⟧ ↑ n ≡ ⟦ A ↑ n ⟧
 A ⟦↑⟧ zero = refl
 A ⟦↑⟧ suc n rewrite A ⟦↑⟧ n = refl
+
+replicate : ∀ n → ⟦ A ⟧ → ⟦ A ⟧ ↑ n
+replicate zero a = tt
+replicate (suc n) a = a , replicate n a
 
 -- Miscellaneous utilities, perhaps to move elsewhere
 module TyUtils {ℓ} {_⇨_ : Ty → Ty → Set ℓ} (let infix 0 _⇨_; _⇨_ = _⇨_) where
