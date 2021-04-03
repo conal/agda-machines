@@ -35,18 +35,17 @@ module k where
     [_]  : (i × zⁱ r.⇨ o × zᵒ) → (i , zⁱ ⇨ o , zᵒ)
     _∷ʳ_ : (a , zᵃ ⇨ o , zᵒ) → (i , zⁱ i.⇨ a , zᵃ) → (i , zⁱ ⇨ o , zᵒ)
 
-
   route : (i × zⁱ r.⇨ o × zᵒ) → (i , zⁱ ⇨ o , zᵒ)
   route = [_]
 
   instance
 
     meaningful : Meaningful (i , zⁱ ⇨ o , zᵒ)
-    meaningful = record { ⟦_⟧ = ⟦_⟧ᵏ }
+    meaningful = record { ⟦_⟧ = ⟦_⟧′ }
      where
-       ⟦_⟧ᵏ : (i , zⁱ ⇨ o , zᵒ) → (i × zⁱ ty.⇨ o × zᵒ)
-       ⟦ [ r ] ⟧ᵏ = ⟦ r ⟧
-       ⟦ f ∷ʳ inst ⟧ᵏ = ⟦ f ⟧ᵏ ∘ ⟦ inst ⟧
+       ⟦_⟧′ : (i , zⁱ ⇨ o , zᵒ) → (i × zⁱ ty.⇨ o × zᵒ)
+       ⟦ [ r ] ⟧′ = ⟦ r ⟧
+       ⟦ f ∷ʳ inst ⟧′ = ⟦ f ⟧′ ∘ ⟦ inst ⟧
 
     category : Category _⇨_
     category = record { id = route id ; _∘_ = _∘′_ }
@@ -101,10 +100,7 @@ module sf where
     meaningful {a}{b} = record { ⟦_⟧ = λ (mk f) → unitorᵉʳ ∘ ⟦ f ⟧ ∘ unitorⁱʳ }
 
     category : Category _⇨_
-    category = record
-      { id = route id
-      ; _∘_ = λ (mk g) (mk f) → mk (g ∘ f)
-      }
+    category = record { id = route id  ; _∘_ = λ (mk g) (mk f) → mk (g ∘ f) }
 
     monoidal : Monoidal _⇨_
     monoidal = record
@@ -126,7 +122,7 @@ module sf where
 
   -- Functorial compilation
   compile : a c.⇨ b → a ⇨ b
-  compile (c.route r) = route r
-  compile (c.prim p)  = prim p
-  compile (g c.∘ᶜ f)  = compile g ∘ compile f
-  compile (f c.⊗ᶜ g)  = compile f ⊗ compile g
+  compile (c.`route r) = route r
+  compile (c.`prim  p) = prim p
+  compile ( g c.`∘ f ) = compile g ∘ compile f
+  compile ( f c.`⊗ g ) = compile f ⊗ compile g
