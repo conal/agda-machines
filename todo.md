@@ -1,5 +1,21 @@
 ## To do
 
+*   More examples of various difficulties.
+    Some ideas:
+    *   [Ready/valid handshake](https://stackoverflow.com/questions/53583946/valid-ready-handshake-in-verilog).
+    *   Carry look-ahead counter (log depth instead of linear).
+        Extract the essential, general technique for reuse.
+    *   Prove correctness of the binary up counter, i.e., that the meaning of the bits patterns generated indeed count the number of true inputs so far.
+        Start with a vector function version and its proof, and then transfer the proofs to lower level representations via denotational homomorphisms.
+*   Look for mealy-level (rather than combinational) decompositions of current examples.
+*   Organize example suite so that every example is presented in several forms, all connected by denotational homomorphisms to guarantee semantic equivalence:
+    *   As vector functions, defined conveniently in the usual pointful lambda notation.
+    *   Redefined equivalently (still as vector functions) but using only (point-free) categorical vocabulary.
+    *   Generalized to other categories (but in the same vocabulary)
+    *   Re-specialized to hardware.
+*   Blog posts of pretty examples.
+*   Add lots of algebraic optimizations that get applied during circuit construction.
+    Very effective in my Haskell-to-Hardware project.
 *   Level-generalize the instances of `products` and `boolean` for functions in `Category`.
     This one is trickier than I expected, as there are so many uses of that category.
 *   Add laws to the category classes.
@@ -13,7 +29,7 @@
 
 ## Did
 
-*   LFSR (linear feedback shift register) example (in progress).
+*   LFSR (linear feedback shift register) example.
     Change to size `suc n`, eliminating the `false` for `zero`.
 *   Omit components if inputs and outputs are both empty (hence disconnected).
     Or maybe just for `input` and `output` at first, to see if any other disconnected components appear.
