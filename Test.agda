@@ -102,14 +102,33 @@ module se where
 
   toggles = toggle₁ ↱ 5
 
+  -- Shift and accumulate results
   shift₁ : Bool ⇨ Bool × Bool
   shift₁ = dup ∘ delay false
 
   shifts : ∀ n → Bool ⇨ Bool ↑ n
   shifts n = exl ∘ (shift₁ ↱ n)
 
+  -- Wrap swap ∘ shiftR as a sequential computation. The fine-grain dependencies
+  -- (one register per bit) unravel the mealy loop into a chain.
   shiftR-swap : ∀ n → Bool ⇨ Bool
   shiftR-swap n = mealy (subst id (Bool ⟦↑⟧ n) (replicate n false)) (ce.shiftR-swap {n})
+
+  shiftR-swap-loop : ∀ n → ⊤ ⇨ ⊤
+  shiftR-swap-loop n =
+    mealy (subst id (Bool ⟦↑⟧ suc n) (replicate (suc n) false))
+          (second (ce.shiftR-swap {n}))
+
+  shiftR-swap-loop-xor : ∀ n → Bool ⇨ Bool
+  shiftR-swap-loop-xor n =
+    mealy (subst id (Bool ⟦↑⟧ suc n) (replicate (suc n) false))
+          (assocʳ ∘ first dup ∘ ce.shiftR-swap {n} ∘ first xor ∘ assocˡ)
+
+  shiftR-swap-loop-xor-out : ∀ n → Bool ⇨ Bool ↑ suc n
+  shiftR-swap-loop-xor-out n =
+    mealy (subst id (Bool ⟦↑⟧ suc n) (replicate (suc n) false))
+          (dup ∘ ce.shiftR-swap {n} ∘ first xor ∘ assocˡ)
+
 
   -- Linear feedback right-shift register, given coefficients and initial value
   lfsr : ∀ n → Bool ↑ suc n → Bool ↑ suc n → ⊤ ⇨ Bool ↑ suc n
@@ -137,7 +156,7 @@ main = run do
   -- exampleᶜ "first-not" ce.t₄
   -- exampleᶜ "not"       ce.t₅
   -- exampleᶜ "half-add-c"   ce.halfAdd
-  exampleᶜ "shiftR-swap-c5" (ce.shiftR-swap {5})
+  -- exampleᶜ "shiftR-swap-c5" (ce.shiftR-swap {5})
   -- exampleᶜ "lfsr-c5"  ce.lfsr₅
 
   -- exampleˢ "toggle"    se.t₁
@@ -159,5 +178,8 @@ main = run do
 
   -- exampleˢ "lfsr-s5" se.lfsr₅
 
-  exampleˢ "shiftR-swap-s5" (se.shiftR-swap 5)
+  -- exampleˢ "shiftR-swap-s5" (se.shiftR-swap 5)
 
+  exampleˢ "shiftR-swap-loop-xor-out" (se.shiftR-swap-loop-xor-out 6)
+
+  exampleˢ "shiftR-swap-loop-xor" (se.shiftR-swap-loop-xor 6)
