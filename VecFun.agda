@@ -83,6 +83,13 @@ module VecFunInstances where
 delay : A → (A ⇨ A)
 delay a = mk (λ as → init (a ∷ as))
 
+mealy : ∀ {State : Set} → State → (A × State → B × State) → A ⇨ B
+mealy {A = A}{B} {State = State} s₀ f = mk (go s₀)
+ where
+   go : State → A ↠ B
+   go s [] = []
+   go s (a ∷ as) = let b , s′ = f (a , s) in b ∷ go s′ as
+
 scanl : (B → A → B) → B → A ⇨ B
 scanl {B}{A} _∙_ b₀ = mk (go b₀)
  where
@@ -98,6 +105,7 @@ scanl× : (B → A → B) → B → ∀ {n} → Vec A n → Vec B n × B
 scanl× _∙_ b []       = [] , b
 scanl× _∙_ b (a ∷ as) = first (b ∷_) (scanl× _∙_ (b ∙ a) as)
 
+{-
 mealy′ : ∀ {State : Set} → (A × State → B × State)
        → Vec A n × State → Vec B n × State
 mealy′ f ([] , s) = [] , s
@@ -111,7 +119,7 @@ scanl≡mealy : (_∙_ : B → A → B) → (e : B) → (as : Vec A n)
             → scanl× _∙_ e as ≡ scanl-via-mealy _∙_ e as
 scanl≡mealy _∙_ e [] = refl
 scanl≡mealy _∙_ e (a ∷ as) rewrite scanl≡mealy _∙_ (e ∙ a) as = refl
-
+-}
 
 -------------------------------------------------------------------------------
 -- Properties
@@ -207,14 +215,49 @@ causal-⊗ {f = mk f} {mk g} cf cg m ps =
    take-map₁ = take-distr-map exl m ps
    take-map₂ = take-distr-map exr m ps
 
-init∷ : ∀ {a : A} (as : Vec A (suc n)) → init (a ∷ as) ≡ a ∷ init as
-init∷ as with initLast as
+init∷ : ∀ {a : A} {as : Vec A (suc n)} → init (a ∷ as) ≡ a ∷ init as
+init∷ {as = as} with initLast as
 ... | _ , _ , refl = refl
+
+init-take : ∀ m {n} (as : Vec A (suc m + n))
+          → init (take (suc m) as) ≡ take m (init as)
+init-take zero (a ∷ as) = refl
+init-take (suc m) (a ∷ a′ ∷ as) =
+  begin
+    init (take (suc (suc m)) (a ∷ a′ ∷ as))
+  ≡⟨ cong init (unfold-take (suc m) a (a′ ∷ as)) ⟩
+    init (a ∷ take (suc m) (a′ ∷ as))
+  ≡⟨ init∷ ⟩
+    a ∷ init (take (suc m) (a′ ∷ as))
+  ≡⟨ cong (a ∷_) (init-take m (a′ ∷ as)) ⟩
+    a ∷ take m (init (a′ ∷ as))
+  ≡˘⟨ unfold-take m a (init (a′ ∷ as)) ⟩
+    take (suc m) (a ∷ init (a′ ∷ as))
+  ≡˘⟨ cong (take (suc m)) init∷ ⟩
+    take (suc m) (init (a ∷ a′ ∷ as))
+  ∎
+
+causal-delay : (a : A) → causal (delay a)
+causal-delay a zero as = refl
+causal-delay a (suc m) (a′ ∷ as) =
+  begin
+    init (a ∷ take (suc m) (a′ ∷ as))
+  ≡⟨ init∷ ⟩
+    a ∷ init (take (suc m) (a′ ∷ as))
+  ≡⟨ cong (a ∷_) (init-take m (a′ ∷ as)) ⟩
+    a ∷ take m (init (a′ ∷ as))
+  ≡˘⟨ unfold-take m a (init (a′ ∷ as)) ⟩
+    take (suc m) (a ∷ init (a′ ∷ as))
+  ≡˘⟨ cong (take (suc m)) init∷ ⟩
+    take (suc m) (init (a ∷ a′ ∷ as))
+  ∎
+
+-- causal-mealy
 
 -- TODO: Package init∷ into an agda-stdlib PR.
 
 delay∷ : ∀ {a₀ a : A} {as : Vec A n} → ⟦ delay a₀ ⟧ (a ∷ as) ≡ a₀ ∷ ⟦ delay a ⟧ as
-delay∷ {a = a}{as = as} = init∷ (a ∷ as)
+delay∷ = init∷
 
 init∘scanl′ : ∀ {f : B → A → B} {e : B} (as : Vec A n)
             → init (scanl′ f e as) ≡ ⟦ scanl f e ⟧ as
@@ -222,7 +265,7 @@ init∘scanl′ [] = refl
 init∘scanl′ {f = f}{e} (a ∷ as) =
   begin
     init (e ∷ scanl′ f (f e a) as)
-  ≡⟨ init∷ _ ⟩
+  ≡⟨ init∷ ⟩
     e ∷ init (scanl′ f (f e a) as)
   ≡⟨ cong (e ∷_) (init∘scanl′ as) ⟩
     e ∷ ⟦ scanl f (f e a) ⟧ as
@@ -251,7 +294,7 @@ init∷ʳ (a ∷ as) {x = x} =
     init ((a ∷ as) ∷ʳ x)
   ≡⟨⟩
     init (a ∷ (as ∷ʳ x))
-  ≡⟨ init∷ _ ⟩
+  ≡⟨ init∷ ⟩
     a ∷ init (as ∷ʳ x)
   ≡⟨ cong (a ∷_) (init∷ʳ as) ⟩
     a ∷ as
