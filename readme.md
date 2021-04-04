@@ -1,6 +1,7 @@
 ## Introduction
 
-This Agda project plays with composable Mealy machines with compositional/functorial semantics to generate computational hardware.
+This Agda project aims to synthesize machine-verified, parallel hardware designs from high-level denotational specifications.
+The common algebraic abstraction is categories, as described in the talks [*From Haskell to Hardware via CCCs*](https://github.com/conal/talk-2015-haskell-to-hardware/blob/post-tabula/README.md) and [*Teaching new tricks to old programs*](https://github.com/conal/2017-talk-teaching-new-tricks-to-old-programs#readme), as well as the paper [*Compiling to categories*](http://conal.net/papers/compiling-to-categories/).
 
 ## Dependencies
 
@@ -24,7 +25,7 @@ A quick summary of the important modules:
 *   `Category`: Simple type classes for flavors of categories.
     The main programming interface for most types in the implementation.
 *   `VecFun`: The main semantic model: `∀ {n} → Vec A n → Vec B n`.
-    Intended to be causal, i.e., something like `∀ m → f ∘ take m ≡ take m ∘ f`.
+    Intended to be causal, i.e., `∀ m → f ∘ take m ≡ take m ∘ f`.
 *   `Mealy`: Semantic Mealy machines with a homomorphic mapping into `VecFun`.
 *   `Ty`: inductive encoding of the supported types.
     Currently just `⊤`, `Bool`, and (inductively) products, but can be extended.
