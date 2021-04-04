@@ -42,11 +42,7 @@ module _ where
   instance
 
     meaningful : ∀ {A B} → Meaningful (A ⇨ B)
-    meaningful {A}{B} = record { ⟦_⟧ = λ f → vf.mk ⟦ f ⟧′ }
-     where
-       ⟦_⟧′ : (A ⇨ B) → (A vf.↠ B)
-       ⟦ mealy _ _ ⟧′ [] = []
-       ⟦ mealy s f ⟧′ (a ∷ as) = let b , s′ = f (a , s) in b ∷ ⟦ mealy s′ f ⟧′ as
+    meaningful {A}{B} = record { ⟦_⟧ = λ (mealy s f) → vf.mealy s f }
 
     category : Category _⇨_
     category = record { id = arr id ; _∘_ = _∘′_ }
