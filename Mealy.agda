@@ -33,8 +33,8 @@ arr : (A → B) → (A ⇨ B)
 arr f = mealy tt (first f)
                  -- λ (a , tt) → f a , tt
 
-import VecFun as VF
-open VF hiding (delay; arr; scanl)
+import VecFun as vf
+-- open vf hiding (delay; arr; scanl)
 open import Data.Vec
 
 module _ where
@@ -42,11 +42,11 @@ module _ where
   instance
 
     meaningful : ∀ {A B} → Meaningful (A ⇨ B)
-    meaningful {A}{B} = record { ⟦_⟧ = ⟦_⟧ᵐ }
+    meaningful {A}{B} = record { ⟦_⟧ = λ f → vf.mk ⟦ f ⟧′ }
      where
-       ⟦_⟧ᵐ : (A ⇨ B) → (A ↠ B)
-       ⟦ mealy _ _ ⟧ᵐ [] = []
-       ⟦ mealy s f ⟧ᵐ (a ∷ as) = let b , s′ = f (a , s) in b ∷ ⟦ mealy s′ f ⟧ᵐ as
+       ⟦_⟧′ : (A ⇨ B) → (A vf.↠ B)
+       ⟦ mealy _ _ ⟧′ [] = []
+       ⟦ mealy s f ⟧′ (a ∷ as) = let b , s′ = f (a , s) in b ∷ ⟦ mealy s′ f ⟧′ as
 
     category : Category _⇨_
     category = record { id = arr id ; _∘_ = _∘′_ }
@@ -108,7 +108,7 @@ module AsVecFun where
   open import Data.Vec hiding (map)
 
   -- import VecFun as ◇
-  -- open ◇ using (_↠_; _≗_)
+  -- open ◇ using (vf._⇨_; _≗_)
 
   -- infix 0 _↠ᵗ_
   -- _↠ᵗ_ : Ty → Ty → Set
@@ -120,7 +120,7 @@ module AsVecFun where
 
   -- open MealyInstances
 
-  ⟦arr⟧ : ∀ (h : A → B) → ⟦ arr h ⟧ ≗ VF.arr h
+  ⟦arr⟧ : ∀ (h : A → B) → ⟦ arr h ⟧ ≗ vf.arr h
   ⟦arr⟧ h [] = refl
   ⟦arr⟧ h (a ∷ as) rewrite ⟦arr⟧ h as = refl
 
