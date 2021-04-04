@@ -83,12 +83,12 @@ module VecFunInstances where
 delay : A → (A ⇨ A)
 delay a = mk (λ as → init (a ∷ as))
 
+mealy′ : ∀ {State : Set} → State → (A × State → B × State) → A ↠ B
+mealy′ s f [] = []
+mealy′ s f (a ∷ as) = let b , s′ = f (a , s) in b ∷ mealy′ s′ f as
+
 mealy : ∀ {State : Set} → State → (A × State → B × State) → A ⇨ B
-mealy {A = A}{B} {State = State} s₀ f = mk (go s₀)
- where
-   go : State → A ↠ B
-   go s [] = []
-   go s (a ∷ as) = let b , s′ = f (a , s) in b ∷ go s′ as
+mealy s f = mk (mealy′ s f)
 
 scanl : (B → A → B) → B → A ⇨ B
 scanl {B}{A} _∙_ b₀ = mk (go b₀)
@@ -253,6 +253,18 @@ causal-delay a (suc m) (a′ ∷ as) =
   ∎
 
 -- causal-mealy
+
+-- causal-mealy : ∀ {State : Set} → (s : State) → (f : A × State → B × State)
+--              → causal (mealy s f)
+-- causal-mealy s f zero as = refl
+-- causal-mealy s f (suc m) (a ∷ as) =
+--   begin
+--     mealy′ s f (take (suc m) (a ∷ as))
+--   ≡⟨ {!!} ⟩
+--     take (suc m) (mealy′ s f (a ∷ as))
+--   ∎
+
+
 
 -- TODO: Package init∷ into an agda-stdlib PR.
 
