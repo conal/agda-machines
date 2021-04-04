@@ -187,28 +187,35 @@ causal-⊗ {f = mk f} {mk g} cf cg m ps =
   begin
     (zip′ ∘ (f ⊗ g) ∘ unzip) (take m ps)
   ≡⟨ cong (zip′ ∘ (f ⊗ g) ∘ unzip ∘ take m) (≡zip ps) ⟩
-    (zip′ ∘ (f ⊗ g) ∘ unzip) (take m (zip (map exl ps) (map exr ps)))
-  ≡⟨ cong (zip′ ∘ (f ⊗ g) ∘ unzip) (take-distr-zipWith _,_ (map exl ps) (map exr ps)) ⟩
-    (zip′ ∘ (f ⊗ g) ∘ unzip) (zip (take m (map exl ps)) (take m (map exr ps)))
-  ≡⟨ cong (zip′ ∘ (f ⊗ g) ∘ unzip) (cong₂ zip (take-distr-map exl m ps) (take-distr-map exr m ps)) ⟩
-    (zip′ ∘ (f ⊗ g) ∘ unzip) (zip (map exl (take m ps)) (map exr (take m ps)))
-  ≡⟨ cong (zip′ ∘ (f ⊗ g)) (unzip∘zip (map exl (take m ps)) (map exr (take m ps))) ⟩
-    (zip′ ∘ (f ⊗ g)) (map exl (take m ps) , map exr (take m ps))
+    (zip′ ∘ (f ⊗ g) ∘ unzip) (take m (zip as bs))
+  ≡⟨ cong (zip′ ∘ (f ⊗ g) ∘ unzip) (take-distr-zipWith _,_ as bs) ⟩
+    (zip′ ∘ (f ⊗ g) ∘ unzip) (zip (take m as) (take m bs))
+  ≡⟨ cong (zip′ ∘ (f ⊗ g) ∘ unzip) (cong₂ zip take-map₁ take-map₂) ⟩
+    (zip′ ∘ (f ⊗ g) ∘ unzip) (zip exl-take (exr-take))
+  ≡⟨ cong (zip′ ∘ (f ⊗ g)) (unzip∘zip exl-take (exr-take)) ⟩
+    (zip′ ∘ (f ⊗ g)) (exl-take , exr-take)
   ≡⟨⟩
-    zip (f (map exl (take m ps))) (g (map exr (take m ps)))
-  ≡˘⟨ cong₂ (λ as bs → zip (f as) (g bs)) (take-distr-map exl m ps) (take-distr-map exr m ps) ⟩
-    zip (f (take m (map exl ps))) (g (take m (map exr ps)))
-  ≡⟨ cong₂ zip (cf m (map exl ps)) (cg m (map exr ps)) ⟩
-    zip (take m (f (map exl ps))) (take m (g (map exr ps)))
-  ≡˘⟨ take-distr-zipWith _,_ (f (map exl ps)) (g (map exr ps)) ⟩
-    take m (zip (f (map exl ps)) (g (map exr ps)))
+    zip (f exl-take) (g (exr-take))
+  ≡˘⟨ cong₂ (λ as bs → zip (f as) (g bs)) take-map₁ take-map₂ ⟩
+    zip (f (take m as)) (g (take m bs))
+  ≡⟨ cong₂ zip (cf m as) (cg m bs) ⟩
+    zip (take m (f as)) (take m (g bs))
+  ≡˘⟨ take-distr-zipWith _,_ (f as) (g bs) ⟩
+    take m (zip (f as) (g bs))
   ≡⟨⟩
-    take m (zip′ ((f ⊗ g) (map exl ps , map exr ps)))
-  ≡˘⟨ cong (take m ∘ zip′ ∘ (f ⊗ g)) (unzip∘zip (map exl ps) (map exr ps)) ⟩
-    take m (zip′ ((f ⊗ g) (unzip (zip (map exl ps) (map exr ps)))))
+    take m (zip′ ((f ⊗ g) (as , bs)))
+  ≡˘⟨ cong (take m ∘ zip′ ∘ (f ⊗ g)) (unzip∘zip as bs) ⟩
+    take m (zip′ ((f ⊗ g) (unzip (zip as bs))))
   ≡˘⟨ cong (take m ∘ zip′ ∘ (f ⊗ g) ∘ unzip) (≡zip ps) ⟩
     take m (zip′ ((f ⊗ g) (unzip ps)))
   ∎
+ where
+   as = map exl ps
+   bs = map exr ps
+   exl-take = map exl (take m ps)
+   exr-take = map exr (take m ps)
+   take-map₁ = take-distr-map exl m ps
+   take-map₂ = take-distr-map exr m ps
 
 init∷ : ∀ {a : A} (as : Vec A (suc n)) → init (a ∷ as) ≡ a ∷ init as
 init∷ as with initLast as
