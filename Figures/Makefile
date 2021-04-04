@@ -17,3 +17,6 @@ pdfs: $(PDFS)
 
 %.png: %.dot
 	dot -Gdpi=200 -Tpng $< -o $@
+
+%.jpg: %.dot
+	dot -Gdpi=200 -Tjpg $< -o $@
