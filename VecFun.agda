@@ -36,9 +36,6 @@ mk f ≗ mk g = ∀ {n} (as : Vec _ n) → f as ≡ g as
 causal : A ⇨ B → Set
 causal (mk f) = ∀ m {n} (as : Vec _ (m + n)) → f (take m as) ≡ take m (f as)
 
--- -- I'd rather write the following, but it doesn't type
--- causal f = ∀ m n → take m {n} ∘ f ≗ f ∘ take m {n}
-
 -- Mapping a function (combinational logic)
 arr : (A → B) → (A ⇨ B)
 arr f = mk (map f)
@@ -47,7 +44,6 @@ zip′ : Vec A n × Vec B n → Vec (A × B) n
 zip′ = uncurry zip
 
 module VecFunInstances where
-
   instance
 
     meaningful : ∀ {A}{B} → Meaningful {μ = A ↠ B} (A ⇨ B)
@@ -125,12 +121,6 @@ scanl≡mealy _∙_ e (a ∷ as) rewrite scanl≡mealy _∙_ (e ∙ a) as = refl
 
 causal-id : causal {A} id
 causal-id = λ m as → refl
-
-take-zero : ∀ {a}{A : Set a}{n} (as : Vec A n) → take zero as ≡ []
-take-zero as = refl
-
-⇨[] : ∀ ((mk f) : A ⇨ B) → f [] ≡ []
-⇨[] (mk f) with f [] ; ... | [] = refl
 
 causal-arr : ∀ (f : A → B) → causal (arr f)
 causal-arr f zero as = refl
