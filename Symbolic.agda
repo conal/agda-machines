@@ -1,3 +1,4 @@
+{-# OPTIONS --safe --without-K #-}
 -- Symbolic category
 
 open import Category
@@ -58,7 +59,7 @@ instance
   cartesian = record { exl = `route exl ; exr = `route exr ; dup = `route dup }
 
   logic : ⦃ Logic _↠_ ⦄ → Logic _⇨_
-  logic = record { ∧ = `prim ∧ ; ∨ = `prim ∨ ; xor = `prim xor
-                 ; not = `prim not ; false = `prim false ; true = `prim true }
+  logic = record { ∧ = `prim ∧ ; ∨ = `prim ∨ ; xor = `prim xor ; not = `prim not
+                 ; false = `prim false ; true = `prim true }
 
 module m where open import Mealy _⇨_ public

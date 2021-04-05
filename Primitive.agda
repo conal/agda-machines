@@ -1,3 +1,4 @@
+{-# OPTIONS --safe --without-K #-}
 -- Symbolic logic primitives
 
 module Primitive where

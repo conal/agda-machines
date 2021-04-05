@@ -1,3 +1,6 @@
+{-# OPTIONS --safe --without-K #-}
+-- Generate GraphViz/Dot format from stack morphism
+
 module Dot where
 
 open import Data.Product using (_,_)

@@ -23,7 +23,7 @@
 *   Add lots of algebraic optimizations that get applied during circuit construction, such as multiplication by zero or one and addition with zero, and similar identities for `∧`, `∨`, and `xor`.
     Also, constant folding in general and common subexpression elimination.
     These optimizations were *very* effective in my Haskell-to-Hardware project and were mostly applied in the graph-construction category.
-    The `Symbolic.StackProg` category is the closest counterpart in this project.
+    The `Stack` category is the closest counterpart in this project.
     Implementation idea: for each primitive added, check whether there's already the same primitive fed by the "same" inputs in a suitable sense.
     If so, reuse that primitive instance with suitable routing added; otherwise add as done currently.
 *   Level-generalize the instances of `products` and `boolean` for functions in `Category`.

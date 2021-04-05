@@ -1,5 +1,4 @@
 {-# OPTIONS --safe --without-K #-}
-
 -- Some simple category type classes
 -- Start just a few laws, and grow from there.
 
