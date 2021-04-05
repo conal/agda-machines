@@ -4,7 +4,7 @@ open import Ty
 open import Category
 
 module Stack (_↠′_ : Ty → Ty → Set) (let private infix 0 _↠_; _↠_ = _↠′_)
-             ⦃ _ : ∀ {A B} → Meaningful (A ↠ B) ⦄ where
+             ⦃ _ : ∀ {A B} → Meaningful {μ = A ty.⇨ B} (A ↠ B) ⦄ where
 
 open import Data.Product using (∃; _,_)
 
@@ -127,9 +127,11 @@ module sf where
     logic = record { ∧ = prim ∧ ; ∨ = prim ∨ ; xor = prim xor ; not = prim not
                    ; false = prim false ; true = prim true }
 
-  -- -- Functorial compilation
-  -- compile : a c.⇨ b → a ⇨ b
-  -- compile (c.`route r) = route r
-  -- compile (c.`prim  p) = prim p
-  -- compile ( g c.`∘ f ) = compile g ∘ compile f
-  -- compile ( f c.`⊗ g ) = compile f ⊗ compile g
+  open import Symbolic _↠_ using (module c)
+
+  -- Functorial compilation
+  compile : a c.⇨ b → a ⇨ b
+  compile (c.`route r) = route r
+  compile (c.`prim  p) = prim p
+  compile ( g c.`∘ f ) = compile g ∘ compile f
+  compile ( f c.`⊗ g ) = compile f ⊗ compile g
