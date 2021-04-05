@@ -22,56 +22,6 @@ showBit : Bool → String
 showBit false = "0"
 showBit true  = "1"
 
--- Generalized routing. Maybe move to Ty.
-module r where
-
-  infix 1 _⇨_
-  record _⇨_ (A B : Ty) : Set where
-    constructor mk
-    field
-      f : TyIx B → TyIx A
-
-  ⟦_⟧′ : A ⇨ B → ∀ {X} → TyF X A → TyF X B
-  ⟦ mk f ⟧′ = swizzle′ f
-
-  instance
-
-    meaningful : ∀ {a b} → Meaningful {μ = a ty.⇨ b} (a ⇨ b)
-    meaningful {a}{b} = record { ⟦_⟧ = λ (mk r) → ty.mk (swizzle r) }
-
-    category : Category _⇨_
-    category = record
-      { id = mk id
-      ; _∘_ = λ (mk f) (mk g) → mk (g ∘ f)
-      }
-
-    monoidal : Monoidal _⇨_
-    monoidal = record
-      { _⊗_ = λ (mk f) (mk g) → mk λ { (left x) → left (f x) ; (right x) → right (g x) }
-      ; unitorᵉˡ = mk right
-      ; unitorᵉʳ = mk left
-      ; unitorⁱˡ = mk λ { (right x) → x }
-      ; unitorⁱʳ = mk λ { (left  x) → x }
-      ; assocʳ = mk λ { (left x) → left (left x)
-                      ; (right (left x)) → left (right x)
-                      ; (right (right x)) → right x
-                      }
-      ; assocˡ = mk λ { (left (left x)) → left x
-                      ; (left (right x)) → right (left x)
-                      ; (right x) → right (right x)
-                      }
-      ; ! = mk λ ()
-      }
-
-    braided : Braided _⇨_
-    braided = record { swap = mk λ { (left x) → right x ; (right x) → left x } }
-
-    cartesian : Cartesian _⇨_
-    cartesian = record { exl = mk left ; exr = mk right ; dup = mk λ { (left x) → x ; (right x) → x } }
-
--- open r hiding (_⇨_)
-
-
 -- Combinational primitives
 module p where
 
