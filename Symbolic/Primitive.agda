@@ -12,7 +12,6 @@ data _⇨_ : Ty → Ty → Set where
   `∧ `∨ `xor : Bool × Bool ⇨ Bool
   `not : Bool ⇨ Bool
   `false `true : ⊤ ⇨ Bool
-  -- `const : ⟦ A ⟧ → ⊤ ⇨ A
 
 instance
 
@@ -24,7 +23,6 @@ instance
               ; `not   → ty.mk not
               ; `false → ty.mk false
               ; `true  → ty.mk true
-              -- ; (`const a) → ty.mk (const a)
               } }
 
   p-show : Show (A ⇨ B)
@@ -34,7 +32,6 @@ instance
                              ; `not   → "not"
                              ; `false → "false"
                              ; `true  → "true"
-                             -- ; (`const x) → showTy x
                              }
                   }
 
