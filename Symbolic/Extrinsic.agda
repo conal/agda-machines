@@ -11,7 +11,7 @@ open import Function using (_on_) renaming (const to const′)
 
 open import Category
 open import Ty
-import Symbolic.Primitive as p
+import Primitive as p
 
 private
   variable

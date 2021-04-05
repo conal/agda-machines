@@ -1,23 +1,21 @@
--- Akin to http://conal.net/papers/calculating-compilers-categorically
+-- Akin to http://conal.net/papers/calculating-compilers-categorically/
 
-module Symbolic.StackProg where
+open import Ty
+open import Category
+
+module Stack (_↠′_ : Ty → Ty → Set) (let private infix 0 _↠_; _↠_ = _↠′_)
+             ⦃ _ : ∀ {A B} → Meaningful (A ↠ B) ⦄ where
 
 open import Data.Product using (∃; _,_)
 
-open import Ty
-import Symbolic.Primitive as p
-open import Symbolic.Extrinsic
-
 private variable a b c d i o z zⁱ zᵒ zᵃ : Ty
 
-open import Category
-
--- Primitive instance p with input routing for first p
+-- Primitive instance with input routing for first p
 module i where
 
   infix 0 _⇨_
   _⇨_ : (Ty × Ty) → (Ty × Ty) → Set
-  (i , zⁱ ⇨ o , zᵒ) = ∃ λ a → (a p.⇨ o) × (i × zⁱ r.⇨ a × zᵒ)
+  (i , zⁱ ⇨ o , zᵒ) = ∃ λ a → (a ↠ o) × (i × zⁱ r.⇨ a × zᵒ)
 
   instance
 
@@ -73,7 +71,7 @@ module k where
   stacked : (a , (b × z) ⇨ c , (b × z)) → ((a × b) , z) ⇨ ((c × b) , z)
   stacked f = pop ∘ f ∘ push
 
-  prim : i p.⇨ o → i , zⁱ ⇨ o , zⁱ
+  prim : i ↠ o → i , zⁱ ⇨ o , zⁱ
   prim {i} i⇨ₚo = [ id ] ∷ʳ (i , i⇨ₚo , id)
 
 open k using (stacked)
@@ -87,7 +85,7 @@ module sf where
     field
       f : ∀ {z} → i , z k.⇨ o , z
 
-  prim : i p.⇨ o → i ⇨ o
+  prim : i ↠ o → i ⇨ o
   prim i⇨ₚo = mk (k.prim i⇨ₚo)
 
   route : i r.⇨ o → i ⇨ o
@@ -104,7 +102,7 @@ module sf where
     monoidal : Monoidal _⇨_
     monoidal = record
       { _⊗_ = λ f g → second′ g ∘ first′ f
-      ; ! = route !
+      ; !        = route !
       ; unitorᵉˡ = route unitorᵉˡ
       ; unitorᵉʳ = route unitorᵉʳ
       ; unitorⁱˡ = route unitorⁱˡ
@@ -125,13 +123,13 @@ module sf where
     cartesian : Cartesian _⇨_
     cartesian = record { exl = route exl ; exr = route exr ; dup = route dup }
 
-    logic : Logic _⇨_
+    logic : ⦃ Logic _↠_ ⦄ → Logic _⇨_
     logic = record { ∧ = prim ∧ ; ∨ = prim ∨ ; xor = prim xor ; not = prim not
                    ; false = prim false ; true = prim true }
 
-  -- Functorial compilation
-  compile : a c.⇨ b → a ⇨ b
-  compile (c.`route r) = route r
-  compile (c.`prim  p) = prim p
-  compile ( g c.`∘ f ) = compile g ∘ compile f
-  compile ( f c.`⊗ g ) = compile f ⊗ compile g
+  -- -- Functorial compilation
+  -- compile : a c.⇨ b → a ⇨ b
+  -- compile (c.`route r) = route r
+  -- compile (c.`prim  p) = prim p
+  -- compile ( g c.`∘ f ) = compile g ∘ compile f
+  -- compile ( f c.`⊗ g ) = compile f ⊗ compile g

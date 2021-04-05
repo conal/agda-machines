@@ -1,17 +1,15 @@
 module Everything where
 
--- Denotations
-import VecFun
-import Mealy
-
 import Category
 
--- Symbolic
 import Ty
-import Symbolic.Extrinsic
-import Symbolic.StackProg
+import VecFun
+import Mealy
+import Primitive
+import Stack
 import Dot
--- import Test
+
+import Test
 
 -- Experimental modules not used above.
 import Tinkering.StreamFun

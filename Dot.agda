@@ -10,9 +10,9 @@ open import Relation.Binary.PropositionalEquality using (_≡_; refl)
 
 open import Category
 open import Ty renaming (map to mapᵀ)
-import Symbolic.Primitive  -- just for Show
-open import Symbolic.Extrinsic
-open import Symbolic.StackProg
+
+import Primitive as p
+open import Stack p._⇨_
 
 private variable a b c d i o s z zⁱ zᵒ zᵃ : Ty
 
@@ -70,8 +70,13 @@ comp {i} compName opName ins o with size i | size o
 oport : String → TyIx a → OPort
 oport compName o = compName ++ ":Out" ++ showIx o
 
-module _ {s} (state₀ : ⟦ s ⟧) where
+module _ {s} (stateF₀ : ⊤ sf.⇨ s) where
 
+  open import Data.Unit using (tt)
+
+  state₀ : ⟦ s ⟧
+  state₀ = ⟦ ⟦ stateF₀ ⟧ ⟧ tt
+  
   reg : TyIx a → String
   reg j = "reg" ++ showIx j
 
@@ -95,3 +100,5 @@ module _ {s} (state₀ : ⟦ s ⟧) where
     comp "input" "input" • i ++ᴸ
     dotᵏ 0 (( mapᵀ (oport "input") allIx ､
               mapᵀ (λ r → oport (reg r) here) allIx) ､ •) f)
+
+  -- TODO: Consider reworking with stateF₀ as input to registers
