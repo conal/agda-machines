@@ -1,4 +1,14 @@
--- Akin to http://conal.net/papers/calculating-compilers-categorically/
+{-# OPTIONS --safe --without-K #-}
+
+-- A linearizing category, parametrized by primitives. This category embodies a
+-- normal form for categorical formula as a strictly linear composition of the
+-- following form:
+--
+--   rₙ ∘ first pₙ₋₁ ∘ rₙ₋₁ ⋯ ∘ first p₀ ∘ r₀
+--  
+-- This category was designed to capture the simple essence of stack machines
+-- and compiling to them homomorphically. It appears also to capture SSA nicely.
+-- See http://conal.net/papers/calculating-compilers-categorically .
 
 open import Ty
 open import Category
@@ -10,7 +20,7 @@ open import Data.Product using (∃; _,_)
 
 private variable a b c d i o z zⁱ zᵒ zᵃ : Ty
 
--- Primitive instance with input routing for first p
+-- Primitive instance: primitive `p` with input routing for `first p`.
 module i where
 
   infix 0 _⇨_
