@@ -76,8 +76,7 @@ module _ {s} (state₀ : ⟦ s ⟧) where
   reg j = "reg" ++ showIx j
 
   register : TyIx s → Bool → OPort → List String
-  register j s₀ src =
-    comp (reg j) ("cons " ++ show (lookup state₀ j)) [ src ] Bool
+  register j s₀ src = comp (reg j) ("cons " ++ show s₀) [ src ] Bool
 
   dotᵏ : ℕ → TyF OPort (i × zⁱ) → (i , zⁱ k.⇨ (o × s) , ⊤) → List String
   dotᵏ _ ins k.[ r ] with r.⟦ unitorᵉʳ ∘ r ⟧′ ins
