@@ -109,8 +109,8 @@ module sf where
       ; unitorᵉʳ = route unitorᵉʳ
       ; unitorⁱˡ = route unitorⁱˡ
       ; unitorⁱʳ = route unitorⁱʳ
-      ; assocʳ = route assocʳ
-      ; assocˡ = route assocˡ
+      ; assocʳ   = route assocʳ
+      ; assocˡ   = route assocˡ
       }
      where
        first′ : (a ⇨ c) → (a × b ⇨ c × b)
@@ -118,6 +118,15 @@ module sf where
 
        second′ : (b ⇨ d) → (a × b ⇨ a × d)
        second′ f = route swap ∘ first′ f ∘ route swap
+
+    braided : Braided _⇨_
+    braided = record { swap = route swap }
+
+    cartesian : Cartesian _⇨_
+    cartesian = record { exl = route exl ; exr = route exr ; dup = route dup }
+
+    logic : Logic _⇨_
+    logic = record { ∧ = prim ∧ ; ∨ = prim ∨ ; xor = prim xor ; not = prim not }
 
   -- Functorial compilation
   compile : a c.⇨ b → a ⇨ b
