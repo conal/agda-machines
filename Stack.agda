@@ -127,11 +127,11 @@ module sf where
     logic = record { ∧ = prim ∧ ; ∨ = prim ∨ ; xor = prim xor ; not = prim not
                    ; false = prim false ; true = prim true }
 
-  open import Symbolic _↠_ using (module c)
+  import Symbolic _↠_ as s
 
   -- Functorial compilation
-  compile : a c.⇨ b → a ⇨ b
-  compile (c.`route r) = route r
-  compile (c.`prim  p) = prim p
-  compile ( g c.`∘ f ) = compile g ∘ compile f
-  compile ( f c.`⊗ g ) = compile f ⊗ compile g
+  compile : a s.⇨ b → a ⇨ b
+  compile (s.`route r) = route r
+  compile (s.`prim  p) = prim p
+  compile ( g s.`∘ f ) = compile g ∘ compile f
+  compile ( f s.`⊗ g ) = compile f ⊗ compile g
