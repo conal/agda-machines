@@ -223,9 +223,13 @@ module →Instances where
               ; not   = B.not
               }
 
+    import Data.Bool.Show as BS
     import Data.Nat.Show as NS
     open import Data.Fin using (Fin)
     import Data.Fin.Show as FS
+
+    Bool-Show : Show Bool
+    Bool-Show = record { show = BS.show }
 
     ℕ-Show : Show ℕ
     ℕ-Show = record { show = NS.show }
