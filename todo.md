@@ -1,8 +1,5 @@
 ## To do
 
-*   Can we generalize `Symbolic.StackProg` by parametrizing over underlying category?
-    The distinction between primitives and routing seems quite important.
-    Maybe parametrize over the primitives, doing the same for `Symbolic.Extrinsic`.
 *   More examples of various difficulties.
     Some ideas:
     *   [Ready/valid handshake](https://stackoverflow.com/questions/53583946/valid-ready-handshake-in-verilog).
@@ -42,6 +39,10 @@
 
 ## Did
 
+*   Parametrize some constructions to be parametric over an underlying category:
+    *   `Symbolic.StackProg`, now `Stack`
+    *   `Mealy`
+    *   `Symbolic.Extrinsic`, now `Symbolic`
 *   LFSR (linear feedback shift register) example.
     Change to size `suc n`, eliminating the `false` for `zero`.
 *   Omit components if inputs and outputs are both empty (hence disconnected).
