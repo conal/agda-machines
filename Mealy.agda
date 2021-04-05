@@ -1,13 +1,10 @@
 -- Composable Mealy machines
 {-# OPTIONS --safe --without-K #-}
 
--- {-# OPTIONS --copatterns --guardedness #-}  -- for stream semantics
-
 module Mealy where
 
--- open import Data.Sum     hiding (map)
+open import Data.Unit    using (tt)
 open import Data.Product using (_,_)
-open import Data.Unit
 
 open import Category
 
@@ -33,13 +30,11 @@ arr : (A → B) → (A ⇨ B)
 arr f = mealy tt (first f)
                  -- λ (a , tt) → f a , tt
 
-import VecFun as vf
--- open vf hiding (delay; arr; scanl)
-open import Data.Vec
-
 module _ where
 
   instance
+
+    import VecFun as vf
 
     meaningful : ∀ {A B} → Meaningful (A ⇨ B)
     meaningful {A}{B} = record { ⟦_⟧ = λ (mealy s f) → vf.mealy s f }
@@ -57,13 +52,13 @@ module _ where
     monoidal : Monoidal _⇨_
     monoidal = record
                  { _⊗_ = _⊗′_
-                 ; ! = arr !
+                 ; !        = arr !
                  ; unitorᵉˡ = arr unitorᵉˡ
                  ; unitorᵉʳ = arr unitorᵉʳ
                  ; unitorⁱˡ = arr unitorⁱˡ
                  ; unitorⁱʳ = arr unitorⁱʳ
-                 ; assocʳ = arr assocʳ
-                 ; assocˡ = arr assocˡ
+                 ; assocʳ   = arr assocʳ
+                 ; assocˡ   = arr assocˡ
                  }
      where
         _⊗′_ : (A ⇨ C) → (B ⇨ D) → (A × B ⇨ C × D)
@@ -79,12 +74,14 @@ module _ where
     logic : Logic _⇨_
     logic = record { ∧ = arr ∧ ; ∨ = arr ∨ ; xor = arr xor ; not = arr not }
 
--- -- Conditional/choice composition / coproduct tensor
--- infixr 6 _⊕_
--- _⊕_ : (A ⇨ C) → (B ⇨ D) → ((A ⊎ B) ⇨ (C ⊎ D))
--- mealy s₀ f ⊕ mealy t₀ g = mealy (s₀ , t₀)
---   λ { (inj₁ a , (s , t)) → let c , s′ = f (a , s) in inj₁ c , (s′ , t)
---     ; (inj₂ b , (s , t)) → let d , t′ = g (b , t) in inj₂ d , (s  , t′) }
+open import Data.Sum using (_⊎_; inj₁; inj₂)
+
+-- Conditional/choice composition / coproduct tensor
+infixr 6 _⊕_
+_⊕_ : (A ⇨ C) → (B ⇨ D) → ((A ⊎ B) ⇨ (C ⊎ D))
+mealy s₀ f ⊕ mealy t₀ g = mealy (s₀ , t₀)
+  λ { (inj₁ a , (s , t)) → let c , s′ = f (a , s) in inj₁ c , (s′ , t)
+    ; (inj₂ b , (s , t)) → let d , t′ = g (b , t) in inj₂ d , (s  , t′) }
 
 -- Cons (memory/register)
 delay : A → (A ⇨ A)
