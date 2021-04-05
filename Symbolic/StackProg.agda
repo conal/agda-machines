@@ -2,8 +2,7 @@
 
 module Symbolic.StackProg where
 
-open import Function using () renaming (id to id′)
-open import Data.Product using (∃; _,_) renaming (_×_ to _×ᵗ_)
+open import Data.Product using (∃; _,_)
 
 open import Ty
 import Symbolic.Prim as p
@@ -17,8 +16,8 @@ open import Category
 module i where
 
   infix 0 _⇨_
-  _⇨_ : (Ty ×ᵗ Ty) → (Ty ×ᵗ Ty) → Set
-  (i , zⁱ ⇨ o , zᵒ) = ∃ λ a → (a p.⇨ o) ×ᵗ (i × zⁱ r.⇨ a × zᵒ)
+  _⇨_ : (Ty × Ty) → (Ty × Ty) → Set
+  (i , zⁱ ⇨ o , zᵒ) = ∃ λ a → (a p.⇨ o) × (i × zⁱ r.⇨ a × zᵒ)
 
   instance
 
@@ -31,7 +30,7 @@ module k where
 
   infix 0 _⇨_
   infixl 5 _∷ʳ_
-  data _⇨_ : (Ty ×ᵗ Ty) → (Ty ×ᵗ Ty) → Set where
+  data _⇨_ : (Ty × Ty) → (Ty × Ty) → Set where
     [_]  : (i × zⁱ r.⇨ o × zᵒ) → (i , zⁱ ⇨ o , zᵒ)
     _∷ʳ_ : (a , zᵃ ⇨ o , zᵒ) → (i , zⁱ i.⇨ a , zᵃ) → (i , zⁱ ⇨ o , zᵒ)
 
