@@ -10,7 +10,7 @@ open import Relation.Binary.PropositionalEquality using (_≡_; refl)
 
 open import Category
 open import Ty renaming (map to mapᵀ)
-import Symbolic.Prim  -- just for Show
+import Symbolic.Primitive  -- just for Show
 open import Symbolic.Extrinsic
 open import Symbolic.StackProg
 

@@ -1,6 +1,6 @@
 -- Symbolic logic primitives
 
-module Symbolic.Prim where
+module Symbolic.Primitive where
 
 open import Category
 open import Ty

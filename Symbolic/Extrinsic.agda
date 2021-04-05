@@ -12,7 +12,7 @@ open import Function using (_on_) renaming (const to const′)
 
 open import Category
 open import Ty
-import Symbolic.Prim as p
+import Symbolic.Primitive as p
 
 private
   variable
@@ -88,9 +88,9 @@ module s where
   delay : ⟦ A ⟧ → A ⇨ A
   delay a₀ = mealy a₀ swap
 
-  -- import Mealy as m
-
   instance
+
+    -- import Mealy as m
 
     -- meaningful : ∀ {A B} → Meaningful {μ = ⟦ A ⟧ m.⇨ ⟦ B ⟧} (A ⇨ B)
     -- meaningful {A}{B} =
@@ -104,9 +104,9 @@ module s where
          (swiz₂ ∘ second g ∘ swiz₁ ∘ first f ∘ assocˡ)
         where
           swiz₁ : (B × σ) × τ c.⇨ σ × (B × τ)
-          swiz₁ = exr ∘ exl △ first exl
+          swiz₁ = assocʳ ∘ first swap
           swiz₂ : σ × (C × τ) c.⇨ C × (σ × τ)
-          swiz₂ = exl ∘ exr △ second exr
+          swiz₂ = inAssocˡ (first swap)
 
     monoidal : Monoidal _⇨_
     monoidal = record
@@ -117,8 +117,8 @@ module s where
       ; unitorᵉʳ = comb unitorᵉʳ
       ; unitorⁱˡ = comb unitorⁱˡ
       ; unitorⁱʳ = comb unitorⁱʳ
-      ; assocʳ = comb assocʳ
-      ; assocˡ = comb assocˡ
+      ; assocʳ   = comb assocʳ
+      ; assocˡ   = comb assocˡ
       }
 
     braided : Braided _⇨_

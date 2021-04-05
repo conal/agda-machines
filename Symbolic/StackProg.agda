@@ -1,11 +1,11 @@
--- Akin to http://conal.net/papers/calculating-compilers-categorically/
+-- Akin to http://conal.net/papers/calculating-compilers-categorically
 
 module Symbolic.StackProg where
 
 open import Data.Product using (∃; _,_)
 
 open import Ty
-import Symbolic.Prim as p
+import Symbolic.Primitive as p
 open import Symbolic.Extrinsic
 
 private variable a b c d i o z zⁱ zᵒ zᵃ : Ty
