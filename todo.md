@@ -7,6 +7,8 @@
         Extract the essential, general technique for reuse.
     *   Prove correctness of the binary up counter, i.e., that the meaning of the bits patterns generated indeed count the number of true inputs so far.
         Start with a vector function version and its proof, and then transfer the proofs to lower level representations via denotational homomorphisms.
+*   Modify `Dot` to generate C code and similar, including WebGL.
+    Refactor Dot to avoid redundant code.
 *   Look for sequential (rather than combinational) decompositions of current examples.
 *   Can Dot produce more spatially symmetrical layouts?
     The `rankdir` choices seem to be horizontal and vertical, while I sometimes want roughly equal edge lengths.
@@ -26,6 +28,7 @@
     The `Stack` category is the closest counterpart in this project.
     Implementation idea: for each primitive added, check whether there's already the same primitive fed by the "same" inputs in a suitable sense.
     If so, reuse that primitive instance with suitable routing added; otherwise add as done currently.
+    Maybe use reflection to convert simple rewrite rules to an applicable form.
 *   Level-generalize the instances of `products` and `boolean` for functions in `Category`.
     This one is trickier than I expected, as there are so many uses of that category.
 *   Add laws to the category classes.
