@@ -6,7 +6,7 @@
 module Category where
 
 open import Level renaming (suc to lsuc)
-open import Function using (_∘′_) renaming (id to id′; const to const′)
+open import Function using (_∘′_; const) renaming (id to id′)
 open import Relation.Binary.PropositionalEquality
 open import Data.Nat using (ℕ; zero; suc)
 
@@ -84,6 +84,15 @@ record Monoidal {obj : Set o} ⦃ _ : Products obj ⦄
            → ((a × b) × c ⇨ (a′ × b′) × c′)
   inAssocʳ f = assocˡ ∘ f ∘ assocʳ
 
+  -- -- Pseudo values  -- but _⇨_ doesn't get inferred
+  -- ⌞_⌟ : obj → Set ℓ
+  -- ⌞ A ⌟ = ⊤ ⇨ A
+
+  infixr 4 _⦂_
+  -- _⦂_ : ⌞ a ⌟ → ⌞ b ⌟ → ⌞ a × b ⌟
+  _⦂_ : (⊤ ⇨ a) → (⊤ ⇨ b) → (⊤ ⇨ a × b)
+  a ⦂ b = (a ⊗ b) ∘ unitorⁱˡ
+
 open Monoidal ⦃ … ⦄ public
 
 open import Data.Unit using (tt) renaming (⊤ to ⊤′)
@@ -135,17 +144,6 @@ record Meaningful {m} {μ : Set m} (A : Set o) : Set (lsuc (m ⊔ o)) where
     ⟦_⟧ : A → μ
 open Meaningful ⦃ … ⦄ public
 
-record Constant {obj : Set o} ⦃ _ : Products obj ⦄
-         {m} ⦃ _ : Meaningful {μ = Set m} obj ⦄
-         (_⇨′_ : obj → obj → Set ℓ) : Set (lsuc o ⊔ ℓ ⊔ m) where
-  private infix 0 _⇨_; _⇨_ = _⇨′_
-  field
-    const : ∀ {A : obj} → ⟦ A ⟧ → ⊤ ⇨ A
-open Constant ⦃ … ⦄ public
-
--- TODO: Reconsider Constant. Maybe avoid values in this module. Do we really
--- need them, or can we use ⊤ ⇨ A directly?
-
 record Boolean (obj : Set o) : Set (lsuc o) where
   field
     Bool : obj
@@ -157,6 +155,7 @@ record Logic {obj : Set o} ⦃ _ : Products obj ⦄ ⦃ _ : Boolean obj ⦄
   field
     ∧ ∨ xor : Bool × Bool ⇨ Bool
     not : Bool ⇨ Bool
+    true false : ⊤ ⇨ Bool
 open Logic ⦃ … ⦄ public
 
 
@@ -207,9 +206,6 @@ module →Instances where
     meaningful : Meaningful (Set ℓ)
     meaningful = record { ⟦_⟧ = id }
 
-    constants : Constant Function
-    constants = record { const = const′ }
-
     import Data.Bool as B
 
     boolean : Boolean Set
@@ -221,6 +217,8 @@ module →Instances where
               ; ∨     = uncurry B._∨_
               ; xor   = uncurry B._xor_
               ; not   = B.not
+              ; true  = const B.true
+              ; false = const B.false
               }
 
     import Data.Bool.Show as BS

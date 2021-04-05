@@ -60,7 +60,7 @@ module ce where
   lfsr n cs = fsr (suc n) (linear n cs)
 
   lfsr₅ : Bool ↑ 6 ⇨ Bool ↑ 6
-  lfsr₅ = lfsr 5 (true , false , false , true , false , true , tt)
+  lfsr₅ = lfsr 5 (B.true , B.false , B.false , B.true , B.false , B.true , tt)
 
 -- Sequential examples
 module se where
@@ -68,24 +68,24 @@ module se where
 
   -- Toggle
   t₁ : ⊤ ⇨ Bool
-  t₁ = mealy true (dup ∘ not ∘ exr)
+  t₁ = mealy B.true (dup ∘ not ∘ exr)
   -- λ { (tt , s) → (not s , not s) }
 
   -- Toggle
   t₁′ : ⊤ ⇨ Bool
-  t₁′ = mealy true (first (not) ∘ dup ∘ exr)
+  t₁′ = mealy B.true (first (not) ∘ dup ∘ exr)
   -- λ { (tt , s) → (s , not s) }
 
   -- Cumulative or
   t₂ : Bool ⇨ Bool
-  t₂ = mealy false (dup ∘ ∨)
+  t₂ = mealy B.false (dup ∘ ∨)
   -- λ { (b , s) → (b ∨ s , b ∨ s) }
 
-  t₃ = delay false
+  t₃ = delay B.false
 
-  t₄ = delay (false , true , false)
+  t₄ = delay (B.false , B.true , B.false)
 
-  t₅ = delay false ∘ delay true
+  t₅ = delay B.false ∘ delay B.true
 
   t₆ = t₅ ∘ t₅
 
@@ -94,7 +94,7 @@ module se where
   -- Toggle with enable
   -- mealy false (λ (i , s) → ((i xor s , i ∧ s) , i xor s))
   toggle₁ : Bool ⇨ Bool × Bool
-  toggle₁ = mealy false ((id △ exl) ∘ ce.halfAdd)
+  toggle₁ = mealy B.false ((id △ exl) ∘ ce.halfAdd)
 
   toggle₂ = toggle₁ ◂ toggle₁
   toggle₄ = toggle₂ ◂ toggle₂
@@ -103,7 +103,7 @@ module se where
 
   -- Shift and accumulate results
   shift₁ : Bool ⇨ Bool × Bool
-  shift₁ = dup ∘ delay false
+  shift₁ = dup ∘ delay B.false
 
   shifts : ∀ n → Bool ⇨ Bool ↑ n
   shifts n = exl ∘ (shift₁ ↱ n)
@@ -111,21 +111,21 @@ module se where
   -- Wrap swap ∘ shiftR as a sequential computation. The fine-grain dependencies
   -- (one register per bit) unravel the mealy loop into a chain.
   shiftR-swap : ∀ n → Bool ⇨ Bool
-  shiftR-swap n = mealy (subst id (Bool ⟦↑⟧ n) (replicate n false)) (ce.shiftR-swap {n})
+  shiftR-swap n = mealy (subst id (Bool ⟦↑⟧ n) (replicate n B.false)) (ce.shiftR-swap {n})
 
   shiftR-swap-loop : ∀ n → ⊤ ⇨ ⊤
   shiftR-swap-loop n =
-    mealy (subst id (Bool ⟦↑⟧ suc n) (replicate (suc n) false))
+    mealy (subst id (Bool ⟦↑⟧ suc n) (replicate (suc n) B.false))
           (second (ce.shiftR-swap {n}))
 
   shiftR-swap-loop-xor : ∀ n → Bool ⇨ Bool
   shiftR-swap-loop-xor n =
-    mealy (subst id (Bool ⟦↑⟧ suc n) (replicate (suc n) false))
+    mealy (subst id (Bool ⟦↑⟧ suc n) (replicate (suc n) B.false))
           (assocʳ ∘ first dup ∘ ce.shiftR-swap {n} ∘ first xor ∘ assocˡ)
 
   shiftR-swap-loop-xor-out : ∀ n → Bool ⇨ Bool ↑ suc n
   shiftR-swap-loop-xor-out n =
-    mealy (subst id (Bool ⟦↑⟧ suc n) (replicate (suc n) false))
+    mealy (subst id (Bool ⟦↑⟧ suc n) (replicate (suc n) B.false))
           (dup ∘ ce.shiftR-swap {n} ∘ first xor ∘ assocˡ)
 
 

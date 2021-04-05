@@ -11,7 +11,7 @@ import Ty
 import Symbolic.Extrinsic
 import Symbolic.StackProg
 import Dot
-import Test
+-- import Test
 
 -- Experimental modules not used above.
 import Tinkering.StreamFun

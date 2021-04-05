@@ -126,7 +126,8 @@ module sf where
     cartesian = record { exl = route exl ; exr = route exr ; dup = route dup }
 
     logic : Logic _⇨_
-    logic = record { ∧ = prim ∧ ; ∨ = prim ∨ ; xor = prim xor ; not = prim not }
+    logic = record { ∧ = prim ∧ ; ∨ = prim ∨ ; xor = prim xor ; not = prim not
+                   ; false = prim false ; true = prim true }
 
   -- Functorial compilation
   compile : a c.⇨ b → a ⇨ b

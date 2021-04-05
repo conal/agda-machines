@@ -3,7 +3,8 @@
 module Ty where
 
 open import Data.Unit using (tt)
-open import Data.Bool using (if_then_else_; false; true)
+open import Data.Bool using (if_then_else_)
+  renaming (false to false′; true to true′)
 open import Data.Bool.Show as BS
 open import Data.Product using (_,_; uncurry)
 open import Data.Nat
@@ -38,14 +39,14 @@ module tyv where
     boolean = record { Bool = `Bool }
 
 showTy : ⟦ A ⟧ → String
-showTy = go true
+showTy = go true′
  where
    -- flag says we're in the left part of a pair
    go : Bool → ⟦ A ⟧ → String
    go {`⊤} _ tt = "tt"
    go {`Bool} _ b = BS.show b
    go {_ `× _} p (x , y) = (if p then parens else id)
-                           (go true x ++ "," ++ go false y)
+                           (go true′ x ++ "," ++ go false′ y)
 
 -- infix 0 _→ᵗ_
 -- _→ᵗ_ : Ty → Ty → Set
@@ -177,10 +178,10 @@ module ty where
     field
       f : ⟦ A ⟧ → ⟦ B ⟧
 
-  mk⁻¹ : (A ⇨ B) → (⟦ A ⟧ → ⟦ B ⟧)
-  mk⁻¹ (mk f) = f
-
   instance
+    meaningful : Meaningful (A ⇨ B)
+    meaningful = record { ⟦_⟧ = _⇨_.f }
+
     category : Category _⇨_
     category = record
       { id    = mk id
@@ -219,10 +220,16 @@ replicate : ∀ n → ⟦ A ⟧ → ⟦ A ⟧ ↑ n
 replicate zero a = tt
 replicate (suc n) a = a , replicate n a
 
+
 -- Miscellaneous utilities, perhaps to move elsewhere
 module TyUtils {ℓ} {_⇨_ : Ty → Ty → Set ℓ} (let infix 0 _⇨_; _⇨_ = _⇨_) where
 
   module _ ⦃ _ : Braided ⦃ tyv.products ⦄ _⇨_ ⦄ where
+
+    -- Todo: rename
+    replicate′ : ∀ n → (⊤ ⇨ A) → (⊤ ⇨ A ↑ n)
+    replicate′ zero    a = !
+    replicate′ (suc n) a = a ⦂ replicate′ n a
 
     shiftR : Bool × A ⇨ A × Bool
     shiftR {`⊤}     = swap

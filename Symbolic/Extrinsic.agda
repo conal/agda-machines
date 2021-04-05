@@ -5,7 +5,6 @@ module Symbolic.Extrinsic where
 
 open import Data.Product using (_,_)
 open import Data.Unit using (tt)
-open import Data.Bool using (false;true)
 open import Data.String using (String)
 open import Relation.Binary.PropositionalEquality using (_≗_; refl)
 open import Function using (_on_) renaming (const to const′)
@@ -63,12 +62,9 @@ module c where
     cartesian : Cartesian _⇨_
     cartesian = record { exl = `route exl ; exr = `route exr ; dup = `route dup }
 
-    constants : Constant _⇨_
-    constants = record { const = `prim ∘ const }
-
     logic : Logic _⇨_
-    logic =
-      record { ∧ = `prim ∧ ; ∨ = `prim ∨ ; xor = `prim xor ; not = `prim not}
+    logic = record { ∧ = `prim ∧ ; ∨ = `prim ∨ ; xor = `prim xor
+                   ; not = `prim not ; false = `prim false ; true = `prim true }
 
 -- Synchronous state machine.
 module s where
@@ -94,7 +90,7 @@ module s where
 
     -- meaningful : ∀ {A B} → Meaningful {μ = ⟦ A ⟧ m.⇨ ⟦ B ⟧} (A ⇨ B)
     -- meaningful {A}{B} =
-    --   record { ⟦_⟧ = λ { (mealy s₀ f) → m.mealy s₀ (ty.mk⁻¹ ⟦ f ⟧) } }
+    --   record { ⟦_⟧ = λ { (mealy s₀ f) → m.mealy s₀ (⟦ ⟦ f ⟧ ⟧) } }
 
     category : Category _⇨_
     category = record { id = comb id ; _∘_ = _⊙_ }
@@ -127,8 +123,6 @@ module s where
     cartesian : Cartesian _⇨_
     cartesian = record { exl = comb exl ; exr = comb exr ; dup = comb dup }
 
-    constants : Constant _⇨_
-    constants = record { const = comb ∘ const }
-
     logic : Logic _⇨_
-    logic = record { ∧ = comb ∧ ; ∨ = comb ∨ ; xor = comb xor ; not = comb not }
+    logic = record { ∧ = comb ∧ ; ∨ = comb ∨ ; xor = comb xor ; not = comb not
+                   ; false = comb false ; true = comb true }

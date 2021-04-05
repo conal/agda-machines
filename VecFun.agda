@@ -67,16 +67,15 @@ module VecFunInstances where
     braided : Braided _⇨_
     braided = record { swap = arr swap }
 
-    constants : Constant _⇨_
-    constants = record { const = arr ∘ const }
-
     import Data.Bool as B
     logic : Logic _⇨_
     logic = record
-              { ∧   = arr (uncurry B._∧_)
-              ; ∨   = arr (uncurry B._∨_)
-              ; xor = arr (uncurry B._xor_)
-              ; not = arr B.not
+              { ∧     = arr (uncurry B._∧_)
+              ; ∨     = arr (uncurry B._∨_)
+              ; xor   = arr (uncurry B._xor_)
+              ; not   = arr not
+              ; true  = arr true
+              ; false = arr false
               }
 
 -- Cons (memory/register)

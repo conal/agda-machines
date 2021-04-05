@@ -72,7 +72,8 @@ module _ where
     braided = record { swap = arr swap }
 
     logic : Logic _⇨_
-    logic = record { ∧ = arr ∧ ; ∨ = arr ∨ ; xor = arr xor ; not = arr not }
+    logic = record { ∧ = arr ∧ ; ∨ = arr ∨ ; xor = arr xor ; not = arr not
+                   ; false = arr false ; true = arr true }
 
 open import Data.Sum using (_⊎_; inj₁; inj₂)
 
