@@ -8,7 +8,9 @@
 --  
 -- This category was designed to capture the simple essence of stack machines
 -- and compiling to them homomorphically. It appears also to capture SSA nicely.
--- See http://conal.net/papers/calculating-compilers-categorically .
+-- Primitives always operate on the first part of a pair ("the accumulator")
+-- while preserving the second ("the stack"). See
+-- http://conal.net/papers/calculating-compilers-categorically .
 
 open import Ty
 open import Category
