@@ -1,5 +1,8 @@
 ## To do
 
+*   Can we generalize `Symbolic.StackProg` by parametrizing over underlying category?
+    The distinction between primitives and routing seems quite important.
+    Maybe parametrize over the primitives, doing the same for `Symbolic.Extrinsic`.
 *   More examples of various difficulties.
     Some ideas:
     *   [Ready/valid handshake](https://stackoverflow.com/questions/53583946/valid-ready-handshake-in-verilog).
@@ -20,8 +23,12 @@
     *   Generalized to other categories (but in the same vocabulary)
     *   Re-specialized to hardware.
 *   Blog posts of pretty examples.
-*   Add lots of algebraic optimizations that get applied during circuit construction.
-    Very effective in my Haskell-to-Hardware project.
+*   Add lots of algebraic optimizations that get applied during circuit construction, such as multiplication by zero or one and addition with zero, and similar identities for `∧`, `∨`, and `xor`.
+    Also, constant folding in general and common subexpression elimination.
+    These optimizations were *very* effective in my Haskell-to-Hardware project and were mostly applied in the graph-construction category.
+    The `Symbolic.StackProg` category is the closest counterpart in this project.
+    Implementation idea: for each primitive added, check whether there's already the same primitive fed by the "same" inputs in a suitable sense.
+    If so, reuse that primitive instance with suitable routing added; otherwise add as done currently.
 *   Level-generalize the instances of `products` and `boolean` for functions in `Category`.
     This one is trickier than I expected, as there are so many uses of that category.
 *   Add laws to the category classes.
