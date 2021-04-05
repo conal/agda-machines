@@ -10,48 +10,13 @@ open import Data.String using (String)
 open import Relation.Binary.PropositionalEquality using (_≗_; refl)
 open import Function using (_on_) renaming (const to const′)
 
-open import Ty
-
 open import Category
+open import Ty
+import Symbolic.Prim as p
 
 private
   variable
     A B C D σ τ : Ty
-
--- Combinational primitives
-module p where
-
-  infix 1 _⇨_
-  data _⇨_ : Ty → Ty → Set where
-    `∧ `∨ `xor : Bool × Bool ⇨ Bool
-    `not : Bool ⇨ Bool
-    `const : ⟦ A ⟧ → ⊤ ⇨ A
-
-  instance
-
-    meaningful : ∀ {a b} → Meaningful {μ = a ty.⇨ b} (a ⇨ b)
-    meaningful {a}{b} = record
-      { ⟦_⟧ = λ { `∧         → ty.mk ∧
-                ; `∨         → ty.mk ∨
-                ; `xor       → ty.mk xor
-                ; `not       → ty.mk not
-                ; (`const a) → ty.mk (const a) } }
-
-    p-show : ∀ {a b} → Show (a ⇨ b)
-    p-show = record { show = λ { `∧ → "∧"
-                               ; `∨ → "∨"
-                               ; `xor → "⊕"
-                               ; `not → "not"
-                               ; (`const x) → showTy x
-                               }
-                    }
-
-    constants : Constant _⇨_
-    constants = record { const = `const }
-
-    logic : Logic _⇨_
-    logic = record { ∧ = `∧ ; ∨ = `∨ ; xor = `xor ; not = `not }
-
 
 -- Combinational circuits
 module c where

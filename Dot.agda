@@ -10,6 +10,7 @@ open import Relation.Binary.PropositionalEquality using (_≡_; refl)
 
 open import Category
 open import Ty renaming (map to mapᵀ)
+import Symbolic.Prim  -- just for Show
 open import Symbolic.Extrinsic
 open import Symbolic.StackProg
 
@@ -84,7 +85,7 @@ module _ {s} (state₀ : ⟦ s ⟧) where
     concat (toList (mapᵀ register allIx ⊛ →TyF state₀ ⊛ ss))
     ++ᴸ comp "output" "output" os ⊤
 
-  dotᵏ comp# ins (k._∷ʳ_ {o = b} f (a , a⇨ₚb , i×zⁱ⇨ᵣa×zᵃ))
+  dotᵏ comp# ins (k._∷ʳ_ {a = b} f (a , a⇨ₚb , i×zⁱ⇨ᵣa×zᵃ))
        with r.⟦ i×zⁱ⇨ᵣa×zᵃ ⟧′ ins ; ... | os ､ ss =
     let compName = "c" ++ show comp# in
       comp compName (show a⇨ₚb) os b

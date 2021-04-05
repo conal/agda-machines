@@ -6,6 +6,7 @@ open import Function using () renaming (id to id′)
 open import Data.Product using (∃; _,_) renaming (_×_ to _×ᵗ_)
 
 open import Ty
+import Symbolic.Prim as p
 open import Symbolic.Extrinsic
 
 private variable a b c d i o z zⁱ zᵒ zᵃ : Ty
