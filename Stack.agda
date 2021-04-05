@@ -4,12 +4,14 @@
 -- normal form for categorical formula as a strictly linear composition of the
 -- following form:
 --
---   rₙ ∘ first pₙ₋₁ ∘ rₙ₋₁ ⋯ ∘ first p₀ ∘ r₀
+--     unitorᵉʳ ∘ rₙ ∘ first pₙ₋₁ ∘ rₙ₋₁ ⋯ ∘ first p₀ ∘ r₀ ∘ unitorⁱʳ
 --  
--- This category was designed to capture the simple essence of stack machines
--- and compiling to them homomorphically. It appears also to capture SSA nicely.
+-- where the `pᵢ` are primitive operations and the `rᵢ` are pure routings. This
+-- category was designed to capture the simple essence of stack machines and
+-- compiling to them homomorphically. It appears also to capture SSA nicely.
 -- Primitives always operate on the first part of a pair ("the accumulator")
--- while preserving the second ("the stack"). See
+-- while preserving the second ("the stack"). The first and final unitor steps
+-- introduce and eliminate empty stacks, respectively. See
 -- http://conal.net/papers/calculating-compilers-categorically .
 
 open import Ty
