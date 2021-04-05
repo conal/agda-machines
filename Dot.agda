@@ -84,10 +84,10 @@ module _ {s} (state₀ : ⟦ s ⟧) where
     concat (toList (mapᵀ register allIx ⊛ →TyF state₀ ⊛ ss))
     ++ᴸ comp "output" "output" os ⊤
 
-  dotᵏ comp# ins (f k.∷ʳ (a , a⇨ₚb , i×zⁱ⇨ᵣa×zᵃ)) with r.⟦ i×zⁱ⇨ᵣa×zᵃ ⟧′ ins
-  ...                                                | os ､ ss =
+  dotᵏ comp# ins (k._∷ʳ_ {o = b} f (a , a⇨ₚb , i×zⁱ⇨ᵣa×zᵃ))
+       with r.⟦ i×zⁱ⇨ᵣa×zᵃ ⟧′ ins ; ... | os ､ ss =
     let compName = "c" ++ show comp# in
-      comp compName (show a⇨ₚb) os (p.cod a⇨ₚb)
+      comp compName (show a⇨ₚb) os b
       ++ᴸ dotᵏ (suc comp#) (mapᵀ (oport compName) allIx ､ ss) f
 
   dot : i × s sf.⇨ o × s → String

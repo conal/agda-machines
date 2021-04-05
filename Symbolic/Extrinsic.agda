@@ -56,12 +56,6 @@ module p where
     logic : Logic _⇨_
     logic = record { ∧ = `∧ ; ∨ = `∨ ; xor = `xor ; not = `not }
 
-  dom : A ⇨ B → Ty
-  dom {A}{B} _ = A
-
-  cod : A ⇨ B → Ty
-  cod {A}{B} _ = B
-
 
 -- Combinational circuits
 module c where
