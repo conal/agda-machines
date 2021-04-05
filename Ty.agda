@@ -24,12 +24,12 @@ module tyv where
   instance
 
     meaningful : Meaningful Ty
-    meaningful = record { ⟦_⟧ = ⟦_⟧ᵗ }
+    meaningful = record { ⟦_⟧ = ⟦_⟧′ }
      where
-       ⟦_⟧ᵗ : Ty → Set
-       ⟦ `⊤ ⟧ᵗ     = ⊤
-       ⟦ σ `× τ ⟧ᵗ = ⟦ σ ⟧ᵗ × ⟦ τ ⟧ᵗ
-       ⟦ `Bool ⟧ᵗ  = Bool
+       ⟦_⟧′ : Ty → Set
+       ⟦ `⊤ ⟧′     = ⊤
+       ⟦ σ `× τ ⟧′ = ⟦ σ ⟧′ × ⟦ τ ⟧′
+       ⟦ `Bool ⟧′  = Bool
 
     products : Products Ty
     products = record { ⊤ = `⊤ ; _×_ = _`×_ }
