@@ -12,8 +12,7 @@ open import Function using (_on_) renaming (const to const′)
 
 open import Ty
 
-import Category as C
-open C
+open import Category
 
 private
   variable

@@ -10,8 +10,7 @@ open import Symbolic.Extrinsic
 
 private variable a b c d i o z zⁱ zᵒ zᵃ : Ty
 
-import Category as C
-open C
+open import Category
 
 -- Primitive instance p with input routing for first p
 module i where

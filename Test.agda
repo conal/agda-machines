@@ -12,8 +12,7 @@ open import Data.String using (String; _++_)
 open import Relation.Binary.PropositionalEquality using (subst)
 open import IO
 
-import Category as C
-open C ; open CartUtils
+open import Category ; open CartUtils
 open import Ty
 open import Symbolic.Extrinsic
 open import Symbolic.StackProg
