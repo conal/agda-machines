@@ -140,11 +140,11 @@ record Constant {obj : Set o} ⦃ _ : Products obj ⦄
          (_⇨′_ : obj → obj → Set ℓ) : Set (lsuc o ⊔ ℓ ⊔ m) where
   private infix 0 _⇨_; _⇨_ = _⇨′_
   field
-    -- Maybe add a constraint
-    -- constraint : obj → Set -- level?
-    const : ∀ {A : obj} {- → constraint A -} → ⟦ A ⟧ → ⊤ ⇨ A  -- In another class
+    const : ∀ {A : obj} → ⟦ A ⟧ → ⊤ ⇨ A
 open Constant ⦃ … ⦄ public
 
+-- TODO: Reconsider Constant. Maybe avoid values in this module. Do we really
+-- need them, or can we use ⊤ ⇨ A directly?
 
 record Boolean (obj : Set o) : Set (lsuc o) where
   field
