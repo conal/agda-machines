@@ -9,31 +9,30 @@ open import Function using (_∘′_; const) renaming (id to id′)
 open import Relation.Binary.PropositionalEquality
 open import Data.Nat using (ℕ; zero; suc)
 
-private variable o ℓ : Level
+private
+  variable
+    o ℓ : Level
+    obj : Set o
+    a b c d e : obj
+    a′ b′ c′ d′ e′ : obj
 
 record Category {obj : Set o} (_⇨_ : obj → obj → Set ℓ) : Set (lsuc o ⊔ ℓ) where
   infixr 9 _∘_
   -- infix 4 _≈_
   field
-    id : ∀ {a} → a ⇨ a
-    _∘_ : ∀ {a b c} → (b ⇨ c) → (a ⇨ b) → (a ⇨ c)
-    -- _≈_ : ∀ {a b} (f g : a ⇨ b) → Set
+    id  : a ⇨ a
+    _∘_ : (b ⇨ c) → (a ⇨ b) → (a ⇨ c)
+    -- _≈_ : (f g : a ⇨ b) → Set
 
-    -- .identityˡ : ∀ {a b}{f : a ⇨ b} → id ∘ f ≈ f
-    -- .identityʳ : ∀ {a b}{f : a ⇨ b} → f ∘ id ≈ f
-    -- .assoc : ∀ {a b c d}{h : c ⇨ d} {g : b ⇨ c} {f : a ⇨ b}
+    -- .identityˡ : {f : a ⇨ b} → id ∘ f ≈ f
+    -- .identityʳ : {f : a ⇨ b} → f ∘ id ≈ f
+    -- .assoc : {h : c ⇨ d} {g : b ⇨ c} {f : a ⇨ b}
     --        → (h ∘ g) ∘ f ≈ h ∘ (g ∘ f)
 
 open Category ⦃ … ⦄ public
 
 Function : Set o → Set o → Set o
 Function a b = a → b
-
-private
-  variable
-    obj : Set o
-    a b c d e : obj
-    a′ b′ c′ d′ e′ : obj
 
 record Products (obj : Set o) : Set (lsuc o) where
   infixr 2 _×_
