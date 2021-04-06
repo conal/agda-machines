@@ -13,6 +13,10 @@ macro
   Q : ∀ {a}{A : Set a} → A → Term → TC ⊤
   Q x hole = quoteTC x >>= quoteTC >>= unify hole
 
+  -- Normalize before re-quoting
+  Q′ : ∀ {a}{A : Set a} → A → Term → TC ⊤
+  Q′ x hole = quoteTC x >>= normalise >>= quoteTC >>= unify hole
+
 -- Use example: "C-c C-n Q λ x → x + 3". Result:
 --
 --   lam visible
