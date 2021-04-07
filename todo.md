@@ -1,5 +1,7 @@
 ## To do
 
+*   Add laws to the category classes (in progress).
+*   Restore semantics in `Mealy`.
 *   More examples of various difficulties.
     Some ideas:
     *   [Ready/valid handshake](https://stackoverflow.com/questions/53583946/valid-ready-handshake-in-verilog).
@@ -32,7 +34,6 @@
     Maybe use reflection to convert simple rewrite rules to an applicable form.
 *   Level-generalize the instances of `products` and `boolean` for functions in `Category`.
     This one is trickier than I expected, as there are so many uses of that category.
-*   Add laws to the category classes.
 *   Recreate compiling-to-categories so we can write and read lambda notation instead of combinators!
     See how far we can get with Agda's reflection mechanism.
 *   Add causality definition and proofs to `VecFun`.
