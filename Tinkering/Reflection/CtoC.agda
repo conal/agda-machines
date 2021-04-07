@@ -2,12 +2,12 @@
 
 module Tinkering.Reflection.CtoC where
 
-open import Level
+open import Level using ()
 open import Function
 open import Data.Unit
 open import Data.Product hiding (_<*>_)
 open import Data.List
-open import Data.Nat
+open import Data.Nat hiding (_⊔_)
 open import Data.Maybe using (Maybe; nothing; just)
 open import Relation.Binary.PropositionalEquality hiding ([_])
 
@@ -30,6 +30,17 @@ pattern cons⁴ x = cons¹ (cons³ x)
 pattern cons⁵ x = cons¹ (cons⁴ x)
 
 
+apply : ∀ {a}{b}{A : Set a}{B : Set b} → (A → B) × A → B
+apply = uncurry _$_
+-- apply (f , x) = f x
+
+-- N-ary curried function types
+infix 0 _⇉_
+_⇉_ : ∀ {a} → List (Set a) → Set a → Set a
+[]       ⇉ B = B
+(A ∷ As) ⇉ B = A → As ⇉ B
+-- To allow diverse levels, maybe define a special inductive type.
+
 transform : Term → Term
 
 -- (λ x → x) ↦ id
@@ -38,8 +49,16 @@ transform (vlam _ (var zero [])) = def (quote id) (2 ⋯⟅∷⟆ [])
 -- (λ x → U , V) ↦ < (λ x → U) , (λ x → V) ⟩
 transform (vlam x (con (quote _,_) (cons⁴ (vArg u ∷ vArg v ∷ [])))) =
    def (quote <_,_>) (6 ⋯⟅∷⟆ vlam x u ⟨∷⟩ vlam x v ⟨∷⟩ [])
+-- TODO: generalize to λ x → U V, using apply and <_,_>. Tricky, since Term
+-- application isn't binary.
 
--- More clauses here
+-- (λ x → f U) → f ∘ (λ x → U)  -- needs generalizing
+transform (vlam x (con c (u ⟨∷⟩ []))) =
+  def (quote _∘′_) (6 ⋯⟅∷⟆ (con c []) ⟨∷⟩ vlam x u ⟨∷⟩ [])
+transform (vlam x (def f (u ⟨∷⟩ []))) =
+  def (quote _∘′_) (6 ⋯⟅∷⟆ (def f []) ⟨∷⟩ vlam x u ⟨∷⟩ [])
+
+-- <Add clauses here.>
 
 -- (λ x → U) ↦ const U, if x is not free in U (but deBruijn style)
 transform f@(vlam _ body) with strengthen body
@@ -87,3 +106,6 @@ _ : ∀ {z : ℕ} → cat (λ (x : ℕ) → z + 1) ≡ const (z + 1)
 _ = {!!}
 
 -- ((ℕ → ℕ) ∋ const (z + 1)) ≡ const (z + 1)
+
+_ : cat (λ n → suc n) ≡ suc
+_ = {!!}
