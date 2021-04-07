@@ -42,7 +42,7 @@ module k where
 
   infix 0 _⇨_
   infixl 5 _∷ʳ_
-  data _⇨_ : (Ty × Ty) → (Ty × Ty) → Set where
+  data _⇨_ : Ty × Ty → Ty × Ty → Set where
     [_]  : (i × zⁱ r.⇨ o × zᵒ) → (i , zⁱ ⇨ o , zᵒ)
     _∷ʳ_ : (a , zᵃ ⇨ o , zᵒ) → (i , zⁱ i.⇨ a , zᵃ) → (i , zⁱ ⇨ o , zᵒ)
 
