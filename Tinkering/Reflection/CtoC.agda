@@ -41,31 +41,34 @@ _⇉_ : ∀ {a} → List (Set a) → Set a → Set a
 (A ∷ As) ⇉ B = A → As ⇉ B
 -- To allow diverse levels, maybe define a special inductive type.
 
+-- A view of the body of a lambda expression
+data λCases : Set where
+  Id : λCases
+  Weaken : (body′ : Term) → λCases
+  Pair : (u v : Term) → λCases
+  Comp : (f : List (Arg Term) → Term) → (u : Term) → λCases
+  Other : λCases
+
+cases : Term → λCases
+cases body with strengthen body
+... | just body′ = Weaken body′
+... | nothing = case body of λ
+      { (var zero []) → Id
+      ; (con (quote _,_) (cons⁴ (vArg u ∷ vArg v ∷ []))) → Pair u v
+      ; (con c (u ⟨∷⟩ [])) → Comp (con c) u
+      ; (def f (u ⟨∷⟩ [])) → Comp (def f) u
+      ; _ → Other
+      }
+
 transform : Term → Term
-
--- (λ x → x) ↦ id
-transform (vlam _ (var zero [])) = def (quote id) (2 ⋯⟅∷⟆ [])
-
--- (λ x → U , V) ↦ < (λ x → U) , (λ x → V) ⟩
-transform (vlam x (con (quote _,_) (cons⁴ (vArg u ∷ vArg v ∷ [])))) =
-   def (quote <_,_>) (6 ⋯⟅∷⟆ vlam x u ⟨∷⟩ vlam x v ⟨∷⟩ [])
--- TODO: generalize to λ x → U V, using apply and <_,_>. Tricky, since Term
--- application isn't binary.
-
--- (λ x → f U) → f ∘ (λ x → U)  -- needs generalizing
-transform (vlam x (con c (u ⟨∷⟩ []))) =
-  def (quote _∘′_) (6 ⋯⟅∷⟆ (con c []) ⟨∷⟩ vlam x u ⟨∷⟩ [])
-transform (vlam x (def f (u ⟨∷⟩ []))) =
-  def (quote _∘′_) (6 ⋯⟅∷⟆ (def f []) ⟨∷⟩ vlam x u ⟨∷⟩ [])
-
--- <Add clauses here.>
-
--- (λ x → U) ↦ const U, if x is not free in U (but deBruijn style)
-transform f@(vlam _ body) with strengthen body
-... | just body′ = def (quote const) (4 ⋯⟅∷⟆ body′ ⟨∷⟩ [])
-... | nothing    = f
-
+transform e@(vlam x body) with cases body
+... | Id = def (quote id) (2 ⋯⟅∷⟆ [])
+... | Weaken body′ = def (quote const) (4 ⋯⟅∷⟆ body′ ⟨∷⟩ [])
+... | Pair u v = def (quote <_,_>) (6 ⋯⟅∷⟆ vlam x u ⟨∷⟩ vlam x v ⟨∷⟩ [])
+... | Comp f u = def (quote _∘′_) (6 ⋯⟅∷⟆ (f []) ⟨∷⟩ vlam x u ⟨∷⟩ [])
+... | Other = e
 transform f = f
+
 
 -- Wrap in `A ∋_`
 asTy : ∀ {a} → Set a → Term → TC Term
