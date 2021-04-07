@@ -16,6 +16,7 @@
     Maybe the answer is to use a renderer other than `dot`, e.g., `neato`, `circo`, `fdp`, or `twopi`.
     Oh. The port positions are biased for left-to-right.
     Perhaps there are other ways to identify ports.
+*   Rename `exl` and `exr` to "`exˡ`" and "`exʳ`".
 *   Organize example suite so that every example is presented in several forms, all connected by denotational homomorphisms to guarantee semantic equivalence:
     *   As vector functions, defined conveniently in the usual pointful lambda notation.
     *   Redefined equivalently (still as vector functions) but using only (point-free) categorical vocabulary.

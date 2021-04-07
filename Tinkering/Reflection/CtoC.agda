@@ -8,7 +8,8 @@ open import Data.Unit
 open import Data.Product hiding (_<*>_)
 open import Data.List
 open import Data.Nat hiding (_⊔_)
-open import Data.Maybe using (Maybe; nothing; just)
+import Data.Maybe as M
+open M using (Maybe; nothing; just)
 open import Relation.Binary.PropositionalEquality hiding ([_])
 
 open import Reflection
@@ -34,12 +35,8 @@ apply : ∀ {a}{b}{A : Set a}{B : Set b} → (A → B) × A → B
 apply = uncurry _$_
 -- apply (f , x) = f x
 
--- N-ary curried function types
-infix 0 _⇉_
-_⇉_ : ∀ {a} → List (Set a) → Set a → Set a
-[]       ⇉ B = B
-(A ∷ As) ⇉ B = A → As ⇉ B
--- To allow diverse levels, maybe define a special inductive type.
+infixl 4 _<*>ᴹ_
+_<*>ᴹ_ = M.ap
 
 transform : Term → Term
 transform e@(vlam x body) with strengthen body
@@ -47,17 +44,44 @@ transform e@(vlam x body) with strengthen body
 ... | nothing = case body of λ
       { (var zero []) → def (quote id) (2 ⋯⟅∷⟆ [])
       ; (con (quote _,_) (cons⁴ (vArg u ∷ vArg v ∷ []))) →
-          def (quote <_,_>) (6 ⋯⟅∷⟆ vlam x u ⟨∷⟩ vlam x v ⟨∷⟩ [])
-      ; (con c (u ⟨∷⟩ [])) → comp (con c) u
-      ; (def f (u ⟨∷⟩ [])) → comp (def f) u
+          def (quote <_,_>) (6 ⋯⟅∷⟆ transform (vlam x u) ⟨∷⟩ transform (vlam x v) ⟨∷⟩ [])
+      ; (con c args) → comp₀ (con c) args
+      ; (def f args) → comp₀ (def f) args
+      -- ; (var zero args) → app args
       ; _ → e
       }
  where
-   comp : (List (Arg Term) → Term) → Term → Term
-   comp f u = def (quote _∘′_) (6 ⋯⟅∷⟆ (f []) ⟨∷⟩ vlam x u ⟨∷⟩ [])
+   strengthenArg : Arg Term → Maybe (Arg Term)
+   strengthenArg (arg info t) = M.map (arg info) (strengthen t)
+
+   -- strengthenArgs : List (Arg Term) → Maybe (List (Arg Term))
+   -- strengthenArgs [] = just []
+   -- strengthenArgs (a ∷ as) = just _∷_ <*>ᴹ strengthenArg a <*>ᴹ strengthenArgs as
+
+   -- I have to strengthen each argument as it comes.
+   -- If successful, fold into f; if not, recursively transform.
+   -- How to combine?
+
+   comp₁ : (List (Arg Term) → Term) → List (Arg Term) → Term
+   -- comp₁ f (h ⟅∷⟆ args) with strengthen h
+   -- ... | just h′ = comp₁ (f ∘ (h′ ⟅∷⟆_)) args
+   -- ... | 
+   comp₁ f (v ⟨∷⟩ []) = def (quote _∘′_) (6 ⋯⟅∷⟆ (f []) ⟨∷⟩ transform (vlam x v) ⟨∷⟩ [])
+   -- TODO: handle more arguments
+   comp₁ f args = e
+   -- app : List (Arg Term) → Term
+   -- app args = ?  -- use of apply
+
+   -- comp₀ : (List (Arg Term) → Term) → List (Arg Term) → Term
+   -- comp₀ f args with strengthenArgs args
+   -- ... | nothing = e
+   -- ... | just args′ = comp₁ f args′
+
 transform e = e
 
--- Wrap in `A ∋_`
+-- I get the same results without "n ⋯⟅∷⟆".
+
+-- Wrap in `A ∋`
 asTy : ∀ {a} → Set a → Term → TC Term
 asTy A t = (λ qA → def (quote _∋_) (vArg qA ∷ vArg t ∷ [])) <$> quoteTC A
 
