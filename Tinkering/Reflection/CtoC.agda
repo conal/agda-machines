@@ -41,34 +41,21 @@ _⇉_ : ∀ {a} → List (Set a) → Set a → Set a
 (A ∷ As) ⇉ B = A → As ⇉ B
 -- To allow diverse levels, maybe define a special inductive type.
 
--- A view of the body of a lambda expression
-data λCases : Set where
-  Id : λCases
-  Weaken : (body′ : Term) → λCases
-  Pair : (u v : Term) → λCases
-  Comp : (f : List (Arg Term) → Term) → (u : Term) → λCases
-  Other : λCases
-
-cases : Term → λCases
-cases body with strengthen body
-... | just body′ = Weaken body′
-... | nothing = case body of λ
-      { (var zero []) → Id
-      ; (con (quote _,_) (cons⁴ (vArg u ∷ vArg v ∷ []))) → Pair u v
-      ; (con c (u ⟨∷⟩ [])) → Comp (con c) u
-      ; (def f (u ⟨∷⟩ [])) → Comp (def f) u
-      ; _ → Other
-      }
-
 transform : Term → Term
-transform e@(vlam x body) with cases body
-... | Id = def (quote id) (2 ⋯⟅∷⟆ [])
-... | Weaken body′ = def (quote const) (4 ⋯⟅∷⟆ body′ ⟨∷⟩ [])
-... | Pair u v = def (quote <_,_>) (6 ⋯⟅∷⟆ vlam x u ⟨∷⟩ vlam x v ⟨∷⟩ [])
-... | Comp f u = def (quote _∘′_) (6 ⋯⟅∷⟆ (f []) ⟨∷⟩ vlam x u ⟨∷⟩ [])
-... | Other = e
-transform f = f
-
+transform e@(vlam x body) with strengthen body
+... | just body′ = def (quote const) (4 ⋯⟅∷⟆ body′ ⟨∷⟩ [])
+... | nothing = case body of λ
+      { (var zero []) → def (quote id) (2 ⋯⟅∷⟆ [])
+      ; (con (quote _,_) (cons⁴ (vArg u ∷ vArg v ∷ []))) →
+          def (quote <_,_>) (6 ⋯⟅∷⟆ vlam x u ⟨∷⟩ vlam x v ⟨∷⟩ [])
+      ; (con c (u ⟨∷⟩ [])) → comp (con c) u
+      ; (def f (u ⟨∷⟩ [])) → comp (def f) u
+      ; _ → e
+      }
+ where
+   comp : (List (Arg Term) → Term) → Term → Term
+   comp f u = def (quote _∘′_) (6 ⋯⟅∷⟆ (f []) ⟨∷⟩ vlam x u ⟨∷⟩ [])
+transform e = e
 
 -- Wrap in `A ∋_`
 asTy : ∀ {a} → Set a → Term → TC Term
