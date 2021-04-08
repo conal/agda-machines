@@ -13,6 +13,7 @@ open M using (Maybe; nothing; just)
 open import Relation.Binary.PropositionalEquality hiding ([_])
 
 open import Reflection
+open import Reflection.Name
 open import Reflection.Term
 open import Reflection.Argument
 open import Reflection.DeBruijn
@@ -20,16 +21,14 @@ open import Reflection.TypeChecking.Monad.Syntax
 
 open import Tinkering.Reflection.Quote  -- to experiment
 
-
 pattern vlam x b = lam visible (abs x b)
 pattern hlam x b = lam hidden  (abs x b)
 
-pattern cons¹ x = _ ∷ x
-pattern cons² x = cons¹ (cons¹ x)
-pattern cons³ x = cons¹ (cons² x)
-pattern cons⁴ x = cons¹ (cons³ x)
-pattern cons⁵ x = cons¹ (cons⁴ x)
-
+pattern hcons¹ x = _ ⟅∷⟆ x
+pattern hcons² x = hcons¹ (hcons¹ x)
+pattern hcons³ x = hcons¹ (hcons² x)
+pattern hcons⁴ x = hcons¹ (hcons³ x)
+pattern hcons⁵ x = hcons¹ (hcons⁴ x)
 
 apply : ∀ {a}{b}{A : Set a}{B : Set b} → (A → B) × A → B
 apply = uncurry _$_
@@ -38,15 +37,27 @@ apply = uncurry _$_
 infixl 4 _<*>ᴹ_
 _<*>ᴹ_ = M.ap
 
+open import Data.Bool
+open import Relation.Nullary using (does)
+
+primDefs primCons : List Name
+primDefs = quote _∧_ ∷ quote _∨_ ∷ quote _xor_ ∷ quote not ∷ quote _+_ ∷ []
+primCons = quote true ∷ quote false ∷ quote suc ∷  []
+
+_∈ⁿ_ : Name → Names → Bool
+nm ∈ⁿ names = any (does ∘ (_≈? nm)) names
+
 transform : Term → Term
 transform e@(vlam x body) with strengthen body
 ... | just body′ = def (quote const) (4 ⋯⟅∷⟆ body′ ⟨∷⟩ [])
 ... | nothing = case body of λ
       { (var zero []) → def (quote id) (2 ⋯⟅∷⟆ [])
-      ; (con (quote _,_) (cons⁴ (vArg u ∷ vArg v ∷ []))) →
+      ; (con (quote _,_) (hcons⁴ (u ⟨∷⟩ v ⟨∷⟩ []))) →
           def (quote <_,_>) (6 ⋯⟅∷⟆ transform (vlam x u) ⟨∷⟩ transform (vlam x v) ⟨∷⟩ [])
-      ; (con c args) → comp₀ (con c) args
-      ; (def f args) → comp₀ (def f) args
+      ; (con c args) → comp (con c) args
+                       -- if c ∈ⁿ primCons then comp (con c) args else e
+      ; (def f args) → comp (def f) args
+                       -- if f ∈ⁿ primDefs then comp (def f) args else e
       -- ; (var zero args) → app args
       ; _ → e
       }
@@ -54,32 +65,25 @@ transform e@(vlam x body) with strengthen body
    strengthenArg : Arg Term → Maybe (Arg Term)
    strengthenArg (arg info t) = M.map (arg info) (strengthen t)
 
-   -- strengthenArgs : List (Arg Term) → Maybe (List (Arg Term))
-   -- strengthenArgs [] = just []
-   -- strengthenArgs (a ∷ as) = just _∷_ <*>ᴹ strengthenArg a <*>ᴹ strengthenArgs as
+   comp : (List (Arg Term) → Term) → List (Arg Term) → Term
+   comp f (h ⟅∷⟆ args) with strengthen h
+   ... | just h′ = comp (f ∘ (h′ ⟅∷⟆_)) args    -- accumulate invisible arguments
+   ... | nothing = e                            -- invisible and uses x: fail
+   -- For now, handle just one or two visible arguments. TODO: generalize.
+   -- (λ x → f U) ↦ f ∘ (λ x → U)
+   comp f (v ⟨∷⟩ []) = def (quote _∘′_) (6 ⋯⟅∷⟆ (f []) ⟨∷⟩ transform (vlam x v) ⟨∷⟩ [])
+   -- (λ x → f U V) ↦ uncurry f ∘ (λ x → U , V)
+   comp f (u ⟨∷⟩ v ⟨∷⟩ []) =
+     def (quote _∘′_)
+       (6 ⋯⟅∷⟆ def (quote uncurry′) (3 ⋯⟅∷⟆ f [] ⟨∷⟩ [])
+        ⟨∷⟩ transform (vlam x (con (quote _,_) (4 ⋯⟅∷⟆ u ⟨∷⟩ v ⟨∷⟩ [])))
+        ⟨∷⟩ [])
 
-   -- I have to strengthen each argument as it comes.
-   -- If successful, fold into f; if not, recursively transform.
-   -- How to combine?
-
-   comp₁ : (List (Arg Term) → Term) → List (Arg Term) → Term
-   -- comp₁ f (h ⟅∷⟆ args) with strengthen h
-   -- ... | just h′ = comp₁ (f ∘ (h′ ⟅∷⟆_)) args
-   -- ... | 
-   comp₁ f (v ⟨∷⟩ []) = def (quote _∘′_) (6 ⋯⟅∷⟆ (f []) ⟨∷⟩ transform (vlam x v) ⟨∷⟩ [])
-   -- TODO: handle more arguments
-   comp₁ f args = e
-   -- app : List (Arg Term) → Term
-   -- app args = ?  -- use of apply
-
-   -- comp₀ : (List (Arg Term) → Term) → List (Arg Term) → Term
-   -- comp₀ f args with strengthenArgs args
-   -- ... | nothing = e
-   -- ... | just args′ = comp₁ f args′
+   comp f args = e
 
 transform e = e
 
--- I get the same results without "n ⋯⟅∷⟆".
+-- I get the same results without "n ⋯⟅∷⟆". Is it really unnecessary?
 
 -- Wrap in `A ∋`
 asTy : ∀ {a} → Set a → Term → TC Term
@@ -123,3 +127,15 @@ _ = {!!}
 
 _ : cat (λ n → suc n) ≡ suc
 _ = {!!}
+
+-- ((ℕ → ℕ) ∋ suc ∘′ id) ≡ suc
+
+_ : cat (λ n → n + n) ≡ (λ n → n + n)
+_ = {!!}
+
+-- ((ℕ → ℕ) ∋ uncurry′ _+_ ∘′ < id , id >) ≡ (λ n → n + n)
+
+_ : cat (λ n → n + 1) ≡ (λ n → n + 1)
+_ = {!!}
+
+-- ((ℕ → ℕ) ∋ uncurry′ _+_ ∘′ < id , const 1 >) ≡ (λ n → n + 1)
