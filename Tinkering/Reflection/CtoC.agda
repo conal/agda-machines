@@ -33,16 +33,21 @@ pattern hcons⁵ x = hcons¹ (hcons⁴ x)
 open import Data.Bool
 open import Relation.Nullary using (does)
 
+infixr 5 _⋯⟅∷⟆′_
+_⋯⟅∷⟆′_ : ℕ → Args Term → Args Term
+_⋯⟅∷⟆′_ n = id
+-- _⋯⟅∷⟆′_ = _⋯⟅∷⟆_
+
 transform : Term → Term
 transform e₀@(vlam x body) with strengthen body
-... | just body′ = def (quote const) (4 ⋯⟅∷⟆ body′ ⟨∷⟩ [])
+... | just body′ = def (quote const) (4 ⋯⟅∷⟆′ body′ ⟨∷⟩ [])
 ... | nothing = case body of λ
       { -- (λ x → x) ↦ id
-        (var zero []) → def (quote id) (2 ⋯⟅∷⟆ [])
+        (var zero []) → def (quote id) (2 ⋯⟅∷⟆′ [])
       ; -- (λ x → U , V) → < λ x → U , λ x → V >
         (con (quote _,_) (hcons⁴ (u ⟨∷⟩ v ⟨∷⟩ []))) →
           def (quote <_,_>)
-            (6 ⋯⟅∷⟆ transform (vlam x u) ⟨∷⟩ transform (vlam x v) ⟨∷⟩ [])
+            (6 ⋯⟅∷⟆′ transform (vlam x u) ⟨∷⟩ transform (vlam x v) ⟨∷⟩ [])
       ; (con c args) → comp (con c) args
       ; (def f args) → comp (def f) args
       ; _ → e₀
@@ -54,18 +59,19 @@ transform e₀@(vlam x body) with strengthen body
    ... | nothing = e₀                           -- invisible and uses x: fail
    -- For now, handle just one or two visible arguments. TODO: generalize.
    -- (λ x → f U) ↦ f ∘ (λ x → U)
-   comp f (v ⟨∷⟩ []) = def (quote _∘′_) (6 ⋯⟅∷⟆ (f []) ⟨∷⟩ transform (vlam x v) ⟨∷⟩ [])
+   comp f (v ⟨∷⟩ []) = def (quote _∘′_) (6 ⋯⟅∷⟆′ (f []) ⟨∷⟩ transform (vlam x v) ⟨∷⟩ [])
    -- (λ x → f U V) ↦ uncurry f ∘ (λ x → U , V)
    comp f (u ⟨∷⟩ v ⟨∷⟩ []) =
      def (quote _∘′_)
-       (6 ⋯⟅∷⟆ def (quote uncurry′) (3 ⋯⟅∷⟆ f [] ⟨∷⟩ [])
+       (6 ⋯⟅∷⟆′ def (quote uncurry′) (3 ⋯⟅∷⟆′ f [] ⟨∷⟩ [])
         ⟨∷⟩ transform (vlam x (con (quote _,_) (4 ⋯⟅∷⟆ u ⟨∷⟩ v ⟨∷⟩ [])))
         ⟨∷⟩ [])
    comp f args = e₀
 
 transform e₀ = e₀
 
--- I get the same results without "n ⋯⟅∷⟆". Is it really unnecessary?
+-- I get the same results without "n ⋯⟅∷⟆", except that removing the last one
+-- seems to put the compiler into an ift loop.
 
 -- Wrap in `A ∋`
 asTy : ∀ {a} → Set a → Term → TC Term
