@@ -52,16 +52,33 @@ module VecFunInstances where
     category : Category _⇨_
     category = record { id = mk id ; _∘_ = λ (mk g) (mk f) → mk (g ∘ f) }
 
+    equivalent : Equivalent _⇨_
+    equivalent = record
+      { _≈_ = λ (mk f) (mk g) → ∀ {n}{as : Vec _ n} → f as ≡ g as
+      ; equiv = record
+        { refl  = refl
+        ; sym   = λ f∼g → sym f∼g
+        ; trans = λ f∼g g∼h → trans f∼g g∼h
+        }
+      }
+
+    lawful-category : LawfulCategory _⇨_
+    lawful-category = record
+      { identityˡ = λ {a b}{f}{n}{as} → refl
+      ; identityʳ = λ {a b}{f}{n}{as} → refl
+      ; assoc     = λ {c d b a}{f g h}{n}{as} → refl
+      }
+
     monoidal : Monoidal _⇨_
     monoidal = record
       { _⊗_ = λ (mk f) (mk g) →  mk (zip′ ∘ (f ⊗ g) ∘ unzip)
-      ; ! = arr !
+      ; !        = arr !
       ; unitorᵉˡ = arr unitorᵉˡ
       ; unitorᵉʳ = arr unitorᵉʳ
       ; unitorⁱˡ = arr unitorⁱˡ
       ; unitorⁱʳ = arr unitorⁱʳ
-      ; assocʳ = arr assocʳ
-      ; assocˡ = arr assocˡ
+      ; assocʳ   = arr assocʳ
+      ; assocˡ   = arr assocˡ
       }
 
     braided : Braided _⇨_

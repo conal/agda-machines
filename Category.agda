@@ -26,30 +26,38 @@ open Category ⦃ … ⦄ public
 
 open import Relation.Binary
 
-record LawfulCategory {e} {obj : Set o} (_⇨′_ : obj → obj → Set ℓ)
+record Equivalent {e} {obj : Set o} (_⇨_ : obj → obj → Set ℓ)
        : Set (lsuc o ⊔ ℓ ⊔ lsuc e) where
-  private infix 0 _⇨_; _⇨_ = _⇨′_
   infix 4 _≈_
   field
-    ⦃ cat ⦄ : Category _⇨_
     _≈_ : Rel (a ⇨ b) e      -- (f g : a ⇨ b) → Set e
-
     equiv : ∀ {a b} → IsEquivalence (_≈_ {a}{b})
-
-    .identityˡ : {f : a ⇨ b} → id ∘ f ≈ f
-    .identityʳ : {f : a ⇨ b} → f ∘ id ≈ f
-    .assoc     : {h : c ⇨ d} {g : b ⇨ c} {f : a ⇨ b}
-               → (h ∘ g) ∘ f ≈ h ∘ (g ∘ f)
 
   ≈setoid : obj → obj → Setoid ℓ e
   ≈setoid a b = record { isEquivalence = equiv {a}{b} }
+
+open Equivalent ⦃ … ⦄ public
+
+record LawfulCategory {e} {obj : Set o} (_⇨′_ : obj → obj → Set ℓ)
+       : Set (lsuc o ⊔ ℓ ⊔ lsuc e) where
+  private infix 0 _⇨_; _⇨_ = _⇨′_
+  field
+    ⦃ cat ⦄ : Category _⇨_
+    ⦃ cat-equiv ⦄ : Equivalent {e = e} _⇨_
+
+    .identityˡ : {f : a ⇨ b} → id ∘ f ≈ f
+    .identityʳ : {f : a ⇨ b} → f ∘ id ≈ f
+    .assoc     : {f : a ⇨ b} {g : b ⇨ c} {h : c ⇨ d}
+               → (h ∘ g) ∘ f ≈ h ∘ (g ∘ f)
 
 open LawfulCategory ⦃ … ⦄ public
 
 record Functor {obj₁ : Set o₁} (_⇨₁_ : obj₁ → obj₁ → Set ℓ₁)
                {obj₂ : Set o₂} (_⇨₂_ : obj₂ → obj₂ → Set ℓ₂)
-               {e₁} ⦃ cat₁ : LawfulCategory {e = e₁} _⇨₁_ ⦄
-               {e₂} ⦃ cat₂ : LawfulCategory {e = e₂} _⇨₂_ ⦄
+               {e₁} ⦃ equiv₁ : Equivalent {e = e₁} _⇨₁_ ⦄
+               {e₂} ⦃ equiv₂ : Equivalent {e = e₂} _⇨₂_ ⦄
+               ⦃ cat₁ : Category _⇨₁_ ⦄
+               ⦃ cat₂ : Category _⇨₂_ ⦄
        : Set (o₁ ⊔ ℓ₁ ⊔ e₁ ⊔ o₂ ⊔ ℓ₂ ⊔ e₂) where
   field
     Fₒ : obj₁ → obj₂
@@ -180,7 +188,6 @@ record Logic {obj : Set o} ⦃ _ : Products obj ⦄ ⦃ _ : Boolean obj ⦄
 open Logic ⦃ … ⦄ public
 
 
-
 import Data.String as S
 open S using (String)
 
@@ -190,28 +197,32 @@ record Show (A : Set o) : Set (lsuc o) where
     show : A → String
 open Show ⦃ … ⦄ public
 
-module →Instances where
+-- TODO: Consider using setoid functions instead
+Function : Set o → Set o → Set o
+Function a b = a → b
 
-  -- TODO: Consider using setoid functions instead
-  Function : Set o → Set o → Set o
-  Function a b = a → b
+module →Instances where
 
   instance
 
     category : Category (Function {o})
     category = record { id = id′ ; _∘_ = _∘′_ }
 
-    lawful-category : LawfulCategory (Function {o})
-    lawful-category = record
+    equivalent : Equivalent (Function {o})
+    equivalent = record
       { _≈_ = λ f g → ∀ {x} → f x ≡ g x
       ; equiv = λ {a}{b} → record
           { refl  = refl
           ; sym   = λ fx≡gx → sym fx≡gx
           ; trans = λ fx≡gx gx≡hx → trans fx≡gx gx≡hx
           }
-      ; identityˡ = refl
-      ; identityʳ = refl
-      ; assoc     = refl
+      }
+
+    lawful-category : LawfulCategory (Function {o})
+    lawful-category = record
+      { identityˡ = λ {a b}{f}{x} → refl
+      ; identityʳ = λ {a b}{f}{x} → refl
+      ; assoc     = λ {c d b a}{f g h}{x} → refl
       }
 
     products : Products Set

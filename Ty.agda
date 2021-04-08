@@ -8,7 +8,8 @@ open import Data.Bool using (if_then_else_)
 open import Data.Bool.Show as BS
 open import Data.Product using (_,_; uncurry)
 open import Data.Nat
-open import Data.String hiding (toVec; toList; replicate)
+open import Data.String using (String; parens; _++_)
+open import Relation.Binary.PropositionalEquality
 
 import Category as C
 open C
@@ -78,8 +79,67 @@ tabulate {_ `× _} f = tabulate (f ∘ left) , tabulate (f ∘ right)
 lookup : ⟦ A ⟧ → (TyIx A → Bool)
 lookup a i = ⟦ i ⟧ᵇ a
 
+lookup∘tabulate : ∀ (f : TyIx A → Bool) → lookup (tabulate f) ≗ f
+lookup∘tabulate f here = refl
+lookup∘tabulate f (left  x) = lookup∘tabulate (f ∘ left ) x
+lookup∘tabulate f (right y) = lookup∘tabulate (f ∘ right) y
+
+-- Are these facts somewhere? It should probably go into LawfulCategory.
+open import Function using (_∘′_)  -- temp
+
+≗∘ : ∀ {a}{A : Set a}{b}{B : Set b}{c}{C : Set c} (g h : B → C) (f : A → B)
+   → g ≗ h → g ∘′ f ≗ h ∘′ f
+≗∘ g h f g≗h x = g≗h (f x)
+
+∘≗ : ∀ {a}{A : Set a}{b}{B : Set b} {c}{C : Set c} (f g : A → B) (h : B → C)
+   → f ≗ g → h ∘′ f ≗ h ∘′ g
+∘≗ f g h f≗g x = cong h (f≗g x)
+
+tabulate≗ : ∀ {f g : TyIx A → Bool} → f ≗ g → tabulate f ≡ tabulate g
+tabulate≗ {`⊤}     {f = f} {g} f̄f≗g = refl
+tabulate≗ {`Bool}  {f = f} {g} f̄f≗g = f̄f≗g here
+tabulate≗ {A `× B} {f = f} {g} f̄f≗g =
+  begin
+    (tabulate (f ∘ left) , tabulate (f ∘ right))
+  ≡⟨ cong₂ _,_ (tabulate≗ (λ x → f̄f≗g (left x)))
+               (tabulate≗ (λ x → f̄f≗g (right x))) ⟩
+    (tabulate (g ∘ left) , tabulate (g ∘ right))
+  ∎
+ where open ≡-Reasoning
+
 swizzle : (TyIx B → TyIx A) → (⟦ A ⟧ → ⟦ B ⟧)
 swizzle r a = tabulate (lookup a ∘ r)
+
+swizzle-tt : ∀ (f : TyIx B → TyIx ⊤) (i : TyIx B) → B ≡ ⊤
+swizzle-tt f i with f i ; ... | ()
+-- Is there a more straightforward formulation of this fact?
+
+swizzle-id : ∀ {a : ⟦ A ⟧} → swizzle id a ≡ a
+swizzle-id {A = `⊤} {tt} = refl
+swizzle-id {A = `Bool} {b} = refl
+swizzle-id {A = _ `× _} {a , b} =
+  begin
+    swizzle id (a , b)
+  ≡⟨⟩
+    swizzle id a , swizzle id b
+  ≡⟨ cong₂ _,_ swizzle-id swizzle-id ⟩
+    (a , b)
+  ∎
+ where open ≡-Reasoning
+
+swizzle-∘ : (f : TyIx B → TyIx A) (g : TyIx C → TyIx B)
+          → ∀ {a : ⟦ A ⟧} → swizzle (f ∘ g) a ≡ (swizzle g ∘ swizzle f) a
+swizzle-∘ f g {a} =
+  begin
+    swizzle (f ∘ g) a
+  ≡⟨⟩
+    tabulate (lookup a ∘ f ∘ g)
+  ≡˘⟨ tabulate≗ (≗∘ _ _ g (lookup∘tabulate _)) ⟩
+    tabulate (lookup (tabulate (lookup a ∘ f)) ∘ g)
+  ≡⟨⟩
+    (swizzle g ∘ swizzle f) a
+  ∎
+ where open ≡-Reasoning
 
 private variable X Y Z : Set
 
@@ -183,13 +243,31 @@ module ty where
     meaningful = record { ⟦_⟧ = _⇨_.f }
 
     category : Category _⇨_
-    category = record
-      { id    = mk id
-      ; _∘_   = λ { (mk g) (mk f) → mk (g ∘ f) }
-      -- ; _≈_   = ?
-      -- ; id-l  = refl
-      -- ; id-r  = refl
-      -- ; assoc = refl
+    category = record { id = mk id ; _∘_ = λ { (mk g) (mk f) → mk (g ∘ f) } }
+
+    equivalent : Equivalent _⇨_
+    equivalent = record
+      { _≈_ = λ (mk f) (mk g) → ∀ {x} → f x ≡ g x
+      ; equiv = record
+        { refl  = refl
+        ; sym   = λ f∼g → sym f∼g
+        ; trans = λ f∼g g∼h → trans f∼g g∼h
+        }
+      }
+
+    ⟦⟧-functor : Functor _⇨_ Function
+    ⟦⟧-functor = record
+      { Fₒ = ⟦_⟧
+      ; Fₘ = ⟦_⟧
+      ; F-id = λ {a}{x} → refl
+      ; F-∘  = λ {a b c}{f}{g}{x} → refl
+      }
+
+    lawful-category : LawfulCategory _⇨_
+    lawful-category = record
+      { identityˡ = λ {a b}{f}{x} → refl
+      ; identityʳ = λ {a b}{f}{x} → refl
+      ; assoc     = λ {c d b a}{f g h}{x} → refl
       }
 
     monoidal : Monoidal _⇨_
@@ -209,8 +287,6 @@ module ty where
 
     cartesian : Cartesian _⇨_
     cartesian = record { exl = mk exl ; exr = mk exr ; dup = mk dup }
-
-open import Relation.Binary.PropositionalEquality
 
 _⟦↑⟧_ : ∀ (A : Ty) n → ⟦ A ⟧ ↑ n ≡ ⟦ A ↑ n ⟧
 A ⟦↑⟧ zero = refl
@@ -284,6 +360,26 @@ module r where
     category = record
       { id = mk id
       ; _∘_ = λ (mk f) (mk g) → mk (g ∘ f)
+      }
+
+    open import Function using (_on_)
+
+    equivalent : Equivalent _⇨_
+    equivalent = record
+      { _≈_ = _≈_ on ⟦_⟧
+      ; equiv = λ {a b} → record
+          { refl  = λ {f}{x} → refl
+          ; sym   = λ f∼g {x} → sym (f∼g {x})
+          ; trans = λ f∼g g∼h {x} → trans (f∼g {x}) (g∼h {x})
+          }
+      }
+
+    ⟦⟧-functor : Functor _⇨_ ty._⇨_
+    ⟦⟧-functor = record
+      { Fₒ = id
+      ; Fₘ = ⟦_⟧
+      ; F-id = swizzle-id
+      ; F-∘  = λ {a b c}{(mk f) (mk g)} → swizzle-∘ f g
       }
 
     monoidal : Monoidal _⇨_

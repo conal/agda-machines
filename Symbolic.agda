@@ -5,15 +5,17 @@ open import Category
 open import Ty
 
 module Symbolic (_↠′_ : Ty → Ty → Set) (let private infix 0 _↠_; _↠_ = _↠′_)
-                ⦃ _ : ∀ {A B} → Meaningful {μ = A ty.⇨ B} (A ↠ B) ⦄ where
+  ⦃ _ : ∀ {A B} → Meaningful {μ = A ty.⇨ B} (A ↠ B) ⦄ where
 
 module Symbolic where
 
+open import Level using (0ℓ)
 open import Data.Product using (_,_)
 open import Data.Unit using (tt)
 open import Data.String using (String)
-open import Relation.Binary.PropositionalEquality using (_≗_; refl)
+open import Relation.Binary.PropositionalEquality
 open import Function using (_on_) renaming (const to const′)
+import Relation.Binary.Reasoning.Setoid as SetoidR
 
 private variable A B C D : Ty
 
@@ -40,6 +42,42 @@ instance
 
   category : Category _⇨_
   category = record { id = `route id ; _∘_ = _`∘_ }
+
+  equivalent : Equivalent _⇨_
+  equivalent = record
+    { _≈_ = _≈_ on ⟦_⟧
+            -- λ f g → ⟦ f ⟧ ≈ ⟦ g ⟧
+    ; equiv = λ {a}{b} → record
+      { refl  = λ {f}{x} → refl
+      ; sym   = λ f∼g {x} → sym (f∼g {x})
+      ; trans = λ f∼g g∼h {x} → trans (f∼g {x}) (g∼h {x})
+      }
+    }
+
+  ⟦⟧-functor : Functor _⇨_ ty._⇨_
+  ⟦⟧-functor = record
+    { Fₒ = id
+    ; Fₘ = ⟦_⟧
+    ; F-id = λ {a}{x} → {!!}
+    ; F-∘  = {!!}
+    }
+
+  -- lawful-category : LawfulCategory {e = 0ℓ} _⇨_
+  -- lawful-category = record
+  --   { identityˡ = λ {a}{b}{f : a ⇨ b} → let open ≡-Reasoning in
+
+  --       {!!}
+
+  --       -- begin
+  --       --   ⟦ {!id ∘ f!} ⟧
+  --       -- ≈⟨ {!!} ⟩
+  --       --   ⟦ f ⟧
+  --       -- ∎
+
+  --   ; identityʳ = {!!}
+  --   ; assoc     = {!!}
+  --   }
+     
 
   monoidal : Monoidal _⇨_
   monoidal = record { _⊗_ = _`⊗_

@@ -1,5 +1,6 @@
 ## To do
 
+*   Introduce `Functor`; prove functoriality of each semantic function from category to category.
 *   Position the registers all at the far left, so that time consistently flows left to right.
     The Dot edge attribute "constraint = false" seems to have this purpose, but when I use it links start disappearing.
     I can make a simple example and file an issue.
