@@ -148,36 +148,36 @@ exampleᶜ name f = exampleˢ name (m.comb f)
 
 main = run do
 
-  exampleᶜ "id"        ce.t₁
-  exampleᶜ "and"       ce.t₂
-  exampleᶜ "nand"      ce.t₃
-  exampleᶜ "first-not" ce.t₄
-  exampleᶜ "not"       ce.t₅
-  exampleᶜ "half-add-c"   ce.halfAdd
-  exampleᶜ "shiftR-swap-c5" (ce.shiftR-swap {5})
-  exampleᶜ "lfsr-c5"  ce.lfsr₅
+  -- exampleᶜ "id"        ce.t₁
+  -- exampleᶜ "and"       ce.t₂
+  -- exampleᶜ "nand"      ce.t₃
+  -- exampleᶜ "first-not" ce.t₄
+  -- exampleᶜ "not"       ce.t₅
+  -- exampleᶜ "half-add-c"   ce.halfAdd
+  -- exampleᶜ "shiftR-swap-c5" (ce.shiftR-swap {5})
+  -- exampleᶜ "lfsr-c5"  ce.lfsr₅
 
-  exampleˢ "toggle"    se.t₁
-  exampleˢ "toggleB"   se.t₁′
-  exampleˢ "any"       se.t₂
-  exampleˢ "delay-1"   se.t₃
-  exampleˢ "delay-3"   se.t₄
-  exampleˢ "delay×2"   se.t₅
-  exampleˢ "delay×4"   se.t₆
-  exampleˢ "delay×8"   se.t₇
+  -- exampleˢ "toggle"    se.t₁
+  -- exampleˢ "toggleB"   se.t₁′
+  -- exampleˢ "any"       se.t₂
+  -- exampleˢ "delay-1"   se.t₃
+  -- exampleˢ "delay-3"   se.t₄
+  -- exampleˢ "delay×2"   se.t₅
+  -- exampleˢ "delay×4"   se.t₆
+  -- exampleˢ "delay×8"   se.t₇
 
-  exampleˢ "toggle-1"   se.toggle₁
-  exampleˢ "toggle-2"   se.toggle₂
-  exampleˢ "toggle-4"   se.toggle₄
-  exampleˢ "toggles"    se.toggles
+  -- exampleˢ "toggle-1"   se.toggle₁
+  -- exampleˢ "toggle-2"   se.toggle₂
+  -- exampleˢ "toggle-4"   se.toggle₄
+  -- exampleˢ "toggles"    se.toggles
 
-  exampleˢ "shift-1" se.shift₁
-  exampleˢ "shift-5" (se.shifts 5)
+  -- exampleˢ "shift-1" se.shift₁
+  -- exampleˢ "shift-5" (se.shifts 5)
 
-  exampleˢ "lfsr-s5" se.lfsr₅
+  -- exampleˢ "lfsr-s5" se.lfsr₅
 
-  exampleˢ "shiftR-swap-s5" (se.shiftR-swap 5)
+  -- exampleˢ "shiftR-swap-s5" (se.shiftR-swap 5)
 
-  exampleˢ "shiftR-swap-loop-xor-out" (se.shiftR-swap-loop-xor-out 6)
+  -- exampleˢ "shiftR-swap-loop-xor-out" (se.shiftR-swap-loop-xor-out 6)
 
   exampleˢ "shiftR-swap-loop-xor" (se.shiftR-swap-loop-xor 6)
