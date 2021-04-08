@@ -30,13 +30,6 @@ pattern hcons³ x = hcons¹ (hcons² x)
 pattern hcons⁴ x = hcons¹ (hcons³ x)
 pattern hcons⁵ x = hcons¹ (hcons⁴ x)
 
-apply : ∀ {a}{b}{A : Set a}{B : Set b} → (A → B) × A → B
-apply = uncurry _$_
--- apply (f , x) = f x
-
-infixl 4 _<*>ᴹ_
-_<*>ᴹ_ = M.ap
-
 open import Data.Bool
 open import Relation.Nullary using (does)
 
