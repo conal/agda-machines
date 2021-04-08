@@ -33,13 +33,6 @@ pattern hcons⁵ x = hcons¹ (hcons⁴ x)
 open import Data.Bool
 open import Relation.Nullary using (does)
 
-primDefs primCons : List Name
-primDefs = quote _∧_ ∷ quote _∨_ ∷ quote _xor_ ∷ quote not ∷ quote _+_ ∷ []
-primCons = quote true ∷ quote false ∷ quote suc ∷  []
-
-_∈ⁿ_ : Name → Names → Bool
-nm ∈ⁿ names = any (does ∘ (_≈? nm)) names
-
 transform : Term → Term
 transform e₀@(vlam x body) with strengthen body
 ... | just body′ = def (quote const) (4 ⋯⟅∷⟆ body′ ⟨∷⟩ [])
@@ -51,10 +44,7 @@ transform e₀@(vlam x body) with strengthen body
           def (quote <_,_>)
             (6 ⋯⟅∷⟆ transform (vlam x u) ⟨∷⟩ transform (vlam x v) ⟨∷⟩ [])
       ; (con c args) → comp (con c) args
-                       -- if c ∈ⁿ primCons then comp (con c) args else e₀
       ; (def f args) → comp (def f) args
-                       -- if f ∈ⁿ primDefs then comp (def f) args else e₀
-      -- ; (var zero args) → app args
       ; _ → e₀
       }
  where
