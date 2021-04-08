@@ -48,18 +48,18 @@ _∈ⁿ_ : Name → Names → Bool
 nm ∈ⁿ names = any (does ∘ (_≈? nm)) names
 
 transform : Term → Term
-transform e@(vlam x body) with strengthen body
+transform e₀@(vlam x body) with strengthen body
 ... | just body′ = def (quote const) (4 ⋯⟅∷⟆ body′ ⟨∷⟩ [])
 ... | nothing = case body of λ
       { (var zero []) → def (quote id) (2 ⋯⟅∷⟆ [])
       ; (con (quote _,_) (hcons⁴ (u ⟨∷⟩ v ⟨∷⟩ []))) →
           def (quote <_,_>) (6 ⋯⟅∷⟆ transform (vlam x u) ⟨∷⟩ transform (vlam x v) ⟨∷⟩ [])
       ; (con c args) → comp (con c) args
-                       -- if c ∈ⁿ primCons then comp (con c) args else e
+                       -- if c ∈ⁿ primCons then comp (con c) args else e₀
       ; (def f args) → comp (def f) args
-                       -- if f ∈ⁿ primDefs then comp (def f) args else e
+                       -- if f ∈ⁿ primDefs then comp (def f) args else e₀
       -- ; (var zero args) → app args
-      ; _ → e
+      ; _ → e₀
       }
  where
    strengthenArg : Arg Term → Maybe (Arg Term)
@@ -68,7 +68,7 @@ transform e@(vlam x body) with strengthen body
    comp : (List (Arg Term) → Term) → List (Arg Term) → Term
    comp f (h ⟅∷⟆ args) with strengthen h
    ... | just h′ = comp (f ∘ (h′ ⟅∷⟆_)) args    -- accumulate invisible arguments
-   ... | nothing = e                            -- invisible and uses x: fail
+   ... | nothing = e₀                            -- invisible and uses x: fail
    -- For now, handle just one or two visible arguments. TODO: generalize.
    -- (λ x → f U) ↦ f ∘ (λ x → U)
    comp f (v ⟨∷⟩ []) = def (quote _∘′_) (6 ⋯⟅∷⟆ (f []) ⟨∷⟩ transform (vlam x v) ⟨∷⟩ [])
@@ -78,10 +78,9 @@ transform e@(vlam x body) with strengthen body
        (6 ⋯⟅∷⟆ def (quote uncurry′) (3 ⋯⟅∷⟆ f [] ⟨∷⟩ [])
         ⟨∷⟩ transform (vlam x (con (quote _,_) (4 ⋯⟅∷⟆ u ⟨∷⟩ v ⟨∷⟩ [])))
         ⟨∷⟩ [])
+   comp f args = e₀
 
-   comp f args = e
-
-transform e = e
+transform e₀ = e₀
 
 -- I get the same results without "n ⋯⟅∷⟆". Is it really unnecessary?
 
