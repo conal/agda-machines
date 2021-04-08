@@ -9,12 +9,12 @@ all : tests
 
 # Compile unconditionally
 Test:
-	agda --compile TestB.agda
+	agda --compile Test.agda
 
-compile: TestB
+compile: Test
 
-tests: TestB
-	./TestB
+tests: Test
+	./Test
 	make -C Figures
 
 listings:
