@@ -7,8 +7,7 @@ open import Data.Unit using (tt)
 open import Data.Product using (_,_)
 open import Data.Nat
 open import Data.Unit.Polymorphic using () renaming (⊤ to ⊤′)
-import Data.Bool as B  -- temporary
-open B using (if_then_else_) renaming (false to 𝕗; true to 𝕥)
+open import Data.Bool using (if_then_else_) renaming (false to 𝕗; true to 𝕥)
 open import Data.Vec using ([_]; []; _∷_)
 open import Data.String using (String; _++_)
 open import Relation.Binary.PropositionalEquality using (subst)
@@ -63,7 +62,7 @@ module ce where
   lfsr n cs = fsr (suc n) (linear n cs)
 
   lfsr₅ : Bool ↑ 6 ⇨ Bool ↑ 6
-  lfsr₅ = lfsr 5 (𝕥 , B.false , B.false , 𝕥 , B.false , 𝕥 , tt)
+  lfsr₅ = lfsr 5 (𝕥 , 𝕗 , 𝕗 , 𝕥 , 𝕗 , 𝕥 , tt)
 
 -- Sequential examples
 module se where
