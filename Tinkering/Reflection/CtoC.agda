@@ -99,42 +99,39 @@ macro
     >>= asTy (A → B)
     >>= unify hole
 
-_ : (λ (x : ℕ) → x) ≡ id
+_ : id ≡ cat (λ (x : ℕ) → x)
 _ = {!!}
 
--- (λ x → x) ≡ id
+-- id ≡ ((ℕ → ℕ) ∋ id)
 
-_ : cat (λ (x : ℕ) → x) ≡ id
+_ : (λ ((a , b) : ℕ × ℕ) → b , a) ≡ cat (λ ((a , b) : ℕ × ℕ) → b , a)
 _ = {!!}
 
--- ((ℕ → ℕ) ∋ id) ≡ id
+-- (λ .patternInTele0 →
+--        proj₂ .patternInTele0 , proj₁ .patternInTele0)
+--     ≡ ((ℕ × ℕ → Σ ℕ (λ v → ℕ)) ∋ < proj₂ ∘′ id , proj₁ ∘′ id >)
 
-_ : cat (λ ((a , b) : ℕ × ℕ) → b , a) ≡ swap
+_ : (λ (x : ℕ) → 3) ≡ cat (λ (x : ℕ) → 3)
 _ = {!!}
 
--- ((ℕ × ℕ → Σ ℕ (λ v → ℕ)) ∋ < proj₂ , proj₁ >) ≡ swap
+-- (λ x → 3) ≡ ((ℕ → ℕ) ∋ const 3)
 
-_ : cat (λ (x : ℕ) → 3) ≡ const 3
+_ : ∀ {z : ℕ} → (λ (x : ℕ) → z + 1) ≡ cat (λ (x : ℕ) → z + 1)
 _ = {!!}
 
--- ((ℕ → ℕ) ∋ const 3) ≡ const 3
+-- (λ x → z + 1) ≡ ((ℕ → ℕ) ∋ const (z + 1))
 
-_ : ∀ {z : ℕ} → cat (λ (x : ℕ) → z + 1) ≡ const (z + 1)
+_ : (λ n → suc n) ≡ cat (λ n → suc n)
 _ = {!!}
 
--- ((ℕ → ℕ) ∋ const (z + 1)) ≡ const (z + 1)
+-- (λ n → suc n) ≡ ((ℕ → ℕ) ∋ suc ∘′ id)
 
-_ : cat (λ n → suc n) ≡ suc
+_ : (λ n → n + n) ≡ cat (λ n → n + n)
 _ = {!!}
 
--- ((ℕ → ℕ) ∋ suc ∘′ id) ≡ suc
+-- (λ n → n + n) ≡ ((ℕ → ℕ) ∋ uncurry′ _+_ ∘′ < id , id >)
 
-_ : cat (λ n → n + n) ≡ (λ n → n + n)
+_ : (λ n → n + 1) ≡ cat (λ n → n + 1)
 _ = {!!}
 
--- ((ℕ → ℕ) ∋ uncurry′ _+_ ∘′ < id , id >) ≡ (λ n → n + n)
-
-_ : cat (λ n → n + 1) ≡ (λ n → n + 1)
-_ = {!!}
-
--- ((ℕ → ℕ) ∋ uncurry′ _+_ ∘′ < id , const 1 >) ≡ (λ n → n + 1)
+-- (λ n → n + 1) ≡ ((ℕ → ℕ) ∋ uncurry′ _+_ ∘′ < id , const 1 >)
