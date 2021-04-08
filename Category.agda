@@ -11,28 +11,53 @@ open import Data.Nat using (ℕ; zero; suc)
 
 private
   variable
-    o ℓ : Level
-    obj : Set o
+    o ℓ o₁ ℓ₁ o₂ ℓ₂ : Level
+    obj obj₁ obj₂ : Set o
     a b c d e : obj
     a′ b′ c′ d′ e′ : obj
 
 record Category {obj : Set o} (_⇨_ : obj → obj → Set ℓ) : Set (lsuc o ⊔ ℓ) where
   infixr 9 _∘_
-  -- infix 4 _≈_
   field
     id  : a ⇨ a
     _∘_ : (b ⇨ c) → (a ⇨ b) → (a ⇨ c)
-    -- _≈_ : (f g : a ⇨ b) → Set
-
-    -- .identityˡ : {f : a ⇨ b} → id ∘ f ≈ f
-    -- .identityʳ : {f : a ⇨ b} → f ∘ id ≈ f
-    -- .assoc : {h : c ⇨ d} {g : b ⇨ c} {f : a ⇨ b}
-    --        → (h ∘ g) ∘ f ≈ h ∘ (g ∘ f)
 
 open Category ⦃ … ⦄ public
 
-Function : Set o → Set o → Set o
-Function a b = a → b
+open import Relation.Binary
+
+record LawfulCategory {e} {obj : Set o} (_⇨′_ : obj → obj → Set ℓ)
+       : Set (lsuc o ⊔ ℓ ⊔ lsuc e) where
+  private infix 0 _⇨_; _⇨_ = _⇨′_
+  infix 4 _≈_
+  field
+    ⦃ cat ⦄ : Category _⇨_
+    _≈_ : Rel (a ⇨ b) e      -- (f g : a ⇨ b) → Set e
+
+    equiv : ∀ {a b} → IsEquivalence (_≈_ {a}{b})
+
+    .identityˡ : {f : a ⇨ b} → id ∘ f ≈ f
+    .identityʳ : {f : a ⇨ b} → f ∘ id ≈ f
+    .assoc     : {h : c ⇨ d} {g : b ⇨ c} {f : a ⇨ b}
+               → (h ∘ g) ∘ f ≈ h ∘ (g ∘ f)
+
+  ≈setoid : obj → obj → Setoid ℓ e
+  ≈setoid a b = record { isEquivalence = equiv {a}{b} }
+
+open LawfulCategory ⦃ … ⦄ public
+
+record Functor {obj₁ : Set o₁} (_⇨₁_ : obj₁ → obj₁ → Set ℓ₁)
+               {obj₂ : Set o₂} (_⇨₂_ : obj₂ → obj₂ → Set ℓ₂)
+               {e₁} ⦃ cat₁ : LawfulCategory {e = e₁} _⇨₁_ ⦄
+               {e₂} ⦃ cat₂ : LawfulCategory {e = e₂} _⇨₂_ ⦄
+       : Set (o₁ ⊔ ℓ₁ ⊔ e₁ ⊔ o₂ ⊔ ℓ₂ ⊔ e₂) where
+  field
+    Fₒ : obj₁ → obj₂
+    Fₘ : ∀ {a b} → (a ⇨₁ b) → (Fₒ a ⇨₂ Fₒ b)
+
+    F-id : Fₘ (id {a = a}) ≈ id {a = Fₒ a}
+    F-∘  : ∀ {f : a ⇨₁ b}{g : b ⇨₁ c} → Fₘ (g ∘ f) ≈ Fₘ g ∘ Fₘ f
+
 
 record Products (obj : Set o) : Set (lsuc o) where
   infixr 2 _×_
@@ -167,17 +192,27 @@ open Show ⦃ … ⦄ public
 
 module →Instances where
 
+  -- TODO: Consider using setoid functions instead
+  Function : Set o → Set o → Set o
+  Function a b = a → b
+
   instance
 
     category : Category (Function {o})
-    category = record
-                  { id    = id′
-                  ; _∘_   = _∘′_
-                  -- ; _≈_   = λ f g → ∀ {x} → f x ≡ g x
-                  -- ; id-l  = refl
-                  -- ; id-r  = refl
-                  -- ; assoc = refl
-                  }
+    category = record { id = id′ ; _∘_ = _∘′_ }
+
+    lawful-category : LawfulCategory (Function {o})
+    lawful-category = record
+      { _≈_ = λ f g → ∀ {x} → f x ≡ g x
+      ; equiv = λ {a}{b} → record
+          { refl  = refl
+          ; sym   = λ fx≡gx → sym fx≡gx
+          ; trans = λ fx≡gx gx≡hx → trans fx≡gx gx≡hx
+          }
+      ; identityˡ = refl
+      ; identityʳ = refl
+      ; assoc     = refl
+      }
 
     products : Products Set
     products = record { ⊤ = ⊤′ ; _×_ = _×′_ }
@@ -189,8 +224,8 @@ module →Instances where
                   ; unitorᵉʳ = proj₁
                   ; unitorⁱˡ = tt ,_
                   ; unitorⁱʳ = _, tt
-                  ; assocʳ = λ ((x , y) , z) → x , (y , z)
-                  ; assocˡ = λ (x , (y , z)) → (x , y) , z
+                  ; assocʳ   = λ ((x , y) , z) → x , (y , z)
+                  ; assocˡ   = λ (x , (y , z)) → (x , y) , z
                   }
 
     braided : Braided Function
