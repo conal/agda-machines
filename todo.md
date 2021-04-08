@@ -1,8 +1,15 @@
 ## To do
 
 *   Position the registers all at the far left, so that time consistently flows left to right.
-    The edge attribute "constraint = false" seems to have this purpose, but when I use it links start disappearing.
+    The Dot edge attribute "constraint = false" seems to have this purpose, but when I use it links start disappearing.
+    I can make a simple example and file an issue.
     If I find a solution, then I'll probably want to change the node style for registers, so that ports are on the top and bottom instead of left and right.
+*   Does `Symbolic` really need `Ty` as objects?
+    Shouldn't it instead get its objects from the primitives?
+    Maybe `Ty` is due to routing.
+    Must we use `Ty` routing?
+    Maybe instead we can accept any prims and any SMC as long as they share meanings.
+*   Consider replacing `Function` with setoid functions in `Category`.
 *   Abstract `Stack` over routing as well.
 *   Recreate compiling-to-categories so we can write and read lambda notation instead of combinators.
     See how far we can get with Agda's reflection mechanism.
