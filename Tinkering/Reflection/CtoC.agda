@@ -51,9 +51,12 @@ transform : Term → Term
 transform e₀@(vlam x body) with strengthen body
 ... | just body′ = def (quote const) (4 ⋯⟅∷⟆ body′ ⟨∷⟩ [])
 ... | nothing = case body of λ
-      { (var zero []) → def (quote id) (2 ⋯⟅∷⟆ [])
-      ; (con (quote _,_) (hcons⁴ (u ⟨∷⟩ v ⟨∷⟩ []))) →
-          def (quote <_,_>) (6 ⋯⟅∷⟆ transform (vlam x u) ⟨∷⟩ transform (vlam x v) ⟨∷⟩ [])
+      { -- (λ x → x) ↦ id
+        (var zero []) → def (quote id) (2 ⋯⟅∷⟆ [])
+      ; -- (λ x → U , V) → < λ x → U , λ x → V >
+        (con (quote _,_) (hcons⁴ (u ⟨∷⟩ v ⟨∷⟩ []))) →
+          def (quote <_,_>)
+            (6 ⋯⟅∷⟆ transform (vlam x u) ⟨∷⟩ transform (vlam x v) ⟨∷⟩ [])
       ; (con c args) → comp (con c) args
                        -- if c ∈ⁿ primCons then comp (con c) args else e₀
       ; (def f args) → comp (def f) args
@@ -62,13 +65,10 @@ transform e₀@(vlam x body) with strengthen body
       ; _ → e₀
       }
  where
-   strengthenArg : Arg Term → Maybe (Arg Term)
-   strengthenArg (arg info t) = M.map (arg info) (strengthen t)
-
    comp : (List (Arg Term) → Term) → List (Arg Term) → Term
    comp f (h ⟅∷⟆ args) with strengthen h
    ... | just h′ = comp (f ∘ (h′ ⟅∷⟆_)) args    -- accumulate invisible arguments
-   ... | nothing = e₀                            -- invisible and uses x: fail
+   ... | nothing = e₀                           -- invisible and uses x: fail
    -- For now, handle just one or two visible arguments. TODO: generalize.
    -- (λ x → f U) ↦ f ∘ (λ x → U)
    comp f (v ⟨∷⟩ []) = def (quote _∘′_) (6 ⋯⟅∷⟆ (f []) ⟨∷⟩ transform (vlam x v) ⟨∷⟩ [])
@@ -99,39 +99,41 @@ macro
     >>= asTy (A → B)
     >>= unify hole
 
+-- To test, replace each refl with a hole, load, and read the hole types.
+
 _ : id ≡ cat (λ (x : ℕ) → x)
-_ = {!!}
+_ = refl
 
 -- id ≡ ((ℕ → ℕ) ∋ id)
 
 _ : (λ ((a , b) : ℕ × ℕ) → b , a) ≡ cat (λ ((a , b) : ℕ × ℕ) → b , a)
-_ = {!!}
+_ = refl
 
 -- (λ .patternInTele0 →
 --        proj₂ .patternInTele0 , proj₁ .patternInTele0)
 --     ≡ ((ℕ × ℕ → Σ ℕ (λ v → ℕ)) ∋ < proj₂ ∘′ id , proj₁ ∘′ id >)
 
 _ : (λ (x : ℕ) → 3) ≡ cat (λ (x : ℕ) → 3)
-_ = {!!}
+_ = refl
 
 -- (λ x → 3) ≡ ((ℕ → ℕ) ∋ const 3)
 
 _ : ∀ {z : ℕ} → (λ (x : ℕ) → z + 1) ≡ cat (λ (x : ℕ) → z + 1)
-_ = {!!}
+_ = refl
 
 -- (λ x → z + 1) ≡ ((ℕ → ℕ) ∋ const (z + 1))
 
 _ : (λ n → suc n) ≡ cat (λ n → suc n)
-_ = {!!}
+_ = refl
 
 -- (λ n → suc n) ≡ ((ℕ → ℕ) ∋ suc ∘′ id)
 
 _ : (λ n → n + n) ≡ cat (λ n → n + n)
-_ = {!!}
+_ = refl
 
 -- (λ n → n + n) ≡ ((ℕ → ℕ) ∋ uncurry′ _+_ ∘′ < id , id >)
 
 _ : (λ n → n + 1) ≡ cat (λ n → n + 1)
-_ = {!!}
+_ = refl
 
 -- (λ n → n + 1) ≡ ((ℕ → ℕ) ∋ uncurry′ _+_ ∘′ < id , const 1 >)
