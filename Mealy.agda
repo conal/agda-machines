@@ -6,14 +6,14 @@ open import Category
 open import Ty
 
 module Mealy {o} {obj : Set o} ⦃ _ : Products obj ⦄
-        (_↠′_ : obj → obj → Set) (let private infix 0 _↠_; _↠_ = _↠′_) where
+        (_↠′_ : obj → obj → Set o) (let private infix 0 _↠_; _↠_ = _↠′_) where
 
 private variable A B C D σ τ : obj
 
 infix 0 _⇨_
 
 -- Pseudo values
-⌞_⌟ : obj → Set
+⌞_⌟ : obj → Set o
 ⌞ A ⌟ = ⊤ ↠ A
 
 -- Note: using ⊤ ↠ A obviates needing Meaningful, but it might also prevent any
