@@ -1,5 +1,11 @@
 ## To do
 
+*   Position the registers all at the far left, so that time consistently flows left to right.
+    The edge attribute "constraint = false" seems to have this purpose, but when I use it links start disappearing.
+    If I find a solution, then I'll probably want to change the node style for registers, so that ports are on the top and bottom instead of left and right.
+*   Abstract `Stack` over routing as well.
+*   Recreate compiling-to-categories so we can write and read lambda notation instead of combinators.
+    See how far we can get with Agda's reflection mechanism.
 *   Add laws to the category classes (in progress).
 *   Restore semantics in `Mealy`.
 *   More examples of various difficulties.
@@ -34,8 +40,6 @@
     Maybe use reflection to convert simple rewrite rules to an applicable form.
 *   Level-generalize the instances of `products` and `boolean` for functions in `Category`.
     This one is trickier than I expected, as there are so many uses of that category.
-*   Recreate compiling-to-categories so we can write and read lambda notation instead of combinators!
-    See how far we can get with Agda's reflection mechanism.
 *   Add causality definition and proofs to `VecFun`.
 
 *   At some point, try using [agda-categories](https://github.com/agda/agda-categories) instead our own.
