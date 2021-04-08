@@ -54,13 +54,13 @@ instance
       }
     }
 
-  ⟦⟧-functor : Functor _⇨_ ty._⇨_
-  ⟦⟧-functor = record
-    { Fₒ = id
-    ; Fₘ = ⟦_⟧
-    ; F-id = λ {a}{x} → {!!}
-    ; F-∘  = {!!}
-    }
+  -- ⟦⟧-functor : Functor _⇨_ ty._⇨_
+  -- ⟦⟧-functor = record
+  --   { Fₒ = id
+  --   ; Fₘ = ⟦_⟧
+  --   ; F-id = λ {a}{x} → {!!}
+  --   ; F-∘  = {!!}
+  --   }
 
   -- lawful-category : LawfulCategory {e = 0ℓ} _⇨_
   -- lawful-category = record

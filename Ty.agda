@@ -2,6 +2,7 @@
 
 module Ty where
 
+open import Level using (0ℓ)
 open import Data.Unit using (tt)
 open import Data.Bool using (if_then_else_)
   renaming (false to false′; true to true′)
@@ -240,12 +241,12 @@ module ty where
 
   instance
     meaningful : Meaningful (A ⇨ B)
-    meaningful = record { ⟦_⟧ = _⇨_.f }
+    meaningful = record { ⟦_⟧ = λ (mk f) → f }  -- _⇨_.f
 
     category : Category _⇨_
     category = record { id = mk id ; _∘_ = λ { (mk g) (mk f) → mk (g ∘ f) } }
 
-    equivalent : Equivalent _⇨_
+    equivalent : Equivalent {e = 0ℓ} _⇨_
     equivalent = record
       { _≈_ = λ (mk f) (mk g) → ∀ {x} → f x ≡ g x
       ; equiv = record
@@ -255,7 +256,7 @@ module ty where
         }
       }
 
-    ⟦⟧-functor : Functor _⇨_ Function
+    ⟦⟧-functor : Functor _⇨_ Function {e₁ = 0ℓ}{e₂ = 0ℓ}
     ⟦⟧-functor = record
       { Fₒ = ⟦_⟧
       ; Fₘ = ⟦_⟧
@@ -263,11 +264,29 @@ module ty where
       ; F-∘  = λ {a b c}{f}{g}{x} → refl
       }
 
-    lawful-category : LawfulCategory _⇨_
+    open Functor ⟦⟧-functor using () renaming (F-∘ to F-∘′)
+    
+    import Relation.Binary.Reasoning.Setoid as SetoidR
+
+    lawful-category : LawfulCategory {e = 0ℓ} _⇨_
     lawful-category = record
       { identityˡ = λ {a b}{f}{x} → refl
       ; identityʳ = λ {a b}{f}{x} → refl
       ; assoc     = λ {c d b a}{f g h}{x} → refl
+      ; ∘-resp-≈ = λ {a b c}{f g}{h k} h≈k f≈g {x} → let open ≡-Reasoning in
+          begin
+            ⟦ h ∘ f ⟧ x
+          ≡⟨⟩
+            ⟦ h ⟧ (⟦ f ⟧ x)
+          ≡⟨ h≈k {⟦ f ⟧ x} ⟩
+            ⟦ k ⟧ (⟦ f ⟧ x)
+          ≡⟨ cong ⟦ k ⟧ (f≈g {x}) ⟩
+            ⟦ k ⟧ (⟦ g ⟧ x)
+          ≡⟨⟩
+            ⟦ k ∘ g ⟧ x
+          ∎
+          -- While this proof works, I'd rather use F-∘ and ∘-resp-≈. I'm having
+          -- trouble with type inference, however. TODO: sort it out.
       }
 
     monoidal : Monoidal _⇨_

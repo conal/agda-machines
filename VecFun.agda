@@ -62,12 +62,25 @@ module VecFunInstances where
         }
       }
 
-    lawful-category : LawfulCategory _⇨_
-    lawful-category = record
-      { identityˡ = λ {a b}{f}{n}{as} → refl
-      ; identityʳ = λ {a b}{f}{n}{as} → refl
-      ; assoc     = λ {c d b a}{f g h}{n}{as} → refl
-      }
+    -- I don't think we have a functor here, since _↠_ isn't a category.
+    -- We could form a category for a fixed n.
+    -- Maybe also something with universal quantification.
+
+    -- ⟦⟧-functor : Functor _⇨_ Function
+    -- ⟦⟧-functor = record
+    --   { Fₒ = {!!}
+    --   ; Fₘ = {!!}
+    --   ; F-id = λ {a}{x} → {!!}
+    --   ; F-∘  = λ {a b c}{f}{g} → {!!}
+    --   }
+
+    -- lawful-category : LawfulCategory _⇨_
+    -- lawful-category = record
+    --   { identityˡ = λ {a b}{f}{n}{as} → refl
+    --   ; identityʳ = λ {a b}{f}{n}{as} → refl
+    --   ; assoc     = λ {c d b a}{f g h}{n}{as} → refl
+    --   ; ∘-resp-≈  = λ {a b c}{f g}{h k} f≈h g≈k {n}{as} → {!!}
+    --   }
 
     monoidal : Monoidal _⇨_
     monoidal = record

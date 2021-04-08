@@ -33,6 +33,11 @@ record Equivalent {e} {obj : Set o} (_⇨_ : obj → obj → Set ℓ)
     _≈_ : Rel (a ⇨ b) e      -- (f g : a ⇨ b) → Set e
     equiv : ∀ {a b} → IsEquivalence (_≈_ {a}{b})
 
+  module Equiv {a b} where
+    open IsEquivalence (equiv {a}{b}) public
+      renaming (refl to refl≈; sym to sym≈; trans to trans≈)
+  open Equiv public
+
   ≈setoid : obj → obj → Setoid ℓ e
   ≈setoid a b = record { isEquivalence = equiv {a}{b} }
 
@@ -45,10 +50,15 @@ record LawfulCategory {e} {obj : Set o} (_⇨′_ : obj → obj → Set ℓ)
     ⦃ cat ⦄ : Category _⇨_
     ⦃ cat-equiv ⦄ : Equivalent {e = e} _⇨_
 
-    .identityˡ : {f : a ⇨ b} → id ∘ f ≈ f
-    .identityʳ : {f : a ⇨ b} → f ∘ id ≈ f
-    .assoc     : {f : a ⇨ b} {g : b ⇨ c} {h : c ⇨ d}
-               → (h ∘ g) ∘ f ≈ h ∘ (g ∘ f)
+    identityˡ : {f : a ⇨ b} → id ∘ f ≈ f
+    identityʳ : {f : a ⇨ b} → f ∘ id ≈ f
+    assoc     : {f : a ⇨ b} {g : b ⇨ c} {h : c ⇨ d}
+              → (h ∘ g) ∘ f ≈ h ∘ (g ∘ f)
+
+    ∘-resp-≈ : ∀ {f g : a ⇨ b} {h k : b ⇨ c} → h ≈ k → f ≈ g → h ∘ f ≈ k ∘ g
+
+  ∘-resp-≈ˡ : ∀ {f : a ⇨ b} {h k : b ⇨ c} → h ≈ k → h ∘ f ≈ k ∘ f
+  ∘-resp-≈ˡ h≈k = ∘-resp-≈ h≈k refl≈
 
 open LawfulCategory ⦃ … ⦄ public
 
@@ -66,6 +76,7 @@ record Functor {obj₁ : Set o₁} (_⇨₁_ : obj₁ → obj₁ → Set ℓ₁)
     F-id : Fₘ (id {a = a}) ≈ id {a = Fₒ a}
     F-∘  : ∀ {f : a ⇨₁ b}{g : b ⇨₁ c} → Fₘ (g ∘ f) ≈ Fₘ g ∘ Fₘ f
 
+open Functor ⦃ … ⦄ public
 
 record Products (obj : Set o) : Set (lsuc o) where
   infixr 2 _×_
@@ -208,7 +219,7 @@ module →Instances where
     category : Category (Function {o})
     category = record { id = id′ ; _∘_ = _∘′_ }
 
-    equivalent : Equivalent (Function {o})
+    equivalent : Equivalent {e = o} (Function {o})
     equivalent = record
       { _≈_ = λ f g → ∀ {x} → f x ≡ g x
       ; equiv = λ {a}{b} → record
@@ -218,11 +229,19 @@ module →Instances where
           }
       }
 
-    lawful-category : LawfulCategory (Function {o})
+    lawful-category : LawfulCategory {e = o} (Function {o})
     lawful-category = record
       { identityˡ = λ {a b}{f}{x} → refl
       ; identityʳ = λ {a b}{f}{x} → refl
       ; assoc     = λ {c d b a}{f g h}{x} → refl
+      ; ∘-resp-≈  = λ {a b c}{f g}{h k} h≈k f≈g {x} → let open ≡-Reasoning in
+          begin
+            h (f x)
+          ≡⟨ h≈k {f x} ⟩
+            k (f x)
+          ≡⟨ cong k (f≈g {x}) ⟩
+            k (g x)
+          ∎
       }
 
     products : Products Set
