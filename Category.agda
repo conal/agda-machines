@@ -54,9 +54,7 @@ record Monoidal {obj : Set o} ⦃ _ : Products obj ⦄
   infixr 7 _⊗_
   field
     ⦃ ⇨cat ⦄ : Category _⇨_
-    -- ⊤ : obj
-    -- _×_ : obj → obj → obj
-    _⊗_ : (a ⇨ c) → (b ⇨ d) → ((a × b) ⇨ (c × d))
+    _⊗_ : (a ⇨ c) → (b ⇨ d) → (a × b ⇨ c × d)
 
     ! : a ⇨ ⊤
 
