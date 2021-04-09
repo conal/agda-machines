@@ -246,59 +246,49 @@ module ty where
     category : Category _⇨_
     category = record { id = mk id ; _∘_ = λ { (mk g) (mk f) → mk (g ∘ f) } }
 
-    equivalent : Equivalent {e = 0ℓ} _⇨_
+    equivalent : Equivalent 0ℓ _⇨_
     equivalent = record
-      { _≈_ = λ (mk f) (mk g) → ∀ {x} → f x ≡ g x
-      ; equiv = record
-        { refl  = refl
-        ; sym   = λ f∼g → sym f∼g
-        ; trans = λ f∼g g∼h → trans f∼g g∼h
-        }
+      { _≈_ = λ (mk f) (mk g) → f ≗ g
+      ; equiv = record { refl = refl≈ ; sym = sym≈ ; trans = trans≈ }
       }
 
-    ⟦⟧-functor : Functor _⇨_ Function {e₁ = 0ℓ}{e₂ = 0ℓ}
+    ⟦⟧-functor : Functor _⇨_ Function 0ℓ 0ℓ
     ⟦⟧-functor = record
       { Fₒ = ⟦_⟧
       ; Fₘ = ⟦_⟧
-      ; F-id = λ {a}{x} → refl
-      ; F-∘  = λ {a b c}{f}{g}{x} → refl
+      ; F-id = λ x → refl
+      ; F-∘  = λ f g x → refl
       }
 
     open Functor ⟦⟧-functor using () renaming (F-∘ to F-∘′)
-    
-    import Relation.Binary.Reasoning.Setoid as SetoidR
 
-    lawful-category : LawfulCategory {e = 0ℓ} _⇨_
+    lawful-category : LawfulCategory 0ℓ _⇨_
     lawful-category = record
-      { identityˡ = λ {a b}{f}{x} → refl
-      ; identityʳ = λ {a b}{f}{x} → refl
-      ; assoc     = λ {c d b a}{f g h}{x} → refl
-      ; ∘-resp-≈ = λ {a b c}{f g}{h k} h≈k f≈g {x} → let open ≡-Reasoning in
+      { identityˡ = λ x → refl
+      ; identityʳ = λ x → refl
+      ; assoc     = λ x → refl
+      ; ∘-resp-≈  = λ {a b c}{f g}{h k} h≈k f≈g → let open ≈-Reasoning in
           begin
-            ⟦ h ∘ f ⟧ x
-          ≡⟨⟩
-            ⟦ h ⟧ (⟦ f ⟧ x)
-          ≡⟨ h≈k {⟦ f ⟧ x} ⟩
-            ⟦ k ⟧ (⟦ f ⟧ x)
-          ≡⟨ cong ⟦ k ⟧ (f≈g {x}) ⟩
-            ⟦ k ⟧ (⟦ g ⟧ x)
-          ≡⟨⟩
-            ⟦ k ∘ g ⟧ x
+            ⟦ h ∘ f ⟧
+          ≈⟨ F-∘ f h ⟩
+            ⟦ h ⟧ ∘ ⟦ f ⟧
+          ≈⟨  ∘-resp-≈ h≈k f≈g ⟩
+            ⟦ k ⟧ ∘ ⟦ g ⟧
+          ≈˘⟨ F-∘ g k ⟩
+            ⟦ k ∘ g ⟧
           ∎
-          -- While this proof works, I'd rather use F-∘ and ∘-resp-≈. I'm having
-          -- trouble with type inference, however. TODO: sort it out.
       }
 
     monoidal : Monoidal _⇨_
     monoidal = record
       { _⊗_ = λ (mk f) (mk g) → mk λ (x , y) → f x , g y
-      ; ! = mk λ _ → tt
+      ; !        = mk !
       ; unitorᵉˡ = mk unitorᵉˡ
       ; unitorᵉʳ = mk unitorᵉʳ
       ; unitorⁱˡ = mk unitorⁱˡ
       ; unitorⁱʳ = mk unitorⁱʳ
-      ; assocʳ = mk assocʳ
-      ; assocˡ = mk assocˡ
+      ; assocʳ   = mk assocʳ
+      ; assocˡ   = mk assocˡ
       }
 
     braided : Braided _⇨_
@@ -383,22 +373,22 @@ module r where
 
     open import Function using (_on_)
 
-    equivalent : Equivalent _⇨_
+    equivalent : Equivalent 0ℓ _⇨_
     equivalent = record
       { _≈_ = _≈_ on ⟦_⟧
       ; equiv = λ {a b} → record
-          { refl  = λ {f}{x} → refl
-          ; sym   = λ f∼g {x} → sym (f∼g {x})
-          ; trans = λ f∼g g∼h {x} → trans (f∼g {x}) (g∼h {x})
+          { refl  = λ {f} x → refl
+          ; sym   = λ f∼g x → sym (f∼g x)
+          ; trans = λ f∼g g∼h x → trans (f∼g x) (g∼h x)
           }
       }
 
-    ⟦⟧-functor : Functor _⇨_ ty._⇨_
+    ⟦⟧-functor : Functor _⇨_ ty._⇨_ 0ℓ 0ℓ
     ⟦⟧-functor = record
       { Fₒ = id
       ; Fₘ = ⟦_⟧
-      ; F-id = swizzle-id
-      ; F-∘  = λ {a b c}{(mk f) (mk g)} → swizzle-∘ f g
+      ; F-id = λ x → swizzle-id 
+      ; F-∘  = λ (mk f) (mk g) → λ x → swizzle-∘ f g
       }
 
     monoidal : Monoidal _⇨_
@@ -409,10 +399,10 @@ module r where
       ; unitorⁱˡ = mk λ { (right x) → x }
       ; unitorⁱʳ = mk λ { (left  x) → x }
       ; assocʳ = mk λ { (left x) → left (left x)
-                      ; (right (left x)) → left (right x)
+                      ; (right (left  x)) → left (right x)
                       ; (right (right x)) → right x
                       }
-      ; assocˡ = mk λ { (left (left x)) → left x
+      ; assocˡ = mk λ { (left (left  x)) → left x
                       ; (left (right x)) → right (left x)
                       ; (right x) → right (right x)
                       }

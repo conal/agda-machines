@@ -43,24 +43,23 @@ instance
   category : Category _⇨_
   category = record { id = `route id ; _∘_ = _`∘_ }
 
-  equivalent : Equivalent _⇨_
+  equivalent : Equivalent 0ℓ _⇨_
   equivalent = record
     { _≈_ = _≈_ on ⟦_⟧
-            -- λ f g → ⟦ f ⟧ ≈ ⟦ g ⟧
     ; equiv = λ {a}{b} → record
-      { refl  = λ {f}{x} → refl
-      ; sym   = λ f∼g {x} → sym (f∼g {x})
-      ; trans = λ f∼g g∼h {x} → trans (f∼g {x}) (g∼h {x})
+      { refl  = λ x → refl
+      ; sym   = λ f∼g x → sym (f∼g x)
+      ; trans = λ f∼g g∼h x → trans (f∼g x) (g∼h x)
       }
     }
 
-  -- ⟦⟧-functor : Functor _⇨_ ty._⇨_
-  -- ⟦⟧-functor = record
-  --   { Fₒ = id
-  --   ; Fₘ = ⟦_⟧
-  --   ; F-id = λ {a}{x} → {!!}
-  --   ; F-∘  = {!!}
-  --   }
+  ⟦⟧-functor : Functor _⇨_ ty._⇨_ 0ℓ 0ℓ
+  ⟦⟧-functor = record
+    { Fₒ = id
+    ; Fₘ = ⟦_⟧
+    ; F-id = λ x → swizzle-id
+    ; F-∘  = λ f g x → refl
+    }
 
   -- lawful-category : LawfulCategory {e = 0ℓ} _⇨_
   -- lawful-category = record

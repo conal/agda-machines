@@ -4,6 +4,7 @@
 
 module VecFun where
 
+open import Level using (0ℓ)
 open import Data.Product using (_,_; uncurry; <_,_>)
 open import Data.Nat
 open import Data.Vec
@@ -52,7 +53,7 @@ module VecFunInstances where
     category : Category _⇨_
     category = record { id = mk id ; _∘_ = λ (mk g) (mk f) → mk (g ∘ f) }
 
-    equivalent : Equivalent _⇨_
+    equivalent : Equivalent 0ℓ _⇨_
     equivalent = record
       { _≈_ = λ (mk f) (mk g) → ∀ {n}{as : Vec _ n} → f as ≡ g as
       ; equiv = record

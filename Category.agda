@@ -8,6 +8,7 @@ open import Level renaming (suc to lsuc)
 open import Function using (_∘′_; const) renaming (id to id′)
 open import Relation.Binary.PropositionalEquality
 open import Data.Nat using (ℕ; zero; suc)
+import Relation.Binary.Reasoning.Setoid as SetoidR
 
 private
   variable
@@ -40,6 +41,9 @@ record Equivalent q {obj : Set o} (_⇨_ : obj → obj → Set ℓ)
 
   ≈setoid : obj → obj → Setoid ℓ q
   ≈setoid a b = record { isEquivalence = equiv {a}{b} }
+
+  module ≈-Reasoning {a b} where
+    open SetoidR (≈setoid a b) public
 
 open Equivalent ⦃ … ⦄ public
 
@@ -74,7 +78,7 @@ record Functor {obj₁ : Set o₁} (_⇨₁_ : obj₁ → obj₁ → Set ℓ₁)
     Fₘ : ∀ {a b} → (a ⇨₁ b) → (Fₒ a ⇨₂ Fₒ b)
 
     F-id : Fₘ (id {a = a}) ≈ id {a = Fₒ a}
-    F-∘  : ∀ {f : a ⇨₁ b}{g : b ⇨₁ c} → Fₘ (g ∘ f) ≈ Fₘ g ∘ Fₘ f
+    F-∘  : ∀ (f : a ⇨₁ b) (g : b ⇨₁ c) → Fₘ (g ∘ f) ≈ Fₘ g ∘ Fₘ f
 
 open Functor ⦃ … ⦄ public
 
@@ -221,27 +225,20 @@ module →Instances where
 
     equivalent : Equivalent o Function
     equivalent = record
-      { _≈_ = λ f g → ∀ {x} → f x ≡ g x
+      { _≈_ = _≗_
       ; equiv = λ {a}{b} → record
-          { refl  = refl
-          ; sym   = λ fx≡gx → sym fx≡gx
-          ; trans = λ fx≡gx gx≡hx → trans fx≡gx gx≡hx
+          { refl  = λ x → refl
+          ; sym   = λ f∼g x → sym (f∼g x)
+          ; trans = λ f∼g g∼h x → trans (f∼g x) (g∼h x)
           }
       }
 
     lawful-category : LawfulCategory o Function
     lawful-category = record
-      { identityˡ = λ {a b}{f}{x} → refl
-      ; identityʳ = λ {a b}{f}{x} → refl
-      ; assoc     = λ {c d b a}{f g h}{x} → refl
-      ; ∘-resp-≈  = λ {a b c}{f g}{h k} h≈k f≈g {x} → let open ≡-Reasoning in
-          begin
-            h (f x)
-          ≡⟨ h≈k {f x} ⟩
-            k (f x)
-          ≡⟨ cong k (f≈g {x}) ⟩
-            k (g x)
-          ∎
+      { identityˡ = λ x → refl
+      ; identityʳ = λ x → refl
+      ; assoc     = λ x → refl
+      ; ∘-resp-≈  = λ {a b c}{f g}{h k} h∼k f∼g x → trans (h∼k (f x)) (cong k (f∼g x))
       }
 
     products : Products Set
