@@ -246,12 +246,6 @@ module ty where
     category : Category _⇨_
     category = record { id = mk id ; _∘_ = λ { (mk g) (mk f) → mk (g ∘ f) } }
 
-    equivalent : Equivalent 0ℓ _⇨_
-    equivalent = record
-      { _≈_ = λ (mk f) (mk g) → f ≗ g
-      ; equiv = record { refl = refl≈ ; sym = sym≈ ; trans = trans≈ }
-      }
-
     ⟦⟧-functor : Functor _⇨_ Function 0ℓ
     ⟦⟧-functor = record
       { Fₒ = ⟦_⟧
@@ -260,24 +254,11 @@ module ty where
       ; F-∘  = λ f g x → refl
       }
 
-    open Functor ⟦⟧-functor
+    equivalent : Equivalent 0ℓ _⇨_
+    equivalent = F-equiv _⇨_ Function 0ℓ ⟦⟧-functor
 
     lawful-category : LawfulCategory 0ℓ _⇨_
-    lawful-category = record
-      { identityˡ = λ x → refl
-      ; identityʳ = λ x → refl
-      ; assoc     = λ x → refl
-      ; ∘-resp-≈  = λ {a b c}{f g}{h k} h≈k f≈g → let open ≈-Reasoning in
-          begin
-            ⟦ h ∘ f ⟧
-          ≈⟨ F-∘ h f ⟩
-            ⟦ h ⟧ ∘ ⟦ f ⟧
-          ≈⟨  ∘-resp-≈ h≈k f≈g ⟩
-            ⟦ k ⟧ ∘ ⟦ g ⟧
-          ≈˘⟨ F-∘ k g ⟩
-            ⟦ k ∘ g ⟧
-          ∎
-      }
+    lawful-category = LawfulCategoryᶠ _⇨_ Function 0ℓ ⟦⟧-functor
 
     monoidal : Monoidal _⇨_
     monoidal = record

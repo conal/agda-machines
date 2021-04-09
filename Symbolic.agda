@@ -43,16 +43,6 @@ instance
   category : Category _⇨_
   category = record { id = `route id ; _∘_ = _`∘_ }
 
-  equivalent : Equivalent 0ℓ _⇨_
-  equivalent = record
-    { _≈_ = _≈_ on ⟦_⟧
-    ; equiv = λ {a}{b} → record
-      { refl  = λ x → refl
-      ; sym   = λ f∼g x → sym (f∼g x)
-      ; trans = λ f∼g g∼h x → trans (f∼g x) (g∼h x)
-      }
-    }
-
   ⟦⟧-functor : Functor _⇨_ ty._⇨_ 0ℓ
   ⟦⟧-functor = record
     { Fₒ = id
@@ -61,22 +51,11 @@ instance
     ; F-∘  = λ g f x → refl
     }
 
-  -- lawful-category : LawfulCategory {e = 0ℓ} _⇨_
-  -- lawful-category = record
-  --   { identityˡ = λ {a}{b}{f : a ⇨ b} → let open ≡-Reasoning in
+  equivalent : Equivalent 0ℓ _⇨_
+  equivalent = F-equiv _⇨_ ty._⇨_ 0ℓ ⟦⟧-functor
 
-  --       {!!}
-
-  --       -- begin
-  --       --   ⟦ {!id ∘ f!} ⟧
-  --       -- ≈⟨ {!!} ⟩
-  --       --   ⟦ f ⟧
-  --       -- ∎
-
-  --   ; identityʳ = {!!}
-  --   ; assoc     = {!!}
-  --   }
-     
+  lawful-category : LawfulCategory 0ℓ _⇨_
+  lawful-category = LawfulCategoryᶠ _⇨_ ty._⇨_ 0ℓ ⟦⟧-functor
 
   monoidal : Monoidal _⇨_
   monoidal = record { _⊗_ = _`⊗_
