@@ -9,6 +9,7 @@ open import Function using (_∘′_; const; _on_) renaming (id to id′)
 open import Relation.Binary.PropositionalEquality
 open import Data.Nat using (ℕ; zero; suc)
 import Relation.Binary.Reasoning.Setoid as SetoidR
+import Relation.Binary.Construct.On as On
 
 private
   variable
@@ -45,7 +46,7 @@ record Equivalent q {obj : Set o} (_⇨_ : obj → obj → Set ℓ)
   module ≈-Reasoning {a b} where
     open SetoidR (≈setoid a b) public
 
--- TODO: Retry making q implicit
+-- TODO: Replace Equivalent by Setoid?
 
 open Equivalent ⦃ … ⦄ public
 
@@ -98,11 +99,9 @@ F-equiv : {obj₁ : Set o₁} (_⇨₁_ : obj₁ → obj₁ → Set ℓ₁)
           ⦃ cat₂ : Category _⇨₂_ ⦄
           (F : Functor _⇨₁_ _⇨₂_ q₂)  -- note explicit/visible argument
          → Equivalent q₂ _⇨₁_
-F-equiv _⇨₁_ _⇨₂_ q₂ F = record
-  { _≈_   = _≈_ on Fₘ
-  ; equiv = record { refl  = refl≈ ; sym   = sym≈ ; trans = trans≈ }
-  }
- where open Functor F
+F-equiv _⇨₁_ _⇨₂_ q₂ F = record { equiv = On.isEquivalence (Functor.Fₘ F) equiv }
+
+-- TODO: Try making _⇨₁_, _⇨₂_, and q₂ implicit, and infer from F.
 
 LawfulCategoryᶠ : {obj₁ : Set o₁} (_⇨₁_ : obj₁ → obj₁ → Set ℓ₁)
                   {obj₂ : Set o₂} (_⇨₂_ : obj₂ → obj₂ → Set ℓ₂)
