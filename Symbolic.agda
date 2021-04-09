@@ -53,12 +53,12 @@ instance
       }
     }
 
-  ⟦⟧-functor : Functor _⇨_ ty._⇨_ 0ℓ 0ℓ
+  ⟦⟧-functor : Functor _⇨_ ty._⇨_ 0ℓ
   ⟦⟧-functor = record
     { Fₒ = id
     ; Fₘ = ⟦_⟧
     ; F-id = λ x → swizzle-id
-    ; F-∘  = λ f g x → refl
+    ; F-∘  = λ g f x → refl
     }
 
   -- lawful-category : LawfulCategory {e = 0ℓ} _⇨_

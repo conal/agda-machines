@@ -5,7 +5,7 @@
 module Category where
 
 open import Level renaming (suc to lsuc)
-open import Function using (_∘′_; const) renaming (id to id′)
+open import Function using (_∘′_; const; _on_) renaming (id to id′)
 open import Relation.Binary.PropositionalEquality
 open import Data.Nat using (ℕ; zero; suc)
 import Relation.Binary.Reasoning.Setoid as SetoidR
@@ -45,6 +45,8 @@ record Equivalent q {obj : Set o} (_⇨_ : obj → obj → Set ℓ)
   module ≈-Reasoning {a b} where
     open SetoidR (≈setoid a b) public
 
+-- TODO: Retry making q implicit
+
 open Equivalent ⦃ … ⦄ public
 
 record LawfulCategory q {obj : Set o} (_⇨′_ : obj → obj → Set ℓ)
@@ -64,23 +66,102 @@ record LawfulCategory q {obj : Set o} (_⇨′_ : obj → obj → Set ℓ)
   ∘-resp-≈ˡ : ∀ {f : a ⇨ b} {h k : b ⇨ c} → h ≈ k → h ∘ f ≈ k ∘ f
   ∘-resp-≈ˡ h≈k = ∘-resp-≈ h≈k refl≈
 
+  ∘-resp-≈ʳ : ∀ {f g : a ⇨ b} {h : b ⇨ c} → f ≈ g → h ∘ f ≈ h ∘ g
+  ∘-resp-≈ʳ f≈g = ∘-resp-≈ refl≈ f≈g
+
 open LawfulCategory ⦃ … ⦄ public
 
 record Functor {obj₁ : Set o₁} (_⇨₁_ : obj₁ → obj₁ → Set ℓ₁)
                {obj₂ : Set o₂} (_⇨₂_ : obj₂ → obj₂ → Set ℓ₂)
-               q₁ ⦃ equiv₁ : Equivalent q₁ _⇨₁_ ⦄
                q₂ ⦃ equiv₂ : Equivalent q₂ _⇨₂_ ⦄
                ⦃ cat₁ : Category _⇨₁_ ⦄
                ⦃ cat₂ : Category _⇨₂_ ⦄
-       : Set (o₁ ⊔ ℓ₁ ⊔ q₁ ⊔ o₂ ⊔ ℓ₂ ⊔ q₂) where
+       : Set (o₁ ⊔ ℓ₁ ⊔ o₂ ⊔ ℓ₂ ⊔ q₂) where
   field
     Fₒ : obj₁ → obj₂
     Fₘ : ∀ {a b} → (a ⇨₁ b) → (Fₒ a ⇨₂ Fₒ b)
 
     F-id : Fₘ (id {a = a}) ≈ id {a = Fₒ a}
-    F-∘  : ∀ (f : a ⇨₁ b) (g : b ⇨₁ c) → Fₘ (g ∘ f) ≈ Fₘ g ∘ Fₘ f
+    F-∘  : ∀ (g : b ⇨₁ c) (f : a ⇨₁ b) → Fₘ (g ∘ f) ≈ Fₘ g ∘ Fₘ f
 
-open Functor ⦃ … ⦄ public
+-- open Functor ⦃ … ⦄ public
+
+-- I don't know whether to open Functor and use it with instances or keep it
+-- closed and open explicitly where used. I guess the main question is whether
+-- we'll usually have a single special functor instance per pairs of categories
+-- or not. For now, keep it explicit, and see what we learn.
+
+F-equiv : {obj₁ : Set o₁} (_⇨₁_ : obj₁ → obj₁ → Set ℓ₁)
+          {obj₂ : Set o₂} (_⇨₂_ : obj₂ → obj₂ → Set ℓ₂)
+          (q₂ : Level) ⦃ equiv₂ : Equivalent q₂ _⇨₂_ ⦄
+          ⦃ cat₁ : Category _⇨₁_ ⦄
+          ⦃ cat₂ : Category _⇨₂_ ⦄
+          (F : Functor _⇨₁_ _⇨₂_ q₂)  -- note explicit/visible argument
+         → Equivalent q₂ _⇨₁_
+F-equiv _⇨₁_ _⇨₂_ q₂ F = record
+  { _≈_   = _≈_ on Fₘ
+  ; equiv = record { refl  = refl≈ ; sym   = sym≈ ; trans = trans≈ }
+  }
+ where open Functor F
+
+F-lawful : {obj₁ : Set o₁} (_⇨₁_ : obj₁ → obj₁ → Set ℓ₁)
+             {obj₂ : Set o₂} (_⇨₂_ : obj₂ → obj₂ → Set ℓ₂)
+             (q₂ : Level) ⦃ equiv₂ : Equivalent q₂ _⇨₂_ ⦄
+           → ⦃ cat₁ : Category _⇨₁_ ⦄
+           → ⦃ cat₂ : Category _⇨₂_ ⦄
+           → ⦃ lawful₂ : LawfulCategory q₂ _⇨₂_ ⦄
+           → Functor _⇨₁_ _⇨₂_ q₂
+           → LawfulCategory q₂ _⇨₁_
+F-lawful _⇨₁_ _⇨₂_ q₂ F = record
+  { identityˡ = λ {a b} {f} →
+      begin
+        Fₘ (id ∘ f)
+      ≈⟨ F-∘ id f ⟩
+        Fₘ id ∘ Fₘ f
+      ≈⟨ ∘-resp-≈ˡ F-id  ⟩
+        id ∘ Fₘ f
+      ≈⟨ identityˡ ⟩
+        Fₘ f
+      ∎
+  ; identityʳ = λ {a b} {f} →
+      begin
+        Fₘ (f ∘ id)
+      ≈⟨ F-∘ f id ⟩
+        Fₘ f ∘ Fₘ id
+      ≈⟨ ∘-resp-≈ʳ F-id  ⟩
+        Fₘ f ∘ id
+      ≈⟨ identityʳ ⟩
+        Fₘ f
+      ∎
+  ; assoc = λ {a b c d} {f g h} →
+      begin
+        Fₘ ((h ∘ g) ∘ f)
+      ≈⟨ F-∘ _ _ ⟩
+        Fₘ (h ∘ g) ∘ Fₘ f
+      ≈⟨ ∘-resp-≈ˡ (F-∘ _ _) ⟩
+        (Fₘ h ∘ Fₘ g) ∘ Fₘ f
+      ≈⟨ assoc ⟩
+        Fₘ h ∘ (Fₘ g ∘ Fₘ f)
+      ≈˘⟨ ∘-resp-≈ʳ (F-∘ _ _) ⟩
+        Fₘ h ∘ (Fₘ (g ∘ f))
+      ≈˘⟨ F-∘ _ _ ⟩
+        Fₘ (h ∘ (g ∘ f))
+      ∎
+  ; ∘-resp-≈ = λ {a b c}{f g h k} h∼k f∼g →
+      begin
+        Fₘ (h ∘ f)
+      ≈⟨ F-∘ h f ⟩
+        Fₘ h ∘ Fₘ f
+      ≈⟨ ∘-resp-≈ h∼k f∼g ⟩
+        Fₘ k ∘ Fₘ g
+      ≈˘⟨ F-∘ k g ⟩
+        Fₘ (k ∘ g)
+      ∎
+  }
+ where open Functor F
+       instance f-equiv = F-equiv _⇨₁_ _⇨₂_ q₂ F
+       open ≈-Reasoning
+
 
 record Products (obj : Set o) : Set (lsuc o) where
   infixr 2 _×_

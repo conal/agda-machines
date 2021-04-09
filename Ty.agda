@@ -128,9 +128,9 @@ swizzle-id {A = _ `× _} {a , b} =
   ∎
  where open ≡-Reasoning
 
-swizzle-∘ : (f : TyIx B → TyIx A) (g : TyIx C → TyIx B)
+swizzle-∘ : (g : TyIx C → TyIx B) (f : TyIx B → TyIx A)
           → ∀ {a : ⟦ A ⟧} → swizzle (f ∘ g) a ≡ (swizzle g ∘ swizzle f) a
-swizzle-∘ f g {a} =
+swizzle-∘ g f {a} =
   begin
     swizzle (f ∘ g) a
   ≡⟨⟩
@@ -252,7 +252,7 @@ module ty where
       ; equiv = record { refl = refl≈ ; sym = sym≈ ; trans = trans≈ }
       }
 
-    ⟦⟧-functor : Functor _⇨_ Function 0ℓ 0ℓ
+    ⟦⟧-functor : Functor _⇨_ Function 0ℓ
     ⟦⟧-functor = record
       { Fₒ = ⟦_⟧
       ; Fₘ = ⟦_⟧
@@ -260,7 +260,7 @@ module ty where
       ; F-∘  = λ f g x → refl
       }
 
-    open Functor ⟦⟧-functor using () renaming (F-∘ to F-∘′)
+    open Functor ⟦⟧-functor
 
     lawful-category : LawfulCategory 0ℓ _⇨_
     lawful-category = record
@@ -270,11 +270,11 @@ module ty where
       ; ∘-resp-≈  = λ {a b c}{f g}{h k} h≈k f≈g → let open ≈-Reasoning in
           begin
             ⟦ h ∘ f ⟧
-          ≈⟨ F-∘ f h ⟩
+          ≈⟨ F-∘ h f ⟩
             ⟦ h ⟧ ∘ ⟦ f ⟧
           ≈⟨  ∘-resp-≈ h≈k f≈g ⟩
             ⟦ k ⟧ ∘ ⟦ g ⟧
-          ≈˘⟨ F-∘ g k ⟩
+          ≈˘⟨ F-∘ k g ⟩
             ⟦ k ∘ g ⟧
           ∎
       }
@@ -383,12 +383,12 @@ module r where
           }
       }
 
-    ⟦⟧-functor : Functor _⇨_ ty._⇨_ 0ℓ 0ℓ
+    ⟦⟧-functor : Functor _⇨_ ty._⇨_ 0ℓ
     ⟦⟧-functor = record
       { Fₒ = id
       ; Fₘ = ⟦_⟧
       ; F-id = λ x → swizzle-id 
-      ; F-∘  = λ (mk f) (mk g) → λ x → swizzle-∘ f g
+      ; F-∘  = λ (mk g) (mk f) → λ x → swizzle-∘ g f
       }
 
     monoidal : Monoidal _⇨_
