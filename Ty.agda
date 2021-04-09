@@ -255,7 +255,7 @@ module ty where
       }
 
     equivalent : Equivalent 0ℓ _⇨_
-    equivalent = F-equiv _⇨_ Function 0ℓ ⟦⟧-functor
+    equivalent = F-equiv ⟦⟧-functor
 
     lawful-category : LawfulCategory 0ℓ _⇨_
     lawful-category = LawfulCategoryᶠ _⇨_ Function 0ℓ ⟦⟧-functor

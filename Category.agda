@@ -92,16 +92,14 @@ record Functor {obj₁ : Set o₁} (_⇨₁_ : obj₁ → obj₁ → Set ℓ₁)
 -- we'll usually have a single special functor instance per pairs of categories
 -- or not. For now, keep it explicit, and see what we learn.
 
-F-equiv : {obj₁ : Set o₁} (_⇨₁_ : obj₁ → obj₁ → Set ℓ₁)
-          {obj₂ : Set o₂} (_⇨₂_ : obj₂ → obj₂ → Set ℓ₂)
-          (q₂ : Level) ⦃ equiv₂ : Equivalent q₂ _⇨₂_ ⦄
+F-equiv : {obj₁ : Set o₁} {_⇨₁_ : obj₁ → obj₁ → Set ℓ₁}
+          {obj₂ : Set o₂} {_⇨₂_ : obj₂ → obj₂ → Set ℓ₂}
+          {q₂ : Level} ⦃ equiv₂ : Equivalent q₂ _⇨₂_ ⦄
           ⦃ cat₁ : Category _⇨₁_ ⦄
           ⦃ cat₂ : Category _⇨₂_ ⦄
           (F : Functor _⇨₁_ _⇨₂_ q₂)  -- note explicit/visible argument
          → Equivalent q₂ _⇨₁_
-F-equiv _⇨₁_ _⇨₂_ q₂ F = record { equiv = On.isEquivalence (Functor.Fₘ F) equiv }
-
--- TODO: Try making _⇨₁_, _⇨₂_, and q₂ implicit, and infer from F.
+F-equiv F = record { equiv = On.isEquivalence (Functor.Fₘ F) equiv }
 
 LawfulCategoryᶠ : {obj₁ : Set o₁} (_⇨₁_ : obj₁ → obj₁ → Set ℓ₁)
                   {obj₂ : Set o₂} (_⇨₂_ : obj₂ → obj₂ → Set ℓ₂)
@@ -158,7 +156,7 @@ LawfulCategoryᶠ _⇨₁_ _⇨₂_ q₂ F = record
       ∎
   }
  where open Functor F
-       instance f-equiv = F-equiv _⇨₁_ _⇨₂_ q₂ F
+       instance f-equiv = F-equiv F
        open ≈-Reasoning
 
 -- TODO: MonoidalFunctor etc. Also LawfulMonoidalᶠ etc.
