@@ -1,6 +1,10 @@
 ## To do
 
+*   Move to-dos to GitHub issues.
+    Use [`ghi`](https://github.com/stephencelis/ghi).
 *   Use `LawfulCategoryᶠ` with semantic functors.
+*   Define a category for the semantics of vector functions.
+*   Rename "`Category`" and "`LawfulCategory`" to "`RawCategory`" and "`Category`".
 *   Position the registers all at the far left, so that time consistently flows left to right.
     The Dot edge attribute "constraint = false" seems to have this purpose, but when I use it links start disappearing.
     I can make a simple example and file an issue.
