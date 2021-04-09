@@ -8,7 +8,7 @@ all : tests
 # Is there a build tool for Agda that tracks dependencies?
 
 # Compile unconditionally
-Test:
+Test: Test.agda
 	agda --compile Test.agda
 
 compile: Test
