@@ -104,15 +104,15 @@ F-equiv _⇨₁_ _⇨₂_ q₂ F = record
   }
  where open Functor F
 
-F-lawful : {obj₁ : Set o₁} (_⇨₁_ : obj₁ → obj₁ → Set ℓ₁)
-             {obj₂ : Set o₂} (_⇨₂_ : obj₂ → obj₂ → Set ℓ₂)
-             (q₂ : Level) ⦃ equiv₂ : Equivalent q₂ _⇨₂_ ⦄
-           → ⦃ cat₁ : Category _⇨₁_ ⦄
-           → ⦃ cat₂ : Category _⇨₂_ ⦄
-           → ⦃ lawful₂ : LawfulCategory q₂ _⇨₂_ ⦄
-           → Functor _⇨₁_ _⇨₂_ q₂
-           → LawfulCategory q₂ _⇨₁_
-F-lawful _⇨₁_ _⇨₂_ q₂ F = record
+LawfulCategoryᶠ : {obj₁ : Set o₁} (_⇨₁_ : obj₁ → obj₁ → Set ℓ₁)
+                  {obj₂ : Set o₂} (_⇨₂_ : obj₂ → obj₂ → Set ℓ₂)
+                  (q₂ : Level) ⦃ equiv₂ : Equivalent q₂ _⇨₂_ ⦄
+                  ⦃ cat₁ : Category _⇨₁_ ⦄
+                  ⦃ cat₂ : Category _⇨₂_ ⦄
+                  ⦃ lawful₂ : LawfulCategory q₂ _⇨₂_ ⦄
+                  (F : Functor _⇨₁_ _⇨₂_ q₂)
+                → LawfulCategory q₂ _⇨₁_
+LawfulCategoryᶠ _⇨₁_ _⇨₂_ q₂ F = record
   { identityˡ = λ {a b} {f} →
       begin
         Fₘ (id ∘ f)
@@ -161,6 +161,8 @@ F-lawful _⇨₁_ _⇨₂_ q₂ F = record
  where open Functor F
        instance f-equiv = F-equiv _⇨₁_ _⇨₂_ q₂ F
        open ≈-Reasoning
+
+-- TODO: MonoidalFunctor etc. Also LawfulMonoidalᶠ etc.
 
 
 record Products (obj : Set o) : Set (lsuc o) where
