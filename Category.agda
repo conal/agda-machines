@@ -26,11 +26,11 @@ open Category ⦃ … ⦄ public
 
 open import Relation.Binary
 
-record Equivalent {e} {obj : Set o} (_⇨_ : obj → obj → Set ℓ)
-       : Set (lsuc o ⊔ ℓ ⊔ lsuc e) where
+record Equivalent q {obj : Set o} (_⇨_ : obj → obj → Set ℓ)
+       : Set (lsuc o ⊔ ℓ ⊔ lsuc q) where
   infix 4 _≈_
   field
-    _≈_ : Rel (a ⇨ b) e      -- (f g : a ⇨ b) → Set e
+    _≈_ : Rel (a ⇨ b) q   -- (f g : a ⇨ b) → Set q
     equiv : ∀ {a b} → IsEquivalence (_≈_ {a}{b})
 
   module Equiv {a b} where
@@ -38,17 +38,17 @@ record Equivalent {e} {obj : Set o} (_⇨_ : obj → obj → Set ℓ)
       renaming (refl to refl≈; sym to sym≈; trans to trans≈)
   open Equiv public
 
-  ≈setoid : obj → obj → Setoid ℓ e
+  ≈setoid : obj → obj → Setoid ℓ q
   ≈setoid a b = record { isEquivalence = equiv {a}{b} }
 
 open Equivalent ⦃ … ⦄ public
 
-record LawfulCategory {e} {obj : Set o} (_⇨′_ : obj → obj → Set ℓ)
-       : Set (lsuc o ⊔ ℓ ⊔ lsuc e) where
+record LawfulCategory q {obj : Set o} (_⇨′_ : obj → obj → Set ℓ)
+       : Set (lsuc o ⊔ ℓ ⊔ lsuc q) where
   private infix 0 _⇨_; _⇨_ = _⇨′_
   field
     ⦃ cat ⦄ : Category _⇨_
-    ⦃ cat-equiv ⦄ : Equivalent {e = e} _⇨_
+    ⦃ cat-equiv ⦄ : Equivalent q _⇨_
 
     identityˡ : {f : a ⇨ b} → id ∘ f ≈ f
     identityʳ : {f : a ⇨ b} → f ∘ id ≈ f
@@ -64,11 +64,11 @@ open LawfulCategory ⦃ … ⦄ public
 
 record Functor {obj₁ : Set o₁} (_⇨₁_ : obj₁ → obj₁ → Set ℓ₁)
                {obj₂ : Set o₂} (_⇨₂_ : obj₂ → obj₂ → Set ℓ₂)
-               {e₁} ⦃ equiv₁ : Equivalent {e = e₁} _⇨₁_ ⦄
-               {e₂} ⦃ equiv₂ : Equivalent {e = e₂} _⇨₂_ ⦄
+               q₁ ⦃ equiv₁ : Equivalent q₁ _⇨₁_ ⦄
+               q₂ ⦃ equiv₂ : Equivalent q₂ _⇨₂_ ⦄
                ⦃ cat₁ : Category _⇨₁_ ⦄
                ⦃ cat₂ : Category _⇨₂_ ⦄
-       : Set (o₁ ⊔ ℓ₁ ⊔ e₁ ⊔ o₂ ⊔ ℓ₂ ⊔ e₂) where
+       : Set (o₁ ⊔ ℓ₁ ⊔ q₁ ⊔ o₂ ⊔ ℓ₂ ⊔ q₂) where
   field
     Fₒ : obj₁ → obj₂
     Fₘ : ∀ {a b} → (a ⇨₁ b) → (Fₒ a ⇨₂ Fₒ b)
@@ -219,7 +219,7 @@ module →Instances where
     category : Category (Function {o})
     category = record { id = id′ ; _∘_ = _∘′_ }
 
-    equivalent : Equivalent {e = o} (Function {o})
+    equivalent : Equivalent o Function
     equivalent = record
       { _≈_ = λ f g → ∀ {x} → f x ≡ g x
       ; equiv = λ {a}{b} → record
@@ -229,7 +229,7 @@ module →Instances where
           }
       }
 
-    lawful-category : LawfulCategory {e = o} (Function {o})
+    lawful-category : LawfulCategory o Function
     lawful-category = record
       { identityˡ = λ {a b}{f}{x} → refl
       ; identityʳ = λ {a b}{f}{x} → refl
