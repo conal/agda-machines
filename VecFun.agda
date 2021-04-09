@@ -11,8 +11,6 @@ open import Data.Vec
 open import Data.Vec.Properties
 open import Relation.Binary.PropositionalEquality hiding (_≗_)
 
-open ≡-Reasoning
-
 open import Category
 
 private
@@ -55,11 +53,11 @@ module VecFunInstances where
 
     equivalent : Equivalent 0ℓ _⇨_
     equivalent = record
-      { _≈_ = λ (mk f) (mk g) → ∀ {n}{as : Vec _ n} → f as ≡ g as
+      { _≈_ = λ (mk f) (mk g) → ∀ {n} (as : Vec _ n) → f as ≡ g as
       ; equiv = record
-        { refl  = refl
-        ; sym   = λ f∼g → sym f∼g
-        ; trans = λ f∼g g∼h → trans f∼g g∼h
+        { refl  = λ _ → refl
+        ; sym   = λ f∼g as → sym (f∼g as)
+        ; trans = λ f∼g g∼h as → trans (f∼g as) (g∼h as)
         }
       }
 
@@ -75,13 +73,27 @@ module VecFunInstances where
     --   ; F-∘  = λ {a b c}{f}{g} → {!!}
     --   }
 
-    -- lawful-category : LawfulCategory _⇨_
-    -- lawful-category = record
-    --   { identityˡ = λ {a b}{f}{n}{as} → refl
-    --   ; identityʳ = λ {a b}{f}{n}{as} → refl
-    --   ; assoc     = λ {c d b a}{f g h}{n}{as} → refl
-    --   ; ∘-resp-≈  = λ {a b c}{f g}{h k} f≈h g≈k {n}{as} → {!!}
-    --   }
+    lawful-category : LawfulCategory 0ℓ _⇨_
+    lawful-category = record
+      { identityˡ = λ {a b}{f}{n} as → refl
+      ; identityʳ = λ {a b}{f}{n} as → refl
+      ; assoc     = λ {c d b a}{f g h}{n} as → refl
+      ; ∘-resp-≈  = λ {a b c}{(mk f) (mk g)}{(mk h) (mk k)} h≈k f≈g {n} →
+         let open ≈-Reasoning {_⇨_ = Function} in
+          begin
+            ⟦ mk h ∘ mk f ⟧ {n}
+          ≡⟨⟩
+            ⟦ mk (h ∘ f) ⟧ {n}
+          ≡⟨⟩
+            h {n} ∘ f {n}
+          ≈⟨ ∘-resp-≈ (h≈k {n}) (f≈g {n}) ⟩
+            k {n} ∘ g {n}
+          ≡⟨⟩
+            ⟦ mk (k ∘ g) ⟧ {n}
+          ≡⟨⟩
+            ⟦ mk k ∘ mk g ⟧ {n}
+          ∎
+      }
 
     monoidal : Monoidal _⇨_
     monoidal = record
@@ -155,192 +167,195 @@ scanl≡mealy _∙_ e (a ∷ as) rewrite scanl≡mealy _∙_ (e ∙ a) as = refl
 -- Properties
 -------------------------------------------------------------------------------
 
--- Causality
+module _ where
 
-causal-id : causal {A} id
-causal-id = λ m as → refl
+  open ≡-Reasoning
 
-causal-arr : ∀ (f : A → B) → causal (arr f)
-causal-arr f zero as = refl
-causal-arr f (suc m) (a ∷ as) =
-  begin
-    map f (take (suc m) (a ∷ as))
-  ≡⟨ cong (map f) (unfold-take m a as) ⟩
-    map f (a ∷ take m as)
-  ≡⟨⟩
-    f a ∷ map f (take m as)
-  ≡⟨ cong (f a ∷_) (causal-arr f m as) ⟩
-    f a ∷ take m (map f as)
-  ≡˘⟨ unfold-take m (f a) (map f as) ⟩
-    take (suc m) (f a ∷ map f as)
-  ≡⟨⟩
-    take (suc m) (map f (a ∷ as))
-  ∎
+  -- Causality
 
-causal-∘ : ∀ {f : A ⇨ B}{g : B ⇨ C} → causal g → causal f → causal (g ∘ f)
-causal-∘ {f = mk f}{mk g} cg cf m as =
-  begin
-    g (f (take m as))
-  ≡⟨ cong g (cf m as) ⟩
-    g (take m (f as))
-  ≡⟨ cg m (f as) ⟩
-    take m (g (f as))
-  ∎
+  causal-id : causal {A} id
+  causal-id = λ m as → refl
 
-unzip∘take : ∀ m {n} (as : Vec A (m + n)) (bs : Vec B (m + n))
-           → unzip (take m (zip as bs)) ≡ (take m as , take m bs)
-unzip∘take m {n} as bs =
-  begin
-    unzip (take m (zip as bs))
-  ≡⟨ cong unzip (take-distr-zipWith _,_ as bs) ⟩
-    unzip (zip (take m as) (take m bs))
-  ≡⟨ unzip∘zip (take m as) (take m bs) ⟩
-    (take m as , take m bs)
-  ∎
+  causal-arr : ∀ (f : A → B) → causal (arr f)
+  causal-arr f zero as = refl
+  causal-arr f (suc m) (a ∷ as) =
+    begin
+      map f (take (suc m) (a ∷ as))
+    ≡⟨ cong (map f) (unfold-take m a as) ⟩
+      map f (a ∷ take m as)
+    ≡⟨⟩
+      f a ∷ map f (take m as)
+    ≡⟨ cong (f a ∷_) (causal-arr f m as) ⟩
+      f a ∷ take m (map f as)
+    ≡˘⟨ unfold-take m (f a) (map f as) ⟩
+      take (suc m) (f a ∷ map f as)
+    ≡⟨⟩
+      take (suc m) (map f (a ∷ as))
+    ∎
 
-≡zip : ∀ (ps : Vec (A × B) n) → ps ≡ zip (map exl ps) (map exr ps)
-≡zip ps =
-  begin
-    ps
-  ≡⟨ sym (map-id ps) ⟩
-    map id ps
-  ≡⟨⟩
-    map (exl △ exr) ps
-  ≡⟨ map-<,>-zip exl exr ps ⟩
-    zip (map exl ps) (map exr ps)
-  ∎
- 
-causal-⊗ : ∀ {f : A ⇨ C}{g : B ⇨ D} → causal f → causal g → causal (f ⊗ g)
-causal-⊗ {f = mk f} {mk g} cf cg m ps =
-  begin
-    (zip′ ∘ (f ⊗ g) ∘ unzip) (take m ps)
-  ≡⟨ cong (zip′ ∘ (f ⊗ g) ∘ unzip ∘ take m) (≡zip ps) ⟩
-    (zip′ ∘ (f ⊗ g) ∘ unzip) (take m (zip as bs))
-  ≡⟨ cong (zip′ ∘ (f ⊗ g) ∘ unzip) (take-distr-zipWith _,_ as bs) ⟩
-    (zip′ ∘ (f ⊗ g) ∘ unzip) (zip (take m as) (take m bs))
-  ≡⟨ cong (zip′ ∘ (f ⊗ g) ∘ unzip) (cong₂ zip take-map₁ take-map₂) ⟩
-    (zip′ ∘ (f ⊗ g) ∘ unzip) (zip exl-take (exr-take))
-  ≡⟨ cong (zip′ ∘ (f ⊗ g)) (unzip∘zip exl-take (exr-take)) ⟩
-    (zip′ ∘ (f ⊗ g)) (exl-take , exr-take)
-  ≡⟨⟩
-    zip (f exl-take) (g (exr-take))
-  ≡˘⟨ cong₂ (λ as bs → zip (f as) (g bs)) take-map₁ take-map₂ ⟩
-    zip (f (take m as)) (g (take m bs))
-  ≡⟨ cong₂ zip (cf m as) (cg m bs) ⟩
-    zip (take m (f as)) (take m (g bs))
-  ≡˘⟨ take-distr-zipWith _,_ (f as) (g bs) ⟩
-    take m (zip (f as) (g bs))
-  ≡⟨⟩
-    take m (zip′ ((f ⊗ g) (as , bs)))
-  ≡˘⟨ cong (take m ∘ zip′ ∘ (f ⊗ g)) (unzip∘zip as bs) ⟩
-    take m (zip′ ((f ⊗ g) (unzip (zip as bs))))
-  ≡˘⟨ cong (take m ∘ zip′ ∘ (f ⊗ g) ∘ unzip) (≡zip ps) ⟩
-    take m (zip′ ((f ⊗ g) (unzip ps)))
-  ∎
- where
-   as = map exl ps
-   bs = map exr ps
-   exl-take = map exl (take m ps)
-   exr-take = map exr (take m ps)
-   take-map₁ = take-distr-map exl m ps
-   take-map₂ = take-distr-map exr m ps
+  causal-∘ : ∀ {f : A ⇨ B}{g : B ⇨ C} → causal g → causal f → causal (g ∘ f)
+  causal-∘ {f = mk f}{mk g} cg cf m as =
+    begin
+      g (f (take m as))
+    ≡⟨ cong g (cf m as) ⟩
+      g (take m (f as))
+    ≡⟨ cg m (f as) ⟩
+      take m (g (f as))
+    ∎
 
-init∷ : ∀ {a : A} {as : Vec A (suc n)} → init (a ∷ as) ≡ a ∷ init as
-init∷ {as = as} with initLast as
-... | _ , _ , refl = refl
+  unzip∘take : ∀ m {n} (as : Vec A (m + n)) (bs : Vec B (m + n))
+             → unzip (take m (zip as bs)) ≡ (take m as , take m bs)
+  unzip∘take m {n} as bs =
+    begin
+      unzip (take m (zip as bs))
+    ≡⟨ cong unzip (take-distr-zipWith _,_ as bs) ⟩
+      unzip (zip (take m as) (take m bs))
+    ≡⟨ unzip∘zip (take m as) (take m bs) ⟩
+      (take m as , take m bs)
+    ∎
 
-init-take : ∀ m {n} (as : Vec A (suc m + n))
-          → init (take (suc m) as) ≡ take m (init as)
-init-take zero (a ∷ as) = refl
-init-take (suc m) (a ∷ a′ ∷ as) =
-  begin
-    init (take (suc (suc m)) (a ∷ a′ ∷ as))
-  ≡⟨ cong init (unfold-take (suc m) a (a′ ∷ as)) ⟩
-    init (a ∷ take (suc m) (a′ ∷ as))
-  ≡⟨ init∷ ⟩
-    a ∷ init (take (suc m) (a′ ∷ as))
-  ≡⟨ cong (a ∷_) (init-take m (a′ ∷ as)) ⟩
-    a ∷ take m (init (a′ ∷ as))
-  ≡˘⟨ unfold-take m a (init (a′ ∷ as)) ⟩
-    take (suc m) (a ∷ init (a′ ∷ as))
-  ≡˘⟨ cong (take (suc m)) init∷ ⟩
-    take (suc m) (init (a ∷ a′ ∷ as))
-  ∎
+  ≡zip : ∀ (ps : Vec (A × B) n) → ps ≡ zip (map exl ps) (map exr ps)
+  ≡zip ps =
+    begin
+      ps
+    ≡⟨ sym (map-id ps) ⟩
+      map id ps
+    ≡⟨⟩
+      map (exl △ exr) ps
+    ≡⟨ map-<,>-zip exl exr ps ⟩
+      zip (map exl ps) (map exr ps)
+    ∎
 
-causal-delay : (a : A) → causal (delay a)
-causal-delay a zero as = refl
-causal-delay a (suc m) (a′ ∷ as) =
-  begin
-    init (a ∷ take (suc m) (a′ ∷ as))
-  ≡⟨ init∷ ⟩
-    a ∷ init (take (suc m) (a′ ∷ as))
-  ≡⟨ cong (a ∷_) (init-take m (a′ ∷ as)) ⟩
-    a ∷ take m (init (a′ ∷ as))
-  ≡˘⟨ unfold-take m a (init (a′ ∷ as)) ⟩
-    take (suc m) (a ∷ init (a′ ∷ as))
-  ≡˘⟨ cong (take (suc m)) init∷ ⟩
-    take (suc m) (init (a ∷ a′ ∷ as))
-  ∎
+  causal-⊗ : ∀ {f : A ⇨ C}{g : B ⇨ D} → causal f → causal g → causal (f ⊗ g)
+  causal-⊗ {f = mk f} {mk g} cf cg m ps =
+    begin
+      (zip′ ∘ (f ⊗ g) ∘ unzip) (take m ps)
+    ≡⟨ cong (zip′ ∘ (f ⊗ g) ∘ unzip ∘ take m) (≡zip ps) ⟩
+      (zip′ ∘ (f ⊗ g) ∘ unzip) (take m (zip as bs))
+    ≡⟨ cong (zip′ ∘ (f ⊗ g) ∘ unzip) (take-distr-zipWith _,_ as bs) ⟩
+      (zip′ ∘ (f ⊗ g) ∘ unzip) (zip (take m as) (take m bs))
+    ≡⟨ cong (zip′ ∘ (f ⊗ g) ∘ unzip) (cong₂ zip take-map₁ take-map₂) ⟩
+      (zip′ ∘ (f ⊗ g) ∘ unzip) (zip exl-take (exr-take))
+    ≡⟨ cong (zip′ ∘ (f ⊗ g)) (unzip∘zip exl-take (exr-take)) ⟩
+      (zip′ ∘ (f ⊗ g)) (exl-take , exr-take)
+    ≡⟨⟩
+      zip (f exl-take) (g (exr-take))
+    ≡˘⟨ cong₂ (λ as bs → zip (f as) (g bs)) take-map₁ take-map₂ ⟩
+      zip (f (take m as)) (g (take m bs))
+    ≡⟨ cong₂ zip (cf m as) (cg m bs) ⟩
+      zip (take m (f as)) (take m (g bs))
+    ≡˘⟨ take-distr-zipWith _,_ (f as) (g bs) ⟩
+      take m (zip (f as) (g bs))
+    ≡⟨⟩
+      take m (zip′ ((f ⊗ g) (as , bs)))
+    ≡˘⟨ cong (take m ∘ zip′ ∘ (f ⊗ g)) (unzip∘zip as bs) ⟩
+      take m (zip′ ((f ⊗ g) (unzip (zip as bs))))
+    ≡˘⟨ cong (take m ∘ zip′ ∘ (f ⊗ g) ∘ unzip) (≡zip ps) ⟩
+      take m (zip′ ((f ⊗ g) (unzip ps)))
+    ∎
+   where
+     open ≡-Reasoning
+     as = map exl ps
+     bs = map exr ps
+     exl-take = map exl (take m ps)
+     exr-take = map exr (take m ps)
+     take-map₁ = take-distr-map exl m ps
+     take-map₂ = take-distr-map exr m ps
 
--- causal-mealy
+  init∷ : ∀ {a : A} {as : Vec A (suc n)} → init (a ∷ as) ≡ a ∷ init as
+  init∷ {as = as} with initLast as
+  ... | _ , _ , refl = refl
 
--- causal-mealy : ∀ {State : Set} → (s : State) → (f : A × State → B × State)
---              → causal (mealy s f)
--- causal-mealy s f zero as = refl
--- causal-mealy s f (suc m) (a ∷ as) =
---   begin
---     mealy′ s f (take (suc m) (a ∷ as))
---   ≡⟨ {!!} ⟩
---     take (suc m) (mealy′ s f (a ∷ as))
---   ∎
+  init-take : ∀ m {n} (as : Vec A (suc m + n))
+            → init (take (suc m) as) ≡ take m (init as)
+  init-take zero (a ∷ as) = refl
+  init-take (suc m) (a ∷ a′ ∷ as) =
+    begin
+      init (take (suc (suc m)) (a ∷ a′ ∷ as))
+    ≡⟨ cong init (unfold-take (suc m) a (a′ ∷ as)) ⟩
+      init (a ∷ take (suc m) (a′ ∷ as))
+    ≡⟨ init∷ ⟩
+      a ∷ init (take (suc m) (a′ ∷ as))
+    ≡⟨ cong (a ∷_) (init-take m (a′ ∷ as)) ⟩
+      a ∷ take m (init (a′ ∷ as))
+    ≡˘⟨ unfold-take m a (init (a′ ∷ as)) ⟩
+      take (suc m) (a ∷ init (a′ ∷ as))
+    ≡˘⟨ cong (take (suc m)) init∷ ⟩
+      take (suc m) (init (a ∷ a′ ∷ as))
+    ∎
 
+  causal-delay : (a : A) → causal (delay a)
+  causal-delay a zero as = refl
+  causal-delay a (suc m) (a′ ∷ as) =
+    begin
+      init (a ∷ take (suc m) (a′ ∷ as))
+    ≡⟨ init∷ ⟩
+      a ∷ init (take (suc m) (a′ ∷ as))
+    ≡⟨ cong (a ∷_) (init-take m (a′ ∷ as)) ⟩
+      a ∷ take m (init (a′ ∷ as))
+    ≡˘⟨ unfold-take m a (init (a′ ∷ as)) ⟩
+      take (suc m) (a ∷ init (a′ ∷ as))
+    ≡˘⟨ cong (take (suc m)) init∷ ⟩
+      take (suc m) (init (a ∷ a′ ∷ as))
+    ∎
 
+  -- causal-mealy
 
--- TODO: Package init∷ into an agda-stdlib PR.
+  -- causal-mealy : ∀ {State : Set} → (s : State) → (f : A × State → B × State)
+  --              → causal (mealy s f)
+  -- causal-mealy s f zero as = refl
+  -- causal-mealy s f (suc m) (a ∷ as) =
+  --   begin
+  --     mealy′ s f (take (suc m) (a ∷ as))
+  --   ≡⟨ {!!} ⟩
+  --     take (suc m) (mealy′ s f (a ∷ as))
+  --   ∎
 
-delay∷ : ∀ {a₀ a : A} {as : Vec A n} → ⟦ delay a₀ ⟧ (a ∷ as) ≡ a₀ ∷ ⟦ delay a ⟧ as
-delay∷ = init∷
+  -- TODO: Package init∷ into an agda-stdlib PR.
 
-init∘scanl′ : ∀ {f : B → A → B} {e : B} (as : Vec A n)
-            → init (scanl′ f e as) ≡ ⟦ scanl f e ⟧ as
-init∘scanl′ [] = refl
-init∘scanl′ {f = f}{e} (a ∷ as) =
-  begin
-    init (e ∷ scanl′ f (f e a) as)
-  ≡⟨ init∷ ⟩
-    e ∷ init (scanl′ f (f e a) as)
-  ≡⟨ cong (e ∷_) (init∘scanl′ as) ⟩
-    e ∷ ⟦ scanl f (f e a) ⟧ as
-  ∎
+  delay∷ : ∀ {a₀ a : A} {as : Vec A n} → ⟦ delay a₀ ⟧ (a ∷ as) ≡ a₀ ∷ ⟦ delay a ⟧ as
+  delay∷ = init∷
 
-scanl∷ʳ : ∀ {f : B → A → B} {e : B} (as : Vec A n)
-         → scanl′ f e as ≡ ⟦ scanl f e ⟧ as ∷ʳ foldl _ f e as
-scanl∷ʳ [] = refl
-scanl∷ʳ {f = f}{e} (a ∷ as) =
-  begin
-    scanl′ f e (a ∷ as)
-  ≡⟨⟩
-    e ∷ scanl′ f (f e a) as
-  ≡⟨ cong (e ∷_) (scanl∷ʳ as) ⟩
-    e ∷ (⟦ scanl f (f e a) ⟧ as ∷ʳ foldl _ f e (a ∷ as))
-  ≡⟨⟩
-    (e ∷ ⟦ scanl f (f e a) ⟧ as) ∷ʳ foldl _ f e (a ∷ as)
-  ≡⟨⟩
-    ⟦ scanl f e ⟧ (a ∷ as) ∷ʳ foldl _ f e (a ∷ as)
-  ∎
+  init∘scanl′ : ∀ {f : B → A → B} {e : B} (as : Vec A n)
+              → init (scanl′ f e as) ≡ ⟦ scanl f e ⟧ as
+  init∘scanl′ [] = refl
+  init∘scanl′ {f = f}{e} (a ∷ as) =
+    begin
+      init (e ∷ scanl′ f (f e a) as)
+    ≡⟨ init∷ ⟩
+      e ∷ init (scanl′ f (f e a) as)
+    ≡⟨ cong (e ∷_) (init∘scanl′ as) ⟩
+      e ∷ ⟦ scanl f (f e a) ⟧ as
+    ∎
 
-init∷ʳ : ∀ (as : Vec A n) {x} → init (as ∷ʳ x) ≡ as
-init∷ʳ [] = refl
-init∷ʳ (a ∷ as) {x = x} =
-  begin
-    init ((a ∷ as) ∷ʳ x)
-  ≡⟨⟩
-    init (a ∷ (as ∷ʳ x))
-  ≡⟨ init∷ ⟩
-    a ∷ init (as ∷ʳ x)
-  ≡⟨ cong (a ∷_) (init∷ʳ as) ⟩
-    a ∷ as
-  ∎
+  scanl∷ʳ : ∀ {f : B → A → B} {e : B} (as : Vec A n)
+           → scanl′ f e as ≡ ⟦ scanl f e ⟧ as ∷ʳ foldl _ f e as
+  scanl∷ʳ [] = refl
+  scanl∷ʳ {f = f}{e} (a ∷ as) =
+    begin
+      scanl′ f e (a ∷ as)
+    ≡⟨⟩
+      e ∷ scanl′ f (f e a) as
+    ≡⟨ cong (e ∷_) (scanl∷ʳ as) ⟩
+      e ∷ (⟦ scanl f (f e a) ⟧ as ∷ʳ foldl _ f e (a ∷ as))
+    ≡⟨⟩
+      (e ∷ ⟦ scanl f (f e a) ⟧ as) ∷ʳ foldl _ f e (a ∷ as)
+    ≡⟨⟩
+      ⟦ scanl f e ⟧ (a ∷ as) ∷ʳ foldl _ f e (a ∷ as)
+    ∎
+
+  init∷ʳ : ∀ (as : Vec A n) {x} → init (as ∷ʳ x) ≡ as
+  init∷ʳ [] = refl
+  init∷ʳ (a ∷ as) {x = x} =
+    begin
+      init ((a ∷ as) ∷ʳ x)
+    ≡⟨⟩
+      init (a ∷ (as ∷ʳ x))
+    ≡⟨ init∷ ⟩
+      a ∷ init (as ∷ʳ x)
+    ≡⟨ cong (a ∷_) (init∷ʳ as) ⟩
+      a ∷ as
+    ∎
 
 
 {-
