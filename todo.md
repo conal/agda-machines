@@ -1,9 +1,6 @@
 ## To do
 
-*   Introduce `Functor`.
-    Prove functoriality of each semantic function from category to category.
-    Prove that the category laws follow from functoriality of any mapping to another lawful category.
-    Use.
+*   Use `LawfulCategoryᶠ` with semantic functors.
 *   Position the registers all at the far left, so that time consistently flows left to right.
     The Dot edge attribute "constraint = false" seems to have this purpose, but when I use it links start disappearing.
     I can make a simple example and file an issue.
@@ -59,6 +56,9 @@
 
 ## Did
 
+*   Introduce `Functor`.
+    Prove functoriality of each semantic function from category to category.
+    Prove that the category laws follow from functoriality of any mapping to another lawful category.
 *   Parametrize some constructions to be parametric over an underlying category:
     *   `Symbolic.StackProg`, now `Stack`
     *   `Mealy`
