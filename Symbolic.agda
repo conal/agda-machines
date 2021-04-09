@@ -55,7 +55,7 @@ instance
   equivalent = F-equiv ⟦⟧-functor
 
   lawful-category : LawfulCategory 0ℓ _⇨_
-  lawful-category = LawfulCategoryᶠ _⇨_ ty._⇨_ 0ℓ ⟦⟧-functor
+  lawful-category = LawfulCategoryᶠ ⟦⟧-functor
 
   monoidal : Monoidal _⇨_
   monoidal = record { _⊗_ = _`⊗_

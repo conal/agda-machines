@@ -101,15 +101,15 @@ F-equiv : {obj₁ : Set o₁} {_⇨₁_ : obj₁ → obj₁ → Set ℓ₁}
          → Equivalent q₂ _⇨₁_
 F-equiv F = record { equiv = On.isEquivalence (Functor.Fₘ F) equiv }
 
-LawfulCategoryᶠ : {obj₁ : Set o₁} (_⇨₁_ : obj₁ → obj₁ → Set ℓ₁)
-                  {obj₂ : Set o₂} (_⇨₂_ : obj₂ → obj₂ → Set ℓ₂)
-                  (q₂ : Level) ⦃ equiv₂ : Equivalent q₂ _⇨₂_ ⦄
+LawfulCategoryᶠ : {obj₁ : Set o₁} {_⇨₁_ : obj₁ → obj₁ → Set ℓ₁}
+                  {obj₂ : Set o₂} {_⇨₂_ : obj₂ → obj₂ → Set ℓ₂}
+                  {q₂ : Level} ⦃ equiv₂ : Equivalent q₂ _⇨₂_ ⦄
                   ⦃ cat₁ : Category _⇨₁_ ⦄
                   ⦃ cat₂ : Category _⇨₂_ ⦄
                   ⦃ lawful₂ : LawfulCategory q₂ _⇨₂_ ⦄
                   (F : Functor _⇨₁_ _⇨₂_ q₂)
                 → LawfulCategory q₂ _⇨₁_
-LawfulCategoryᶠ _⇨₁_ _⇨₂_ q₂ F = record
+LawfulCategoryᶠ F = record
   { identityˡ = λ {a b} {f} →
       begin
         Fₘ (id ∘ f)

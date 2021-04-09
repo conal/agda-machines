@@ -258,7 +258,7 @@ module ty where
     equivalent = F-equiv ⟦⟧-functor
 
     lawful-category : LawfulCategory 0ℓ _⇨_
-    lawful-category = LawfulCategoryᶠ _⇨_ Function 0ℓ ⟦⟧-functor
+    lawful-category = LawfulCategoryᶠ ⟦⟧-functor
 
     monoidal : Monoidal _⇨_
     monoidal = record
