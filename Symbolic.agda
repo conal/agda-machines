@@ -48,7 +48,7 @@ instance
     { Fₒ = id
     ; Fₘ = ⟦_⟧
     ; F-id = λ x → swizzle-id
-    ; F-∘  = λ g f x → refl
+    ; F-∘  = λ g f x → refl   -- direct from _∘_ definition
     }
 
   equivalent : Equivalent 0ℓ _⇨_
