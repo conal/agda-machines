@@ -189,9 +189,8 @@ record Monoidal {obj : Set o} ⦃ _ : Products obj ⦄
   infixr 7 _⊗_
   field
     ⦃ ⇨cat ⦄ : Category _⇨_
-    _⊗_ : (a ⇨ c) → (b ⇨ d) → (a × b ⇨ c × d)
-
     ! : a ⇨ ⊤
+    _⊗_ : (a ⇨ c) → (b ⇨ d) → (a × b ⇨ c × d)
 
     unitorᵉˡ : ⊤ × a ⇨ a
     unitorᵉʳ : a × ⊤ ⇨ a
@@ -207,12 +206,10 @@ record Monoidal {obj : Set o} ⦃ _ : Products obj ⦄
   second : b ⇨ d → a × b ⇨ a × d
   second g = id ⊗ g
 
-  inAssocˡ : ((a × b) × c ⇨ (a′ × b′) × c′)
-           → (a × (b × c) ⇨ a′ × (b′ × c′))
+  inAssocˡ : ((a × b) × c ⇨ (a′ × b′) × c′) → (a × (b × c) ⇨ a′ × (b′ × c′))
   inAssocˡ f = assocʳ ∘ f ∘ assocˡ
 
-  inAssocʳ : (a × (b × c) ⇨ a′ × (b′ × c′))
-           → ((a × b) × c ⇨ (a′ × b′) × c′)
+  inAssocʳ : (a × (b × c) ⇨ a′ × (b′ × c′)) → ((a × b) × c ⇨ (a′ × b′) × c′)
   inAssocʳ f = assocˡ ∘ f ∘ assocʳ
 
   -- -- Pseudo values  -- but _⇨_ doesn't get inferred
@@ -225,6 +222,26 @@ record Monoidal {obj : Set o} ⦃ _ : Products obj ⦄
   a ⦂ b = (a ⊗ b) ∘ unitorⁱˡ
 
 open Monoidal ⦃ … ⦄ public
+
+record MonoidalFunctor
+    {obj₁ : Set o₁} (_⇨₁′_ : obj₁ → obj₁ → Set ℓ₁)
+    {obj₂ : Set o₂} (_⇨₂′_ : obj₂ → obj₂ → Set ℓ₂)
+    q₂ ⦃ equiv₂ : Equivalent q₂ _⇨₂′_ ⦄
+    ⦃ prod₁ : Products obj₁ ⦄ ⦃ cat₁ : Monoidal _⇨₁′_ ⦄
+    ⦃ prod₂ : Products obj₂ ⦄ ⦃ cat₂ : Monoidal _⇨₂′_ ⦄
+  : Set (o₁ ⊔ ℓ₁ ⊔ o₂ ⊔ ℓ₂ ⊔ q₂) where
+  private infix 0 _⇨₁_; _⇨₁_ = _⇨₁′_
+  private infix 0 _⇨₂_; _⇨₂_ = _⇨₂′_
+  field
+    ⦃ functor ⦄ : Functor _⇨₁_ _⇨₂_ q₂
+  open Functor functor public
+  field
+    F-⊤ : Fₒ ⊤ ≡ ⊤
+    F-× : ∀ {a b} → Fₒ (a × b) ≡ (Fₒ a × Fₒ b)
+    -- TODO: isomorphisms instead of equalities for F-⊤ & F-×?
+    F-! : ∀ {a} → Fₘ (! {a = a}) ≈ subst (Fₒ a ⇨₂_) (sym F-⊤) !
+    F-⊗ : ∀ {f : a ⇨₁ c}{g : b ⇨₁ d}
+        → Fₘ (f ⊗ g) ≈ subst₂ _⇨₂_ (sym F-×) (sym F-×) (Fₘ f ⊗ Fₘ g)
 
 record Braided {obj : Set o} ⦃ _ : Products obj ⦄
          (_⇨′_ : obj → obj → Set ℓ) : Set (lsuc o ⊔ ℓ) where
@@ -248,6 +265,21 @@ record Braided {obj : Set o} ⦃ _ : Products obj ⦄
 
 open Braided ⦃ … ⦄ public
 
+record BraidedFunctor
+    {obj₁ : Set o₁} (_⇨₁′_ : obj₁ → obj₁ → Set ℓ₁)
+    {obj₂ : Set o₂} (_⇨₂′_ : obj₂ → obj₂ → Set ℓ₂)
+    q₂ ⦃ equiv₂ : Equivalent q₂ _⇨₂′_ ⦄
+    ⦃ prod₁ : Products obj₁ ⦄ ⦃ cat₁ : Braided _⇨₁′_ ⦄
+    ⦃ prod₂ : Products obj₂ ⦄ ⦃ cat₂ : Braided _⇨₂′_ ⦄
+  : Set (o₁ ⊔ ℓ₁ ⊔ o₂ ⊔ ℓ₂ ⊔ q₂) where
+  private infix 0 _⇨₁_; _⇨₁_ = _⇨₁′_
+  private infix 0 _⇨₂_; _⇨₂_ = _⇨₂′_
+  field
+    ⦃ monoidal-functor ⦄ : MonoidalFunctor _⇨₁_ _⇨₂_ q₂
+  open MonoidalFunctor monoidal-functor public
+  field
+    F-swap : Fₘ (swap {_⇨′_ = _⇨₁_}{a}{b})
+               ≈ subst₂ _⇨₂_ (sym F-×) (sym F-×) swap
 
 record Cartesian {obj : Set o} ⦃ _ : Products obj ⦄
          (_⇨′_ : obj → obj → Set ℓ) : Set (lsuc o ⊔ ℓ) where
@@ -262,8 +294,24 @@ record Cartesian {obj : Set o} ⦃ _ : Products obj ⦄
   _△_ : ∀ {a c d} → a ⇨ c → (a ⇨ d) → (a ⇨ c × d)
   f △ g = (f ⊗ g) ∘ dup
 
-
 open Cartesian ⦃ … ⦄ public
+
+record CartesianFunctor
+    {obj₁ : Set o₁} (_⇨₁′_ : obj₁ → obj₁ → Set ℓ₁)
+    {obj₂ : Set o₂} (_⇨₂′_ : obj₂ → obj₂ → Set ℓ₂)
+    q₂ ⦃ equiv₂ : Equivalent q₂ _⇨₂′_ ⦄
+    ⦃ prod₁ : Products obj₁ ⦄ ⦃ cat₁ : Cartesian _⇨₁′_ ⦄
+    ⦃ prod₂ : Products obj₂ ⦄ ⦃ cat₂ : Cartesian _⇨₂′_ ⦄
+  : Set (o₁ ⊔ ℓ₁ ⊔ o₂ ⊔ ℓ₂ ⊔ q₂) where
+  private infix 0 _⇨₁_; _⇨₁_ = _⇨₁′_
+  private infix 0 _⇨₂_; _⇨₂_ = _⇨₂′_
+  field
+    ⦃ braided-functor ⦄ : BraidedFunctor _⇨₁_ _⇨₂_ q₂
+  open BraidedFunctor braided-functor public
+  field
+    F-exl : Fₘ (exl {a = a}{b}) ≈ subst (_⇨₂ Fₒ a) (sym F-×) exl
+    F-exr : Fₘ (exr {a = a}{b}) ≈ subst (_⇨₂ Fₒ b) (sym F-×) exr
+    F-dup : Fₘ (dup {a = a}   ) ≈ subst (Fₒ a ⇨₂_) (sym F-×) dup
 
 
 record Meaningful {m} {μ : Set m} (A : Set o) : Set (lsuc (m ⊔ o)) where
@@ -282,8 +330,22 @@ record Logic {obj : Set o} ⦃ _ : Products obj ⦄ ⦃ _ : Boolean obj ⦄
   field
     ∧ ∨ xor : Bool × Bool ⇨ Bool
     not : Bool ⇨ Bool
-    true false : ⊤ ⇨ Bool
+    false true : ⊤ ⇨ Bool
 open Logic ⦃ … ⦄ public
+
+-- record LogicFunctor
+--     {obj₁ : Set o₁} (_⇨₁′_ : obj₁ → obj₁ → Set ℓ₁)
+--     {obj₂ : Set o₂} (_⇨₂′_ : obj₂ → obj₂ → Set ℓ₂)
+--     q₂ ⦃ equiv₂ : Equivalent q₂ _⇨₂′_ ⦄
+--     ⦃ _ : Boolean obj₁ ⦄ ⦃ _ : Products obj₁ ⦄ ⦃ _ : Logic _⇨₁′_ ⦄
+--     ⦃ _ : Boolean obj₂ ⦄ ⦃ _ : Products obj₂ ⦄ ⦃ _ : Logic _⇨₂′_ ⦄
+--   : Set (o₁ ⊔ ℓ₁ ⊔ o₂ ⊔ ℓ₂ ⊔ q₂) where
+--   private infix 0 _⇨₁_; _⇨₁_ = _⇨₁′_
+--   private infix 0 _⇨₂_; _⇨₂_ = _⇨₂′_
+--   field
+--     F : obj₁ → obj₂
+--     F-Bool : F Bool ≡ Bool
+--     F-false : F false ≈ false {_⇨′_ = _⇨₂_}
 
 
 import Data.String as S
