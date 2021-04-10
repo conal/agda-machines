@@ -1,5 +1,10 @@
 ## To do
 
+*   Restore semantics in `Mealy`.
+    Prove `⟦⟧-functor`, and use for `equivalence` and `lawful-category`.
+*   Abstract `Stack` over routing as well.
+    Generalize to primitives and routings having a common semantics.
+    Then try removing some explicit implicits, since we'll be normalizing less.
 *   Move to-dos to GitHub issues.
     Use [`ghi`](https://github.com/stephencelis/ghi).
 *   Use `LawfulCategoryᶠ` with semantic functors.
@@ -15,11 +20,9 @@
     Must we use `Ty` routing?
     Maybe instead we can accept any prims and any SMC as long as they share meanings.
 *   Consider replacing `Function` with setoid functions in `Category`.
-*   Abstract `Stack` over routing as well.
 *   Recreate compiling-to-categories so we can write and read lambda notation instead of combinators.
     See how far we can get with Agda's reflection mechanism.
 *   Add laws to the category classes (in progress).
-*   Restore semantics in `Mealy`.
 *   More examples of various difficulties.
     Some ideas:
     *   [Ready/valid handshake](https://stackoverflow.com/questions/53583946/valid-ready-handshake-in-verilog).
@@ -60,6 +63,8 @@
 
 ## Did
 
+*   Fix uses of `tt` in modules importing `Data.Unit.Polymorphic`.
+    Define a `tt` pattern somewhere and use it instead of a misleading variable name.
 *   Introduce `Functor`.
     Prove functoriality of each semantic function from category to category.
     Prove that the category laws follow from functoriality of any mapping to another lawful category.

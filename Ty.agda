@@ -3,7 +3,6 @@
 module Ty where
 
 open import Level using (0ℓ)
-open import Data.Unit using (tt)
 open import Data.Bool using (if_then_else_)
   renaming (false to false′; true to true′)
 open import Data.Bool.Show as BS
@@ -12,8 +11,7 @@ open import Data.Nat
 open import Data.String using (String; parens; _++_)
 open import Relation.Binary.PropositionalEquality
 
-import Category as C
-open C
+open import Category
 
 infixr 2 _`×_
 data Ty : Set where

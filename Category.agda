@@ -8,6 +8,9 @@ open import Level renaming (suc to lsuc)
 open import Function using (_∘′_; const; _on_) renaming (id to id′)
 open import Relation.Binary.PropositionalEquality
 open import Data.Nat using (ℕ; zero; suc)
+open import Data.Unit.Polymorphic using () renaming (⊤ to ⊤′)
+open import Data.Product using (_,_; proj₁; proj₂; uncurry)
+  renaming (_×_ to _×′_)
 import Relation.Binary.Reasoning.Setoid as SetoidR
 import Relation.Binary.Construct.On as On
 
@@ -17,6 +20,10 @@ private
     obj obj₁ obj₂ : Set o
     a b c d e : obj
     a′ b′ c′ d′ e′ : obj
+
+-- Trick to use "tt" as a pattern and value
+import Data.Unit as U
+pattern tt = lift U.tt
 
 record Category {obj : Set o} (_⇨_ : obj → obj → Set ℓ) : Set (lsuc o ⊔ ℓ) where
   infixr 9 _∘_
@@ -219,10 +226,6 @@ record Monoidal {obj : Set o} ⦃ _ : Products obj ⦄
 
 open Monoidal ⦃ … ⦄ public
 
-open import Data.Unit using (tt) renaming (⊤ to ⊤′)
-open import Data.Product using (_,_; proj₁; proj₂; uncurry)
-  renaming (_×_ to _×′_)
-
 record Braided {obj : Set o} ⦃ _ : Products obj ⦄
          (_⇨′_ : obj → obj → Set ℓ) : Set (lsuc o ⊔ ℓ) where
   private infix 0 _⇨_; _⇨_ = _⇨′_
@@ -321,10 +324,10 @@ module →Instances where
       ; ∘-resp-≈  = λ {a b c}{f g}{h k} h∼k f∼g x → trans (h∼k (f x)) (cong k (f∼g x))
       }
 
-    products : Products Set
+    products : Products (Set o)
     products = record { ⊤ = ⊤′ ; _×_ = _×′_ }
 
-    monoidal : Monoidal Function
+    monoidal : Monoidal (Function {o})
     monoidal = record
                   { _⊗_ = λ f g (x , y) → (f x , g y)
                   ; unitorᵉˡ = proj₂
@@ -335,10 +338,10 @@ module →Instances where
                   ; assocˡ   = λ (x , (y , z)) → (x , y) , z
                   }
 
-    braided : Braided Function
+    braided : Braided (Function {o})
     braided = record { swap = λ (a , b) → b , a }
 
-    cartesian : Cartesian Function
+    cartesian : Cartesian (Function {o})
     cartesian = record { exl = proj₁ ; exr = proj₂ ; dup = λ z → z , z }
 
     meaningful : Meaningful (Set ℓ)

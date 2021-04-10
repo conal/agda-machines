@@ -75,8 +75,6 @@ oport compName o = compName ++ ":Out" ++ showIx o
 
 module _ {s} (stateF₀ : ⊤ sf.⇨ s) where
 
-  open import Data.Unit using (tt)
-
   state₀ : ⟦ s ⟧
   state₀ = ⟦ ⟦ stateF₀ ⟧ ⟧ tt
   

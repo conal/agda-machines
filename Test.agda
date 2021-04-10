@@ -3,10 +3,9 @@
 module Test where
 
 open import Level using (0ℓ)
-open import Data.Unit using (tt)
 open import Data.Product using (_,_)
 open import Data.Nat
-open import Data.Unit.Polymorphic using () renaming (⊤ to ⊤′)
+open import Data.Unit.Polymorphic using () renaming (⊤ to ⊤₀)
 open import Data.Bool using (if_then_else_) renaming (false to 𝕗; true to 𝕥)
 open import Data.Vec using ([_]; []; _∷_)
 open import Data.String using (String; _++_)
@@ -137,12 +136,12 @@ module se where
   lfsr₅ = lfsr 5 (𝕥 , 𝕗 , 𝕗 , 𝕥 , 𝕗 , 𝕥 , tt)
                  (false ⦂ true ⦂ false ⦂ true ⦂ true ⦂ false ⦂ !)
 
-exampleˢ : ∀ {i o} → String → i m.⇨ o → IO {0ℓ} ⊤′
+exampleˢ : ∀ {i o} → String → i m.⇨ o → IO {0ℓ} ⊤₀
 exampleˢ name (m.mealy state₀ f) =
   do putStrLn name
      writeFile ("Figures/" ++ name ++ ".dot") (dot state₀ f)
 
-exampleᶜ : ∀ {i o} → String → i sf.⇨ o → IO {0ℓ} ⊤′
+exampleᶜ : ∀ {i o} → String → i sf.⇨ o → IO {0ℓ} ⊤₀
 exampleᶜ name f = exampleˢ name (m.comb f)
 
 
