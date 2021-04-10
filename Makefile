@@ -28,4 +28,4 @@ tags: $(SOURCES)
 
 
 clean:
-	rm -rf Test html
+	rm -rf Test html MAlonzo _build
