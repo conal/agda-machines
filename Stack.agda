@@ -1,18 +1,20 @@
 {-# OPTIONS --safe --without-K #-}
 
 -- A linearizing category, parametrized by primitives. This category embodies a
--- normal form for categorical formula as a strictly linear composition of the
+-- normal form for categorical formulas as a strictly linear composition of the
 -- following form:
 --
 --     unitorᵉʳ ∘ rₙ ∘ first pₙ₋₁ ∘ rₙ₋₁ ⋯ ∘ first p₀ ∘ r₀ ∘ unitorⁱʳ
 --  
 -- where the `pᵢ` are primitive operations and the `rᵢ` are pure routings. This
 -- category was designed to capture the simple essence of stack machines and
--- compiling to them homomorphically. It appears also to capture SSA nicely.
--- Primitives always operate on the first part of a pair ("the accumulator")
--- while preserving the second ("the stack"). The first and final unitor steps
--- introduce and eliminate empty stacks, respectively. See
--- http://conal.net/papers/calculating-compilers-categorically .
+-- compiling to them homomorphically. It appears also to capture SSA and
+-- hardware netlists nicely. Primitives always operate on the first part of a
+-- pair ("the accumulator") while preserving the second ("the stack"). The first
+-- and final unitor steps introduce and eliminate empty stacks, respectively.
+-- See http://conal.net/papers/calculating-compilers-categorically .
+
+open import Level using (0ℓ)
 
 open import Ty
 open import Category
@@ -22,7 +24,9 @@ module Stack (_↠′_ : Ty → Ty → Set) (let private infix 0 _↠_; _↠_ = 
 
 open import Data.Product using (∃; _,_)
 
-private variable a b c d i o z zⁱ zᵒ zᵃ : Ty
+private variable a b c d i o z zⁱ zᵒ zᵃ zᵇ zᶜ zᵈ : Ty
+
+-- TODO: replace superscripts by subscripts in z names?
 
 -- Primitive instance: primitive `p` with input routing for `first p`.
 module i where
@@ -36,6 +40,7 @@ module i where
     meaningful : Meaningful {μ = i × zⁱ ty.⇨ o × zᵒ} (i , zⁱ ⇨ o , zᵒ)
     meaningful {i}{zⁱ}{o}{zᵒ} = record
       { ⟦_⟧ = λ (a , a⇨ₚo , i×zⁱ⇨ᵣa×zᵒ) → first ⟦ a⇨ₚo ⟧ ∘ ⟦ i×zⁱ⇨ᵣa×zᵒ ⟧ }
+
 
 -- Stack operations
 module k where
@@ -76,6 +81,62 @@ module k where
        -- (g ∷ʳ (d , d⇨ₚe , r₂)) ∘′ [ r₁ ] = g ∷ʳ (d , d⇨ₚe , r₂ ∘ r₁)
        -- g ∘′ (f ∷ʳ inst) = g ∘′ f ∷ʳ inst
 
+  open ≈-Reasoning
+
+  infixr 9 _⟦∘⟧_
+  _⟦∘⟧_ : ∀ (g : b , zᵇ ⇨ c , zᶜ) (f : a , zᵃ ⇨ b , zᵇ)
+        → ⟦ g ∘ f ⟧ ≈ ⟦ g ⟧ ∘ ⟦ f ⟧
+
+  [ r₂ ] ⟦∘⟧ [ r₁ ] = F-∘ r₂ r₁   where open Functor r.⟦⟧-functor
+
+  (g ∷ʳ (d , d⇨ₚe , r₂)) ⟦∘⟧ [ r₁ ] = let open Functor r.⟦⟧-functor in
+    begin
+      ⟦ (g ∷ʳ (d , d⇨ₚe , r₂)) ∘ [ r₁ ] ⟧
+    ≡⟨⟩
+      ⟦ g ∷ʳ (d , d⇨ₚe , r₂ ∘ r₁) ⟧
+    ≡⟨⟩
+      ⟦ g ⟧ ∘ ⟦ d , d⇨ₚe , r₂ ∘ r₁ ⟧
+    ≡⟨⟩
+      ⟦ g ⟧ ∘ (first ⟦ d⇨ₚe ⟧ ∘ ⟦ r₂ ∘ r₁ ⟧)
+    ≈⟨ ∘-resp-≈ʳ {h = ⟦ g ⟧} (∘-resp-≈ʳ {h = first ⟦ d⇨ₚe ⟧} (F-∘ r₂ r₁)) ⟩
+      ⟦ g ⟧ ∘ (first ⟦ d⇨ₚe ⟧ ∘ (⟦ r₂ ⟧ ∘ ⟦ r₁ ⟧))
+    ≈˘⟨ ∘-resp-≈ʳ {h = ⟦ g ⟧} (assoc {f = ⟦ r₁ ⟧}{g = ⟦ r₂ ⟧}{h = first ⟦ d⇨ₚe ⟧}) ⟩
+      ⟦ g ⟧ ∘ ((first ⟦ d⇨ₚe ⟧ ∘ ⟦ r₂ ⟧) ∘ ⟦ r₁ ⟧)
+    ≈˘⟨ assoc {g = first ⟦ d⇨ₚe ⟧ ∘ ⟦ r₂ ⟧}{h = ⟦ g ⟧}⟩
+      (⟦ g ⟧ ∘ (first ⟦ d⇨ₚe ⟧ ∘ ⟦ r₂ ⟧)) ∘ ⟦ r₁ ⟧
+    ≡⟨⟩
+      ⟦ g ∷ʳ (d , d⇨ₚe , r₂) ⟧ ∘ ⟦ [ r₁ ] ⟧
+    ∎
+
+  g ⟦∘⟧ (f ∷ʳ inst) = let open Functor r.⟦⟧-functor in
+    begin
+      ⟦ g ∘ (f ∷ʳ inst) ⟧
+    ≡⟨⟩
+      ⟦ (g ∘ f) ∷ʳ inst ⟧
+    ≡⟨⟩
+      ⟦ g ∘ f ⟧ ∘ ⟦ inst ⟧
+    ≈⟨ ∘-resp-≈ˡ {h = ⟦ g ∘ f ⟧} (g ⟦∘⟧ f) ⟩
+      (⟦ g ⟧ ∘ ⟦ f ⟧) ∘ ⟦ inst ⟧
+    ≈⟨ assoc {g = ⟦ f ⟧}{h = ⟦ g ⟧} ⟩
+      ⟦ g ⟧ ∘ (⟦ f ⟧ ∘ ⟦ inst ⟧)
+    ≡⟨⟩
+      ⟦ g ⟧ ∘ ⟦ f ∷ʳ inst ⟧
+    ∎
+
+  ⟦⟧-functor : Functor _⇨_ ty._⇨_ 0ℓ
+  ⟦⟧-functor = record
+    { Fₒ = λ (i , zⁱ) → i × zⁱ
+    ; Fₘ = ⟦_⟧
+    ; F-id = λ _ → swizzle-id
+    ; F-∘ = _⟦∘⟧_
+    }
+
+  equivalent : Equivalent 0ℓ _⇨_
+  equivalent = F-equiv ⟦⟧-functor
+
+  lawful-category : LawfulCategory 0ℓ _⇨_
+  lawful-category = LawfulCategoryᶠ ⟦⟧-functor
+
   push : (a × b) , c ⇨ a , (b × c)
   push = route assocʳ
 
@@ -87,6 +148,7 @@ module k where
 
   prim : i ↠ o → i , zⁱ ⇨ o , zⁱ
   prim {i} i⇨ₚo = [ id ] ∷ʳ (i , i⇨ₚo , id)
+
 
 open k using (stacked)
 
