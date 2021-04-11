@@ -43,11 +43,15 @@ instance
   category : Category _⇨_
   category = record { id = `route id ; _∘_ = _`∘_ }
 
+  ⟦⟧-homomorphismₒ : Homomorphismₒ Ty Ty
+  ⟦⟧-homomorphismₒ = record { Fₒ = id }
+
+  ⟦⟧-homomorphism : Homomorphism _⇨_ ty._⇨_
+  ⟦⟧-homomorphism = record { Fₘ = ⟦_⟧ }
+
   ⟦⟧-functor : Functor _⇨_ ty._⇨_ 0ℓ
   ⟦⟧-functor = record
-    { Fₒ = id
-    ; Fₘ = ⟦_⟧
-    ; F-id = λ x → swizzle-id
+    { F-id = λ x → swizzle-id
     ; F-∘  = λ g f x → refl   -- direct from _∘_ definition
     }
 
@@ -68,14 +72,33 @@ instance
                     ; assocˡ   = `route assocˡ
                     }
 
+  ⟦⟧-productsH : ProductsH
+  ⟦⟧-productsH = id-productsH
+
+  ⟦⟧-monoidalFunctor : MonoidalFunctor _⇨_ ty._⇨_ 0ℓ
+  ⟦⟧-monoidalFunctor = record { F-! = λ _ → refl ; F-⊗ = λ _ → refl }
+
   braided : Braided _⇨_
   braided = record { swap = `route swap }
+
+  ⟦⟧-braided-functor : BraidedFunctor _⇨_ ty._⇨_ 0ℓ
+  ⟦⟧-braided-functor = record { F-swap = λ _ → swizzle-id }
 
   cartesian : Cartesian _⇨_
   cartesian = record { exl = `route exl ; exr = `route exr ; dup = `route dup }
 
+  ⟦⟧-cartesian-functor : CartesianFunctor _⇨_ ty._⇨_ 0ℓ
+  ⟦⟧-cartesian-functor = record
+    { F-exl = λ _ → swizzle-id
+    ; F-exr = λ _ → swizzle-id
+    ; F-dup = λ _ → swizzle-id
+    }
+
   logic : ⦃ Logic _↠_ ⦄ → Logic _⇨_
   logic = record { ∧ = `prim ∧ ; ∨ = `prim ∨ ; xor = `prim xor ; not = `prim not
                  ; false = `prim false ; true = `prim true }
+
+  -- ⟦⟧-logicH : ⦃ Logic _↠_ ⦄ → LogicH _⇨_ ty._⇨_ 0ℓ
+  -- ⟦⟧-logicH = ?
 
 module m where open import Mealy _⇨_ public

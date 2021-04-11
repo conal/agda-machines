@@ -140,6 +140,37 @@ swizzle-∘ g f {a} =
   ∎
  where open ≡-Reasoning
 
+swapIx : TyIx (B × A) → TyIx (A × B)
+swapIx (left  x) = right x
+swapIx (right x) = left  x
+
+-- swizzle-swap : ∀ {}swizzle (swapIx {B = B}{A = A}) ≗ swap
+-- swizzle-swap _ = swizzle-id
+
+-- swizzle-swap (x , y) =
+--   begin
+--     swizzle swapIx (x , y)
+--   ≡⟨⟩
+--     tabulate (lookup (x , y) ∘ swapIx)
+--   ≡⟨⟩
+--     tabulate (λ z → lookup (x , y) (swapIx z))
+--   ≡⟨⟩
+--     tabulate (λ { (left  i) → lookup (x , y) (swapIx (left  i))
+--                 ; (right j) → lookup (x , y) (swapIx (right j)) })
+--   ≡⟨⟩
+--     tabulate (λ { (left  i) → lookup (x , y) (right i)
+--                 ; (right j) → lookup (x , y) (left  j) })
+--   ≡⟨⟩
+--     tabulate (λ { (left  i) → lookup y i
+--                 ; (right j) → lookup x j })
+--   ≡⟨⟩
+--     swizzle id (y , x)
+--   ≡⟨ swizzle-id ⟩
+--     (y , x)
+--   ≡⟨⟩
+--     swap (x , y)
+--   ∎ where open ≡-Reasoning
+
 private variable X Y Z : Set
 
 infixr 4 _､_
@@ -238,17 +269,22 @@ module ty where
       f : ⟦ A ⟧ → ⟦ B ⟧
 
   instance
+
     meaningful : Meaningful (A ⇨ B)
     meaningful = record { ⟦_⟧ = λ (mk f) → f }  -- _⇨_.f
 
     category : Category _⇨_
     category = record { id = mk id ; _∘_ = λ { (mk g) (mk f) → mk (g ∘ f) } }
 
+    ⟦⟧-homomorphismₒ : Homomorphismₒ Ty Set
+    ⟦⟧-homomorphismₒ = record { Fₒ = ⟦_⟧ }
+
+    ⟦⟧-homomorphism : Homomorphism _⇨_ Function
+    ⟦⟧-homomorphism = record { Fₘ = ⟦_⟧ }
+
     ⟦⟧-functor : Functor _⇨_ Function 0ℓ
     ⟦⟧-functor = record
-      { Fₒ = ⟦_⟧
-      ; Fₘ = ⟦_⟧
-      ; F-id = λ x → refl
+      { F-id = λ x → refl
       ; F-∘  = λ f g x → refl
       }
 
@@ -270,11 +306,32 @@ module ty where
       ; assocˡ   = mk assocˡ
       }
 
+    productsH : ProductsH {obj₁ = Ty}{obj₂ = Set}
+    productsH = record { F-⊤ = refl ; F-× = refl }
+
+    monoidal-functor : MonoidalFunctor _⇨_ Function 0ℓ
+    monoidal-functor = record { F-! = λ x → refl ; F-⊗ = λ _ → refl }
+
     braided : Braided _⇨_
     braided = record { swap = mk swap }
 
+    ⟦⟧-braided-functor : BraidedFunctor _⇨_ Function 0ℓ
+    ⟦⟧-braided-functor = record { F-swap = λ x → refl }
+
     cartesian : Cartesian _⇨_
     cartesian = record { exl = mk exl ; exr = mk exr ; dup = mk dup }
+
+    ⟦⟧-cartesian-functor : CartesianFunctor _⇨_ Function 0ℓ
+    ⟦⟧-cartesian-functor = record
+      { F-exl = λ _ → refl ; F-exr = λ _ → refl ; F-dup = λ _ → refl }
+
+    logic : Logic _⇨_
+    logic = record { ∧ = mk ∧ ; ∨ = mk ∨ ; xor = mk xor ; not = mk not
+                   ; false = mk false ; true = mk true }
+
+    ⟦⟧-logicH : LogicH _⇨_ Function 0ℓ
+    ⟦⟧-logicH = record { F-Bool = refl ; F-false = λ x → refl }
+
 
 _⟦↑⟧_ : ∀ (A : Ty) n → ⟦ A ⟧ ↑ n ≡ ⟦ A ↑ n ⟧
 A ⟦↑⟧ zero = refl
@@ -339,6 +396,11 @@ module r where
   ⟦_⟧′ : A ⇨ B → ∀ {X} → TyF X A → TyF X B
   ⟦ mk f ⟧′ = swizzle′ f
 
+  private
+
+    swap′ :  A × B ⇨ B × A
+    swap′ = mk λ { (left x) → right x ; (right x) → left x }
+
   instance
 
     meaningful : ∀ {a b} → Meaningful {μ = a ty.⇨ b} (a ⇨ b)
@@ -362,34 +424,57 @@ module r where
           }
       }
 
+    ⟦⟧-homomorphismₒ : Homomorphismₒ Ty Ty
+    ⟦⟧-homomorphismₒ = id-homomorphismₒ
+
+    ⟦⟧-homomorphism : Homomorphism _⇨_ ty._⇨_
+    ⟦⟧-homomorphism = record { Fₘ = ⟦_⟧ }
+
     ⟦⟧-functor : Functor _⇨_ ty._⇨_ 0ℓ
     ⟦⟧-functor = record
-      { Fₒ = id
-      ; Fₘ = ⟦_⟧
-      ; F-id = λ x → swizzle-id 
+      { F-id = λ x → swizzle-id 
       ; F-∘  = λ (mk g) (mk f) → λ x → swizzle-∘ g f
       }
 
     monoidal : Monoidal _⇨_
     monoidal = record
-      { _⊗_ = λ (mk f) (mk g) → mk λ { (left x) → left (f x) ; (right x) → right (g x) }
+      { ! = mk λ ()
+      ; _⊗_ = λ (mk f) (mk g) → mk λ { (left x) → left (f x) ; (right x) → right (g x) }
       ; unitorᵉˡ = mk right
       ; unitorᵉʳ = mk left
       ; unitorⁱˡ = mk λ { (right x) → x }
       ; unitorⁱʳ = mk λ { (left  x) → x }
-      ; assocʳ = mk λ { (left x) → left (left x)
-                      ; (right (left  x)) → left (right x)
-                      ; (right (right x)) → right x
-                      }
-      ; assocˡ = mk λ { (left (left  x)) → left x
-                      ; (left (right x)) → right (left x)
-                      ; (right x) → right (right x)
-                      }
-      ; ! = mk λ ()
+      ; assocʳ   = mk λ { (left x) → left (left x)
+                        ; (right (left  x)) → left (right x)
+                        ; (right (right x)) → right x
+                        }
+      ; assocˡ   = mk λ { (left (left  x)) → left x
+                        ; (left (right x)) → right (left x)
+                        ; (right x) → right (right x)
+                        }
       }
+
+    ⟦⟧-productsH : ProductsH
+    ⟦⟧-productsH = id-productsH
+
+    ⟦⟧-monoidalFunctor : MonoidalFunctor _⇨_ ty._⇨_ 0ℓ
+    ⟦⟧-monoidalFunctor = record { F-! = λ _ → refl ; F-⊗ = λ _ → refl }
 
     braided : Braided _⇨_
     braided = record { swap = mk λ { (left x) → right x ; (right x) → left x } }
 
+    ⟦⟧-braided-functor : BraidedFunctor _⇨_ ty._⇨_ 0ℓ
+    ⟦⟧-braided-functor = record { F-swap = λ _ → swizzle-id }
+
     cartesian : Cartesian _⇨_
-    cartesian = record { exl = mk left ; exr = mk right ; dup = mk λ { (left x) → x ; (right x) → x } }
+    cartesian = record { exl = mk left
+                       ; exr = mk right
+                       ; dup = mk λ { (left x) → x ; (right x) → x }
+                       }
+
+    ⟦⟧-cartesian-functor : CartesianFunctor _⇨_ ty._⇨_ 0ℓ
+    ⟦⟧-cartesian-functor = record
+      { F-exl = λ _ → swizzle-id
+      ; F-exr = λ _ → swizzle-id
+      ; F-dup = λ _ → swizzle-id
+      }
