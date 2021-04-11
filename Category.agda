@@ -106,34 +106,27 @@ record Homomorphism
   field
     Fₘ : (a ⇨₁ b) → (Fₒ a ⇨₂ Fₒ b)
 
--- record Homomorphism
---   {obj₁ : Set o₁} (_⇨₁_ : obj₁ → obj₁ → Set ℓ₁)
---   {obj₂ : Set o₂} (_⇨₂_ : obj₂ → obj₂ → Set ℓ₂)
---   : Set (o₁ ⊔ ℓ₁ ⊔ o₂ ⊔ ℓ₂) where
---   field
---     Fₒ : obj₁ → obj₂
---     Fₘ : (a ⇨₁ b) → (Fₒ a ⇨₂ Fₒ b)
-
 -- open Homomorphism ⦃ … ⦄ public  -- yes or no?
 
-record Functor {obj₁ : Set o₁} (_⇨₁_ : obj₁ → obj₁ → Set ℓ₁)
-               {obj₂ : Set o₂} (_⇨₂_ : obj₂ → obj₂ → Set ℓ₂)
-               q₂ ⦃ equiv₂ : Equivalent q₂ _⇨₂_ ⦄
-               ⦃ cat₁ : Category _⇨₁_ ⦄
-               ⦃ cat₂ : Category _⇨₂_ ⦄
-               ⦃ homomorphism : Homomorphism _⇨₁_ _⇨₂_ ⦄
+-- Category homomorphism (functor)
+record CategoryH {obj₁ : Set o₁} (_⇨₁_ : obj₁ → obj₁ → Set ℓ₁)
+                 {obj₂ : Set o₂} (_⇨₂_ : obj₂ → obj₂ → Set ℓ₂)
+                 q₂ ⦃ equiv₂ : Equivalent q₂ _⇨₂_ ⦄
+                 ⦃ cat₁ : Category _⇨₁_ ⦄
+                 ⦃ cat₂ : Category _⇨₂_ ⦄
+                 ⦃ homomorphism : Homomorphism _⇨₁_ _⇨₂_ ⦄
        : Set (o₁ ⊔ ℓ₁ ⊔ o₂ ⊔ ℓ₂ ⊔ q₂) where
   open Homomorphism homomorphism public
   field
     F-id : Fₘ {a = a} id ≈ id
     F-∘  : ∀ (g : b ⇨₁ c) (f : a ⇨₁ b) → Fₘ (g ∘ f) ≈ Fₘ g ∘ Fₘ f
 
--- open Functor ⦃ … ⦄ public
+-- open CategoryH ⦃ … ⦄ public
 
--- I don't know whether to open Functor and use it with instances or keep it
+-- I don't know whether to open CategoryH and use it with instances or keep it
 -- closed and open explicitly where used. I guess the main question is whether
--- we'll usually have a single special functor instance per pairs of categories
--- or not. For now, keep it explicit, and see what we learn.
+-- we'll usually have a single special CategoryH instance per pairs of
+-- categories or not. For now, keep it explicit, and see what we learn.
 
 F-equiv : {obj₁ : Set o₁} {_⇨₁_ : obj₁ → obj₁ → Set ℓ₁}
           {obj₂ : Set o₂} {_⇨₂_ : obj₂ → obj₂ → Set ℓ₂}
@@ -141,10 +134,9 @@ F-equiv : {obj₁ : Set o₁} {_⇨₁_ : obj₁ → obj₁ → Set ℓ₁}
           ⦃ cat₁ : Category _⇨₁_ ⦄
           ⦃ cat₂ : Category _⇨₂_ ⦄
           ⦃ homomorphism : Homomorphism _⇨₁_ _⇨₂_ ⦄
-          -- (open Homomorphism homomorphism)
-          (F : Functor _⇨₁_ _⇨₂_ q₂)  -- note explicit/visible argument
-         → Equivalent q₂ _⇨₁_
-F-equiv F = record { equiv = On.isEquivalence (Functor.Fₘ F) equiv }
+          (F : CategoryH _⇨₁_ _⇨₂_ q₂)  -- note explicit/visible argument
+        → Equivalent q₂ _⇨₁_
+F-equiv F = record { equiv = On.isEquivalence (CategoryH.Fₘ F) equiv }
 
 
 LawfulCategoryᶠ : {obj₁ : Set o₁} {_⇨₁_ : obj₁ → obj₁ → Set ℓ₁}
@@ -154,7 +146,7 @@ LawfulCategoryᶠ : {obj₁ : Set o₁} {_⇨₁_ : obj₁ → obj₁ → Set �
                   ⦃ cat₂ : Category _⇨₂_ ⦄
                   ⦃ lawful₂ : LawfulCategory q₂ _⇨₂_ ⦄
                   ⦃ homomorphism : Homomorphism _⇨₁_ _⇨₂_ ⦄
-                  (F : Functor _⇨₁_ _⇨₂_ q₂)
+                  (F : CategoryH _⇨₁_ _⇨₂_ q₂)
                 → LawfulCategory q₂ _⇨₁_
 LawfulCategoryᶠ F = record
   { identityˡ = λ {a b} {f} →
@@ -202,7 +194,7 @@ LawfulCategoryᶠ F = record
         Fₘ (k ∘ g)
       ∎
   }
- where open Functor F
+ where open CategoryH F
        instance f-equiv = F-equiv F
        open ≈-Reasoning
 
@@ -277,7 +269,7 @@ id-productsH : {obj : Set o} ⦃ prod : Products obj ⦄
              → ProductsH ⦃ homomorphismₒ = id-homomorphismₒ ⦄
 id-productsH = record { F-⊤ = refl ; F-× = refl }
 
-record MonoidalFunctor
+record MonoidalH
     {obj₁ : Set o₁} (_⇨₁′_ : obj₁ → obj₁ → Set ℓ₁)
     {obj₂ : Set o₂} (_⇨₂′_ : obj₂ → obj₂ → Set ℓ₂)
     q₂ ⦃ equiv₂ : Equivalent q₂ _⇨₂′_ ⦄
@@ -288,10 +280,10 @@ record MonoidalFunctor
   private infix 0 _⇨₁_; _⇨₁_ = _⇨₁′_
   private infix 0 _⇨₂_; _⇨₂_ = _⇨₂′_
   field
-    ⦃  functor  ⦄ : Functor _⇨₁_ _⇨₂_ q₂
+    ⦃ categoryH ⦄ : CategoryH _⇨₁_ _⇨₂_ q₂
     ⦃ productsH ⦄ : ProductsH -- obj₁ obj₂
   -- open Homomorphism homomorphism
-  open  Functor   functor  public
+  open CategoryH categoryH public
   open ProductsH productsH public
   field
     -- F-⊤ : Fₒ ⊤ ≡ ⊤
@@ -323,7 +315,7 @@ record Braided {obj : Set o} ⦃ _ : Products obj ⦄
 
 open Braided ⦃ … ⦄ public
 
-record BraidedFunctor
+record BraidedH
     {obj₁ : Set o₁} (_⇨₁′_ : obj₁ → obj₁ → Set ℓ₁)
     {obj₂ : Set o₂} (_⇨₂′_ : obj₂ → obj₂ → Set ℓ₂)
     q₂ ⦃ equiv₂ : Equivalent q₂ _⇨₂′_ ⦄
@@ -334,8 +326,8 @@ record BraidedFunctor
   private infix 0 _⇨₁_; _⇨₁_ = _⇨₁′_
   private infix 0 _⇨₂_; _⇨₂_ = _⇨₂′_
   field
-    ⦃ monoidal-functor ⦄ : MonoidalFunctor _⇨₁_ _⇨₂_ q₂
-  open MonoidalFunctor monoidal-functor public
+    ⦃ monoidalH ⦄ : MonoidalH _⇨₁_ _⇨₂_ q₂
+  open MonoidalH monoidalH public
   field
     F-swap : Fₘ (swap {_⇨′_ = _⇨₁_}{a}{b}) ≈ subst₂′ _⇨₂_ F-× F-× swap
 
@@ -354,19 +346,18 @@ record Cartesian {obj : Set o} ⦃ _ : Products obj ⦄
 
 open Cartesian ⦃ … ⦄ public
 
-record CartesianFunctor
-    {obj₁ : Set o₁} (_⇨₁′_ : obj₁ → obj₁ → Set ℓ₁)
-    {obj₂ : Set o₂} (_⇨₂′_ : obj₂ → obj₂ → Set ℓ₂)
-    q₂ ⦃ equiv₂ : Equivalent q₂ _⇨₂′_ ⦄
-    ⦃ prod₁ : Products obj₁ ⦄ ⦃ cat₁ : Cartesian _⇨₁′_ ⦄
-    ⦃ prod₂ : Products obj₂ ⦄ ⦃ cat₂ : Cartesian _⇨₂′_ ⦄
-    ⦃ homomorphism : Homomorphism _⇨₁′_ _⇨₂′_ ⦄
+record CartesianH {obj₁ : Set o₁} (_⇨₁′_ : obj₁ → obj₁ → Set ℓ₁)
+                  {obj₂ : Set o₂} (_⇨₂′_ : obj₂ → obj₂ → Set ℓ₂)
+                  q₂ ⦃ equiv₂ : Equivalent q₂ _⇨₂′_ ⦄
+                  ⦃ prod₁ : Products obj₁ ⦄ ⦃ cat₁ : Cartesian _⇨₁′_ ⦄
+                  ⦃ prod₂ : Products obj₂ ⦄ ⦃ cat₂ : Cartesian _⇨₂′_ ⦄
+                  ⦃ homomorphism : Homomorphism _⇨₁′_ _⇨₂′_ ⦄
   : Set (o₁ ⊔ ℓ₁ ⊔ o₂ ⊔ ℓ₂ ⊔ q₂) where
   private infix 0 _⇨₁_; _⇨₁_ = _⇨₁′_
   private infix 0 _⇨₂_; _⇨₂_ = _⇨₂′_
   field
-    ⦃ braided-functor ⦄ : BraidedFunctor _⇨₁_ _⇨₂_ q₂
-  open BraidedFunctor braided-functor public
+    ⦃ braidedH ⦄ : BraidedH _⇨₁_ _⇨₂_ q₂
+  open BraidedH braidedH public
   field
     F-exl : Fₘ (exl {a = a}{b}) ≈ subst′ (_⇨₂ Fₒ a) F-× exl
     F-exr : Fₘ (exr {a = a}{b}) ≈ subst′ (_⇨₂ Fₒ b) F-× exr
@@ -387,9 +378,9 @@ record Logic {obj : Set o} ⦃ _ : Products obj ⦄ ⦃ _ : Boolean obj ⦄
          (_⇨′_ : obj → obj → Set ℓ) : Set (lsuc o ⊔ ℓ) where
   private infix 0 _⇨_; _⇨_ = _⇨′_
   field
-    ∧ ∨ xor : Bool × Bool ⇨ Bool
-    not : Bool ⇨ Bool
     false true : ⊤ ⇨ Bool
+    not : Bool ⇨ Bool
+    ∧ ∨ xor : Bool × Bool ⇨ Bool
 open Logic ⦃ … ⦄ public
 
 record LogicH
@@ -405,28 +396,29 @@ record LogicH
   private infix 0 _⇨₂_; _⇨₂_ = _⇨₂′_
   open Homomorphism homomorphism public
   open ProductsH    productsH    public
+
   field
     F-Bool : Fₒ Bool ≡ Bool
 
-  F-n⇨1 : Fₒ a ≡ b → (a ⇨₁ Bool) → (b ⇨₂ Bool) → Set q₂
-  F-n⇨1 Fₒa≡b f₁ f₂ = Fₘ f₁ ≈ subst₂′ _⇨₂_ Fₒa≡b F-Bool f₂
+  F-n⇨1 : Fₒ a ≡ b → (b ⇨₂ Bool) → (Fₒ a ⇨₂ Fₒ Bool)
+  F-n⇨1 Fₒa≡b f₂ = subst₂′ _⇨₂_ Fₒa≡b F-Bool f₂
 
-  F-0⇨1 : (⊤ ⇨₁ Bool) → (⊤ ⇨₂ Bool) → Set q₂
+  F-0⇨1 : (⊤ ⇨₂ Bool) → (Fₒ ⊤ ⇨₂ Fₒ Bool)
   F-0⇨1 = F-n⇨1 F-⊤
 
-  F-1⇨1 : (Bool ⇨₁ Bool) → (Bool ⇨₂ Bool) → Set q₂
+  F-1⇨1 : (Bool ⇨₂ Bool) → (Fₒ Bool ⇨₂ Fₒ Bool)
   F-1⇨1 = F-n⇨1 F-Bool
 
-  F-2⇨1 : (Bool × Bool ⇨₁ Bool) → (Bool × Bool ⇨₂ Bool) → Set q₂
+  F-2⇨1 : (Bool × Bool ⇨₂ Bool) → (Fₒ (Bool × Bool) ⇨₂ Fₒ Bool)
   F-2⇨1 = F-n⇨1 (trans F-× (cong₂ _×_ F-Bool F-Bool))
 
   field
-    F-false : F-0⇨1 false false
-    F-true  : F-0⇨1 true true
-    F-not   : F-1⇨1 not not
-    F-∧     : F-2⇨1 ∧ ∧
-    F-∨     : F-2⇨1 ∨ ∨
-    F-xor   : F-2⇨1 xor xor
+    F-false : Fₘ false ≈ F-0⇨1 false
+    F-true  : Fₘ true  ≈ F-0⇨1 true
+    F-not   : Fₘ not   ≈ F-1⇨1 not
+    F-∧     : Fₘ ∧     ≈ F-2⇨1 ∧
+    F-∨     : Fₘ ∨     ≈ F-2⇨1 ∨
+    F-xor   : Fₘ xor   ≈ F-2⇨1 xor
 
 -- I may need to move F-Bool out to a new BooleanH as with ProductsH.
 -- If so, bring along F-0⇨1 etc.
