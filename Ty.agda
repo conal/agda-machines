@@ -114,17 +114,19 @@ swizzle-tt f i with f i ; ... | ()
 -- Is there a more straightforward formulation of this fact?
 
 swizzle-id : ∀ {a : ⟦ A ⟧} → swizzle id a ≡ a
-swizzle-id {A = `⊤} {tt} = refl
-swizzle-id {A = `Bool} {b} = refl
-swizzle-id {A = _ `× _} {a , b} =
-  begin
-    swizzle id (a , b)
-  ≡⟨⟩
-    swizzle id a , swizzle id b
-  ≡⟨ cong₂ _,_ swizzle-id swizzle-id ⟩
-    (a , b)
-  ∎
- where open ≡-Reasoning
+swizzle-id {`⊤}     = refl
+swizzle-id {`Bool}  = refl
+swizzle-id {_ `× _} = cong₂ _,_ swizzle-id swizzle-id
+
+-- swizzle-id {A = _ `× _} {a , b} =
+--   begin
+--     swizzle id (a , b)
+--   ≡⟨⟩
+--     swizzle id a , swizzle id b
+--   ≡⟨ cong₂ _,_ swizzle-id swizzle-id ⟩
+--     (a , b)
+--   ∎
+--  where open ≡-Reasoning
 
 swizzle-∘ : (g : TyIx C → TyIx B) (f : TyIx B → TyIx A)
           → ∀ {a : ⟦ A ⟧} → swizzle (f ∘ g) a ≡ (swizzle g ∘ swizzle f) a
@@ -409,7 +411,7 @@ module r where
   instance
 
     meaningful : ∀ {a b} → Meaningful {μ = a ty.⇨ b} (a ⇨ b)
-    meaningful {a}{b} = record { ⟦_⟧ = λ (mk r) → ty.mk (swizzle r) }
+    meaningful = record { ⟦_⟧ = λ (mk r) → ty.mk (swizzle r) }
 
     category : Category _⇨_
     category = record
