@@ -87,9 +87,9 @@ module k where
   _⟦∘⟧_ : ∀ (g : b , zᵇ ⇨ c , zᶜ) (f : a , zᵃ ⇨ b , zᵇ)
         → ⟦ g ∘ f ⟧ ≈ ⟦ g ⟧ ∘ ⟦ f ⟧
 
-  [ r₂ ] ⟦∘⟧ [ r₁ ] = F-∘ r₂ r₁   where open Functor r.⟦⟧-functor
+  [ r₂ ] ⟦∘⟧ [ r₁ ] = F-∘ r₂ r₁   where open CategoryH r.⟦⟧-categoryH
 
-  (g ∷ʳ (d , d↠e , r₂)) ⟦∘⟧ [ r₁ ] = let open Functor r.⟦⟧-functor in
+  (g ∷ʳ (d , d↠e , r₂)) ⟦∘⟧ [ r₁ ] = let open CategoryH r.⟦⟧-categoryH in
     begin
       ⟦ (g ∷ʳ (d , d↠e , r₂)) ∘ [ r₁ ] ⟧
     ≡⟨⟩
@@ -108,7 +108,7 @@ module k where
       ⟦ g ∷ʳ (d , d↠e , r₂) ⟧ ∘ ⟦ [ r₁ ] ⟧
     ∎
 
-  g ⟦∘⟧ (f ∷ʳ inst) = let open Functor r.⟦⟧-functor in
+  g ⟦∘⟧ (f ∷ʳ inst) = let open CategoryH r.⟦⟧-categoryH in
     begin
       ⟦ g ∘ (f ∷ʳ inst) ⟧
     ≡⟨⟩
@@ -123,19 +123,39 @@ module k where
       ⟦ g ⟧ ∘ ⟦ f ∷ʳ inst ⟧
     ∎
 
-  ⟦⟧-functor : Functor _⇨_ ty._⇨_ 0ℓ
-  ⟦⟧-functor = record
-    { Fₒ = λ (i , zⁱ) → i × zⁱ
-    ; Fₘ = ⟦_⟧
-    ; F-id = λ _ → swizzle-id
+  ⟦⟧-homomorphismₒ : Homomorphismₒ (Ty × Ty) Ty
+  ⟦⟧-homomorphismₒ = record { Fₒ = λ (i , zⁱ) → i × zⁱ }
+
+  ⟦⟧-homomorphism : Homomorphism _⇨_ ty._⇨_
+  ⟦⟧-homomorphism = record { homomorphismₒ = ⟦⟧-homomorphismₒ ; Fₘ = ⟦_⟧ }
+  -- ⟦⟧-homomorphism = record { Fₘ = ⟦_⟧ }
+
+  -- Without the explicit homomorphismₒ, I get an error:
+  --
+  --   No instance of type Homomorphismₒ (Data.Product.Σ Ty (λ x → Ty)) Ty
+  --   was found in scope.
+  --   when checking that ⟦_⟧ is a valid argument to a function of type
+  --   ⦃ homomorphismₒ
+  --     : Homomorphismₒ ((→Instances.products Products.× Ty) Ty) Ty ⦄ →
+  --   ({a b : (→Instances.products Products.× Ty) Ty} →
+  --    a ⇨ b →
+  --    Homomorphismₒ.Fₒ homomorphismₒ a ty.⇨
+  --    Homomorphismₒ.Fₒ homomorphismₒ b) →
+  --   "dummyType: src/full/Agda/TypeChecking/Rules/Application.hs:722"
+  --
+  -- What's going on here? Similar problems below.
+
+  ⟦⟧-categoryH : CategoryH _⇨_ ty._⇨_ 0ℓ ⦃ homomorphism = ⟦⟧-homomorphism ⦄
+  ⟦⟧-categoryH = record
+    { F-id = λ _ → swizzle-id
     ; F-∘ = _⟦∘⟧_
     }
 
   equivalent : Equivalent 0ℓ _⇨_
-  equivalent = F-equiv ⟦⟧-functor
+  equivalent = F-equiv ⦃ homomorphism = ⟦⟧-homomorphism ⦄ ⟦⟧-categoryH
 
   lawful-category : LawfulCategory 0ℓ _⇨_
-  lawful-category = LawfulCategoryᶠ ⟦⟧-functor
+  lawful-category = LawfulCategoryᶠ ⦃ homomorphism = ⟦⟧-homomorphism ⦄ ⟦⟧-categoryH
 
   push : (a × b) , c ⇨ a , (b × c)
   push = route assocʳ
@@ -203,11 +223,11 @@ module sf where
     logic = record { ∧ = prim ∧ ; ∨ = prim ∨ ; xor = prim xor ; not = prim not
                    ; false = prim false ; true = prim true }
 
-  import Symbolic _↠_ as s
+  -- import Symbolic _↠_ as s
 
-  -- Functorial compilation
-  compile : a s.⇨ b → a ⇨ b
-  compile (s.`route r) = route r
-  compile (s.`prim  p) = prim p
-  compile ( g s.`∘ f ) = compile g ∘ compile f
-  compile ( f s.`⊗ g ) = compile f ⊗ compile g
+  -- -- Homomorphic compilation
+  -- compile : a s.⇨ b → a ⇨ b
+  -- compile (s.`route r) = route r
+  -- compile (s.`prim  p) = prim p
+  -- compile ( g s.`∘ f ) = compile g ∘ compile f
+  -- compile ( f s.`⊗ g ) = compile f ⊗ compile g

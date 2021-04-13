@@ -412,6 +412,18 @@ record LogicH
   F-2⇨1 : (Bool × Bool ⇨₂ Bool) → (Fₒ (Bool × Bool) ⇨₂ Fₒ Bool)
   F-2⇨1 = F-n⇨1 (trans F-× (cong₂ _×_ F-Bool F-Bool))
 
+  F-n⇨1′ : Fₒ a ≡ b → (Fₒ a ⇨₂ Fₒ Bool) → (b ⇨₂ Bool)
+  F-n⇨1′ Fₒa≡b f₂ = subst₂ _⇨₂_ Fₒa≡b F-Bool f₂
+
+  F-0⇨1′ : (Fₒ ⊤ ⇨₂ Fₒ Bool) → (⊤ ⇨₂ Bool)
+  F-0⇨1′ = F-n⇨1′ F-⊤
+
+  F-1⇨1′ : (Fₒ Bool ⇨₂ Fₒ Bool) → (Bool ⇨₂ Bool)
+  F-1⇨1′ = F-n⇨1′ F-Bool
+
+  F-2⇨1′ : (Fₒ (Bool × Bool) ⇨₂ Fₒ Bool) → (Bool × Bool ⇨₂ Bool)
+  F-2⇨1′ = F-n⇨1′ (trans F-× (cong₂ _×_ F-Bool F-Bool))
+
   field
     F-false : Fₘ false ≈ F-0⇨1 false
     F-true  : Fₘ true  ≈ F-0⇨1 true

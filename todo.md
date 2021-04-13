@@ -14,6 +14,7 @@
     The Dot edge attribute "constraint = false" seems to have this purpose, but when I use it links start disappearing.
     I can make a simple example and file an issue.
     If I find a solution, then I'll probably want to change the node style for registers, so that ports are on the top and bottom instead of left and right.
+*   Define categories of surjections, injections, and bijections.
 *   Does `Symbolic` really need `Ty` as objects?
     Shouldn't it instead get its objects from the primitives?
     Maybe `Ty` is due to routing.

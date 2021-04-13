@@ -2,18 +2,20 @@
 -- to be "combinational".
 {-# OPTIONS --safe --without-K #-}
 
+open import Level
+
 open import Category
 open import Ty
 
 module Mealy {o} {obj : Set o} ⦃ _ : Products obj ⦄
-        (_↠′_ : obj → obj → Set o) (let private infix 0 _↠_; _↠_ = _↠′_) where
+        {ℓ}(_↠′_ : obj → obj → Set ℓ) (let private infix 0 _↠_; _↠_ = _↠′_) where
 
 private variable A B C D σ τ : obj
 
 infix 0 _⇨_
 
 -- Pseudo values
-⌞_⌟ : obj → Set o
+⌞_⌟ : obj → Set ℓ
 ⌞ A ⌟ = ⊤ ↠ A
 
 -- Note: using ⊤ ↠ A obviates needing Meaningful, but it might also prevent any
@@ -21,7 +23,7 @@ infix 0 _⇨_
 
 -- Synchronous state machine.
 -- For composability, the state type is not visible in the type.
-record _⇨_ (A B : obj) : Set o where
+record _⇨_ (A B : obj) : Set (ℓ ⊔ o) where
   constructor mealy
   field
     { State } : obj

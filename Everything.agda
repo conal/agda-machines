@@ -2,10 +2,10 @@ module Everything where
 
 import Category
 import Ty
+import Mealy
 import VecFun
 import Primitive
 import Symbolic
-import Mealy
 import Stack
 import Dot
 import Test

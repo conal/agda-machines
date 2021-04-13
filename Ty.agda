@@ -282,17 +282,14 @@ module ty where
     ⟦⟧-homomorphism : Homomorphism _⇨_ Function
     ⟦⟧-homomorphism = record { Fₘ = ⟦_⟧ }
 
-    ⟦⟧-functor : Functor _⇨_ Function 0ℓ
-    ⟦⟧-functor = record
-      { F-id = λ x → refl
-      ; F-∘  = λ f g x → refl
-      }
+    ⟦⟧-categoryH : CategoryH _⇨_ Function 0ℓ
+    ⟦⟧-categoryH = record { F-id = λ x → refl ; F-∘  = λ f g x → refl }
 
     equivalent : Equivalent 0ℓ _⇨_
-    equivalent = F-equiv ⟦⟧-functor
+    equivalent = F-equiv ⟦⟧-categoryH
 
     lawful-category : LawfulCategory 0ℓ _⇨_
-    lawful-category = LawfulCategoryᶠ ⟦⟧-functor
+    lawful-category = LawfulCategoryᶠ ⟦⟧-categoryH
 
     monoidal : Monoidal _⇨_
     monoidal = record
@@ -309,20 +306,20 @@ module ty where
     productsH : ProductsH {obj₁ = Ty}{obj₂ = Set}
     productsH = record { F-⊤ = refl ; F-× = refl }
 
-    monoidal-functor : MonoidalFunctor _⇨_ Function 0ℓ
-    monoidal-functor = record { F-! = λ x → refl ; F-⊗ = λ _ → refl }
+    monoidalH : MonoidalH _⇨_ Function 0ℓ
+    monoidalH = record { F-! = λ x → refl ; F-⊗ = λ _ → refl }
 
     braided : Braided _⇨_
     braided = record { swap = mk swap }
 
-    ⟦⟧-braided-functor : BraidedFunctor _⇨_ Function 0ℓ
-    ⟦⟧-braided-functor = record { F-swap = λ x → refl }
+    ⟦⟧-braidedH : BraidedH _⇨_ Function 0ℓ
+    ⟦⟧-braidedH = record { F-swap = λ x → refl }
 
     cartesian : Cartesian _⇨_
     cartesian = record { exl = mk exl ; exr = mk exr ; dup = mk dup }
 
-    ⟦⟧-cartesian-functor : CartesianFunctor _⇨_ Function 0ℓ
-    ⟦⟧-cartesian-functor = record
+    ⟦⟧-cartesianH : CartesianH _⇨_ Function 0ℓ
+    ⟦⟧-cartesianH = record
       { F-exl = λ _ → refl ; F-exr = λ _ → refl ; F-dup = λ _ → refl }
 
     logic : Logic _⇨_
@@ -330,7 +327,15 @@ module ty where
                    ; false = mk false ; true = mk true }
 
     ⟦⟧-logicH : LogicH _⇨_ Function 0ℓ
-    ⟦⟧-logicH = record { F-Bool = refl ; F-false = λ x → refl }
+    ⟦⟧-logicH = record
+       { F-Bool  = refl
+       ; F-false = λ _ → refl
+       ; F-true  = λ _ → refl
+       ; F-not   = λ _ → refl
+       ; F-∧     = λ _ → refl
+       ; F-∨     = λ _ → refl
+       ; F-xor   = λ _ → refl
+       }
 
 
 _⟦↑⟧_ : ∀ (A : Ty) n → ⟦ A ⟧ ↑ n ≡ ⟦ A ↑ n ⟧
@@ -430,8 +435,8 @@ module r where
     ⟦⟧-homomorphism : Homomorphism _⇨_ ty._⇨_
     ⟦⟧-homomorphism = record { Fₘ = ⟦_⟧ }
 
-    ⟦⟧-functor : Functor _⇨_ ty._⇨_ 0ℓ
-    ⟦⟧-functor = record
+    ⟦⟧-categoryH : CategoryH _⇨_ ty._⇨_ 0ℓ
+    ⟦⟧-categoryH = record
       { F-id = λ x → swizzle-id 
       ; F-∘  = λ (mk g) (mk f) → λ x → swizzle-∘ g f
       }
@@ -457,14 +462,14 @@ module r where
     ⟦⟧-productsH : ProductsH
     ⟦⟧-productsH = id-productsH
 
-    ⟦⟧-monoidalFunctor : MonoidalFunctor _⇨_ ty._⇨_ 0ℓ
-    ⟦⟧-monoidalFunctor = record { F-! = λ _ → refl ; F-⊗ = λ _ → refl }
+    ⟦⟧-monoidalH : MonoidalH _⇨_ ty._⇨_ 0ℓ
+    ⟦⟧-monoidalH = record { F-! = λ _ → refl ; F-⊗ = λ _ → refl }
 
     braided : Braided _⇨_
     braided = record { swap = mk λ { (left x) → right x ; (right x) → left x } }
 
-    ⟦⟧-braided-functor : BraidedFunctor _⇨_ ty._⇨_ 0ℓ
-    ⟦⟧-braided-functor = record { F-swap = λ _ → swizzle-id }
+    ⟦⟧-braidedH : BraidedH _⇨_ ty._⇨_ 0ℓ
+    ⟦⟧-braidedH = record { F-swap = λ _ → swizzle-id }
 
     cartesian : Cartesian _⇨_
     cartesian = record { exl = mk left
@@ -472,8 +477,8 @@ module r where
                        ; dup = mk λ { (left x) → x ; (right x) → x }
                        }
 
-    ⟦⟧-cartesian-functor : CartesianFunctor _⇨_ ty._⇨_ 0ℓ
-    ⟦⟧-cartesian-functor = record
+    ⟦⟧-cartesianH : CartesianH _⇨_ ty._⇨_ 0ℓ
+    ⟦⟧-cartesianH = record
       { F-exl = λ _ → swizzle-id
       ; F-exr = λ _ → swizzle-id
       ; F-dup = λ _ → swizzle-id
