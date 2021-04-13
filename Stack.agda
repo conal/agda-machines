@@ -225,7 +225,8 @@ module sf where
 
   -- import Symbolic _↠_ as s
 
-  -- -- Homomorphic compilation
+  -- -- Homomorphic compilation. Pretty and unnecessary.
+  -- -- Broken until we replace Meaningful _↠_ with a functor.
   -- compile : a s.⇨ b → a ⇨ b
   -- compile (s.`route r) = route r
   -- compile (s.`prim  p) = prim p
