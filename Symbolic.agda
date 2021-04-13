@@ -25,11 +25,7 @@ private
     a b : objᵖ
     A B C D : Ty
 
-⟦_⟧ᵒ : objᵖ → Ty
-⟦_⟧ᵒ = Homomorphism.Fₒ primH
-
-⟦_⟧ᵖ : ∀ {a b : objᵖ} → (a ⇨ᵖ b) → (⟦ a ⟧ᵒ ty.⇨ ⟦ b ⟧ᵒ)
-⟦_⟧ᵖ = Homomorphism.Fₘ primH
+open Homomorphism primH renaming (Fₒ to ⟦_⟧ᵒ; Fₘ to ⟦_⟧ᵖ)
 
 infix  0 _⇨_
 infixr 7 _`⊗_
