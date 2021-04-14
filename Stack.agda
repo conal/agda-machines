@@ -223,6 +223,9 @@ module sf where
     logic = record { ∧ = prim ∧ ; ∨ = prim ∨ ; xor = prim xor ; not = prim not
                    ; false = prim false ; true = prim true }
 
+    conditional : ⦃ _ : Logic _↠_ ⦄ → Conditional _⇨_
+    conditional = record { cond = condᵀ } where open TyUtils
+
   -- import Symbolic _↠_ as s
 
   -- -- Homomorphic compilation. Pretty and unnecessary.

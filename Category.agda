@@ -4,7 +4,7 @@
 
 module Category where
 
-open import Level renaming (suc to lsuc)
+open import Level renaming (zero to lzero; suc to lsuc)
 open import Function using (_∘′_; const; _on_) renaming (id to id′)
 open import Relation.Binary.PropositionalEquality
 open import Data.Nat using (ℕ; zero; suc)
@@ -200,6 +200,12 @@ LawfulCategoryᶠ F = record
 
 -- TODO: LawfulMonoidalᶠ etc.
 
+-- Iterated composition
+infixr 8 _↑_
+_↑_ : ∀ {a}{A : Set a} → (A → A) → ℕ → (A → A)
+f ↑ zero  = id′
+f ↑ suc n = f ∘′ (f ↑ n)
+
 record Products (obj : Set o) : Set (lsuc o) where
   infixr 2 _×_
   field
@@ -207,10 +213,12 @@ record Products (obj : Set o) : Set (lsuc o) where
     _×_ : obj → obj → obj
 
   open import Data.Nat
-  infixl 8 _↑_
-  _↑_ : obj → ℕ → obj
-  A ↑ zero  = ⊤
-  A ↑ suc n = A × A ↑ n
+
+  V T : obj → ℕ → obj
+  V A n = ((A ×_) ↑ n) ⊤
+  T A n = ((λ z → z × z) ↑ n) A
+
+  -- TODO: redefine via fold etc
 
 open Products ⦃ … ⦄ public
 
@@ -240,8 +248,14 @@ record Monoidal {obj : Set o} ⦃ _ : Products obj ⦄
   inAssocˡ : ((a × b) × c ⇨ (a′ × b′) × c′) → (a × (b × c) ⇨ a′ × (b′ × c′))
   inAssocˡ f = assocʳ ∘ f ∘ assocˡ
 
+  inAssocˡ′ : (a × b ⇨ a′ × b′) → (a × (b × c) ⇨ a′ × (b′ × c))
+  inAssocˡ′ = inAssocˡ ∘′ first
+
   inAssocʳ : (a × (b × c) ⇨ a′ × (b′ × c′)) → ((a × b) × c ⇨ (a′ × b′) × c′)
   inAssocʳ f = assocˡ ∘ f ∘ assocʳ
+
+  inAssocʳ′ : (b × c ⇨ b′ × c′) → ((a × b) × c ⇨ (a × b′) × c′)
+  inAssocʳ′ = inAssocʳ ∘′ second
 
   -- -- Pseudo values  -- but _⇨_ doesn't get inferred
   -- ⌞_⌟ : obj → Set ℓ
@@ -301,7 +315,7 @@ record Braided {obj : Set o} ⦃ _ : Products obj ⦄
     swap : a × b ⇨ b × a
 
   transpose : (a × b) × (c × d) ⇨ (a × c) × (b × d)
-  transpose = (inAssocʳ ∘′ second ∘′ inAssocˡ ∘′ first) swap
+  transpose = inAssocʳ′ (inAssocˡ′ swap)
 
   -- transpose = inAssocʳ (second (inAssocˡ (first swap)))
   -- transpose = assocˡ ∘ second (assocʳ ∘ first swap ∘ assocˡ) ∘ assocʳ
@@ -435,6 +449,12 @@ record LogicH
 -- I may need to move F-Bool out to a new BooleanH as with ProductsH.
 -- If so, bring along F-0⇨1 etc.
 
+record Conditional {obj : Set o} ⦃ _ : Products obj ⦄ ⦃ _ : Boolean obj ⦄
+         (_⇨′_ : obj → obj → Set ℓ) : Set (lsuc o ⊔ ℓ) where
+  private infix 0 _⇨_; _⇨_ = _⇨′_
+  field
+    cond : Bool × (a × a) ⇨ a
+open Conditional ⦃ … ⦄ public
 
 import Data.String as S
 open S using (String)
@@ -500,7 +520,7 @@ module →Instances where
 
     import Data.Bool as B
 
-    boolean : Boolean Set
+    boolean : Boolean Set  -- Can I make level-polymorphic?
     boolean = record { Bool  = B.Bool }
 
     logic : Logic Function
@@ -512,6 +532,9 @@ module →Instances where
               ; true  = const B.true
               ; false = const B.false
               }
+
+    conditional : Conditional Function
+    conditional = record { cond  = λ (c , (a , b)) → B.if c then b else a }
 
     import Data.Bool.Show as BS
     import Data.Nat.Show as NS
@@ -547,7 +570,7 @@ module CartUtils ⦃ _ : Products obj ⦄
   g ◂ f = assocˡ ∘ second g ∘ f
 
   -- Repeated _◂_
-  infixl 5 _↱_
-  _↱_ : (a ⇨ b × a) → (n : ℕ) → (a ⇨ b ↑ n × a)
-  f ↱ zero  = unitorⁱˡ
-  f ↱ suc n = (f ↱ n) ◂ f
+  infixl 5 _◂↑_
+  _◂↑_ : (a ⇨ b × a) → (n : ℕ) → (a ⇨ V b n × a)
+  f ◂↑ zero  = unitorⁱˡ
+  f ◂↑ suc n = (f ◂↑ n) ◂ f

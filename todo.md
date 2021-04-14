@@ -2,7 +2,7 @@
 
 *   Restore semantics in `Mealy`.
     Prove `⟦⟧-functor`, and use for `equivalence` and `lawful-category`.
-*   Abstract `Stack` over routing as well.
+*   Parametrize `Stack` over "routing" as well.
     Generalize to primitives and routings having a common semantics.
     Then try removing some explicit implicits, since we'll be normalizing less.
 *   Move to-dos to GitHub issues.

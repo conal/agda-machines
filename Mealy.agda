@@ -55,7 +55,7 @@ instance
         swiz₁ : (B × σ) × τ ↠ σ × (B × τ)
         swiz₁ = assocʳ ∘ first swap
         swiz₂ : σ × (C × τ) ↠ C × (σ × τ)
-        swiz₂ = (inAssocˡ ∘ first) swap
+        swiz₂ = inAssocˡ′ swap
 
   monoidal : ⦃ _ : Braided _↠_ ⦄ → Monoidal _⇨_
   monoidal = record
@@ -76,6 +76,12 @@ instance
   cartesian : ⦃ _ : Cartesian _↠_ ⦄ → Cartesian _⇨_
   cartesian = record { exl = comb exl ; exr = comb exr ; dup = comb dup }
 
-  logic : ⦃ _ : Monoidal _↠_ ⦄ → ⦃ _ : Boolean obj ⦄ → ⦃ _ : Logic _↠_ ⦄ → Logic _⇨_
+  logic : ⦃ _ : Monoidal _↠_ ⦄ → ⦃ _ : Boolean obj ⦄ → ⦃ _ : Logic _↠_ ⦄
+        → Logic _⇨_
   logic = record { ∧ = comb ∧ ; ∨ = comb ∨ ; xor = comb xor ; not = comb not
                  ; false = comb false ; true = comb true }
+
+  conditional : ⦃ _ : Monoidal _↠_ ⦄ → ⦃ _ : Boolean obj ⦄
+              → ⦃ _ : Conditional _↠_ ⦄ → Conditional _⇨_
+  conditional = record { cond = comb cond }
+

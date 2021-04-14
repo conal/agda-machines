@@ -122,4 +122,8 @@ instance
      p₂ : (Bool × Bool ⇨ᵖ Bool) → (Bool × Bool ⇨ Bool)
      p₂ f = subst₂ _⇨_ (trans F-× (cong₂ _×_ F-Bool F-Bool)) F-Bool (`prim f)
 
+  conditional : ⦃ _ : Logic _⇨ᵖ_ ⦄ → ⦃ logicH : LogicH _⇨ᵖ_ ty._⇨_ 0ℓ ⦄
+              → Conditional _⇨_
+  conditional = record { cond = condᵀ } where open TyUtils
+
 module m where open import Mealy _⇨_ public

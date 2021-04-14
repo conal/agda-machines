@@ -325,8 +325,12 @@ module ty where
       { F-exl = λ _ → refl ; F-exr = λ _ → refl ; F-dup = λ _ → refl }
 
     logic : Logic _⇨_
-    logic = record { ∧ = mk ∧ ; ∨ = mk ∨ ; xor = mk xor ; not = mk not
-                   ; false = mk false ; true = mk true }
+    logic = record { false = mk false ; true = mk true
+                   ; ∧ = mk ∧ ; ∨ = mk ∨ ; xor = mk xor ; not = mk not
+                   }
+
+    conditional : Conditional _⇨_
+    conditional = record { cond = mk (λ (c , (a , b)) → if c then b else a) }
 
     ⟦⟧-logicH : LogicH _⇨_ Function 0ℓ
     ⟦⟧-logicH = record
@@ -340,11 +344,11 @@ module ty where
        }
 
 
-_⟦↑⟧_ : ∀ (A : Ty) n → ⟦ A ⟧ ↑ n ≡ ⟦ A ↑ n ⟧
+_⟦↑⟧_ : ∀ (A : Ty) n → V ⟦ A ⟧ n ≡ ⟦ V A n ⟧
 A ⟦↑⟧ zero = refl
 A ⟦↑⟧ suc n rewrite A ⟦↑⟧ n = refl
 
-replicate : ∀ n → ⟦ A ⟧ → ⟦ A ⟧ ↑ n
+replicate : ∀ n → ⟦ A ⟧ → V ⟦ A ⟧ n
 replicate zero a = tt
 replicate (suc n) a = a , replicate n a
 
@@ -355,7 +359,7 @@ module TyUtils {ℓ} {_⇨_ : Ty → Ty → Set ℓ} (let infix 0 _⇨_; _⇨_ =
   module _ ⦃ _ : Braided ⦃ tyv.products ⦄ _⇨_ ⦄ where
 
     -- Todo: rename
-    replicate′ : ∀ n → (⊤ ⇨ A) → (⊤ ⇨ A ↑ n)
+    replicate′ : ∀ n → (⊤ ⇨ A) → (⊤ ⇨ V A n)
     replicate′ zero    a = !
     replicate′ (suc n) a = a ⦂ replicate′ n a
 
@@ -391,6 +395,12 @@ module TyUtils {ℓ} {_⇨_ : Ty → Ty → Set ℓ} (let infix 0 _⇨_; _⇨_ =
     shiftL⇃ : A × Bool ⇨ A
     shiftL⇃ = exr ∘ shiftL
 
+    module _ ⦃ _ : Logic _⇨_ ⦄ where
+
+      condᵀ : Bool × (A × A) ⇨ A  -- false , true
+      condᵀ {`⊤} = !
+      condᵀ {`Bool} = ∨ ∘ (∧ ∘ first not ⊗ ∧) ∘ transpose ∘ first dup
+      condᵀ {_ `× _} = (condᵀ ⊗ condᵀ) ∘ transpose ∘ second transpose ∘ first dup
 
 module r where
 

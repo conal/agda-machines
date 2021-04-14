@@ -22,12 +22,13 @@ open import Dot
 -- open CartUtils
 
 open TyUtils
+open import Examples.Add
 
 -- Combinational examples
 module ce where
   open sf
 
-  t₁ : Bool ↑ 5 ⇨ Bool ↑ 5
+  t₁ : V Bool 5 ⇨ V Bool 5
   t₁ = id
 
   t₂ : Bool × Bool ⇨ Bool
@@ -36,7 +37,7 @@ module ce where
   t₃ : Bool × Bool ⇨ Bool
   t₃ = not ∘ ∧
 
-  t₄ : Bool ↑ 3 ⇨ Bool ↑ 3
+  t₄ : V Bool 3 ⇨ V Bool 3
   t₄ = first (not)
 
   t₅ = not
@@ -46,21 +47,36 @@ module ce where
   halfAdd : Bool × Bool ⇨ Bool × Bool
   halfAdd = xor △ ∧
 
-  shiftR-swap : ∀ {n} → Bool × Bool ↑ n ⇨ Bool × Bool ↑ n
+  -- λ ((a , b) , c) → let (d , p) = halfAdd (a , b)
+  --                       (e , q) = halfAdd (d , c) in (e , p ∨ q)
+
+  fullAdd : (Bool × Bool) × Bool ⇨ Bool × Bool
+  fullAdd =
+    second ∨ ∘ inAssocˡ′ swap ∘ second halfAdd ∘ assocʳ ∘ first (swap ∘ halfAdd)
+
+  -- (a , b) , c
+  -- (d , p) , c
+  -- (p , d) , c
+  -- p , (d , c)
+  -- p , (e , q)
+  -- e , (p , q)
+  -- e , p ∨ q
+
+  shiftR-swap : ∀ {n} → Bool × V Bool n ⇨ Bool × V Bool n
   shiftR-swap = swap ∘ shiftR
 
   -- General feedback right-shift register
-  fsr : ∀ n → (Bool ↑ n ⇨ Bool) → (Bool ↑ n ⇨ Bool ↑ n)
+  fsr : ∀ n → (V Bool n ⇨ Bool) → (V Bool n ⇨ V Bool n)
   fsr _ f = shiftR⇃ ∘ (f △ id)
 
-  linear : ∀ n → Bool ↑ suc n → Bool ↑ suc n ⇨ Bool
+  linear : ∀ n → V Bool (suc n) → V Bool (suc n) ⇨ Bool
   linear zero (c , tt) = unitorᵉʳ
   linear (suc n) (c , cs) = (if c then xor else exr) ∘ second (linear n cs)
 
-  lfsr : ∀ n → Bool ↑ suc n → Bool ↑ suc n ⇨ Bool ↑ suc n
+  lfsr : ∀ n → V Bool (suc n) → V Bool (suc n) ⇨ V Bool (suc n)
   lfsr n cs = fsr (suc n) (linear n cs)
 
-  lfsr₅ : Bool ↑ 6 ⇨ Bool ↑ 6
+  lfsr₅ : V Bool 6 ⇨ V Bool 6
   lfsr₅ = lfsr 5 (𝕥 , 𝕗 , 𝕗 , 𝕥 , 𝕗 , 𝕥 , tt)
 
 -- Sequential examples
@@ -100,14 +116,14 @@ module se where
   toggle₂ = toggle₁ ◂ toggle₁
   toggle₄ = toggle₂ ◂ toggle₂
 
-  toggles = toggle₁ ↱ 5
+  toggles = toggle₁ ◂↑ 5
 
   -- Shift and accumulate results
   shift₁ : Bool ⇨ Bool × Bool
   shift₁ = dup ∘ delay false
 
-  shifts : ∀ n → Bool ⇨ Bool ↑ n
-  shifts n = exl ∘ (shift₁ ↱ n)
+  shifts : ∀ n → Bool ⇨ V Bool n
+  shifts n = exl ∘ (shift₁ ◂↑ n)
 
   -- Wrap swap ∘ shiftR as a sequential computation. The fine-grain dependencies
   -- (one register per bit) unravel the mealy loop into a chain.
@@ -123,16 +139,16 @@ module se where
     mealy (replicate′ (suc n) false)
           (assocʳ ∘ first dup ∘ ce.shiftR-swap {n} ∘ first xor ∘ assocˡ)
 
-  shiftR-swap-loop-xor-out : ∀ n → Bool ⇨ Bool ↑ suc n
+  shiftR-swap-loop-xor-out : ∀ n → Bool ⇨ V Bool (suc n)
   shiftR-swap-loop-xor-out n =
     mealy (replicate′ (suc n) false)
           (dup ∘ ce.shiftR-swap {n} ∘ first xor ∘ assocˡ)
 
   -- Linear feedback right-shift register, given coefficients and initial value
-  lfsr : ∀ n → Bool ↑ suc n → ⌞ Bool ↑ suc n ⌟ → ⊤ ⇨ Bool ↑ suc n
+  lfsr : ∀ n → V Bool (suc n) → ⌞ V Bool (suc n) ⌟ → ⊤ ⇨ V Bool (suc n)
   lfsr n cs s₀ = mealy s₀ (dup ∘ ce.lfsr n cs ∘ unitorᵉˡ)
 
-  lfsr₅ : ⊤ ⇨ Bool ↑ 6
+  lfsr₅ : ⊤ ⇨ V Bool 6
   lfsr₅ = lfsr 5 (𝕥 , 𝕗 , 𝕗 , 𝕥 , 𝕗 , 𝕥 , tt)
                  (false ⦂ true ⦂ false ⦂ true ⦂ true ⦂ false ⦂ !)
 
@@ -152,9 +168,22 @@ main = run do
   -- exampleᶜ "nand"      ce.t₃
   -- exampleᶜ "first-not" ce.t₄
   -- exampleᶜ "not"       ce.t₅
-  -- exampleᶜ "half-add-c"   ce.halfAdd
+  -- exampleᶜ "half-add"   ce.halfAdd
+  -- exampleᶜ "full-add"   ce.fullAdd
   -- exampleᶜ "shiftR-swap-c5" (ce.shiftR-swap {5})
   -- exampleᶜ "lfsr-c5"  ce.lfsr₅
+
+  -- exampleᶜ "addV-4" (rippleV 4)
+  -- exampleᶜ "addT-2" (rippleT 2)
+  -- exampleᶜ "addT-5" (rippleT 5)
+
+  -- exampleᶜ "addV-spec-4" (rippleVspec 4)
+  -- exampleᶜ "addT-spec-2" (rippleTspec 2)
+  -- exampleᶜ "addT-spec-5" (rippleTspec 5)
+
+  -- exampleᶜ "addV-spec-2" (rippleVspec 2)
+  exampleᶜ "addT-spec-2" (rippleTspec 2)
+  -- exampleᶜ "addT-spec-5" (rippleTspec 5)
 
   -- exampleˢ "toggle"    se.t₁
   -- exampleˢ "toggleB"   se.t₁′
@@ -179,4 +208,4 @@ main = run do
 
   -- exampleˢ "shiftR-swap-loop-xor-out" (se.shiftR-swap-loop-xor-out 6)
 
-  exampleˢ "shiftR-swap-loop-xor" (se.shiftR-swap-loop-xor 6)
+  -- exampleˢ "shiftR-swap-loop-xor" (se.shiftR-swap-loop-xor 6)
