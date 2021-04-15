@@ -1,10 +1,21 @@
 all: pdfs
+# all: jpgs
+# all: svgs
+# all: pngs
 
 DOTS=$(shell echo *.dot) 
 
 PDFS=$(patsubst %.dot,%.pdf,$(DOTS))
-
 pdfs: $(PDFS)
+
+PNGS=$(patsubst %.dot,%.png,$(DOTS))
+pngs: $(PNGS)
+
+SVGS=$(patsubst %.dot,%.svg,$(DOTS))
+svgs: $(SVGS)
+
+JPGS=$(patsubst %.dot,%.jpg,$(DOTS))
+jpgs: $(JPGS)
 
 # Cap the size so that LaTeX doesn't choke.
 %.pdf: %.dot # Makefile
