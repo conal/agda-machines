@@ -20,15 +20,18 @@ A ⇨ᶜ B = A × Bool ⇨ B × Bool
 
 -- Summands ⇨ sum , carry
 -- λ (a , b) → (a ⊕ b , a ∧ b)
-half : Bool ⇨ᶜ Bool
-half = xor △ ∧     -- This _△_ is the only use of Cartesian
+halfAdd : Bool ⇨ᶜ Bool
+halfAdd = xor △ ∧     -- This _△_ is the only use of Cartesian
 
--- λ ((a , b) , c) → let (d , p) = half (a , b)
---                       (e , q) = half (d , c) in (e , p ∨ q)
+-- λ ((a , b) , c) → let (d , p) = halfAdd (a , b)
+--                       (e , q) = halfAdd (d , c) in (e , p ∨ q)
 
-full : Bool × Bool ⇨ᶜ Bool
-full = second ∨ ∘ inAssocˡ (first swap) ∘ second half
-     ∘ assocʳ ∘ first (swap ∘ half)
+fullAdd : Bool × Bool ⇨ᶜ Bool
+fullAdd =
+  second ∨ ∘ inAssocˡ′ swap ∘ second halfAdd ∘ assocʳ ∘ first (swap ∘ halfAdd)
+
+-- λ ((a , b) , c) → let (d , p) = halfAdd (a , b)
+--                       (e , q) = halfAdd (d , c) in (e , p ∨ q)
 
 -- (a , b) , c
 -- (d , p) , c
@@ -45,7 +48,7 @@ ripple f   zero  = id
 ripple f (suc n) = inAssocʳ′ (ripple f n ∘ swap) ∘ first f ∘ inAssocʳ′ swap
 
 rippleAdd : ∀ n → V (Bool × Bool) n ⇨ᶜ V Bool n
-rippleAdd = ripple full
+rippleAdd = ripple fullAdd
 
 -- ((a , b) , ps) , cᵢ
 -- ((a , b) , cᵢ) , ps
@@ -64,4 +67,4 @@ V² : Ty → ℕ → ℕ → Ty
 V² A m n = V (V A n) m
 
 carrySelect : ∀ m n → V² (Bool × Bool) m n ⇨ᶜ V² Bool m n
-carrySelect m n = ripple (speculate (ripple full n)) m
+carrySelect m n = ripple (speculate (ripple fullAdd n)) m
