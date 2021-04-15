@@ -266,6 +266,14 @@ record Monoidal {obj : Set o} ⦃ _ : Products obj ⦄
   _⦂_ : (⊤ ⇨ a) → (⊤ ⇨ b) → (⊤ ⇨ a × b)
   a ⦂ b = (a ⊗ b) ∘ unitorⁱˡ
 
+  -- mapⱽ : (n : ℕ) → (a ⇨ b) → (V a n ⇨ V b n)
+  -- mapⱽ  zero   f = id
+  -- mapⱽ (suc n) f = f ⊗ mapⱽ n f
+
+  -- mapᵀ : (n : ℕ) → (a ⇨ b) → (T a n ⇨ T b n)
+  -- mapᵀ  zero   f = f
+  -- mapᵀ (suc n) f = mapᵀ n f ⊗ mapᵀ n f
+
 open Monoidal ⦃ … ⦄ public
 
 

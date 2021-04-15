@@ -177,13 +177,9 @@ main = run do
   -- exampleᶜ "addT-2" (rippleT 2)
   -- exampleᶜ "addT-5" (rippleT 5)
 
-  -- exampleᶜ "addV-spec-4" (rippleVspec 4)
-  -- exampleᶜ "addT-spec-2" (rippleTspec 2)
-  -- exampleᶜ "addT-spec-5" (rippleTspec 5)
-
-  -- exampleᶜ "addV-spec-2" (rippleVspec 2)
-  exampleᶜ "addT-spec-2" (rippleTspec 2)
-  -- exampleᶜ "addT-spec-5" (rippleTspec 5)
+  exampleᶜ "carrySelectV-4" (carrySelectⱽ 4)
+  exampleᶜ "carrySelectV-8" (carrySelectⱽ 8)
+  exampleᶜ "carrySelectT-4" (carrySelectᵀ 4)
 
   -- exampleˢ "toggle"    se.t₁
   -- exampleˢ "toggleB"   se.t₁′

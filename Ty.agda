@@ -398,9 +398,9 @@ module TyUtils {ℓ} {_⇨_ : Ty → Ty → Set ℓ} (let infix 0 _⇨_; _⇨_ =
     module _ ⦃ _ : Logic _⇨_ ⦄ where
 
       condᵀ : Bool × (A × A) ⇨ A  -- false , true
-      condᵀ {`⊤} = !
-      condᵀ {`Bool} = ∨ ∘ (∧ ∘ first not ⊗ ∧) ∘ transpose ∘ first dup
-      condᵀ {_ `× _} = (condᵀ ⊗ condᵀ) ∘ transpose ∘ second transpose ∘ first dup
+      condᵀ {  `⊤  } = !
+      condᵀ {`Bool } = ∨ ∘ (∧ ∘ first not ⊗ ∧) ∘ transpose ∘ first dup
+      condᵀ {_ `× _} = (condᵀ ⊗ condᵀ) ∘ transpose ∘ (dup ⊗ transpose)
 
 module r where
 
