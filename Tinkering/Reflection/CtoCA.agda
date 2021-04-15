@@ -1,6 +1,6 @@
 -- Steps toward compiling-to-categories in Agda
 
-module Tinkering.Reflection.CtoC where
+module Tinkering.Reflection.CtoCA where
 
 open import Level using ()
 open import Function
