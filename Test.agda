@@ -42,26 +42,6 @@ module ce where
 
   t₅ = not
 
-  -- Summands ⇨ sum , carry
-  -- λ (a , b) → (a ⊕ b , a ∧ b)
-  halfAdd : Bool × Bool ⇨ Bool × Bool
-  halfAdd = xor △ ∧
-
-  -- λ ((a , b) , c) → let (d , p) = halfAdd (a , b)
-  --                       (e , q) = halfAdd (d , c) in (e , p ∨ q)
-
-  fullAdd : (Bool × Bool) × Bool ⇨ Bool × Bool
-  fullAdd =
-    second ∨ ∘ inAssocˡ′ swap ∘ second halfAdd ∘ assocʳ ∘ first (swap ∘ halfAdd)
-
-  -- (a , b) , c
-  -- (d , p) , c
-  -- (p , d) , c
-  -- p , (d , c)
-  -- p , (e , q)
-  -- e , (p , q)
-  -- e , p ∨ q
-
   shiftR-swap : ∀ {n} → Bool × V Bool n ⇨ Bool × V Bool n
   shiftR-swap = swap ∘ shiftR
 
@@ -111,7 +91,7 @@ module se where
   -- Toggle with enable
   -- mealy false (λ (i , s) → ((i xor s , i ∧ s) , i xor s))
   toggle₁ : Bool ⇨ Bool × Bool
-  toggle₁ = mealy false ((id △ exl) ∘ ce.halfAdd)
+  toggle₁ = mealy false ((id △ exl) ∘ halfAdd)
 
   toggle₂ = toggle₁ ◂ toggle₁
   toggle₄ = toggle₂ ◂ toggle₂
@@ -168,11 +148,11 @@ main = run do
   -- exampleᶜ "nand"      ce.t₃
   -- exampleᶜ "first-not" ce.t₄
   -- exampleᶜ "not"       ce.t₅
-  -- exampleᶜ "half-add"   ce.halfAdd
-  -- exampleᶜ "full-add"   ce.fullAdd
   -- exampleᶜ "shiftR-swap-c5" (ce.shiftR-swap {5})
   -- exampleᶜ "lfsr-c5"  ce.lfsr₅
 
+  exampleᶜ "half-add"     halfAdd
+  exampleᶜ "full-add"     fullAdd
   exampleᶜ "ripple-add-4" (rippleAdd 4)
   exampleᶜ "ripple-add-8" (rippleAdd 8)
 
