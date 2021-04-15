@@ -5,8 +5,8 @@ open import Data.Nat
 open import Ty  -- Specialize for speculate
 
 module Examples.Add
-         {_⇨′_ : Ty → Ty → Set} (let private infix 0 _⇨_; _⇨_ = _⇨′_)
-         ⦃ _ : Cartesian _⇨_ ⦄ ⦃ _ : Logic _⇨_ ⦄ ⦃ _ : Conditional _⇨_ ⦄
+         {_⇨_ : Ty → Ty → Set} (let private infix 0 _⇨_; _⇨_ = _⇨_)
+         ⦃ _ : Cartesian _⇨_ ⦄ ⦃ _ : Logic _⇨_ ⦄
  where
 
 -- TODO: package up module parameters into one record to pass in and open.

@@ -14,8 +14,8 @@ open import Relation.Binary.PropositionalEquality using (_≡_; refl)
 open import Category
 open import Ty renaming (map to mapᵀ)
 
-import Primitive as p
-open import Stack p._⇨_
+import Primitive    -- for Show
+open import Stack
 
 private variable a b c d i o s z zⁱ zᵒ zᵃ : Ty
 

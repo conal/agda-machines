@@ -403,6 +403,7 @@ record Logic {obj : Set o} ⦃ _ : Products obj ⦄ ⦃ _ : Boolean obj ⦄
     false true : ⊤ ⇨ Bool
     not : Bool ⇨ Bool
     ∧ ∨ xor : Bool × Bool ⇨ Bool
+    cond : Bool × (a × a) ⇨ a
 open Logic ⦃ … ⦄ public
 
 record LogicH
@@ -456,13 +457,6 @@ record LogicH
 
 -- I may need to move F-Bool out to a new BooleanH as with ProductsH.
 -- If so, bring along F-0⇨1 etc.
-
-record Conditional {obj : Set o} ⦃ _ : Products obj ⦄ ⦃ _ : Boolean obj ⦄
-         (_⇨′_ : obj → obj → Set ℓ) : Set (lsuc o ⊔ ℓ) where
-  private infix 0 _⇨_; _⇨_ = _⇨′_
-  field
-    cond : Bool × (a × a) ⇨ a
-open Conditional ⦃ … ⦄ public
 
 import Data.String as S
 open S using (String)
@@ -539,10 +533,8 @@ module →Instances where
               ; not   = B.not
               ; true  = const B.true
               ; false = const B.false
+              ; cond  = λ (c , (a , b)) → B.if c then b else a
               }
-
-    conditional : Conditional Function
-    conditional = record { cond  = λ (c , (a , b)) → B.if c then b else a }
 
     import Data.Bool.Show as BS
     import Data.Nat.Show as NS

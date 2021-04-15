@@ -15,7 +15,7 @@ open import IO
 open import Category ; open CartUtils
 open import Ty
 import Primitive as p
-open import Stack p._⇨_ using (module sf)
+open import Stack
 import Mealy sf._⇨_ as m
 open import Dot
 

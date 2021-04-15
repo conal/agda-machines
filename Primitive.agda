@@ -10,20 +10,23 @@ private variable A B : Ty
 
 infix 1 _⇨_
 data _⇨_ : Ty → Ty → Set where
-  `∧ `∨ `xor : Bool × Bool ⇨ Bool
-  `not : Bool ⇨ Bool
   `false `true : ⊤ ⇨ Bool
+  `not : Bool ⇨ Bool
+  `∧ `∨ `xor : Bool × Bool ⇨ Bool
+  -- `cond : Bool × (Bool × Bool) ⇨ Bool
+  `cond : Bool × (A × A) ⇨ A
 
 instance
 
   meaningful : Meaningful {μ = A ty.⇨ B} (A ⇨ B)
   meaningful = record
-    { ⟦_⟧ = λ { `∧     → ty.mk ∧
+    { ⟦_⟧ = λ { `false → ty.mk false
+              ; `true  → ty.mk true
+              ; `not   → ty.mk not
+              ; `∧     → ty.mk ∧
               ; `∨     → ty.mk ∨
               ; `xor   → ty.mk xor
-              ; `not   → ty.mk not
-              ; `false → ty.mk false
-              ; `true  → ty.mk true
+              ; `cond  → ty.mk cond
               } }
 
   p-show : Show (A ⇨ B)
@@ -33,12 +36,13 @@ instance
                              ; `∧     → "∧"
                              ; `∨     → "∨"
                              ; `xor   → "⊕"
+                             ; `cond  → "cond"
                              }
                   }
 
   logic : Logic _⇨_
   logic = record { false = `false ; true = `true
-                 ; not = `not ; ∧ = `∧ ; ∨ = `∨ ; xor = `xor }
+                 ; not = `not ; ∧ = `∧ ; ∨ = `∨ ; xor = `xor ; cond = `cond}
 
   -- ⟦⟧-homomorphismₒ : Homomorphismₒ Ty Ty
   -- ⟦⟧-homomorphismₒ = id-homomorphismₒ

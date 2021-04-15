@@ -1,16 +1,6 @@
 {-# OPTIONS --safe --without-K #-}
 -- Symbolic category
 
-open import Category
-open import Ty
-
-module Symbolic {oᵖ}{objᵖ : Set oᵖ}
-         ⦃ prodsᵒ : Products objᵖ ⦄ ⦃ booleanᵒ : Boolean objᵖ ⦄
-         (_⇨ᵖ′_ : objᵖ → objᵖ → Set) (let private infix 0 _⇨ᵖ_; _⇨ᵖ_ = _⇨ᵖ′_)
-         ⦃ primH : Homomorphism _⇨ᵖ_ ty._⇨_ ⦄
-         ⦃ prodsH : ProductsH {obj₁ = objᵖ}{obj₂ = Ty}  ⦄
-  where
-
 module Symbolic where
 
 open import Level using (0ℓ)
@@ -20,20 +10,19 @@ open import Relation.Binary.PropositionalEquality
 open import Function using (_on_) renaming (const to const′)
 import Relation.Binary.Reasoning.Setoid as SetoidR
 
-private
-  variable
-    a b : objᵖ
-    A B C D : Ty
+open import Category
+open import Ty
+import Primitive as p
 
-open Homomorphism primH renaming (Fₒ to ⟦_⟧ᵒ; Fₘ to ⟦_⟧ᵖ)
+private variable A B C D : Ty
 
 infix  0 _⇨_
 infixr 7 _`⊗_
 infixr 9 _`∘_
 
-data _⇨_ : Ty → Ty → Set oᵖ where
+data _⇨_ : Ty → Ty → Set where
   `route : (A r.⇨ B) → (A ⇨ B)
-  `prim  : (a ⇨ᵖ b) → (⟦ a ⟧ᵒ ⇨ ⟦ b ⟧ᵒ)
+  `prim  : (A p.⇨ B) → (A ⇨ B)
   _`∘_   : (B ⇨ C) → (A ⇨ B) → (A ⇨ C)
   _`⊗_   : (A ⇨ C) → (B ⇨ D) → (A × B ⇨ C × D)
 
@@ -44,7 +33,7 @@ instance
    where
      ⟦_⟧′ : (A ⇨ B) → (A ty.⇨ B)
      ⟦ `route f ⟧′ = ⟦ f ⟧
-     ⟦ `prim  p ⟧′ = ⟦ p ⟧ᵖ
+     ⟦ `prim  p ⟧′ = ⟦ p ⟧
      ⟦  g `∘ f  ⟧′ = ⟦ g ⟧′ ∘ ⟦ f ⟧′
      ⟦  f `⊗ g  ⟧′ = ⟦ f ⟧′ ⊗ ⟦ g ⟧′
 
@@ -102,28 +91,15 @@ instance
     ; F-dup = λ _ → swizzle-id
     }
 
-  logic : ⦃ _ : Logic _⇨ᵖ_ ⦄ → ⦃ logicH : LogicH _⇨ᵖ_ ty._⇨_ 0ℓ ⦄ → Logic _⇨_
-  logic ⦃ logicH = logicH ⦄ = record
-     { false = p₀ false
-     ; true  = p₀ true
-     ; not   = p₁ not
-     ; ∧     = p₂ ∧
-     ; ∨     = p₂ ∨
-     ; xor   = p₂ xor
+  logic : Logic _⇨_
+  logic = record
+     { false = `prim false
+     ; true  = `prim true
+     ; not   = `prim not
+     ; ∧     = `prim ∧
+     ; ∨     = `prim ∨
+     ; xor   = `prim xor
+     ; cond  = `prim cond
      }
-    where
-     open LogicH logicH
-
-     -- TODO: Fix F-n⇨1′ etc in LogicH to replace p₀ etc
-     p₀ : (⊤ ⇨ᵖ Bool) → (⊤ ⇨ Bool)
-     p₀ f = subst₂ _⇨_ F-⊤ F-Bool (`prim f)
-     p₁ : (Bool ⇨ᵖ Bool) → (Bool ⇨ Bool)
-     p₁ f = subst₂ _⇨_ F-Bool F-Bool (`prim f)
-     p₂ : (Bool × Bool ⇨ᵖ Bool) → (Bool × Bool ⇨ Bool)
-     p₂ f = subst₂ _⇨_ (trans F-× (cong₂ _×_ F-Bool F-Bool)) F-Bool (`prim f)
-
-  conditional : ⦃ _ : Logic _⇨ᵖ_ ⦄ → ⦃ logicH : LogicH _⇨ᵖ_ ty._⇨_ 0ℓ ⦄
-              → Conditional _⇨_
-  conditional = record { cond = condᵀ } where open TyUtils
 
 module m where open import Mealy _⇨_ public

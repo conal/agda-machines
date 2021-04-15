@@ -327,10 +327,8 @@ module ty where
     logic : Logic _⇨_
     logic = record { false = mk false ; true = mk true
                    ; ∧ = mk ∧ ; ∨ = mk ∨ ; xor = mk xor ; not = mk not
+                   ; cond = mk cond
                    }
-
-    conditional : Conditional _⇨_
-    conditional = record { cond = mk (λ (c , (a , b)) → if c then b else a) }
 
     ⟦⟧-logicH : LogicH _⇨_ Function 0ℓ
     ⟦⟧-logicH = record

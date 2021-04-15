@@ -122,10 +122,8 @@ module VecFunInstances where
               ; not   = arr not
               ; true  = arr true
               ; false = arr false
+              ; cond = arr cond
               }
-
-    conditional : Conditional _⇨_
-    conditional = record { cond = arr cond }
 
 -- Cons (memory/register)
 delay : A → (A ⇨ A)

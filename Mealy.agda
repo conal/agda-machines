@@ -79,9 +79,5 @@ instance
   logic : ⦃ _ : Monoidal _↠_ ⦄ → ⦃ _ : Boolean obj ⦄ → ⦃ _ : Logic _↠_ ⦄
         → Logic _⇨_
   logic = record { ∧ = comb ∧ ; ∨ = comb ∨ ; xor = comb xor ; not = comb not
-                 ; false = comb false ; true = comb true }
-
-  conditional : ⦃ _ : Monoidal _↠_ ⦄ → ⦃ _ : Boolean obj ⦄
-              → ⦃ _ : Conditional _↠_ ⦄ → Conditional _⇨_
-  conditional = record { cond = comb cond }
+                 ; false = comb false ; true = comb true ; cond = comb cond }
 

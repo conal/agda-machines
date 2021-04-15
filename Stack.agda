@@ -16,13 +16,13 @@
 
 open import Level using (0ℓ)
 
-open import Ty
-open import Category
-
-module Stack (_↠′_ : Ty → Ty → Set) (let private infix 0 _↠_; _↠_ = _↠′_)
-             ⦃ _ : ∀ {A B} → Meaningful {μ = A ty.⇨ B} (A ↠ B) ⦄ where
+module Stack where
 
 open import Data.Product using (∃; _,_)
+
+open import Ty
+open import Category
+import Primitive as p
 
 private variable a b c d i o z zⁱ zᵒ zᵃ zᵇ zᶜ zᵈ : Ty
 
@@ -33,7 +33,7 @@ module i where
 
   infix 0 _⇨_
   _⇨_ : (Ty × Ty) → (Ty × Ty) → Set
-  (i , zⁱ ⇨ o , zᵒ) = ∃ λ a → (a ↠ o) × (i × zⁱ r.⇨ a × zᵒ)
+  (i , zⁱ ⇨ o , zᵒ) = ∃ λ a → (a p.⇨ o) × (i × zⁱ r.⇨ a × zᵒ)
 
   instance
 
@@ -146,10 +146,7 @@ module k where
   -- What's going on here? Similar problems below.
 
   ⟦⟧-categoryH : CategoryH _⇨_ ty._⇨_ 0ℓ ⦃ homomorphism = ⟦⟧-homomorphism ⦄
-  ⟦⟧-categoryH = record
-    { F-id = λ _ → swizzle-id
-    ; F-∘ = _⟦∘⟧_
-    }
+  ⟦⟧-categoryH = record { F-id = λ _ → swizzle-id ; F-∘ = _⟦∘⟧_ }
 
   equivalent : Equivalent 0ℓ _⇨_
   equivalent = F-equiv ⦃ homomorphism = ⟦⟧-homomorphism ⦄ ⟦⟧-categoryH
@@ -166,7 +163,7 @@ module k where
   stacked : (a , (b × z) ⇨ c , (b × z)) → ((a × b) , z) ⇨ ((c × b) , z)
   stacked f = pop ∘ f ∘ push
 
-  prim : i ↠ o → i , zⁱ ⇨ o , zⁱ
+  prim : (i p.⇨ o) → (i , zⁱ ⇨ o , zⁱ)
   prim {i} i↠o = [ id ] ∷ʳ (i , i↠o , id)
 
 
@@ -181,7 +178,7 @@ module sf where
     field
       f : ∀ {z} → i , z k.⇨ o , z
 
-  prim : i ↠ o → i ⇨ o
+  prim : i p.⇨ o → i ⇨ o
   prim i↠o = mk (k.prim i↠o)
 
   route : i r.⇨ o → i ⇨ o
@@ -219,19 +216,15 @@ module sf where
     cartesian : Cartesian _⇨_
     cartesian = record { exl = route exl ; exr = route exr ; dup = route dup }
 
-    logic : ⦃ Logic _↠_ ⦄ → Logic _⇨_
+    logic : Logic _⇨_
     logic = record { ∧ = prim ∧ ; ∨ = prim ∨ ; xor = prim xor ; not = prim not
-                   ; false = prim false ; true = prim true }
+                   ; false = prim false ; true = prim true ; cond = prim cond }
 
-    conditional : ⦃ _ : Logic _↠_ ⦄ → Conditional _⇨_
-    conditional = record { cond = condᵀ } where open TyUtils
+  import SymbolicB as s
 
-  -- import Symbolic _↠_ as s
-
-  -- -- Homomorphic compilation. Pretty and unnecessary.
-  -- -- Broken until we replace Meaningful _↠_ with a functor.
-  -- compile : a s.⇨ b → a ⇨ b
-  -- compile (s.`route r) = route r
-  -- compile (s.`prim  p) = prim p
-  -- compile ( g s.`∘ f ) = compile g ∘ compile f
-  -- compile ( f s.`⊗ g ) = compile f ⊗ compile g
+  -- Homomorphic compilation. Pretty and unnecessary.
+  compile : a s.⇨ b → a ⇨ b
+  compile (s.`route r) = route r
+  compile (s.`prim  p) = prim p
+  compile ( g s.`∘ f ) = compile g ∘ compile f
+  compile ( f s.`⊗ g ) = compile f ⊗ compile g
