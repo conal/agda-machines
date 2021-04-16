@@ -123,6 +123,9 @@ module k where
       ⟦ g ⟧ ∘ ⟦ f ∷ʳ inst ⟧
     ∎
 
+  open import Data.Product using (Σ)
+
+
   ⟦⟧-homomorphismₒ : Homomorphismₒ (Ty × Ty) Ty
   ⟦⟧-homomorphismₒ = record { Fₒ = λ (i , zⁱ) → i × zⁱ }
 
@@ -149,7 +152,7 @@ module k where
   ⟦⟧-categoryH = record { F-id = λ _ → swizzle-id ; F-∘ = _⟦∘⟧_ }
 
   equivalent : Equivalent 0ℓ _⇨_
-  equivalent = F-equiv ⦃ homomorphism = ⟦⟧-homomorphism ⦄ ⟦⟧-categoryH
+  equivalent = H-equiv ⟦⟧-homomorphism
 
   lawful-category : LawfulCategory 0ℓ _⇨_
   lawful-category = LawfulCategoryᶠ ⦃ homomorphism = ⟦⟧-homomorphism ⦄ ⟦⟧-categoryH
@@ -187,10 +190,38 @@ module sf where
   instance
 
     meaningful : ∀ {a b} → Meaningful {μ = a ty.⇨ b} (a ⇨ b)
-    meaningful {a}{b} = record { ⟦_⟧ = λ (mk f) → unitorᵉʳ ∘ ⟦ f ⟧ ∘ unitorⁱʳ }
+    meaningful = record { ⟦_⟧ = λ (mk f) → unitorᵉʳ ∘ ⟦ f ⟧ ∘ unitorⁱʳ }
 
     category : Category _⇨_
     category = record { id = route id  ; _∘_ = λ (mk g) (mk f) → mk (g ∘ f) }
+
+    ⟦⟧-homomorphismₒ : Homomorphismₒ Ty Ty
+    ⟦⟧-homomorphismₒ = record { Fₒ = λ a → a }
+
+    ⟦⟧-homomorphism : Homomorphism _⇨_ ty._⇨_
+    ⟦⟧-homomorphism = record { Fₘ = ⟦_⟧ }
+
+    equivalent : Equivalent 0ℓ _⇨_
+    equivalent = H-equiv ⟦⟧-homomorphism
+
+    -- ⟦⟧-categoryH : CategoryH _⇨_ ty._⇨_ 0ℓ
+    -- ⟦⟧-categoryH = record
+    --   { F-id =
+    --       begin
+    --         ⟦ id ⟧
+    --       ≡⟨⟩
+    --         unitorᵉʳ ∘ ⟦ id ⟧ ∘ unitorⁱʳ
+    --       ≈⟨ ∘-resp-≈ʳ (∘-resp-≈ˡ F-id) ⟩
+    --         unitorᵉʳ ∘ id ∘ unitorⁱʳ
+    --       ≈⟨ ∘-resp-≈ʳ identityˡ ⟩
+    --         unitorᵉʳ ∘ unitorⁱʳ
+    --       ≈⟨ {!!} ⟩
+    --         id
+    --       ∎
+    --   ; F-∘  = λ g f → {!!}
+    --   }
+    --  where open CategoryH ⟦⟧-categoryH
+    --        open ≈-Reasoning
 
     monoidal : Monoidal _⇨_
     monoidal = record
@@ -220,8 +251,7 @@ module sf where
     logic = record { ∧ = prim ∧ ; ∨ = prim ∨ ; xor = prim xor ; not = prim not
                    ; false = prim false ; true = prim true ; cond = prim cond }
 
-  import SymbolicB as s
-
+  import Symbolic as s
   -- Homomorphic compilation. Pretty and unnecessary.
   compile : a s.⇨ b → a ⇨ b
   compile (s.`route r) = route r

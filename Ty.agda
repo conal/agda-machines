@@ -284,11 +284,11 @@ module ty where
     ⟦⟧-homomorphism : Homomorphism _⇨_ Function
     ⟦⟧-homomorphism = record { Fₘ = ⟦_⟧ }
 
+    equivalent : Equivalent 0ℓ _⇨_
+    equivalent = H-equiv ⟦⟧-homomorphism
+
     ⟦⟧-categoryH : CategoryH _⇨_ Function 0ℓ
     ⟦⟧-categoryH = record { F-id = λ x → refl ; F-∘  = λ f g x → refl }
-
-    equivalent : Equivalent 0ℓ _⇨_
-    equivalent = F-equiv ⟦⟧-categoryH
 
     lawful-category : LawfulCategory 0ℓ _⇨_
     lawful-category = LawfulCategoryᶠ ⟦⟧-categoryH
@@ -308,8 +308,17 @@ module ty where
     productsH : ProductsH {obj₁ = Ty}{obj₂ = Set}
     productsH = record { F-⊤ = refl ; F-× = refl }
 
-    monoidalH : MonoidalH _⇨_ Function 0ℓ
-    monoidalH = record { F-! = λ x → refl ; F-⊗ = λ _ → refl }
+    ⟦⟧-monoidalH : MonoidalH _⇨_ Function 0ℓ
+    ⟦⟧-monoidalH = record
+      { F-!        = λ _ → refl
+      ; F-⊗        = λ _ → refl
+      ; F-unitorᵉˡ = λ _ → refl
+      ; F-unitorⁱˡ = λ _ → refl
+      ; F-unitorᵉʳ = λ _ → refl
+      ; F-unitorⁱʳ = λ _ → refl
+      ; F-assocʳ   = λ _ → refl
+      ; F-assocˡ   = λ _ → refl
+      }
 
     braided : Braided _⇨_
     braided = record { swap = mk swap }
@@ -421,6 +430,15 @@ module r where
     meaningful : ∀ {a b} → Meaningful {μ = a ty.⇨ b} (a ⇨ b)
     meaningful = record { ⟦_⟧ = λ (mk r) → ty.mk (swizzle r) }
 
+    ⟦⟧-homomorphismₒ : Homomorphismₒ Ty Ty
+    ⟦⟧-homomorphismₒ = id-homomorphismₒ
+
+    ⟦⟧-homomorphism : Homomorphism _⇨_ ty._⇨_
+    ⟦⟧-homomorphism = record { Fₘ = ⟦_⟧ }
+
+    equivalent : Equivalent 0ℓ _⇨_
+    equivalent = H-equiv ⟦⟧-homomorphism
+
     category : Category _⇨_
     category = record
       { id = mk id
@@ -429,27 +447,14 @@ module r where
 
     open import Function using (_on_)
 
-    equivalent : Equivalent 0ℓ _⇨_
-    equivalent = record
-      { _≈_ = _≈_ on ⟦_⟧
-      ; equiv = λ {a b} → record
-          { refl  = λ {f} x → refl
-          ; sym   = λ f∼g x → sym (f∼g x)
-          ; trans = λ f∼g g∼h x → trans (f∼g x) (g∼h x)
-          }
-      }
-
-    ⟦⟧-homomorphismₒ : Homomorphismₒ Ty Ty
-    ⟦⟧-homomorphismₒ = id-homomorphismₒ
-
-    ⟦⟧-homomorphism : Homomorphism _⇨_ ty._⇨_
-    ⟦⟧-homomorphism = record { Fₘ = ⟦_⟧ }
-
     ⟦⟧-categoryH : CategoryH _⇨_ ty._⇨_ 0ℓ
     ⟦⟧-categoryH = record
       { F-id = λ x → swizzle-id 
       ; F-∘  = λ (mk g) (mk f) → λ x → swizzle-∘ g f
       }
+
+    lawful-category : LawfulCategory 0ℓ _⇨_
+    lawful-category = LawfulCategoryᶠ ⟦⟧-categoryH
 
     monoidal : Monoidal _⇨_
     monoidal = record
@@ -473,7 +478,17 @@ module r where
     ⟦⟧-productsH = id-productsH
 
     ⟦⟧-monoidalH : MonoidalH _⇨_ ty._⇨_ 0ℓ
-    ⟦⟧-monoidalH = record { F-! = λ _ → refl ; F-⊗ = λ _ → refl }
+    ⟦⟧-monoidalH = record
+      { F-!        = λ _ → refl
+      ; F-⊗        = λ _ → refl
+      ; F-unitorᵉˡ = λ _ → swizzle-id
+      ; F-unitorⁱˡ = λ _ → swizzle-id
+      ; F-unitorᵉʳ = λ _ → swizzle-id
+      ; F-unitorⁱʳ = λ _ → swizzle-id
+      ; F-assocʳ   = λ _ → swizzle-id
+      ; F-assocˡ   = λ _ → swizzle-id
+      }
+     where open CategoryH ⟦⟧-categoryH
 
     braided : Braided _⇨_
     braided = record { swap = mk λ { (left x) → right x ; (right x) → left x } }

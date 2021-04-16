@@ -53,7 +53,7 @@ instance
     }
 
   equivalent : Equivalent 0ℓ _⇨_
-  equivalent = F-equiv ⟦⟧-categoryH
+  equivalent = H-equiv ⟦⟧-homomorphism
 
   lawful-category : LawfulCategory 0ℓ _⇨_
   lawful-category = LawfulCategoryᶠ ⟦⟧-categoryH
@@ -73,7 +73,16 @@ instance
   ⟦⟧-productsH = id-productsH
 
   ⟦⟧-monoidalH : MonoidalH _⇨_ ty._⇨_ 0ℓ
-  ⟦⟧-monoidalH = record { F-! = λ _ → refl ; F-⊗ = λ _ → refl }
+  ⟦⟧-monoidalH = record
+                   { F-!        = λ _ → refl
+                   ; F-⊗        = λ _ → refl
+                   ; F-unitorᵉˡ = λ _ → swizzle-id
+                   ; F-unitorⁱˡ = λ _ → swizzle-id
+                   ; F-unitorᵉʳ = λ _ → swizzle-id
+                   ; F-unitorⁱʳ = λ _ → swizzle-id
+                   ; F-assocʳ   = λ _ → swizzle-id
+                   ; F-assocˡ   = λ _ → swizzle-id
+                   }
 
   braided : Braided _⇨_
   braided = record { swap = `route swap }

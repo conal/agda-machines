@@ -5,7 +5,7 @@
 module Category where
 
 open import Level renaming (zero to lzero; suc to lsuc)
-open import Function using (_∘′_; const; _on_) renaming (id to id′)
+open import Function using (_∘′_; const; _on_; flip) renaming (id to id′)
 open import Relation.Binary.PropositionalEquality
 open import Data.Nat using (ℕ; zero; suc)
 open import Data.Unit.Polymorphic using () renaming (⊤ to ⊤′)
@@ -37,14 +37,6 @@ subst₂′ : ∀ {ℓ a b}{A : Set a}{B : Set b}
 subst₂′ _∼_ y≡x v≡u = subst₂ _∼_ (sym y≡x) (sym v≡u)
 
 
-record Category {obj : Set o} (_⇨_ : obj → obj → Set ℓ) : Set (lsuc o ⊔ ℓ) where
-  infixr 9 _∘_
-  field
-    id  : a ⇨ a
-    _∘_ : (b ⇨ c) → (a ⇨ b) → (a ⇨ c)
-
-open Category ⦃ … ⦄ public
-
 record Equivalent q {obj : Set o} (_⇨_ : obj → obj → Set ℓ)
        : Set (lsuc o ⊔ ℓ ⊔ lsuc q) where
   infix 4 _≈_
@@ -64,8 +56,44 @@ record Equivalent q {obj : Set o} (_⇨_ : obj → obj → Set ℓ)
     open SetoidR (≈setoid a b) public
 
 -- TODO: Replace Equivalent by Setoid?
+-- I think we need _⇨_ as an argument rather than field.
 
 open Equivalent ⦃ … ⦄ public
+
+record Homomorphismₒ (obj₁ : Set o₁) (obj₂ : Set o₂) : Set (o₁ ⊔ o₂) where
+  field
+    Fₒ : obj₁ → obj₂
+
+id-homomorphismₒ : Homomorphismₒ obj obj
+id-homomorphismₒ = record { Fₒ = id′ }
+
+record Homomorphism
+  {obj₁ : Set o₁} (_⇨₁_ : obj₁ → obj₁ → Set ℓ₁)
+  {obj₂ : Set o₂} (_⇨₂_ : obj₂ → obj₂ → Set ℓ₂)
+  : Set (o₁ ⊔ ℓ₁ ⊔ o₂ ⊔ ℓ₂) where
+  field
+    ⦃ homomorphismₒ ⦄ : Homomorphismₒ obj₁ obj₂
+  open Homomorphismₒ homomorphismₒ public
+  field
+    Fₘ : (a ⇨₁ b) → (Fₒ a ⇨₂ Fₒ b)
+
+-- open Homomorphism ⦃ … ⦄ public  -- yes or no?
+
+H-equiv : {obj₁ : Set o₁} {_⇨₁_ : obj₁ → obj₁ → Set ℓ₁}
+          {obj₂ : Set o₂} {_⇨₂_ : obj₂ → obj₂ → Set ℓ₂}
+          {q₂ : Level} ⦃ equiv₂ : Equivalent q₂ _⇨₂_ ⦄
+          (H : Homomorphism _⇨₁_ _⇨₂_)  -- note explicit/visible argument
+        → Equivalent q₂ _⇨₁_
+H-equiv H = record { equiv = On.isEquivalence (Homomorphism.Fₘ H) equiv }
+
+
+record Category {obj : Set o} (_⇨_ : obj → obj → Set ℓ) : Set (lsuc o ⊔ ℓ) where
+  infixr 9 _∘_
+  field
+    id  : a ⇨ a
+    _∘_ : (b ⇨ c) → (a ⇨ b) → (a ⇨ c)
+
+open Category ⦃ … ⦄ public
 
 record LawfulCategory q {obj : Set o} (_⇨′_ : obj → obj → Set ℓ)
        : Set (lsuc o ⊔ ℓ ⊔ lsuc q) where
@@ -89,25 +117,6 @@ record LawfulCategory q {obj : Set o} (_⇨′_ : obj → obj → Set ℓ)
 
 open LawfulCategory ⦃ … ⦄ public
 
-record Homomorphismₒ (obj₁ : Set o₁) (obj₂ : Set o₂) : Set (o₁ ⊔ o₂) where
-  field
-    Fₒ : obj₁ → obj₂
-
-id-homomorphismₒ : Homomorphismₒ obj obj
-id-homomorphismₒ = record { Fₒ = id′ }
-
-record Homomorphism
-  {obj₁ : Set o₁} (_⇨₁_ : obj₁ → obj₁ → Set ℓ₁)
-  {obj₂ : Set o₂} (_⇨₂_ : obj₂ → obj₂ → Set ℓ₂)
-  : Set (o₁ ⊔ ℓ₁ ⊔ o₂ ⊔ ℓ₂) where
-  field
-    ⦃ homomorphismₒ ⦄ : Homomorphismₒ obj₁ obj₂
-  open Homomorphismₒ homomorphismₒ public
-  field
-    Fₘ : (a ⇨₁ b) → (Fₒ a ⇨₂ Fₒ b)
-
--- open Homomorphism ⦃ … ⦄ public  -- yes or no?
-
 -- Category homomorphism (functor)
 record CategoryH {obj₁ : Set o₁} (_⇨₁_ : obj₁ → obj₁ → Set ℓ₁)
                  {obj₂ : Set o₂} (_⇨₂_ : obj₂ → obj₂ → Set ℓ₂)
@@ -128,17 +137,6 @@ record CategoryH {obj₁ : Set o₁} (_⇨₁_ : obj₁ → obj₁ → Set ℓ�
 -- we'll usually have a single special CategoryH instance per pairs of
 -- categories or not. For now, keep it explicit, and see what we learn.
 
-F-equiv : {obj₁ : Set o₁} {_⇨₁_ : obj₁ → obj₁ → Set ℓ₁}
-          {obj₂ : Set o₂} {_⇨₂_ : obj₂ → obj₂ → Set ℓ₂}
-          {q₂ : Level} ⦃ equiv₂ : Equivalent q₂ _⇨₂_ ⦄
-          ⦃ cat₁ : Category _⇨₁_ ⦄
-          ⦃ cat₂ : Category _⇨₂_ ⦄
-          ⦃ homomorphism : Homomorphism _⇨₁_ _⇨₂_ ⦄
-          (F : CategoryH _⇨₁_ _⇨₂_ q₂)  -- note explicit/visible argument
-        → Equivalent q₂ _⇨₁_
-F-equiv F = record { equiv = On.isEquivalence (CategoryH.Fₘ F) equiv }
-
-
 LawfulCategoryᶠ : {obj₁ : Set o₁} {_⇨₁_ : obj₁ → obj₁ → Set ℓ₁}
                   {obj₂ : Set o₂} {_⇨₂_ : obj₂ → obj₂ → Set ℓ₂}
                   {q₂ : Level} ⦃ equiv₂ : Equivalent q₂ _⇨₂_ ⦄
@@ -148,7 +146,7 @@ LawfulCategoryᶠ : {obj₁ : Set o₁} {_⇨₁_ : obj₁ → obj₁ → Set �
                   ⦃ homomorphism : Homomorphism _⇨₁_ _⇨₂_ ⦄
                   (F : CategoryH _⇨₁_ _⇨₂_ q₂)
                 → LawfulCategory q₂ _⇨₁_
-LawfulCategoryᶠ F = record
+LawfulCategoryᶠ ⦃ homomorphism = H ⦄ F = record
   { identityˡ = λ {a b} {f} →
       begin
         Fₘ (id ∘ f)
@@ -195,10 +193,28 @@ LawfulCategoryᶠ F = record
       ∎
   }
  where open CategoryH F
-       instance f-equiv = F-equiv F
+       instance _ = H-equiv H
        open ≈-Reasoning
 
 -- TODO: LawfulMonoidalᶠ etc.
+
+-- instance
+--   ≡-category : Category {obj = Set o} _≡_
+--   ≡-category = record { id = refl ; _∘_ = flip trans }
+
+--   open import Relation.Binary.PropositionalEquality.Properties
+
+--   ≡-equiv : Equivalent (lsuc o) {obj = Set o} _≡_
+--   ≡-equiv = record { _≈_ = _≡_ ; equiv = isEquivalence }
+
+--   ≡-lawful-category : LawfulCategory (lsuc o) {obj = Set o} _≡_
+--   ≡-lawful-category = record
+--     { identityˡ = trans-reflʳ _
+--     ; identityʳ = refl
+--     ; assoc = λ {_ _ _ _}{f} → sym (trans-assoc f)
+--     ; ∘-resp-≈ = λ h≡k f≡g → cong₂ trans f≡g h≡k
+--     } 
+
 
 -- Iterated composition
 infixr 8 _↑_
@@ -276,6 +292,24 @@ record Monoidal {obj : Set o} ⦃ _ : Products obj ⦄
 
 open Monoidal ⦃ … ⦄ public
 
+record LawfulMonoidal q {obj : Set o} ⦃ _ : Products obj ⦄
+         (_⇨′_ : obj → obj → Set ℓ)
+       : Set (lsuc o ⊔ ℓ ⊔ lsuc q) where
+  private infix 0 _⇨_; _⇨_ = _⇨′_
+  field
+    ⦃ cat ⦄ : Monoidal _⇨_
+    ⦃ cat-equiv ⦄ : Equivalent q _⇨_
+    -- ⦃ lawful-cat ⦄ : LawfulCategory q _⇨_
+
+    unitorᵉˡ∘unitorⁱˡ : ∀ {a : obj} → unitorᵉˡ ∘ unitorⁱˡ {a = a} ≈ id
+    unitorⁱˡ∘unitorᵉˡ : ∀ {a : obj} → unitorⁱˡ ∘ unitorᵉˡ {a = a} ≈ id
+
+    unitorᵉʳ∘unitorⁱʳ : ∀ {a : obj} → unitorᵉʳ ∘ unitorⁱʳ {a = a} ≈ id
+    unitorⁱʳ∘unitorᵉʳ : ∀ {a : obj} → unitorⁱʳ ∘ unitorᵉʳ {a = a} ≈ id
+
+open LawfulMonoidal ⦃ … ⦄ public
+
+-- I don't think there's a Monoidal instance for _≡_
 
 record ProductsH {obj₁ : Set o₁} ⦃ prod₁ : Products obj₁ ⦄
                  {obj₂ : Set o₂} ⦃ prod₂ : Products obj₂ ⦄
@@ -295,8 +329,8 @@ record MonoidalH
     {obj₁ : Set o₁} (_⇨₁′_ : obj₁ → obj₁ → Set ℓ₁)
     {obj₂ : Set o₂} (_⇨₂′_ : obj₂ → obj₂ → Set ℓ₂)
     q₂ ⦃ equiv₂ : Equivalent q₂ _⇨₂′_ ⦄
-    ⦃ prod₁ : Products obj₁ ⦄ ⦃ cat₁ : Monoidal _⇨₁′_ ⦄
-    ⦃ prod₂ : Products obj₂ ⦄ ⦃ cat₂ : Monoidal _⇨₂′_ ⦄
+    ⦃ prod₁ : Products obj₁ ⦄ ⦃ monoidal₁ : Monoidal _⇨₁′_ ⦄
+    ⦃ prod₂ : Products obj₂ ⦄ ⦃ monoidal₂ : Monoidal _⇨₂′_ ⦄
     ⦃ homomorphism : Homomorphism _⇨₁′_ _⇨₂′_ ⦄
   : Set (o₁ ⊔ ℓ₁ ⊔ o₂ ⊔ ℓ₂ ⊔ q₂) where
   private infix 0 _⇨₁_; _⇨₁_ = _⇨₁′_
@@ -308,12 +342,81 @@ record MonoidalH
   open CategoryH categoryH public
   open ProductsH productsH public
   field
-    -- F-⊤ : Fₒ ⊤ ≡ ⊤
-    -- F-× : ∀ {a b} → Fₒ (a × b) ≡ (Fₒ a × Fₒ b)
-    -- -- TODO: isomorphisms instead of equalities for F-⊤ & F-×?
     F-! : ∀ {a} → Fₘ (! {a = a}) ≈ subst′ (Fₒ a ⇨₂_) F-⊤ !
     F-⊗ : ∀ {f : a ⇨₁ c}{g : b ⇨₁ d}
         → Fₘ (f ⊗ g) ≈ subst₂′ _⇨₂_ F-× F-× (Fₘ f ⊗ Fₘ g)
+
+    F-unitorᵉˡ : ∀ {a : obj₁} →
+      Fₘ unitorᵉˡ ≈ subst′ (_⇨₂ Fₒ a) (trans F-× (cong (_× Fₒ a) F-⊤)) unitorᵉˡ
+    F-unitorⁱˡ : ∀ {a : obj₁} →
+      Fₘ unitorⁱˡ ≈ subst′ (Fₒ a ⇨₂_) (trans F-× (cong (_× Fₒ a) F-⊤)) unitorⁱˡ
+
+    F-unitorᵉʳ : ∀ {a : obj₁} →
+      Fₘ unitorᵉʳ ≈ subst′ (_⇨₂ Fₒ a) (trans F-× (cong (Fₒ a ×_) F-⊤)) unitorᵉʳ
+    F-unitorⁱʳ : ∀ {a : obj₁} →
+      Fₘ unitorⁱʳ ≈ subst′ (Fₒ a ⇨₂_) (trans F-× (cong (Fₒ a ×_) F-⊤)) unitorⁱʳ
+
+    F-assocʳ : ∀ {a b c : obj₁} →
+      Fₘ (assocʳ {a = a}{b}{c}) ≈ subst₂′ _⇨₂_ (trans F-× (cong (_× Fₒ c) F-×))
+                                               (trans F-× (cong (Fₒ a ×_) F-×))
+                                               assocʳ
+    F-assocˡ : ∀ {a b c : obj₁} →
+      Fₘ (assocˡ {a = a}{b}{c}) ≈ subst₂′ _⇨₂_ (trans F-× (cong (Fₒ a ×_) F-×))
+                                               (trans F-× (cong (_× Fₒ c) F-×))
+                                               assocˡ
+
+    -- To do: define a suitable category for easing these substitutions.
+
+{-
+
+LawfulMonoidalᶠ : {obj₁ : Set o₁} {_⇨₁_ : obj₁ → obj₁ → Set ℓ₁}
+                  {obj₂ : Set o₂} {_⇨₂_ : obj₂ → obj₂ → Set ℓ₂}
+                  {q₂ : Level} ⦃ equiv₂ : Equivalent q₂ _⇨₂_ ⦄
+                  ⦃ prod₁ : Products obj₁ ⦄ ⦃ monoidal₁ : Monoidal _⇨₁_ ⦄
+                  ⦃ prod₂ : Products obj₂ ⦄ ⦃ monoidal₂ : Monoidal _⇨₂_ ⦄
+                  ⦃ lawful₂ : LawfulMonoidal q₂ _⇨₂_ ⦄
+                  ⦃ homomorphism : Homomorphism _⇨₁_ _⇨₂_ ⦄
+                  ⦃ lawful-cat₁ : LawfulCategory q₂ _⇨₁_ ⦄
+                  ⦃ lawful-cat₂ : LawfulCategory q₂ _⇨₂_ ⦄
+                  (F : MonoidalH _⇨₁_ _⇨₂_ q₂
+                         ⦃ equiv₂ = equiv₂ ⦄ ⦃ monoidal₂ = monoidal₂ ⦄)
+                → LawfulMonoidal q₂ _⇨₁_
+LawfulMonoidalᶠ ⦃ equiv₂ = equiv₂ ⦄ ⦃ homomorphism = H ⦄ F = record
+  { unitorᵉˡ∘unitorⁱˡ = λ {a} →
+      -- {!!}
+      begin
+        Fₘ (unitorᵉˡ ∘ unitorⁱˡ {a = a})
+      ≈⟨ F-∘ unitorᵉˡ unitorⁱˡ ⟩
+        Fₘ unitorᵉˡ ∘ Fₘ (unitorⁱˡ {a = a})
+      ≈⟨ ∘-resp-≈ ? ? ⟩
+        unitorᵉˡ ∘ unitorⁱˡ {a = a}
+      ≈⟨ {!!} ⟩
+        id
+      ≈˘⟨ F-id ⟩
+        Fₘ id
+      ∎
+
+      -- begin
+      --   Fₘ (id ∘ f)
+      -- ≈⟨ F-∘ id f ⟩
+      --   Fₘ id ∘ Fₘ f
+      -- ≈⟨ ∘-resp-≈ˡ F-id  ⟩
+      --   id ∘ Fₘ f
+      -- ≈⟨ identityˡ ⟩
+      --   Fₘ f
+      -- ∎
+
+
+  ; unitorⁱˡ∘unitorᵉˡ = {!!}
+  ; unitorᵉʳ∘unitorⁱʳ = {!!}
+  ; unitorⁱʳ∘unitorᵉʳ = {!!}
+  }
+ where open MonoidalH F
+       instance _ = H-equiv ⦃ equiv₂ = equiv₂ ⦄ H
+       -- instance _ = LawfulCategoryᶠ categoryH
+       open ≈-Reasoning
+
+-}
 
 record Braided {obj : Set o} ⦃ _ : Products obj ⦄
          (_⇨′_ : obj → obj → Set ℓ) : Set (lsuc o ⊔ ℓ) where
