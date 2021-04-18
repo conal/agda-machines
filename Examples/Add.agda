@@ -47,6 +47,12 @@ ripple : (A ⇨ᶜ B) → (n : ℕ) → (V A n ⇨ᶜ V B n)
 ripple f  zero   = id
 ripple f (suc n) = inAssocʳ′ (ripple f n ∘ swap) ∘ first f ∘ inAssocʳ′ swap
 
+-- (a , as) , cᵢ
+-- (a , cᵢ) , as
+-- (b , c′) , as
+-- (b , as) , c′
+-- (b , bs) , cₒ
+
 rippleAdd : ∀ n → V (Bool × Bool) n ⇨ᶜ V Bool n
 rippleAdd = ripple fullAdd
 
