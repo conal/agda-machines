@@ -16,58 +16,52 @@ private variable A B C : Ty
 -- Morphism with carry-in and carry-out
 infix 0 _⇨ᶜ_
 _⇨ᶜ_ : Ty → Ty → Set
-A ⇨ᶜ B = A × Bool ⇨ B × Bool
+A ⇨ᶜ B = Bool × A ⇨ B × Bool
 
 -- Summands ⇨ sum , carry
--- λ (a , b) → (a ⊕ b , a ∧ b)
+-- λ (c , a) → (c ⊕ z , c ∧ a)
 halfAdd : Bool ⇨ᶜ Bool
-halfAdd = xor △ ∧     -- This _△_ is the only use of Cartesian
-
--- λ ((a , b) , c) → let (d , p) = halfAdd (a , b)
---                       (e , q) = halfAdd (d , c) in (e , p ∨ q)
+halfAdd = xor △ ∧
 
 fullAdd : Bool × Bool ⇨ᶜ Bool
-fullAdd =
-  second ∨ ∘ inAssocˡ′ swap ∘ second halfAdd ∘ assocʳ ∘ first (swap ∘ halfAdd)
+fullAdd = second ∨ ∘ inAssocˡ′ halfAdd ∘ second halfAdd
 
--- λ ((a , b) , c) → let (d , p) = halfAdd (a , b)
---                       (e , q) = halfAdd (d , c) in (e , p ∨ q)
+-- λ (c , (a , b)) → let (p , d) = halfAdd (a , b)
+--                       (q , e) = halfAdd (c , p) in (q , e ∨ d)
 
--- (a , b) , c
--- (d , p) , c
--- (p , d) , c
--- p , (d , c)
--- p , (e , q)
--- e , (p , q)
--- e , p ∨ q
+-- c , (a , b)
+-- c , (p , d)
+-- q , (e , d)
+-- q , e ∨ d
 
 -- TODO: semantic specifications and correctness proofs.
 
 ripple : (A ⇨ᶜ B) → (n : ℕ) → (V A n ⇨ᶜ V B n)
-ripple f  zero   = id
-ripple f (suc n) = inAssocʳ′ (ripple f n ∘ swap) ∘ first f ∘ inAssocʳ′ swap
+ripple f  zero   = swap
+ripple f (suc n) = assocˡ ∘ second (ripple f n) ∘ inAssocˡ′ f
 
--- (a , as) , cᵢ
--- (a , cᵢ) , as
--- (b , c′) , as
--- (b , as) , c′
+-- cᵢ , (a , as)
+-- b , (c′ , as)
+-- b , (bs , cₒ)
 -- (b , bs) , cₒ
 
 rippleAdd : ∀ n → V (Bool × Bool) n ⇨ᶜ V Bool n
 rippleAdd = ripple fullAdd
 
--- ((a , b) , ps) , cᵢ
--- ((a , b) , cᵢ) , ps
--- (o , c)        , ps
--- o , (ps , c )
--- o , (os , cₒ)
--- (o , os) , cₒ
+constˡ : (A × B ⇨ C) → (⊤ ⇨ A) → (B ⇨ C)
+constˡ f a = f ∘ first a ∘ unitorⁱˡ
 
-constʳ : (A × B ⇨ C) → (⊤ ⇨ B) → (A ⇨ C)
-constʳ f b = f ∘ second b ∘ unitorⁱʳ
+-- b
+-- tt , b
+-- a , b
+-- f (a , b)
 
-speculate : (A × Bool ⇨ B) → (A × Bool ⇨ B)
-speculate f = cond ∘ first (constʳ f false △ constʳ f true)
+speculate : (Bool × A ⇨ B) → (Bool × A ⇨ B)
+speculate f = cond ∘ second (constˡ f false △ constˡ f true)
+
+-- (cᵢ , a)
+-- (cᵢ , (f (false , a) , f (true , a)))
+-- cond (cᵢ , (f (false , a) , f (true , a)))
 
 V² : Ty → ℕ → ℕ → Ty
 V² A m n = V (V A n) m

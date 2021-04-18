@@ -490,7 +490,7 @@ record Logic {obj : Set o} ⦃ _ : Products obj ⦄ ⦃ _ : Boolean obj ⦄
     false true : ⊤ ⇨ Bool
     not : Bool ⇨ Bool
     ∧ ∨ xor : Bool × Bool ⇨ Bool
-    cond : (a × a) × Bool ⇨ a
+    cond : Bool × (a × a) ⇨ a
 open Logic ⦃ … ⦄ public
 
 record LogicH
@@ -620,7 +620,7 @@ module →Instances where
               ; not   = B.not
               ; true  = const B.true
               ; false = const B.false
-              ; cond  = λ ((a , b) , c) → B.if c then b else a
+              ; cond  = λ (c , (a , b)) → B.if c then b else a
               }
 
     import Data.Bool.Show as BS
