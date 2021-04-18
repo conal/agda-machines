@@ -44,7 +44,7 @@ fullAdd =
 -- TODO: semantic specifications and correctness proofs.
 
 ripple : (A ⇨ᶜ B) → (n : ℕ) → (V A n ⇨ᶜ V B n)
-ripple f   zero  = id
+ripple f  zero   = id
 ripple f (suc n) = inAssocʳ′ (ripple f n ∘ swap) ∘ first f ∘ inAssocʳ′ swap
 
 rippleAdd : ∀ n → V (Bool × Bool) n ⇨ᶜ V Bool n
