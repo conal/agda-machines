@@ -40,11 +40,11 @@ instance
   category : Category _⇨_
   category = record { id = `route id ; _∘_ = _`∘_ }
 
-  ⟦⟧-homomorphismₒ : Homomorphismₒ Ty Ty
-  ⟦⟧-homomorphismₒ = record { Fₒ = id }
+  ⟦⟧-Hₒ : Homomorphismₒ Ty Ty
+  ⟦⟧-Hₒ = record { Fₒ = id }
 
-  ⟦⟧-homomorphism : Homomorphism _⇨_ ty._⇨_
-  ⟦⟧-homomorphism = record { Fₘ = ⟦_⟧ }
+  ⟦⟧-H : Homomorphism _⇨_ ty._⇨_
+  ⟦⟧-H = record { Fₘ = ⟦_⟧ }
 
   ⟦⟧-categoryH : CategoryH _⇨_ ty._⇨_ 0ℓ
   ⟦⟧-categoryH = record
@@ -53,7 +53,7 @@ instance
     }
 
   equivalent : Equivalent 0ℓ _⇨_
-  equivalent = H-equiv ⟦⟧-homomorphism
+  equivalent = H-equiv ⟦⟧-H
 
   lawful-category : LawfulCategory 0ℓ _⇨_
   lawful-category = LawfulCategoryᶠ ⟦⟧-categoryH

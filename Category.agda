@@ -64,16 +64,16 @@ record Homomorphismₒ (obj₁ : Set o₁) (obj₂ : Set o₂) : Set (o₁ ⊔ o
   field
     Fₒ : obj₁ → obj₂
 
-id-homomorphismₒ : Homomorphismₒ obj obj
-id-homomorphismₒ = record { Fₒ = id′ }
+id-Hₒ : Homomorphismₒ obj obj
+id-Hₒ = record { Fₒ = id′ }
 
 record Homomorphism
   {obj₁ : Set o₁} (_⇨₁_ : obj₁ → obj₁ → Set ℓ₁)
   {obj₂ : Set o₂} (_⇨₂_ : obj₂ → obj₂ → Set ℓ₂)
   : Set (o₁ ⊔ ℓ₁ ⊔ o₂ ⊔ ℓ₂) where
   field
-    ⦃ homomorphismₒ ⦄ : Homomorphismₒ obj₁ obj₂
-  open Homomorphismₒ homomorphismₒ public
+    ⦃ Hₒ ⦄ : Homomorphismₒ obj₁ obj₂
+  open Homomorphismₒ Hₒ public
   field
     Fₘ : (a ⇨₁ b) → (Fₒ a ⇨₂ Fₒ b)
 
@@ -122,9 +122,9 @@ record CategoryH {obj₁ : Set o₁} (_⇨₁_ : obj₁ → obj₁ → Set ℓ�
                  q ⦃ equiv₂ : Equivalent q _⇨₂_ ⦄
                  ⦃ cat₁ : Category _⇨₁_ ⦄
                  ⦃ cat₂ : Category _⇨₂_ ⦄
-                 ⦃ homomorphism : Homomorphism _⇨₁_ _⇨₂_ ⦄
+                 ⦃ H : Homomorphism _⇨₁_ _⇨₂_ ⦄
        : Set (o₁ ⊔ ℓ₁ ⊔ o₂ ⊔ ℓ₂ ⊔ q) where
-  open Homomorphism homomorphism public
+  open Homomorphism H public
   field
     F-id : Fₘ {a = a} id ≈ id
     F-∘  : ∀ (g : b ⇨₁ c) (f : a ⇨₁ b) → Fₘ (g ∘ f) ≈ Fₘ g ∘ Fₘ f
@@ -311,16 +311,16 @@ open LawfulMonoidal ⦃ … ⦄ public
 
 record ProductsH {obj₁ : Set o₁} ⦃ prod₁ : Products obj₁ ⦄
                  {obj₂ : Set o₂} ⦃ prod₂ : Products obj₂ ⦄
-                 ⦃ homomorphismₒ : Homomorphismₒ obj₁ obj₂ ⦄
+                 ⦃ Hₒ : Homomorphismₒ obj₁ obj₂ ⦄
        : Set (o₁ ⊔ o₂) where
-  open Homomorphismₒ homomorphismₒ -- public
+  open Homomorphismₒ Hₒ -- public
   field
     F-⊤ : Fₒ ⊤ ≡ ⊤
     F-× : ∀ {a b} → Fₒ (a × b) ≡ (Fₒ a × Fₒ b)
     -- TODO: isomorphisms instead of equalities for F-⊤ & F-×?
 
 id-productsH : {obj : Set o} ⦃ prod : Products obj ⦄
-             → ProductsH ⦃ homomorphismₒ = id-homomorphismₒ ⦄
+             → ProductsH ⦃ Hₒ = id-Hₒ ⦄
 id-productsH = record { F-⊤ = refl ; F-× = refl }
 
 record MonoidalH

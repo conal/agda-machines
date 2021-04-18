@@ -151,23 +151,24 @@ main = run do
   -- exampleᶜ "shiftR-swap-c5" (ce.shiftR-swap {5})
   -- exampleᶜ "lfsr-c5"  ce.lfsr₅
 
-  exampleᶜ "half-add"     halfAdd
-  exampleᶜ "full-add"     fullAdd
-  exampleᶜ "ripple-add-4" (rippleAdd 4)
-  exampleᶜ "ripple-add-8" (rippleAdd 8)
+  -- exampleᶜ "half-add"     halfAdd
+  -- exampleᶜ "full-add"     fullAdd
+  -- exampleᶜ "ripple-add-4" (rippleAdd 4)
+  -- exampleᶜ "ripple-add-8" (rippleAdd 8)
 
-  exampleᶜ "carry-select-3×5" (carrySelect 3 5)
-  exampleᶜ "carry-select-4×4" (carrySelect 4 4)
-  exampleᶜ "carry-select-8×8" (carrySelect 8 8)
+  -- exampleᶜ "carry-select-3x5" (carrySelect 3 5)
+  exampleᶜ "carry-select-4x4" (carrySelect 4 4)
+  -- exampleᶜ "carry-select-8x8" (carrySelect 8 8)
+  -- exampleᶜ "carry-select-16x16" (carrySelect 16 16)
 
   -- exampleˢ "toggle"    se.t₁
   -- exampleˢ "toggleB"   se.t₁′
   -- exampleˢ "any"       se.t₂
   -- exampleˢ "delay-1"   se.t₃
   -- exampleˢ "delay-3"   se.t₄
-  -- exampleˢ "delay×2"   se.t₅
-  -- exampleˢ "delay×4"   se.t₆
-  -- exampleˢ "delay×8"   se.t₇
+  -- exampleˢ "delayx2"   se.t₅
+  -- exampleˢ "delayx4"   se.t₆
+  -- exampleˢ "delayx8"   se.t₇
 
   -- exampleˢ "toggle-1"   se.toggle₁
   -- exampleˢ "toggle-2"   se.toggle₂

@@ -44,14 +44,14 @@ instance
   logic = record { false = `false ; true = `true
                  ; not = `not ; ∧ = `∧ ; ∨ = `∨ ; xor = `xor ; cond = `cond}
 
-  -- ⟦⟧-homomorphismₒ : Homomorphismₒ Ty Ty
-  -- ⟦⟧-homomorphismₒ = id-homomorphismₒ
+  -- ⟦⟧-Hₒ : Homomorphismₒ Ty Ty
+  -- ⟦⟧-Hₒ = id-Hₒ
 
-  -- TODO: Why is ⟦⟧-homomorphismₒ needed in Symbolic but not here, considering
+  -- TODO: Why is ⟦⟧-Hₒ needed in Symbolic but not here, considering
   -- that id-homomorphismₒ is visible to both?
 
-  ⟦⟧-homomorphism : Homomorphism _⇨_ ty._⇨_
-  ⟦⟧-homomorphism = record { Fₘ = ⟦_⟧ }
+  ⟦⟧-H : Homomorphism _⇨_ ty._⇨_
+  ⟦⟧-H = record { Fₘ = ⟦_⟧ }
 
   open import Relation.Binary.PropositionalEquality
 

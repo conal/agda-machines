@@ -54,14 +54,14 @@ module k where
   route : (i × zⁱ r.⇨ o × zᵒ) → (i , zⁱ ⇨ o , zᵒ)
   route = [_]
 
+  ⟦_⟧′ : (i , zⁱ ⇨ o , zᵒ) → (i × zⁱ ty.⇨ o × zᵒ)
+  ⟦ [ r ] ⟧′ = ⟦ r ⟧
+  ⟦ f ∷ʳ inst ⟧′ = ⟦ f ⟧′ ∘ ⟦ inst ⟧
+
   instance
 
     meaningful : Meaningful (i , zⁱ ⇨ o , zᵒ)
     meaningful = record { ⟦_⟧ = ⟦_⟧′ }
-     where
-       ⟦_⟧′ : (i , zⁱ ⇨ o , zᵒ) → (i × zⁱ ty.⇨ o × zᵒ)
-       ⟦ [ r ] ⟧′ = ⟦ r ⟧
-       ⟦ f ∷ʳ inst ⟧′ = ⟦ f ⟧′ ∘ ⟦ inst ⟧
 
     category : Category _⇨_
     category = record { id = route id ; _∘_ = _∘′_ }
@@ -123,15 +123,12 @@ module k where
       ⟦ g ⟧ ∘ ⟦ f ∷ʳ inst ⟧
     ∎
 
-  open import Data.Product using (Σ)
+  ⟦⟧-Hₒ : Homomorphismₒ (Ty × Ty) Ty
+  ⟦⟧-Hₒ = record { Fₒ = λ (i , zⁱ) → i × zⁱ }
 
-
-  ⟦⟧-homomorphismₒ : Homomorphismₒ (Ty × Ty) Ty
-  ⟦⟧-homomorphismₒ = record { Fₒ = λ (i , zⁱ) → i × zⁱ }
-
-  ⟦⟧-homomorphism : Homomorphism _⇨_ ty._⇨_
-  ⟦⟧-homomorphism = record { homomorphismₒ = ⟦⟧-homomorphismₒ ; Fₘ = ⟦_⟧ }
-  -- ⟦⟧-homomorphism = record { Fₘ = ⟦_⟧ }
+  ⟦⟧-H : Homomorphism _⇨_ ty._⇨_
+  ⟦⟧-H = record { Hₒ = ⟦⟧-Hₒ ; Fₘ = ⟦_⟧ }
+  -- ⟦⟧-H = record { Fₘ = ⟦_⟧ }
 
   -- Without the explicit homomorphismₒ, I get an error:
   --
@@ -148,14 +145,14 @@ module k where
   --
   -- What's going on here? Similar problems below.
 
-  ⟦⟧-categoryH : CategoryH _⇨_ ty._⇨_ 0ℓ ⦃ homomorphism = ⟦⟧-homomorphism ⦄
+  ⟦⟧-categoryH : CategoryH _⇨_ ty._⇨_ 0ℓ ⦃ H = ⟦⟧-H ⦄
   ⟦⟧-categoryH = record { F-id = λ _ → swizzle-id ; F-∘ = _⟦∘⟧_ }
 
   equivalent : Equivalent 0ℓ _⇨_
-  equivalent = H-equiv ⟦⟧-homomorphism
+  equivalent = H-equiv ⟦⟧-H
 
-  lawful-category : LawfulCategory 0ℓ _⇨_
-  lawful-category = LawfulCategoryᶠ ⦃ homomorphism = ⟦⟧-homomorphism ⦄ ⟦⟧-categoryH
+  lawful-category : LawfulCategory 0ℓ _⇨_ ⦃ equiv = equivalent ⦄
+  lawful-category = LawfulCategoryᶠ ⦃ H = ⟦⟧-H ⦄ ⟦⟧-categoryH
 
   push : (a × b) , c ⇨ a , (b × c)
   push = route assocʳ
@@ -187,41 +184,57 @@ module sf where
   route : i r.⇨ o → i ⇨ o
   route r = mk (k.route (first r))
 
+  ⟦_⟧′ : (a ⇨ b) → (a ty.⇨ b)
+  ⟦ mk f ⟧′ = unitorᵉʳ ∘ ⟦ f ⟧ ∘ unitorⁱʳ
+
   instance
 
     meaningful : ∀ {a b} → Meaningful {μ = a ty.⇨ b} (a ⇨ b)
-    meaningful = record { ⟦_⟧ = λ (mk f) → unitorᵉʳ ∘ ⟦ f ⟧ ∘ unitorⁱʳ }
+    meaningful = record { ⟦_⟧ = ⟦_⟧′ }
+    -- meaningful = record { ⟦_⟧ = λ (mk f) → unitorᵉʳ ∘ ⟦ f ⟧ ∘ unitorⁱʳ }
 
     category : Category _⇨_
     category = record { id = route id  ; _∘_ = λ (mk g) (mk f) → mk (g ∘ f) }
 
-    ⟦⟧-homomorphismₒ : Homomorphismₒ Ty Ty
-    ⟦⟧-homomorphismₒ = record { Fₒ = λ a → a }
+    ⟦⟧-Hₒ : Homomorphismₒ Ty Ty
+    ⟦⟧-Hₒ = record { Fₒ = λ a → a }
 
-    ⟦⟧-homomorphism : Homomorphism _⇨_ ty._⇨_
-    ⟦⟧-homomorphism = record { Fₘ = ⟦_⟧ }
+    ⟦⟧-H : Homomorphism _⇨_ ty._⇨_
+    ⟦⟧-H = record { Fₘ = ⟦_⟧ }
 
     equivalent : Equivalent 0ℓ _⇨_
-    equivalent = H-equiv ⟦⟧-homomorphism
+    equivalent = H-equiv ⟦⟧-H
 
-    -- ⟦⟧-categoryH : CategoryH _⇨_ ty._⇨_ 0ℓ
-    -- ⟦⟧-categoryH = record
-    --   { F-id =
-    --       begin
-    --         ⟦ id ⟧
-    --       ≡⟨⟩
-    --         unitorᵉʳ ∘ ⟦ id ⟧ ∘ unitorⁱʳ
-    --       ≈⟨ ∘-resp-≈ʳ (∘-resp-≈ˡ F-id) ⟩
-    --         unitorᵉʳ ∘ id ∘ unitorⁱʳ
-    --       ≈⟨ ∘-resp-≈ʳ identityˡ ⟩
-    --         unitorᵉʳ ∘ unitorⁱʳ
-    --       ≈⟨ {!!} ⟩
-    --         id
-    --       ∎
-    --   ; F-∘  = λ g f → {!!}
-    --   }
-    --  where open CategoryH ⟦⟧-categoryH
-    --        open ≈-Reasoning
+    open import Relation.Binary.PropositionalEquality
+
+    ⟦⟧-categoryH : CategoryH _⇨_ ty._⇨_ 0ℓ
+    ⟦⟧-categoryH = record
+      { F-id = λ x → swizzle-id
+      ; F-∘  = λ g@(mk g′) f@(mk f′) →
+          begin
+            ⟦ g ∘ f ⟧
+          ≡⟨⟩
+            ⟦ mk g′ ∘ mk f′ ⟧
+          ≡⟨⟩
+            ⟦ mk (g′ ∘ f′) ⟧
+          ≡⟨⟩
+            unitorᵉʳ ∘ ⟦ g′ ∘ f′ ⟧ ∘ unitorⁱʳ
+          ≡⟨⟩
+            unitorᵉʳ ∘ k.⟦ g′ ∘ f′ ⟧′ ∘ unitorⁱʳ
+          ≈⟨ ∘-resp-≈ʳ {_⇨′_ = ty._⇨_} {h = unitorᵉʳ}
+                (∘-resp-≈ˡ {_⇨′_ = ty._⇨_} (F-∘ g′ f′)) ⟩
+            unitorᵉʳ ∘ (k.⟦ g′ ⟧′ ∘ k.⟦ f′ ⟧′) ∘ unitorⁱʳ
+          ≈⟨ (λ x → refl) ⟩
+            (unitorᵉʳ ∘ k.⟦ g′ ⟧′ ∘ unitorⁱʳ) ∘ (unitorᵉʳ ∘ k.⟦ f′ ⟧′ ∘ unitorⁱʳ)
+          ≡⟨⟩
+            ⟦ g ⟧′ ∘ ⟦ f ⟧′
+          ∎
+      }
+     where open ≈-Reasoning
+           open CategoryH ⦃ H = k.⟦⟧-H ⦄ k.⟦⟧-categoryH
+
+    lawful-category : LawfulCategory 0ℓ _⇨_
+    lawful-category = LawfulCategoryᶠ ⟦⟧-categoryH
 
     monoidal : Monoidal _⇨_
     monoidal = record

@@ -270,22 +270,25 @@ module ty where
     field
       f : ⟦ A ⟧ → ⟦ B ⟧
 
+  ⟦_⟧′ : (A ⇨ B) → (⟦ A ⟧ → ⟦ B ⟧)
+  ⟦ mk f ⟧′ = f
+
   instance
 
     meaningful : Meaningful (A ⇨ B)
-    meaningful = record { ⟦_⟧ = λ (mk f) → f }  -- _⇨_.f
+    meaningful = record { ⟦_⟧ = ⟦_⟧′ }  -- _⇨_.f
 
     category : Category _⇨_
     category = record { id = mk id ; _∘_ = λ { (mk g) (mk f) → mk (g ∘ f) } }
 
-    ⟦⟧-homomorphismₒ : Homomorphismₒ Ty Set
-    ⟦⟧-homomorphismₒ = record { Fₒ = ⟦_⟧ }
+    ⟦⟧-Hₒ : Homomorphismₒ Ty Set
+    ⟦⟧-Hₒ = record { Fₒ = ⟦_⟧ }
 
-    ⟦⟧-homomorphism : Homomorphism _⇨_ Function
-    ⟦⟧-homomorphism = record { Fₘ = ⟦_⟧ }
+    ⟦⟧-H : Homomorphism _⇨_ Function
+    ⟦⟧-H = record { Fₘ = ⟦_⟧ }
 
     equivalent : Equivalent 0ℓ _⇨_
-    equivalent = H-equiv ⟦⟧-homomorphism
+    equivalent = H-equiv ⟦⟧-H
 
     ⟦⟧-categoryH : CategoryH _⇨_ Function 0ℓ
     ⟦⟧-categoryH = record { F-id = λ x → refl ; F-∘  = λ f g x → refl }
@@ -319,6 +322,9 @@ module ty where
       ; F-assocʳ   = λ _ → refl
       ; F-assocˡ   = λ _ → refl
       }
+
+    -- lawful-monoidal : LawfulMonoidal 0ℓ _⇨_
+    -- lawful-monoidal = LawfulMonoidalᶠ ⟦⟧-monoidalH
 
     braided : Braided _⇨_
     braided = record { swap = mk swap }
@@ -430,14 +436,14 @@ module r where
     meaningful : ∀ {a b} → Meaningful {μ = a ty.⇨ b} (a ⇨ b)
     meaningful = record { ⟦_⟧ = λ (mk r) → ty.mk (swizzle r) }
 
-    ⟦⟧-homomorphismₒ : Homomorphismₒ Ty Ty
-    ⟦⟧-homomorphismₒ = id-homomorphismₒ
+    ⟦⟧-Hₒ : Homomorphismₒ Ty Ty
+    ⟦⟧-Hₒ = id-Hₒ
 
-    ⟦⟧-homomorphism : Homomorphism _⇨_ ty._⇨_
-    ⟦⟧-homomorphism = record { Fₘ = ⟦_⟧ }
+    ⟦⟧-H : Homomorphism _⇨_ ty._⇨_
+    ⟦⟧-H = record { Fₘ = ⟦_⟧ }
 
     equivalent : Equivalent 0ℓ _⇨_
-    equivalent = H-equiv ⟦⟧-homomorphism
+    equivalent = H-equiv ⟦⟧-H
 
     category : Category _⇨_
     category = record
