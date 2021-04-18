@@ -32,7 +32,7 @@ private variable a b c d i o z zⁱ zᵒ zᵃ zᵇ zᶜ zᵈ : Ty
 module i where
 
   infix 0 _⇨_
-  _⇨_ : (Ty × Ty) → (Ty × Ty) → Set
+  _⇨_ : Ty × Ty → Ty × Ty → Set
   (i , zⁱ ⇨ o , zᵒ) = ∃ λ a → (a p.⇨ o) × (i × zⁱ r.⇨ a × zᵒ)
 
   instance
