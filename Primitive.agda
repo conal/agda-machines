@@ -14,7 +14,7 @@ data _⇨_ : Ty → Ty → Set where
   `not : Bool ⇨ Bool
   `∧ `∨ `xor : Bool × Bool ⇨ Bool
   -- `cond : Bool × (Bool × Bool) ⇨ Bool
-  `cond : Bool × (A × A) ⇨ A
+  `cond : (A × A) × Bool ⇨ A
 
 instance
 

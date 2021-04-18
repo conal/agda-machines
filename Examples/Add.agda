@@ -52,16 +52,16 @@ rippleAdd = ripple fullAdd
 
 -- ((a , b) , ps) , cᵢ
 -- ((a , b) , cᵢ) , ps
--- (o , cₘ) , ps
--- o , (ps , cₘ)
+-- (o , c)        , ps
+-- o , (ps , c )
 -- o , (os , cₒ)
 -- (o , os) , cₒ
 
-constʳ : (⊤ ⇨ B) → (A × B ⇨ C) → (A ⇨ C)
-constʳ b f = f ∘ second b ∘ unitorⁱʳ
+constʳ : (A × B ⇨ C) → (⊤ ⇨ B) → (A ⇨ C)
+constʳ f b = f ∘ second b ∘ unitorⁱʳ
 
 speculate : (A × Bool ⇨ B) → (A × Bool ⇨ B)
-speculate f = cond ∘ second ((constʳ false f ⊗ constʳ true f) ∘ dup) ∘ swap
+speculate f = cond ∘ first (constʳ f false △ constʳ f true)
 
 V² : Ty → ℕ → ℕ → Ty
 V² A m n = V (V A n) m
