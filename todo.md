@@ -1,5 +1,9 @@
 ## To do
 
+*   Define some utilities to capture common method definitions, including most of `Monoidal` using routings.
+    Similarly for primitives.
+    Is there a suitable category theory concept?
+    Maybe subcategories or something similar.
 *   Restore semantics in `Mealy`.
     Prove `⟦⟧-functor`, and use for `equivalence` and `lawful-category`.
 *   Parametrize `Stack` over "routing" as well.
