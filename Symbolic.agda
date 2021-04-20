@@ -55,7 +55,7 @@ instance
   equivalent : Equivalent 0ℓ _⇨_
   equivalent = H-equiv ⟦⟧-H
 
-  lawful-category : LawfulCategory 0ℓ _⇨_
+  lawful-category : LawfulCategory _⇨_ 0ℓ
   lawful-category = LawfulCategoryᶠ ⟦⟧-categoryH
 
   monoidal : Monoidal _⇨_

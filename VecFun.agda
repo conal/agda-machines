@@ -76,7 +76,7 @@ module VecFunInstances where
     -- TODO: Redefine equivalent and lawful-category via F-equiv and
     -- LawfulCategoryᶠ once ⟦_⟧ targets a category.
 
-    lawful-category : LawfulCategory 0ℓ _⇨_
+    lawful-category : LawfulCategory _⇨_ 0ℓ
     lawful-category = record
       { identityˡ = λ {a b}{f}{n} as → refl
       ; identityʳ = λ {a b}{f}{n} as → refl

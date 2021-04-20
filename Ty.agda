@@ -293,7 +293,7 @@ module ty where
     ⟦⟧-categoryH : CategoryH _⇨_ Function 0ℓ
     ⟦⟧-categoryH = record { F-id = λ x → refl ; F-∘  = λ f g x → refl }
 
-    lawful-category : LawfulCategory 0ℓ _⇨_
+    lawful-category : LawfulCategory _⇨_ 0ℓ
     lawful-category = LawfulCategoryᶠ ⟦⟧-categoryH
 
     monoidal : Monoidal _⇨_
@@ -323,7 +323,7 @@ module ty where
       ; F-assocˡ   = λ _ → refl
       }
 
-    -- lawful-monoidal : LawfulMonoidal 0ℓ _⇨_
+    -- lawful-monoidal : LawfulMonoidal _⇨_ 0ℓ
     -- lawful-monoidal = LawfulMonoidalᶠ ⟦⟧-monoidalH
 
     braided : Braided _⇨_
@@ -474,7 +474,7 @@ module r where
       ; F-∘  = λ (mk g) (mk f) → λ x → swizzle-∘ g f
       }
 
-    lawful-category : LawfulCategory 0ℓ _⇨_
+    lawful-category : LawfulCategory _⇨_ 0ℓ
     lawful-category = LawfulCategoryᶠ ⟦⟧-categoryH
 
     monoidal : Monoidal _⇨_

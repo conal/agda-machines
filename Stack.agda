@@ -127,7 +127,7 @@ module k where
   equivalent : Equivalent 0ℓ _⇨_
   equivalent = H-equiv ⟦⟧-H
 
-  lawful-category : LawfulCategory 0ℓ _⇨_ ⦃ equiv = equivalent ⦄
+  lawful-category : LawfulCategory _⇨_ 0ℓ ⦃ equiv = equivalent ⦄
   lawful-category = LawfulCategoryᶠ ⦃ H = ⟦⟧-H ⦄ ⟦⟧-categoryH
 
   push : (a × b) , c ⇨ a , (b × c)
@@ -208,7 +208,7 @@ module sf where
      where open ≈-Reasoning
            open CategoryH ⦃ H = k.⟦⟧-H ⦄ k.⟦⟧-categoryH
 
-    lawful-category : LawfulCategory 0ℓ _⇨_
+    lawful-category : LawfulCategory _⇨_ 0ℓ
     lawful-category = LawfulCategoryᶠ ⟦⟧-categoryH
 
     monoidal : Monoidal _⇨_
