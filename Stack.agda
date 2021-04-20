@@ -32,22 +32,23 @@ private variable a b c d i o z zⁱ zᵒ zᵃ zᵇ zᶜ zᵈ : Ty
 module k where
 
   infix 0 _⇨_
-  infixl 5 _◦_◦_  -- (note ◦ vs ∘)
+  infixr 9 _◦first_◦_  -- (note ◦ vs ∘)
   data _⇨_ : Ty × Ty → Ty × Ty → Set where
-    ⌞_⌟   : (i × zⁱ r.⇨ o × zᵒ) → (i , zⁱ ⇨ o , zᵒ)
-    _◦_◦_ : (b , z ⇨ o , zᵒ) → (a p.⇨ b) → (i × zⁱ r.⇨ a × z) → (i , zⁱ ⇨ o , zᵒ)
+    ⌞_⌟ : (i × zⁱ r.⇨ o × zᵒ) → (i , zⁱ ⇨ o , zᵒ)
+    _◦first_◦_ : (b , z ⇨ o , zᵒ) → (a p.⇨ b) → (i × zⁱ r.⇨ a × z)
+                → (i , zⁱ ⇨ o , zᵒ)
     
   route : (i × zⁱ r.⇨ o × zᵒ) → (i , zⁱ ⇨ o , zᵒ)
   route = ⌞_⌟
 
   ⟦_⟧′ : (i , zⁱ ⇨ o , zᵒ) → (i × zⁱ ty.⇨ o × zᵒ)
   ⟦ ⌞ r ⌟ ⟧′ = ⟦ r ⟧
-  ⟦ f ◦ p ◦ r ⟧′ = ⟦ f ⟧′ ∘ first ⟦ p ⟧ ∘ ⟦ r ⟧
+  ⟦ f ◦first p ◦ r ⟧′ = ⟦ f ⟧′ ∘ first ⟦ p ⟧ ∘ ⟦ r ⟧
 
   infixr 9 _∘′_
   _∘′_ : (a , zᵃ ⇨ o , zᵒ) → (i , zⁱ ⇨ a , zᵃ) → (i , zⁱ ⇨ o , zᵒ)
-  g ∘′ (f ◦ p ◦ r) = (g ∘′ f) ◦ p ◦ r
-  (g ◦ p ◦ r₂) ∘′ ⌞ r₁ ⌟ = g ◦ p ◦ r₂ ∘ r₁
+  g ∘′ (f ◦first p ◦ r) = (g ∘′ f) ◦first p ◦ r
+  (g ◦first p ◦ r₂) ∘′ ⌞ r₁ ⌟ = g ◦first p ◦ (r₂ ∘ r₁)
   ⌞ r₂ ⌟ ∘′ ⌞ r₁ ⌟ = ⌞ r₂ ∘ r₁ ⌟
 
   instance
@@ -64,11 +65,11 @@ module k where
   _⟦∘⟧_ : ∀ (g : b , zᵇ ⇨ c , zᶜ) (f : a , zᵃ ⇨ b , zᵇ)
         → ⟦ g ∘ f ⟧ ≈ ⟦ g ⟧ ∘ ⟦ f ⟧
 
-  g ⟦∘⟧ (f ◦ p ◦ r) = let open CategoryH r.⟦⟧-categoryH in
+  g ⟦∘⟧ (f ◦first p ◦ r) = let open CategoryH r.⟦⟧-categoryH in
     begin
-      ⟦ g ∘ (f ◦ p ◦ r) ⟧
+      ⟦ g ∘ (f ◦first p ◦ r) ⟧
     ≡⟨⟩
-      ⟦ (g ∘ f) ◦ p ◦ r ⟧
+      ⟦ (g ∘ f) ◦first p ◦ r ⟧
     ≡⟨⟩
       ⟦ g ∘ f ⟧ ∘ first ⟦ p ⟧ ∘ ⟦ r ⟧
     ≈⟨ ∘-resp-≈ˡ {h = ⟦ g ∘ f ⟧} (g ⟦∘⟧ f) ⟩
@@ -76,14 +77,14 @@ module k where
     ≈⟨ assoc {g = ⟦ f ⟧}{h = ⟦ g ⟧} ⟩
       ⟦ g ⟧ ∘ (⟦ f ⟧ ∘ first ⟦ p ⟧ ∘ ⟦ r ⟧)
     ≡⟨⟩
-      ⟦ g ⟧ ∘ ⟦ f ◦ p ◦ r ⟧
+      ⟦ g ⟧ ∘ ⟦ f ◦first p ◦ r ⟧
     ∎
 
-  (g ◦ p ◦ r₂) ⟦∘⟧ ⌞ r₁ ⌟ = let open CategoryH r.⟦⟧-categoryH in
+  (g ◦first p ◦ r₂) ⟦∘⟧ ⌞ r₁ ⌟ = let open CategoryH r.⟦⟧-categoryH in
     begin
-      ⟦ (g ◦ p ◦ r₂) ∘ ⌞ r₁ ⌟ ⟧
+      ⟦ (g ◦first p ◦ r₂) ∘ ⌞ r₁ ⌟ ⟧
     ≡⟨⟩
-      ⟦ g ◦ p ◦ r₂ ∘ r₁ ⟧
+      ⟦ g ◦first p ◦ (r₂ ∘ r₁) ⟧
     ≡⟨⟩
       ⟦ g ⟧ ∘ first ⟦ p ⟧  ∘ ⟦ r₂ ∘ r₁ ⟧
     ≈⟨ ∘-resp-≈ʳ {h = ⟦ g ⟧} (∘-resp-≈ʳ {h = first ⟦ p ⟧} (F-∘ r₂ r₁)) ⟩
@@ -93,7 +94,7 @@ module k where
     ≈˘⟨ assoc {g = first ⟦ p ⟧ ∘ ⟦ r₂ ⟧}{h = ⟦ g ⟧}⟩
       (⟦ g ⟧ ∘ (first ⟦ p ⟧ ∘ ⟦ r₂ ⟧)) ∘ ⟦ r₁ ⟧
     ≡⟨⟩
-      ⟦ g ◦ p ◦ r₂ ⟧ ∘ ⟦ ⌞ r₁ ⌟ ⟧
+      ⟦ g ◦first p ◦ r₂ ⟧ ∘ ⟦ ⌞ r₁ ⌟ ⟧
     ∎
 
   ⌞ r₂ ⌟ ⟦∘⟧ ⌞ r₁ ⌟ = F-∘ r₂ r₁   where open CategoryH r.⟦⟧-categoryH
@@ -139,7 +140,7 @@ module k where
   stacking f = pop ∘ f ∘ push
 
   prim : (i p.⇨ o) → (i , zⁱ ⇨ o , zⁱ)
-  prim p = ⌞ id ⌟ ◦ p ◦ id
+  prim p = ⌞ id ⌟ ◦first p ◦ id
 
 open k using (stacking)
 
