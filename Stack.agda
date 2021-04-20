@@ -34,8 +34,8 @@ module k where
   infix 0 _⇨_
   infixl 5 _◂_◂_
   data _⇨_ : Ty × Ty → Ty × Ty → Set where
-    [_]  : (i × zⁱ r.⇨ o × zᵒ) → (i , zⁱ ⇨ o , zᵒ)
-    _◂_◂_ : ∀ {a b} → (b , z ⇨ o , zᵒ) → (a p.⇨ b) → (i × zⁱ r.⇨ a × z) → (i , zⁱ ⇨ o , zᵒ)
+    [_]   : (i × zⁱ r.⇨ o × zᵒ) → (i , zⁱ ⇨ o , zᵒ)
+    _◂_◂_ : (b , z ⇨ o , zᵒ) → (a p.⇨ b) → (i × zⁱ r.⇨ a × z) → (i , zⁱ ⇨ o , zᵒ)
     
   route : (i × zⁱ r.⇨ o × zᵒ) → (i , zⁱ ⇨ o , zᵒ)
   route = [_]
@@ -68,9 +68,7 @@ module k where
     begin
       ⟦ g ∘ (f ◂ p ◂ r) ⟧
     ≡⟨⟩
-      ⟦ g ∘′ (f ◂ p ◂ r) ⟧′
-    ≡⟨⟩
-      ⟦ (g ∘′ f) ◂ p ◂ r ⟧′
+      ⟦ (g ∘ f) ◂ p ◂ r ⟧
     ≡⟨⟩
       ⟦ g ∘ f ⟧ ∘ first ⟦ p ⟧ ∘ ⟦ r ⟧
     ≈⟨ ∘-resp-≈ˡ {h = ⟦ g ∘ f ⟧} (g ⟦∘⟧ f) ⟩
@@ -137,14 +135,13 @@ module k where
   pop : a , (b × c) ⇨ (a × b) , c
   pop = route assocˡ
 
-  stacked : (a , (b × z) ⇨ c , (b × z)) → ((a × b) , z) ⇨ ((c × b) , z)
-  stacked f = pop ∘ f ∘ push
+  stacking : (a , (b × z) ⇨ c , (b × z)) → ((a × b) , z) ⇨ ((c × b) , z)
+  stacking f = pop ∘ f ∘ push
 
   prim : (i p.⇨ o) → (i , zⁱ ⇨ o , zⁱ)
   prim p = [ id ] ◂ p ◂ id
 
-
-open k using (stacked)
+open k using (stacking)
 
 -- Stack-preserving function
 module sf where
@@ -226,7 +223,7 @@ module sf where
       }
      where
        first′ : (a ⇨ c) → (a × b ⇨ c × b)
-       first′ (mk f) = mk (stacked f)
+       first′ (mk f) = mk (stacking f)
 
        second′ : (b ⇨ d) → (a × b ⇨ a × d)
        second′ f = route swap ∘ first′ f ∘ route swap
