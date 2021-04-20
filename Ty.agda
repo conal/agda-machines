@@ -179,12 +179,12 @@ infixr 4 _､_
 
 -- Ty-indexed representable functor
 data TyF (X : Set) : Ty → Set where
-  •   : TyF X ⊤
+  ·   : TyF X ⊤
   [_] : X → TyF X Bool
   _､_ : TyF X A → TyF X B → TyF X (A × B)
 
 tabulate′ : (TyIx A → X) → TyF X A
-tabulate′ {`⊤} f = •
+tabulate′ {`⊤} f = ·
 tabulate′ {`Bool} f = [ f here ]
 tabulate′ {_ `× _} f = tabulate′ (f ∘ left) ､ tabulate′ (f ∘ right)
 
@@ -197,12 +197,12 @@ swizzle′ : (TyIx B → TyIx A) → ∀ {X} → TyF X A → TyF X B
 swizzle′ r a = tabulate′ (lookup′ a ∘ r)
 
 →TyF : ⟦ A ⟧ → TyF Bool A
-→TyF {`⊤} tt = •
+→TyF {`⊤} tt = ·
 →TyF {`Bool} b = [ b ]
 →TyF {_ `× _} (x , y) = →TyF x ､ →TyF y
 
 TyF→ : TyF Bool A → ⟦ A ⟧
-TyF→ • = tt
+TyF→ · = tt
 TyF→ [ b ] = b
 TyF→ (x ､ y) = TyF→ x , TyF→ y
 
@@ -229,7 +229,7 @@ toFin (left  i) = inject+ _ (toFin i)
 toFin (right j) = raise   _ (toFin j)
 
 toVec : TyF X A → Vec X (size A)
-toVec • = []
+toVec · = []
 toVec [ x ] = x ∷ []
 toVec (u ､ v) = toVec u ++ⁿ toVec v
 
@@ -239,23 +239,23 @@ toList : TyF X A → List X
 toList = toListⁿ ∘ toVec
 
 map : (X → Y) → TyF X A → TyF Y A
-map f • = •
+map f · = ·
 map f [ x ] = [ f x ]
 map f (u ､ v) = map f u ､ map f v
 
 allFin : TyF (Fin (size A)) A
-allFin {`⊤} = •
+allFin {`⊤} = ·
 allFin {`Bool} = [ zero ]
 allFin {_ `× _} = map (inject+ _) allFin ､ map (raise _) allFin
 
 allIx : TyF (TyIx A) A
-allIx {`⊤} = •
+allIx {`⊤} = ·
 allIx {`Bool} = [ here ]
 allIx {_ `× _} = map left allIx ､ map right allIx
 
 infixl 4 _⊛_
 _⊛_ : TyF (X → Y) A → TyF X A → TyF Y A
-• ⊛ • = •
+· ⊛ · = ·
 [ f ] ⊛ [ x ] = [ f x ]
 (fs ､ gs) ⊛ (xs ､ ys) = (fs ⊛ xs) ､ (gs ⊛ ys)
 
