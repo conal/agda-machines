@@ -84,7 +84,7 @@ infix 4 _≡_at_
 _≡_at_ : Stream A → Stream A → ℕ → Set _
 u ≡ v at i = u i ≡ v i
 
-infix 1 _↠_
+infix 0 _↠_
 _↠_ : Set → Set → Set
 A ↠ B = Stream A → Stream B
 

@@ -432,7 +432,7 @@ module TyUtils {ℓ} {_⇨_ : Ty → Ty → Set ℓ} (let infix 0 _⇨_; _⇨_ =
 
 module r where
 
-  infix 1 _⇨_
+  infix 0 _⇨_
   record _⇨_ (A B : Ty) : Set where
     constructor mk
     field

@@ -70,7 +70,7 @@ infix 4 _≈_upto_
 _≈_upto_ : Stream A → Stream A → ℕ → Set
 u ≈ v upto n = take n u ≡ take n v
 
-infix 1 _↠_
+infix 0 _↠_
 _↠_ : Set → Set → Set
 A ↠ B = Stream A → Stream B
 

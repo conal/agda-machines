@@ -8,7 +8,7 @@ open import Ty
 
 private variable A B : Ty
 
-infix 1 _⇨_
+infix 0 _⇨_
 data _⇨_ : Ty → Ty → Set where
   `false `true : ⊤ ⇨ Bool
   `not : Bool ⇨ Bool

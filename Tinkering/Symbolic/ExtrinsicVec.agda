@@ -119,7 +119,7 @@ module b where
 -- Routing.  TODO: consider generalizing from Bool.
 module r′ {A : Set} where
 
-  infix 1 _⇨_
+  infix 0 _⇨_
   _⇨_ : ℕ → ℕ → Set
   a ⇨ b = Fin b → Fin a
 
@@ -200,7 +200,7 @@ module p where
   2→1 : (Bool → Bool → Bool) → 2 b.⇨ 1
   2→1 _∙_ (x ∷ y ∷ []) = x ∙ y ∷ []
 
-  infix 1 _⇨_
+  infix 0 _⇨_
   data _⇨_ : ℕ → ℕ → Set where
     ∧ ∨ xor : 2 ⇨ 1
     not : 1 ⇨ 1
