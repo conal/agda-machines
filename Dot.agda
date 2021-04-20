@@ -14,8 +14,8 @@ open import Relation.Binary.PropositionalEquality using (_≡_; refl)
 open import Category
 open import Ty renaming (map to mapᵀ)
 
-import Primitive    -- for Show
-open import Stack
+import Primitive as p    -- for Show
+open import Stack ; open k using (_◂_◂_; [_])
 
 private variable a b c d i o s z zⁱ zᵒ zᵃ : Ty
 
@@ -84,16 +84,17 @@ module _ {s} (stateF₀ : ⊤ sf.⇨ s) where
   register : TyIx s → Bool → OPort → List String
   register j s₀ src = comp (reg j) ("cons " ++ show s₀) [ src ] Bool
 
+  codᵖ : (a p.⇨ b) → Ty
+  codᵖ {b = b} _ = b
+
   dotᵏ : ℕ → TyF OPort (i × zⁱ) → (i , zⁱ k.⇨ (o × s) , ⊤) → List String
-  dotᵏ _ ins k.[ r ] with r.⟦ unitorᵉʳ ∘ r ⟧′ ins
-  ...                       | os ､ ss =
+  dotᵏ _ ins [ r ] with r.⟦ unitorᵉʳ ∘ r ⟧′ ins ; ... | os ､ ss =
     concat (toList (mapᵀ register allIx ⊛ →TyF state₀ ⊛ ss))
     ++ᴸ comp "output" "output" os ⊤
 
-  dotᵏ comp# ins (k._∷ʳ_ {a = b} f (a , a⇨ₚb , i×zⁱ⇨ᵣa×zᵃ))
-       with r.⟦ i×zⁱ⇨ᵣa×zᵃ ⟧′ ins ; ... | os ､ ss =
+  dotᵏ comp# ins (f ◂ p ◂ r) with r.⟦ r ⟧′ ins ; ... | os ､ ss =
     let compName = "c" ++ show comp# in
-      comp compName (show a⇨ₚb) os b
+      comp compName (show p) os (codᵖ p)
       ++ᴸ dotᵏ (suc comp#) (mapᵀ (oport compName) allIx ､ ss) f
 
   dot : i × s sf.⇨ o × s → String

@@ -26,37 +26,29 @@ import Primitive as p
 
 private variable a b c d i o z zⁱ zᵒ zᵃ zᵇ zᶜ zᵈ : Ty
 
--- TODO: replace superscripts by subscripts in z names?
-
--- Primitive instance: primitive `p` with input routing for `first p`.
-module i where
-
-  infix 0 _⇨_
-  _⇨_ : Ty × Ty → Ty × Ty → Set
-  (i , zⁱ ⇨ o , zᵒ) = ∃ λ a → (a p.⇨ o) × (i × zⁱ r.⇨ a × zᵒ)
-
-  instance
-
-    meaningful : Meaningful {μ = i × zⁱ ty.⇨ o × zᵒ} (i , zⁱ ⇨ o , zᵒ)
-    meaningful {i}{zⁱ}{o}{zᵒ} = record
-      { ⟦_⟧ = λ (a , a↠o , i×zⁱ⇨ᵣa×zᵒ) → first ⟦ a↠o ⟧ ∘ ⟦ i×zⁱ⇨ᵣa×zᵒ ⟧ }
-
+-- TODO: replace superscripts by subscripts in z names.
 
 -- Stack operations
 module k where
 
   infix 0 _⇨_
-  infixl 5 _∷ʳ_
+  infixl 5 _◂_◂_
   data _⇨_ : Ty × Ty → Ty × Ty → Set where
     [_]  : (i × zⁱ r.⇨ o × zᵒ) → (i , zⁱ ⇨ o , zᵒ)
-    _∷ʳ_ : (a , zᵃ ⇨ o , zᵒ) → (i , zⁱ i.⇨ a , zᵃ) → (i , zⁱ ⇨ o , zᵒ)
-
+    _◂_◂_ : ∀ {a b} → (b , z ⇨ o , zᵒ) → (a p.⇨ b) → (i × zⁱ r.⇨ a × z) → (i , zⁱ ⇨ o , zᵒ)
+    
   route : (i × zⁱ r.⇨ o × zᵒ) → (i , zⁱ ⇨ o , zᵒ)
   route = [_]
 
   ⟦_⟧′ : (i , zⁱ ⇨ o , zᵒ) → (i × zⁱ ty.⇨ o × zᵒ)
   ⟦ [ r ] ⟧′ = ⟦ r ⟧
-  ⟦ f ∷ʳ inst ⟧′ = ⟦ f ⟧′ ∘ ⟦ inst ⟧
+  ⟦ f ◂ a↠o ◂ r ⟧′ = ⟦ f ⟧′ ∘ first ⟦ a↠o ⟧ ∘ ⟦ r ⟧
+
+  infixr 9 _∘′_
+  _∘′_ : (a , zᵃ ⇨ o , zᵒ) → (i , zⁱ ⇨ a , zᵃ) → (i , zⁱ ⇨ o , zᵒ)
+  g ∘′ (f ◂ p ◂ r) = (g ∘′ f) ◂ p ◂ r
+  (g ◂ p ◂ r₂) ∘′ [ r₁ ] = g ◂ p ◂ r₂ ∘ r₁
+  [ r₂ ] ∘′ [ r₁ ] = [ r₂ ∘ r₁ ]
 
   instance
 
@@ -65,21 +57,6 @@ module k where
 
     category : Category _⇨_
     category = record { id = route id ; _∘_ = _∘′_ }
-     where
-       infixr 9 _∘ʳ_
-       _∘ʳ_ : (a , zᵃ ⇨ o , zᵒ) → (i × zⁱ r.⇨ a × zᵃ) → (i , zⁱ ⇨ o , zᵒ)
-       [ r₂ ] ∘ʳ r₁ = [ r₂ ∘ r₁ ]
-       (g ∷ʳ (d , d↠e , r₂)) ∘ʳ r₁ = g ∷ʳ (d , d↠e , r₂ ∘ r₁)
-
-       infixr 9 _∘′_
-       _∘′_ : (a , zᵃ ⇨ o , zᵒ) → (i , zⁱ ⇨ a , zᵃ) → (i , zⁱ ⇨ o , zᵒ)
-       g ∘′ [ r ] = g ∘ʳ r
-       g ∘′ (f ∷ʳ inst) = g ∘′ f ∷ʳ inst
-
-       -- -- Or drop _∘ʳ_, although Agda shades the last clause gray.
-       -- [ r₂ ] ∘′ [ r₁ ] = [ r₂ ∘ r₁ ]
-       -- (g ∷ʳ (d , d↠e , r₂)) ∘′ [ r₁ ] = g ∷ʳ (d , d↠e , r₂ ∘ r₁)
-       -- g ∘′ (f ∷ʳ inst) = g ∘′ f ∷ʳ inst
 
   open ≈-Reasoning
 
@@ -87,41 +64,41 @@ module k where
   _⟦∘⟧_ : ∀ (g : b , zᵇ ⇨ c , zᶜ) (f : a , zᵃ ⇨ b , zᵇ)
         → ⟦ g ∘ f ⟧ ≈ ⟦ g ⟧ ∘ ⟦ f ⟧
 
-  [ r₂ ] ⟦∘⟧ [ r₁ ] = F-∘ r₂ r₁   where open CategoryH r.⟦⟧-categoryH
-
-  (g ∷ʳ (d , d↠e , r₂)) ⟦∘⟧ [ r₁ ] = let open CategoryH r.⟦⟧-categoryH in
+  g ⟦∘⟧ (f ◂ p ◂ r) = let open CategoryH r.⟦⟧-categoryH in
     begin
-      ⟦ (g ∷ʳ (d , d↠e , r₂)) ∘ [ r₁ ] ⟧
+      ⟦ g ∘ (f ◂ p ◂ r) ⟧
     ≡⟨⟩
-      ⟦ g ∷ʳ (d , d↠e , r₂ ∘ r₁) ⟧
+      ⟦ g ∘′ (f ◂ p ◂ r) ⟧′
     ≡⟨⟩
-      ⟦ g ⟧ ∘ ⟦ d , d↠e , r₂ ∘ r₁ ⟧
+      ⟦ (g ∘′ f) ◂ p ◂ r ⟧′
     ≡⟨⟩
-      ⟦ g ⟧ ∘ (first ⟦ d↠e ⟧ ∘ ⟦ r₂ ∘ r₁ ⟧)
-    ≈⟨ ∘-resp-≈ʳ {h = ⟦ g ⟧} (∘-resp-≈ʳ {h = first ⟦ d↠e ⟧} (F-∘ r₂ r₁)) ⟩
-      ⟦ g ⟧ ∘ (first ⟦ d↠e ⟧ ∘ (⟦ r₂ ⟧ ∘ ⟦ r₁ ⟧))
-    ≈˘⟨ ∘-resp-≈ʳ {h = ⟦ g ⟧} (assoc {f = ⟦ r₁ ⟧}{g = ⟦ r₂ ⟧}{h = first ⟦ d↠e ⟧}) ⟩
-      ⟦ g ⟧ ∘ ((first ⟦ d↠e ⟧ ∘ ⟦ r₂ ⟧) ∘ ⟦ r₁ ⟧)
-    ≈˘⟨ assoc {g = first ⟦ d↠e ⟧ ∘ ⟦ r₂ ⟧}{h = ⟦ g ⟧}⟩
-      (⟦ g ⟧ ∘ (first ⟦ d↠e ⟧ ∘ ⟦ r₂ ⟧)) ∘ ⟦ r₁ ⟧
-    ≡⟨⟩
-      ⟦ g ∷ʳ (d , d↠e , r₂) ⟧ ∘ ⟦ [ r₁ ] ⟧
-    ∎
-
-  g ⟦∘⟧ (f ∷ʳ inst) = let open CategoryH r.⟦⟧-categoryH in
-    begin
-      ⟦ g ∘ (f ∷ʳ inst) ⟧
-    ≡⟨⟩
-      ⟦ (g ∘ f) ∷ʳ inst ⟧
-    ≡⟨⟩
-      ⟦ g ∘ f ⟧ ∘ ⟦ inst ⟧
+      ⟦ g ∘ f ⟧ ∘ first ⟦ p ⟧ ∘ ⟦ r ⟧
     ≈⟨ ∘-resp-≈ˡ {h = ⟦ g ∘ f ⟧} (g ⟦∘⟧ f) ⟩
-      (⟦ g ⟧ ∘ ⟦ f ⟧) ∘ ⟦ inst ⟧
+      (⟦ g ⟧ ∘ ⟦ f ⟧) ∘ first ⟦ p ⟧ ∘ ⟦ r ⟧
     ≈⟨ assoc {g = ⟦ f ⟧}{h = ⟦ g ⟧} ⟩
-      ⟦ g ⟧ ∘ (⟦ f ⟧ ∘ ⟦ inst ⟧)
+      ⟦ g ⟧ ∘ (⟦ f ⟧ ∘ first ⟦ p ⟧ ∘ ⟦ r ⟧)
     ≡⟨⟩
-      ⟦ g ⟧ ∘ ⟦ f ∷ʳ inst ⟧
+      ⟦ g ⟧ ∘ ⟦ f ◂ p ◂ r ⟧
     ∎
+
+  (g ◂ p ◂ r₂) ⟦∘⟧ [ r₁ ] = let open CategoryH r.⟦⟧-categoryH in
+    begin
+      ⟦ (g ◂ p ◂ r₂) ∘ [ r₁ ] ⟧
+    ≡⟨⟩
+      ⟦ g ◂ p ◂ r₂ ∘ r₁ ⟧
+    ≡⟨⟩
+      ⟦ g ⟧ ∘ first ⟦ p ⟧  ∘ ⟦ r₂ ∘ r₁ ⟧
+    ≈⟨ ∘-resp-≈ʳ {h = ⟦ g ⟧} (∘-resp-≈ʳ {h = first ⟦ p ⟧} (F-∘ r₂ r₁)) ⟩
+      ⟦ g ⟧ ∘ (first ⟦ p ⟧ ∘ (⟦ r₂ ⟧ ∘ ⟦ r₁ ⟧))
+    ≈˘⟨ ∘-resp-≈ʳ {h = ⟦ g ⟧} (assoc {f = ⟦ r₁ ⟧}{g = ⟦ r₂ ⟧}{h = first ⟦ p ⟧}) ⟩
+      ⟦ g ⟧ ∘ ((first ⟦ p ⟧ ∘ ⟦ r₂ ⟧) ∘ ⟦ r₁ ⟧)
+    ≈˘⟨ assoc {g = first ⟦ p ⟧ ∘ ⟦ r₂ ⟧}{h = ⟦ g ⟧}⟩
+      (⟦ g ⟧ ∘ (first ⟦ p ⟧ ∘ ⟦ r₂ ⟧)) ∘ ⟦ r₁ ⟧
+    ≡⟨⟩
+      ⟦ g ◂ p ◂ r₂ ⟧ ∘ ⟦ [ r₁ ] ⟧
+    ∎
+
+  [ r₂ ] ⟦∘⟧ [ r₁ ] = F-∘ r₂ r₁   where open CategoryH r.⟦⟧-categoryH
 
   ⟦⟧-Hₒ : Homomorphismₒ (Ty × Ty) Ty
   ⟦⟧-Hₒ = record { Fₒ = λ (i , zⁱ) → i × zⁱ }
@@ -164,7 +141,7 @@ module k where
   stacked f = pop ∘ f ∘ push
 
   prim : (i p.⇨ o) → (i , zⁱ ⇨ o , zⁱ)
-  prim {i} i↠o = [ id ] ∷ʳ (i , i↠o , id)
+  prim p = [ id ] ◂ p ◂ id
 
 
 open k using (stacked)
@@ -179,7 +156,7 @@ module sf where
       f : ∀ {z} → i , z k.⇨ o , z
 
   prim : i p.⇨ o → i ⇨ o
-  prim i↠o = mk (k.prim i↠o)
+  prim p = mk (k.prim p)
 
   route : i r.⇨ o → i ⇨ o
   route r = mk (k.route (first r))
@@ -265,7 +242,8 @@ module sf where
                    ; false = prim false ; true = prim true ; cond = prim cond }
 
   import Symbolic as s
-  -- Homomorphic compilation. Pretty and unnecessary.
+  -- Homomorphic compilation. Pretty and unnecessary. TODO: move this function
+  -- to Symbolic, and generalize the target category.
   compile : a s.⇨ b → a ⇨ b
   compile (s.`route r) = route r
   compile (s.`prim  p) = prim p
