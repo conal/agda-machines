@@ -81,7 +81,7 @@ record Homomorphism
 
 H-equiv : {obj₁ : Set o₁} {_⇨₁_ : obj₁ → obj₁ → Set ℓ₁}
           {obj₂ : Set o₂} {_⇨₂_ : obj₂ → obj₂ → Set ℓ₂}
-          {q : Level} ⦃ equiv₂ : Equivalent q _⇨₂_ ⦄
+          {q : Level} ⦃ _ : Equivalent q _⇨₂_ ⦄
           (H : Homomorphism _⇨₁_ _⇨₂_)  -- note explicit/visible argument
         → Equivalent q _⇨₁_
 H-equiv H = record { equiv = On.isEquivalence (Homomorphism.Fₘ H) equiv }
@@ -95,12 +95,12 @@ record Category {obj : Set o} (_⇨_ : obj → obj → Set ℓ) : Set (lsuc o �
 
 open Category ⦃ … ⦄ public
 
-record LawfulCategory q {obj : Set o} (_⇨′_ : obj → obj → Set ℓ)
-                      ⦃ equiv : Equivalent q _⇨′_ ⦄
+record LawfulCategory {obj : Set o} (_⇨′_ : obj → obj → Set ℓ)
+                      q ⦃ equiv : Equivalent q _⇨′_ ⦄
        : Set (lsuc o ⊔ ℓ ⊔ lsuc q) where
   private infix 0 _⇨_; _⇨_ = _⇨′_
   field
-    ⦃ cat ⦄ : Category _⇨′_
+    ⦃ ⇨Category ⦄ : Category _⇨′_
     identityˡ : {f : a ⇨ b} → id ∘ f ≈ f
     identityʳ : {f : a ⇨ b} → f ∘ id ≈ f
     assoc     : {f : a ⇨ b} {g : b ⇨ c} {h : c ⇨ d}
@@ -119,9 +119,9 @@ open LawfulCategory ⦃ … ⦄ public
 -- Category homomorphism (functor)
 record CategoryH {obj₁ : Set o₁} (_⇨₁_ : obj₁ → obj₁ → Set ℓ₁)
                  {obj₂ : Set o₂} (_⇨₂_ : obj₂ → obj₂ → Set ℓ₂)
-                 q ⦃ equiv₂ : Equivalent q _⇨₂_ ⦄
-                 ⦃ cat₁ : Category _⇨₁_ ⦄
-                 ⦃ cat₂ : Category _⇨₂_ ⦄
+                 q ⦃ _ : Equivalent q _⇨₂_ ⦄
+                 ⦃ _ : Category _⇨₁_ ⦄
+                 ⦃ _ : Category _⇨₂_ ⦄
                  ⦃ H : Homomorphism _⇨₁_ _⇨₂_ ⦄
        : Set (o₁ ⊔ ℓ₁ ⊔ o₂ ⊔ ℓ₂ ⊔ q) where
   open Homomorphism H public
@@ -138,14 +138,13 @@ record CategoryH {obj₁ : Set o₁} (_⇨₁_ : obj₁ → obj₁ → Set ℓ�
 
 LawfulCategoryᶠ : {obj₁ : Set o₁} {_⇨₁_ : obj₁ → obj₁ → Set ℓ₁}
                   {obj₂ : Set o₂} {_⇨₂_ : obj₂ → obj₂ → Set ℓ₂}
-                  {q : Level} ⦃ equiv₂ : Equivalent q _⇨₂_ ⦄
-                  ⦃ cat₁ : Category _⇨₁_ ⦄
-                  ⦃ cat₂ : Category _⇨₂_ ⦄
-                  ⦃ lawful₂ : LawfulCategory q _⇨₂_ ⦄
+                  {q : Level} ⦃ _ : Equivalent q _⇨₂_ ⦄
+                  ⦃ _ : Category _⇨₁_ ⦄
+                  ⦃ _ : LawfulCategory _⇨₂_ q ⦄
                   ⦃ H : Homomorphism _⇨₁_ _⇨₂_ ⦄
                   (F : CategoryH _⇨₁_ _⇨₂_ q)
-                → LawfulCategory q _⇨₁_ ⦃ equiv = H-equiv H ⦄
-LawfulCategoryᶠ ⦃ H = H ⦄ F = record
+                → LawfulCategory _⇨₁_ q ⦃ equiv = H-equiv H ⦄
+LawfulCategoryᶠ F = record
   { identityˡ = λ {a b} {f} →
       begin
         Fₘ (id ∘ f)
@@ -241,7 +240,8 @@ record Monoidal {obj : Set o} ⦃ _ : Products obj ⦄
   private infix 0 _⇨_; _⇨_ = _⇨′_
   infixr 7 _⊗_
   field
-    ⦃ ⇨cat ⦄ : Category _⇨_
+    ⦃ ⇨Category ⦄ : Category _⇨_
+
     ! : a ⇨ ⊤
     _⊗_ : (a ⇨ c) → (b ⇨ d) → (a × b ⇨ c × d)
 
@@ -290,14 +290,14 @@ record Monoidal {obj : Set o} ⦃ _ : Products obj ⦄
 
 open Monoidal ⦃ … ⦄ public
 
-record LawfulMonoidal q {obj : Set o} ⦃ _ : Products obj ⦄
+record LawfulMonoidal {obj : Set o} ⦃ _ : Products obj ⦄
          (_⇨′_ : obj → obj → Set ℓ)
+         q ⦃ _ : Equivalent q _⇨′_ ⦄
        : Set (lsuc o ⊔ ℓ ⊔ lsuc q) where
   private infix 0 _⇨_; _⇨_ = _⇨′_
   field
-    ⦃ cat ⦄ : Monoidal _⇨_
-    ⦃ cat-equiv ⦄ : Equivalent q _⇨_
-    -- ⦃ lawful-cat ⦄ : LawfulCategory q _⇨_
+    ⦃ ⇨Monoidal ⦄ : Monoidal _⇨_
+    -- ⦃ lawful-cat ⦄ : LawfulCategory _⇨_ q
 
     unitorᵉˡ∘unitorⁱˡ : ∀ {a : obj} → unitorᵉˡ ∘ unitorⁱˡ {a = a} ≈ id
     unitorⁱˡ∘unitorᵉˡ : ∀ {a : obj} → unitorⁱˡ ∘ unitorᵉˡ {a = a} ≈ id
@@ -309,8 +309,8 @@ open LawfulMonoidal ⦃ … ⦄ public
 
 -- I don't think there's a Monoidal instance for _≡_
 
-record ProductsH {obj₁ : Set o₁} ⦃ prod₁ : Products obj₁ ⦄
-                 {obj₂ : Set o₂} ⦃ prod₂ : Products obj₂ ⦄
+record ProductsH {obj₁ : Set o₁} ⦃ _ : Products obj₁ ⦄
+                 {obj₂ : Set o₂} ⦃ _ : Products obj₂ ⦄
                  ⦃ Hₒ : Homomorphismₒ obj₁ obj₂ ⦄
        : Set (o₁ ⊔ o₂) where
   open Homomorphismₒ Hₒ -- public
@@ -319,24 +319,22 @@ record ProductsH {obj₁ : Set o₁} ⦃ prod₁ : Products obj₁ ⦄
     F-× : ∀ {a b} → Fₒ (a × b) ≡ (Fₒ a × Fₒ b)
     -- TODO: isomorphisms instead of equalities for F-⊤ & F-×?
 
-id-productsH : {obj : Set o} ⦃ prod : Products obj ⦄
-             → ProductsH ⦃ Hₒ = id-Hₒ ⦄
+id-productsH : {obj : Set o} ⦃ _ : Products obj ⦄ → ProductsH ⦃ Hₒ = id-Hₒ ⦄
 id-productsH = record { F-⊤ = refl ; F-× = refl }
 
 record MonoidalH
     {obj₁ : Set o₁} (_⇨₁′_ : obj₁ → obj₁ → Set ℓ₁)
     {obj₂ : Set o₂} (_⇨₂′_ : obj₂ → obj₂ → Set ℓ₂)
-    q ⦃ equiv₂ : Equivalent q _⇨₂′_ ⦄
-    ⦃ prod₁ : Products obj₁ ⦄ ⦃ monoidal₁ : Monoidal _⇨₁′_ ⦄
-    ⦃ prod₂ : Products obj₂ ⦄ ⦃ monoidal₂ : Monoidal _⇨₂′_ ⦄
-    ⦃ homomorphism : Homomorphism _⇨₁′_ _⇨₂′_ ⦄
+    q ⦃ _ : Equivalent q _⇨₂′_ ⦄
+    ⦃ _ : Products obj₁ ⦄ ⦃ _ : Monoidal _⇨₁′_ ⦄
+    ⦃ _ : Products obj₂ ⦄ ⦃ _ : Monoidal _⇨₂′_ ⦄
+    ⦃ _ : Homomorphism _⇨₁′_ _⇨₂′_ ⦄
   : Set (o₁ ⊔ ℓ₁ ⊔ o₂ ⊔ ℓ₂ ⊔ q) where
   private infix 0 _⇨₁_; _⇨₁_ = _⇨₁′_
   private infix 0 _⇨₂_; _⇨₂_ = _⇨₂′_
   field
     ⦃ categoryH ⦄ : CategoryH _⇨₁_ _⇨₂_ q
-    ⦃ productsH ⦄ : ProductsH -- obj₁ obj₂
-  -- open Homomorphism homomorphism
+    ⦃ productsH ⦄ : ProductsH
   open CategoryH categoryH public
   open ProductsH productsH public
   field
@@ -368,12 +366,12 @@ record MonoidalH
 -- LawfulMonoidalᶠ : {obj₁ : Set o₁} {_⇨₁_ : obj₁ → obj₁ → Set ℓ₁}
 --                   {obj₂ : Set o₂} {_⇨₂_ : obj₂ → obj₂ → Set ℓ₂}
 --                   {q : Level} ⦃ equiv₂ : Equivalent q _⇨₂_ ⦄
---                   ⦃ prod₁ : Products obj₁ ⦄ ⦃ monoidal₁ : Monoidal _⇨₁_ ⦄
---                   ⦃ prod₂ : Products obj₂ ⦄ ⦃ monoidal₂ : Monoidal _⇨₂_ ⦄
---                   ⦃ lawful₂ : LawfulMonoidal q _⇨₂_ ⦄
+--                   ⦃ _ : Products obj₁ ⦄ ⦃ _ : Monoidal _⇨₁_ ⦄
+--                   ⦃ _ : Products obj₂ ⦄ ⦃ _ : Monoidal _⇨₂_ ⦄
+--                   ⦃ _ : LawfulMonoidal q _⇨₂_ ⦄
 --                   ⦃ H : Homomorphism _⇨₁_ _⇨₂_ ⦄
---                   ⦃ equiv₁ : Equivalent q _⇨₁_ ⦄
---                   ⦃ monoidal₂ : Monoidal _⇨₁_ ⦄
+--                   ⦃ _ : Equivalent q _⇨₁_ ⦄
+--                   -- Uh oh. LawfulCategory and Monoidal both carry a category
 --                   ⦃ lawful-cat₁ : LawfulCategory q _⇨₁_ ⦄
 --                   ⦃ lawful-cat₂ : LawfulCategory q _⇨₂_ ⦃ equiv = equiv₂ ⦄ ⦄
 --                   (F : MonoidalH _⇨₁_ _⇨₂_ q
@@ -427,10 +425,10 @@ open Braided ⦃ … ⦄ public
 record BraidedH
     {obj₁ : Set o₁} (_⇨₁′_ : obj₁ → obj₁ → Set ℓ₁)
     {obj₂ : Set o₂} (_⇨₂′_ : obj₂ → obj₂ → Set ℓ₂)
-    q ⦃ equiv₂ : Equivalent q _⇨₂′_ ⦄
-    ⦃ prod₁ : Products obj₁ ⦄ ⦃ cat₁ : Braided _⇨₁′_ ⦄
-    ⦃ prod₂ : Products obj₂ ⦄ ⦃ cat₂ : Braided _⇨₂′_ ⦄
-    ⦃ homomorphism : Homomorphism _⇨₁′_ _⇨₂′_ ⦄
+    q ⦃ _ : Equivalent q _⇨₂′_ ⦄
+    ⦃ _ : Products obj₁ ⦄ ⦃ _ : Braided _⇨₁′_ ⦄
+    ⦃ _ : Products obj₂ ⦄ ⦃ _ : Braided _⇨₂′_ ⦄
+    ⦃ _ : Homomorphism _⇨₁′_ _⇨₂′_ ⦄
   : Set (o₁ ⊔ ℓ₁ ⊔ o₂ ⊔ ℓ₂ ⊔ q) where
   private infix 0 _⇨₁_; _⇨₁_ = _⇨₁′_
   private infix 0 _⇨₂_; _⇨₂_ = _⇨₂′_
@@ -457,10 +455,10 @@ open Cartesian ⦃ … ⦄ public
 
 record CartesianH {obj₁ : Set o₁} (_⇨₁′_ : obj₁ → obj₁ → Set ℓ₁)
                   {obj₂ : Set o₂} (_⇨₂′_ : obj₂ → obj₂ → Set ℓ₂)
-                  q ⦃ equiv₂ : Equivalent q _⇨₂′_ ⦄
-                  ⦃ prod₁ : Products obj₁ ⦄ ⦃ cat₁ : Cartesian _⇨₁′_ ⦄
-                  ⦃ prod₂ : Products obj₂ ⦄ ⦃ cat₂ : Cartesian _⇨₂′_ ⦄
-                  ⦃ homomorphism : Homomorphism _⇨₁′_ _⇨₂′_ ⦄
+                  q ⦃ _ : Equivalent q _⇨₂′_ ⦄
+                  ⦃ _ : Products obj₁ ⦄ ⦃ _ : Cartesian _⇨₁′_ ⦄
+                  ⦃ _ : Products obj₂ ⦄ ⦃ _ : Cartesian _⇨₂′_ ⦄
+                  ⦃ _ : Homomorphism _⇨₁′_ _⇨₂′_ ⦄
   : Set (o₁ ⊔ ℓ₁ ⊔ o₂ ⊔ ℓ₂ ⊔ q) where
   private infix 0 _⇨₁_; _⇨₁_ = _⇨₁′_
   private infix 0 _⇨₂_; _⇨₂_ = _⇨₂′_
@@ -496,16 +494,16 @@ open Logic ⦃ … ⦄ public
 record LogicH
     {obj₁ : Set o₁} (_⇨₁′_ : obj₁ → obj₁ → Set ℓ₁)
     {obj₂ : Set o₂} (_⇨₂′_ : obj₂ → obj₂ → Set ℓ₂)
-    q ⦃ equiv₂ : Equivalent q _⇨₂′_ ⦄
+    q ⦃ _ : Equivalent q _⇨₂′_ ⦄
     ⦃ _ : Boolean obj₁ ⦄ ⦃ _ : Products obj₁ ⦄ ⦃ _ : Logic _⇨₁′_ ⦄
     ⦃ _ : Boolean obj₂ ⦄ ⦃ _ : Products obj₂ ⦄ ⦃ _ : Logic _⇨₂′_ ⦄
-    ⦃ homomorphism : Homomorphism _⇨₁′_ _⇨₂′_ ⦄
+    ⦃ H : Homomorphism _⇨₁′_ _⇨₂′_ ⦄
     ⦃ productsH : ProductsH ⦄
   : Set (o₁ ⊔ ℓ₁ ⊔ o₂ ⊔ ℓ₂ ⊔ q) where
   private infix 0 _⇨₁_; _⇨₁_ = _⇨₁′_
   private infix 0 _⇨₂_; _⇨₂_ = _⇨₂′_
-  open Homomorphism homomorphism public
-  open ProductsH    productsH    public
+  open Homomorphism H public
+  open ProductsH productsH public
 
   field
     F-Bool : Fₒ Bool ≡ Bool
@@ -575,7 +573,7 @@ module →Instances where
           }
       }
 
-    lawful-category : LawfulCategory o Function
+    lawful-category : LawfulCategory Function o
     lawful-category = record
       { identityˡ = λ x → refl
       ; identityʳ = λ x → refl
@@ -646,7 +644,7 @@ module →Instances where
 -- Some category-polymorphic idioms
 module CartUtils ⦃ _ : Products obj ⦄
   {_⇨_ : obj → obj → Set ℓ} (let infix 0 _⇨_; _⇨_ = _⇨_) -- Note
-  ⦃ cart : Cartesian _⇨_ ⦄ where
+  ⦃ _ : Cartesian _⇨_ ⦄ where
 
   -- Note: fixity hack. See https://github.com/agda/agda/issues/1235
 
