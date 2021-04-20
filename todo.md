@@ -1,5 +1,7 @@
 ## To do
 
+*   Revisit uses of `swizzle-id`.
+    Can I refer to the routing category instead?
 *   Define some utilities to capture common method definitions, including most of `Monoidal` using routings.
     Similarly for primitives.
     Is there a suitable category theory concept?
