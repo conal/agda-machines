@@ -15,7 +15,7 @@ open import Category
 open import Ty renaming (map to mapᵀ)
 
 import Primitive as p    -- for Show
-open import Stack ; open k using (_◂_◂_; [_])
+open import Stack ; open k using (_◐_◑_; ⌞_⌟)
 
 private variable a b c d i o s z zⁱ zᵒ zᵃ : Ty
 
@@ -88,11 +88,11 @@ module _ {s} (stateF₀ : ⊤ sf.⇨ s) where
   codᵖ {b = b} _ = b
 
   dotᵏ : ℕ → TyF OPort (i × zⁱ) → (i , zⁱ k.⇨ (o × s) , ⊤) → List String
-  dotᵏ _ ins [ r ] with r.⟦ unitorᵉʳ ∘ r ⟧′ ins ; ... | os ､ ss =
+  dotᵏ _ ins ⌞ r ⌟ with r.⟦ unitorᵉʳ ∘ r ⟧′ ins ; ... | os ､ ss =
     concat (toList (mapᵀ register allIx ⊛ →TyF state₀ ⊛ ss))
     ++ᴸ comp "output" "output" os ⊤
 
-  dotᵏ comp# ins (f ◂ p ◂ r) with r.⟦ r ⟧′ ins ; ... | os ､ ss =
+  dotᵏ comp# ins (f ◐ p ◑ r) with r.⟦ r ⟧′ ins ; ... | os ､ ss =
     let compName = "c" ++ show comp# in
       comp compName (show p) os (codᵖ p)
       ++ᴸ dotᵏ (suc comp#) (mapᵀ (oport compName) allIx ､ ss) f
