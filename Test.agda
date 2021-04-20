@@ -1,4 +1,4 @@
--- Miscellaneous circuit graph examples
+-- Miscellaneous circuit examples
 
 module Test where
 
