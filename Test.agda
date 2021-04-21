@@ -15,8 +15,8 @@ open import IO
 open import Category ; open CartUtils
 open import Ty
 import Primitive as p
-open import Stack
-import Mealy sf._⇨_ as m
+import Stack as k
+import Mealy k._⇨_ as m
 open import Dot
 
 -- open CartUtils
@@ -26,7 +26,7 @@ open import Examples.Add
 
 -- Combinational examples
 module ce where
-  open sf
+  open k
 
   t₁ : V Bool 5 ⇨ V Bool 5
   t₁ = id
@@ -137,7 +137,7 @@ exampleˢ name (m.mealy state₀ f) =
   do putStrLn name
      writeFile ("Figures/" ++ name ++ ".dot") (dot state₀ f)
 
-exampleᶜ : ∀ {i o} → String → i sf.⇨ o → IO {0ℓ} ⊤₀
+exampleᶜ : ∀ {i o} → String → i k.⇨ o → IO {0ℓ} ⊤₀
 exampleᶜ name f = exampleˢ name (m.comb f)
 
 
@@ -157,8 +157,8 @@ main = run do
   -- exampleᶜ "ripple-add-8" (rippleAdd 8)
 
   -- exampleᶜ "carry-select-3x5" (carrySelect 3 5)
-  exampleᶜ "carry-select-4x4" (carrySelect 4 4)
-  -- exampleᶜ "carry-select-8x8" (carrySelect 8 8)
+  -- exampleᶜ "carry-select-4x4" (carrySelect 4 4)
+  exampleᶜ "carry-select-8x8" (carrySelect 8 8)
   -- exampleᶜ "carry-select-16x16" (carrySelect 16 16)
 
   -- exampleˢ "toggle"    se.t₁
@@ -185,3 +185,4 @@ main = run do
   -- exampleˢ "shiftR-swap-loop-xor-out" (se.shiftR-swap-loop-xor-out 6)
 
   -- exampleˢ "shiftR-swap-loop-xor" (se.shiftR-swap-loop-xor 6)
+

@@ -15,7 +15,7 @@ open import Category
 open import Ty renaming (map to mapᵀ)
 
 import Primitive as p    -- for Show
-open import Stack ; open k using (_∘·first_∘_; ⌞_⌟)
+open import Stack as k using (_∘·first_∘_; ⌞_⌟)
 
 private variable a b c d i o s z zⁱ zᵒ zᵃ : Ty
 
@@ -73,7 +73,7 @@ comp {i} compName opName ins o with size i | size o
 oport : String → TyIx a → OPort
 oport compName o = compName ++ ":Out" ++ showIx o
 
-module _ {s} (stateF₀ : ⊤ sf.⇨ s) where
+module _ {s} (stateF₀ : ⊤ k.⇨ s) where
 
   state₀ : ⟦ s ⟧
   state₀ = ⟦ ⟦ stateF₀ ⟧ ⟧ tt
@@ -87,8 +87,9 @@ module _ {s} (stateF₀ : ⊤ sf.⇨ s) where
   codᵖ : (a p.⇨ b) → Ty
   codᵖ {b = b} _ = b
 
-  dotᵏ : ℕ → TyF OPort (i × zⁱ) → (i , zⁱ k.⇨ (o × s) , ⊤) → List String
-  dotᵏ _ ins ⌞ r ⌟ with r.⟦ unitorᵉʳ ∘ r ⟧′ ins ; ... | os ､ ss =
+  dotᵏ : ℕ → TyF OPort i → (i k.⇨ (o × s)) → List String
+
+  dotᵏ comp# ins ⌞ r ⌟ with r.⟦ r ⟧′ ins ; ... | os ､ ss =
     concat (toList (mapᵀ register allIx ⊛ →TyF state₀ ⊛ ss))
     ++ᴸ comp "output" "output" os ⊤
 
@@ -97,10 +98,10 @@ module _ {s} (stateF₀ : ⊤ sf.⇨ s) where
       comp compName (show p) os (codᵖ p)
       ++ᴸ dotᵏ (suc comp#) (mapᵀ (oport compName) allIx ､ ss) f
 
-  dot : i × s sf.⇨ o × s → String
-  dot {i = i} (sf.mk f) = package (
+  dot : i × s k.⇨ o × s → String
+  dot {i = i} f = package (
     comp "input" "input" · i ++ᴸ
-    dotᵏ 0 (( mapᵀ (oport "input") allIx ､
-              mapᵀ (λ r → oport (reg r) here) allIx) ､ ·) f)
+    dotᵏ 0 ( mapᵀ (oport "input") allIx ､
+             mapᵀ (λ r → oport (reg r) here) allIx) f)
 
   -- TODO: Consider reworking with stateF₀ as input to registers
