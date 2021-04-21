@@ -97,10 +97,10 @@ open Category ⦃ … ⦄ public
 
 record LawfulCategory {obj : Set o} (_⇨′_ : obj → obj → Set ℓ)
                       q ⦃ equiv : Equivalent q _⇨′_ ⦄
+                      ⦃ ⇨Category : Category _⇨′_ ⦄
        : Set (lsuc o ⊔ ℓ ⊔ lsuc q) where
   private infix 0 _⇨_; _⇨_ = _⇨′_
   field
-    ⦃ ⇨Category ⦄ : Category _⇨′_
     identityˡ : {f : a ⇨ b} → id ∘ f ≈ f
     identityʳ : {f : a ⇨ b} → f ∘ id ≈ f
     assoc     : {f : a ⇨ b} {g : b ⇨ c} {h : c ⇨ d}
@@ -140,7 +140,7 @@ record CategoryH {obj₁ : Set o₁} (_⇨₁_ : obj₁ → obj₁ → Set ℓ�
 LawfulCategoryᶠ : {obj₁ : Set o₁} {_⇨₁_ : obj₁ → obj₁ → Set ℓ₁}
                   {obj₂ : Set o₂} {_⇨₂_ : obj₂ → obj₂ → Set ℓ₂}
                   {q : Level} ⦃ _ : Equivalent q _⇨₂_ ⦄
-                  ⦃ _ : Category _⇨₁_ ⦄
+                  ⦃ _ : Category _⇨₁_ ⦄ ⦃ _ : Category _⇨₂_ ⦄
                   ⦃ _ : LawfulCategory _⇨₂_ q ⦄
                   ⦃ _ : Homomorphismₒ obj₁ obj₂ ⦄
                   ⦃ H : Homomorphism _⇨₁_ _⇨₂_ ⦄
