@@ -31,14 +31,15 @@ module Stack {ℓₘ}{objₘ : Set ℓₘ} ⦃ _ : Products objₘ ⦄
              ⦃ categoryHᵣ : CategoryH _⇨ᵣ_ _⇨ₘ_ q ⦄
   where
 
--- TODO: consider localizing constraints on _⇨ₚ_ and _⇨ᵣ_.
-
 private variable a b c d z : obj
 
 open Homomorphismₒ Hₒ using () renaming (Fₒ to ⟦_⟧ₒ)
 open Homomorphism  Hₚ using () renaming (Fₘ to ⟦_⟧ₚ)
 open Homomorphism  Hᵣ using () renaming (Fₘ to ⟦_⟧ᵣ)
+open ProductsH prodH
 open CategoryH categoryHᵣ
+
+-- TODO: reconsider having these homomorphism classes open in Category
 
 infix 0 _⇨_
 infixr 9 _∘·first_∘_
@@ -74,9 +75,6 @@ secondₖ f = swapₖ ∘ₖ firstₖ f ∘ₖ swapₖ
 -- first (f ∘ first p ∘ r)
 -- first f ∘ first (first p) ∘ first r
 -- first f ∘ assocˡ ∘ first f ∘ assocʳ ∘ first r
-
--- open Homomorphismₒ Hₒ
-open ProductsH prodH
 
 first′ : (Fₒ b ⇨ₘ Fₒ c) → (Fₒ (b × z) ⇨ₘ Fₒ (c × z))
 first′ f = subst₂′ _⇨ₘ_ F-× F-× (first f)
