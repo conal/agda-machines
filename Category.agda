@@ -70,9 +70,8 @@ id-Hₒ = record { Fₒ = id′ }
 record Homomorphism
   {obj₁ : Set o₁} (_⇨₁_ : obj₁ → obj₁ → Set ℓ₁)
   {obj₂ : Set o₂} (_⇨₂_ : obj₂ → obj₂ → Set ℓ₂)
+  ⦃ Hₒ : Homomorphismₒ obj₁ obj₂ ⦄
   : Set (o₁ ⊔ ℓ₁ ⊔ o₂ ⊔ ℓ₂) where
-  field
-    ⦃ Hₒ ⦄ : Homomorphismₒ obj₁ obj₂
   open Homomorphismₒ Hₒ public
   field
     Fₘ : (a ⇨₁ b) → (Fₒ a ⇨₂ Fₒ b)
@@ -82,6 +81,7 @@ record Homomorphism
 H-equiv : {obj₁ : Set o₁} {_⇨₁_ : obj₁ → obj₁ → Set ℓ₁}
           {obj₂ : Set o₂} {_⇨₂_ : obj₂ → obj₂ → Set ℓ₂}
           {q : Level} ⦃ _ : Equivalent q _⇨₂_ ⦄
+          ⦃ _ : Homomorphismₒ obj₁ obj₂ ⦄
           (H : Homomorphism _⇨₁_ _⇨₂_)  -- note explicit/visible argument
         → Equivalent q _⇨₁_
 H-equiv H = record { equiv = On.isEquivalence (Homomorphism.Fₘ H) equiv }
@@ -122,6 +122,7 @@ record CategoryH {obj₁ : Set o₁} (_⇨₁_ : obj₁ → obj₁ → Set ℓ�
                  q ⦃ _ : Equivalent q _⇨₂_ ⦄
                  ⦃ _ : Category _⇨₁_ ⦄
                  ⦃ _ : Category _⇨₂_ ⦄
+                 ⦃ _ : Homomorphismₒ obj₁ obj₂ ⦄
                  ⦃ H : Homomorphism _⇨₁_ _⇨₂_ ⦄
        : Set (o₁ ⊔ ℓ₁ ⊔ o₂ ⊔ ℓ₂ ⊔ q) where
   open Homomorphism H public
@@ -141,6 +142,7 @@ LawfulCategoryᶠ : {obj₁ : Set o₁} {_⇨₁_ : obj₁ → obj₁ → Set �
                   {q : Level} ⦃ _ : Equivalent q _⇨₂_ ⦄
                   ⦃ _ : Category _⇨₁_ ⦄
                   ⦃ _ : LawfulCategory _⇨₂_ q ⦄
+                  ⦃ _ : Homomorphismₒ obj₁ obj₂ ⦄
                   ⦃ H : Homomorphism _⇨₁_ _⇨₂_ ⦄
                   (F : CategoryH _⇨₁_ _⇨₂_ q)
                 → LawfulCategory _⇨₁_ q ⦃ equiv = H-equiv H ⦄
@@ -328,6 +330,7 @@ record MonoidalH
     q ⦃ _ : Equivalent q _⇨₂′_ ⦄
     ⦃ _ : Products obj₁ ⦄ ⦃ _ : Monoidal _⇨₁′_ ⦄
     ⦃ _ : Products obj₂ ⦄ ⦃ _ : Monoidal _⇨₂′_ ⦄
+    ⦃ Hₒ : Homomorphismₒ obj₁ obj₂ ⦄
     ⦃ H : Homomorphism _⇨₁′_ _⇨₂′_ ⦄
   : Set (o₁ ⊔ ℓ₁ ⊔ o₂ ⊔ ℓ₂ ⊔ q) where
   private infix 0 _⇨₁_; _⇨₁_ = _⇨₁′_
@@ -337,6 +340,7 @@ record MonoidalH
     ⦃ productsH ⦄ : ProductsH
   open CategoryH categoryH public
   open ProductsH productsH public
+  -- open Homomorphismₒ Hₒ
   field
     F-! : ∀ {a} → Fₘ (! {a = a}) ≈ subst′ (Fₒ a ⇨₂_) F-⊤ !
     F-⊗ : ∀ {f : a ⇨₁ c}{g : b ⇨₁ d}
@@ -428,6 +432,7 @@ record BraidedH
     q ⦃ _ : Equivalent q _⇨₂′_ ⦄
     ⦃ _ : Products obj₁ ⦄ ⦃ _ : Braided _⇨₁′_ ⦄
     ⦃ _ : Products obj₂ ⦄ ⦃ _ : Braided _⇨₂′_ ⦄
+    ⦃ _ : Homomorphismₒ obj₁ obj₂ ⦄
     ⦃ _ : Homomorphism _⇨₁′_ _⇨₂′_ ⦄
   : Set (o₁ ⊔ ℓ₁ ⊔ o₂ ⊔ ℓ₂ ⊔ q) where
   private infix 0 _⇨₁_; _⇨₁_ = _⇨₁′_
@@ -458,6 +463,7 @@ record CartesianH {obj₁ : Set o₁} (_⇨₁′_ : obj₁ → obj₁ → Set �
                   q ⦃ _ : Equivalent q _⇨₂′_ ⦄
                   ⦃ _ : Products obj₁ ⦄ ⦃ _ : Cartesian _⇨₁′_ ⦄
                   ⦃ _ : Products obj₂ ⦄ ⦃ _ : Cartesian _⇨₂′_ ⦄
+                  ⦃ _ : Homomorphismₒ obj₁ obj₂ ⦄
                   ⦃ _ : Homomorphism _⇨₁′_ _⇨₂′_ ⦄
   : Set (o₁ ⊔ ℓ₁ ⊔ o₂ ⊔ ℓ₂ ⊔ q) where
   private infix 0 _⇨₁_; _⇨₁_ = _⇨₁′_
@@ -497,6 +503,7 @@ record LogicH
     q ⦃ _ : Equivalent q _⇨₂′_ ⦄
     ⦃ _ : Boolean obj₁ ⦄ ⦃ _ : Products obj₁ ⦄ ⦃ _ : Logic _⇨₁′_ ⦄
     ⦃ _ : Boolean obj₂ ⦄ ⦃ _ : Products obj₂ ⦄ ⦃ _ : Logic _⇨₂′_ ⦄
+    ⦃ Hₒ : Homomorphismₒ obj₁ obj₂ ⦄
     ⦃ H : Homomorphism _⇨₁′_ _⇨₂′_ ⦄
     ⦃ productsH : ProductsH ⦄
   : Set (o₁ ⊔ ℓ₁ ⊔ o₂ ⊔ ℓ₂ ⊔ q) where
