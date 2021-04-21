@@ -16,15 +16,11 @@ open import Level using (0ℓ)
 
 module Stack where
 
-open import Data.Product using (∃; _,_)
-
 open import Ty
 open import Category
 import Primitive as p
 
 private variable a b c d z : Ty
-
--- Stack operations
 
 infix 0 _⇨_
 infixr 9 _∘·first_∘_
