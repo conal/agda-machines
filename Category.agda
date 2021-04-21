@@ -328,7 +328,7 @@ record MonoidalH
     q ⦃ _ : Equivalent q _⇨₂′_ ⦄
     ⦃ _ : Products obj₁ ⦄ ⦃ _ : Monoidal _⇨₁′_ ⦄
     ⦃ _ : Products obj₂ ⦄ ⦃ _ : Monoidal _⇨₂′_ ⦄
-    ⦃ _ : Homomorphism _⇨₁′_ _⇨₂′_ ⦄
+    ⦃ H : Homomorphism _⇨₁′_ _⇨₂′_ ⦄
   : Set (o₁ ⊔ ℓ₁ ⊔ o₂ ⊔ ℓ₂ ⊔ q) where
   private infix 0 _⇨₁_; _⇨₁_ = _⇨₁′_
   private infix 0 _⇨₂_; _⇨₂_ = _⇨₂′_
