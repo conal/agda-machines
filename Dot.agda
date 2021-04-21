@@ -15,7 +15,7 @@ open import Relation.Binary.PropositionalEquality using (_≡_; refl)
 open import Category
 open import Ty renaming (map to mapᵀ)
 import Primitive as p    -- for Show
-open import Stack ty._⇨_ p._⇨_ r._⇨_ 0ℓ as k using (_∘·first_∘_; ⌞_⌟)
+open import Stack ty._⇨_ p._⇨_ r._⇨_ 0ℓ as k using (_∘·first_∘_; ⌞_⌟; ⟦_⟧ₖ)
 
 private variable a b c d i o s z zⁱ zᵒ zᵃ : Ty
 
@@ -76,7 +76,7 @@ oport compName o = compName ++ ":Out" ++ showIx o
 module _ {s} (stateF₀ : ⊤ k.⇨ s) where
 
   state₀ : ⟦ s ⟧
-  state₀ = ⟦ ⟦ stateF₀ ⟧ ⟧ tt
+  state₀ = ⟦ ⟦ stateF₀ ⟧ₖ ⟧ tt
   
   reg : TyIx a → String
   reg j = "reg" ++ showIx j
