@@ -170,6 +170,21 @@ g ⟦∘⟧ (f ∘·first p ∘ r) =
 ⌞ r₂ ⌟ ⟦∘⟧ ⌞ r₁ ⌟ = F-∘ r₂ r₁
 
 
+-- ⟦first⟧ : (f : a ⇨ c) → ⟦ firstₖ {b = b} f ⟧ₖ ≈ first′ ⟦ f ⟧ₖ
+-- ⟦first⟧ ⌞ r ⌟ =
+--   begin
+--     ⟦ firstₖ ⌞ r ⌟ ⟧ₖ
+--   ≡⟨⟩
+--     ⟦ ⌞ first r ⌟ ⟧ₖ
+--   ≡⟨⟩
+--     ⟦ first r ⟧ᵣ
+--   ≈⟨ {!F-first!} ⟩
+--     first′ ⟦ r ⟧ᵣ
+--   ≡⟨⟩
+--     first′ ⟦ ⌞ r ⌟ ⟧ₖ
+--   ∎
+-- ⟦first⟧ (f ∘·first p ∘ r) = {!!}
+
 instance
 
   categoryH : CategoryH _⇨_ _⇨ₘ_ q
@@ -177,48 +192,6 @@ instance
 
   lawful-category : LawfulCategory _⇨_ q ⦃ equiv = equivalent ⦄
   lawful-category = LawfulCategoryᶠ categoryH
-
--- ⟦first⟧ : (f : a ⇨ c) → ⟦ firstₖ {b = b} f ⟧ₖ ≈ first ⟦ f ⟧ₖ
--- ⟦first⟧ f = ?
-
--- ⟦first⟧ : (f : a ⇨ c) → ⟦ firstₖ {b = b} f ⟧ ≈ first ⟦ f ⟧
--- ⟦first⟧ {b = b} ⌞ r ⌟ =
---   begin
---     ⟦ firstₖ ⌞ r ⌟ ⟧
---   ≡⟨⟩
---     ⟦ ⌞ first r ⌟ ⟧
---   ≡⟨⟩
---     ⟦ first r ⟧
---   ≡⟨⟩
---     ⟦ r ⊗ id ⟧
---   ≈⟨ F-⊗ {f = r}{g = id} ⟩
---     ⟦ r ⟧ ⊗ ⟦ id {_⇨_ = r._⇨_} ⟧
---   -- ≈⟨ ∘-resp-≈ʳ {_⇨′_ = _⇨ₘ_} {!F-id!} ⟩
---   ≈⟨ (λ x → {!!}) ⟩
---     ⟦ r ⟧ ⊗ id
---   ≡⟨⟩
---     first ⟦ r ⟧
---   ≡⟨⟩
---     first ⟦ ⌞ r ⌟ ⟧
---   ∎
---  where
---    open ≈-Reasoning
---    instance _ = r.equivalent
---    open MonoidalH r.⟦⟧-monoidalH
-
--- ⟦first⟧ (f ∘·first p ∘ r) = {!!}
-
--- ⟦ firstₖ ⌞ r ⌟ ⟧
--- ⟦ ⌞ first r ⌟ ⟧
--- ⟦ first r ⟧
--- first ⟦ r ⟧
--- first ⟦ ⌞ r ⌟ ⟧
-
--- firstₖ : (a ⇨ c) → (a × b ⇨ c × b)
--- firstₖ ⌞ r ⌟ = ⌞ first r ⌟
--- firstₖ (f ∘·first p ∘ r) =
---   (firstₖ f ∘ₖ ⌞ assocˡ ⌟) ∘·first p ∘ (assocʳ ∘ first r)
-
 
 -- infixr 7 _⟦⊗⟧_
 -- _⟦⊗⟧_ : ∀ (f : a ⇨ c) (g : c ⇨ d) → ⟦ f ⊗ g ⟧ ≈ ⟦ f ⟧ ⊗ ⟦ g ⟧
