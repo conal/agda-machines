@@ -17,7 +17,7 @@ infixr 2 _`×_
 data Ty : Set where
   `⊤    : Ty
   `Bool : Ty
-  _`×_  : Ty → Ty → Ty
+  _`×_  : (x : Ty) (y : Ty) → Ty
 
 private variable A B C D : Ty
 
@@ -444,7 +444,7 @@ module r where
   private
 
     swap′ :  A × B ⇨ B × A
-    swap′ = mk λ { (left x) → right x ; (right x) → left x }
+    swap′ = mk λ { (left x) → right x ; (right y) → left y }
 
   instance
 
@@ -461,10 +461,7 @@ module r where
     equivalent = H-equiv ⟦⟧-H
 
     category : Category _⇨_
-    category = record
-      { id = mk id
-      ; _∘_ = λ (mk f) (mk g) → mk (g ∘ f)
-      }
+    category = record { id = mk id ; _∘_ = λ (mk f) (mk g) → mk (g ∘ f) }
 
     open import Function using (_on_)
 
