@@ -3,6 +3,7 @@
 
 module Dot where
 
+open import Level using (0ℓ)
 open import Data.Product using (_,_)
 open import Data.Fin using (Fin; toℕ; suc; zero)
 open import Data.Nat using (ℕ; suc; zero)
@@ -13,9 +14,8 @@ open import Relation.Binary.PropositionalEquality using (_≡_; refl)
 
 open import Category
 open import Ty renaming (map to mapᵀ)
-
 import Primitive as p    -- for Show
-open import Stack as k using (_∘·first_∘_; ⌞_⌟)
+open import Stack ty._⇨_ p._⇨_ r._⇨_ 0ℓ as k using (_∘·first_∘_; ⌞_⌟)
 
 private variable a b c d i o s z zⁱ zᵒ zᵃ : Ty
 

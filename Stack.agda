@@ -12,41 +12,62 @@
 -- pair ("the accumulator") while preserving the second ("the stack").
 -- See http://conal.net/papers/calculating-compilers-categorically .
 
-open import Level using (0ℓ)
+open import Level using (0ℓ; _⊔_)
 
-module Stack where
-
-open import Ty
 open import Category
-import Primitive as p
 
-private variable a b c d z : Ty
+module Stack {ℓₘ}{objₘ : Set ℓₘ} ⦃ _ : Products objₘ ⦄
+             (_⇨ₘ_ : objₘ → objₘ → Set ℓₘ) (let infix 0 _⇨ₘ_; _⇨ₘ_ = _⇨ₘ_)
+             {ℓ}{obj : Set ℓ} ⦃ _ : Products obj ⦄
+             (_⇨ₚ_ : obj → obj → Set ℓ) (let infix 0 _⇨ₚ_; _⇨ₚ_ = _⇨ₚ_)
+             (_⇨ᵣ_ : obj → obj → Set ℓ) (let infix 0 _⇨ᵣ_; _⇨ᵣ_ = _⇨ᵣ_)
+             q ⦃ equivₘ : Equivalent q _⇨ₘ_ ⦄
+             ⦃ Hₒ : Homomorphismₒ obj objₘ ⦄ ⦃ prodH : ProductsH ⦃ Hₒ = Hₒ ⦄ ⦄
+             ⦃ _ : Monoidal _⇨ₘ_ ⦄
+             ⦃ _ : LawfulCategory _⇨ₘ_ q ⦄  -- probably replace by LawfulMonoidal
+             ⦃ _ : Braided  _⇨ᵣ_ ⦄
+             ⦃ Hₚ : Homomorphism _⇨ₚ_ _⇨ₘ_ ⦄
+             ⦃ Hᵣ : Homomorphism _⇨ᵣ_ _⇨ₘ_ ⦄
+             ⦃ categoryHᵣ : CategoryH _⇨ᵣ_ _⇨ₘ_ q ⦄
+  where
+
+-- TODO: consider localizing constraints on _⇨ₚ_ and _⇨ᵣ_.
+
+private variable a b c d z : obj
+
+open Homomorphismₒ Hₒ using () renaming (Fₒ to ⟦_⟧ₒ)
+open Homomorphism  Hₚ using () renaming (Fₘ to ⟦_⟧ₚ)
+open Homomorphism  Hᵣ using () renaming (Fₘ to ⟦_⟧ᵣ)
+open CategoryH categoryHᵣ
 
 infix 0 _⇨_
 infixr 9 _∘·first_∘_
-data _⇨_ : Ty → Ty → Set where
-  ⌞_⌟ : (r : a r.⇨ b) → (a ⇨ b)
-  _∘·first_∘_ : (f : c × z ⇨ d) (p : b p.⇨ c) (r : a r.⇨ b × z) → (a ⇨ d)
+data _⇨_ : obj → obj → Set ℓ where
+  ⌞_⌟ : (r : a ⇨ᵣ b) → (a ⇨ b)
+  _∘·first_∘_ : (f : c × z ⇨ d) (p : b ⇨ₚ c) (r : a ⇨ᵣ b × z) → (a ⇨ d)
 
-route : (a r.⇨ b) → (a ⇨ b)
+route : (a ⇨ᵣ b) → (a ⇨ b)
 route = ⌞_⌟
 
-prim : (a p.⇨ b) → (a ⇨ b)
+prim : (a ⇨ₚ b) → (a ⇨ b)
 prim p = ⌞ unitorᵉʳ ⌟ ∘·first p ∘ unitorⁱʳ
 
-infixr 9 _∘′_
-_∘′_ : (b ⇨ c) → (a ⇨ b) → (a ⇨ c)
-g ∘′ (f ∘·first p ∘ r) = (g ∘′ f) ∘·first p ∘ r
-(g ∘·first p ∘ r₂) ∘′ ⌞ r₁ ⌟ = g ∘·first p ∘ (r₂ ∘ r₁)
-⌞ r₂ ⌟ ∘′ ⌞ r₁ ⌟ = ⌞ r₂ ∘ r₁ ⌟
+infixr 9 _∘ₖ_
+_∘ₖ_ : (b ⇨ c) → (a ⇨ b) → (a ⇨ c)
+g ∘ₖ (f ∘·first p ∘ r) = (g ∘ₖ f) ∘·first p ∘ r
+(g ∘·first p ∘ r₂) ∘ₖ ⌞ r₁ ⌟ = g ∘·first p ∘ (r₂ ∘ r₁)
+⌞ r₂ ⌟ ∘ₖ ⌞ r₁ ⌟ = ⌞ r₂ ∘ r₁ ⌟
 
-first′ : (a ⇨ c) → (a × b ⇨ c × b)
-first′ ⌞ r ⌟ = ⌞ first r ⌟
-first′ (f ∘·first p ∘ r) =
-  (first′ f ∘′ ⌞ assocˡ ⌟) ∘·first p ∘ (assocʳ ∘ first r)
+firstₖ : (a ⇨ c) → (a × b ⇨ c × b)
+firstₖ ⌞ r ⌟ = ⌞ first r ⌟
+firstₖ (f ∘·first p ∘ r) =
+  (firstₖ f ∘ₖ ⌞ assocˡ ⌟) ∘·first p ∘ (assocʳ ∘ first r)
 
-second′ : (b ⇨ d) → (a × b ⇨ a × d)
-second′ f = route swap ∘′ first′ f ∘′ route swap
+swapₖ : (a × b ⇨ b × a)
+swapₖ = route swap
+
+secondₖ : (b ⇨ d) → (a × b ⇨ a × d)
+secondₖ f = swapₖ ∘ₖ firstₖ f ∘ₖ swapₖ
 
 -- first (first f) ≈ assocˡ ∘ first f ∘ assocʳ
 
@@ -54,23 +75,39 @@ second′ f = route swap ∘′ first′ f ∘′ route swap
 -- first f ∘ first (first p) ∘ first r
 -- first f ∘ assocˡ ∘ first f ∘ assocʳ ∘ first r
 
--- TODO: when proofs are done, consider localizing _∘′_, first′, and second′
+-- open Homomorphismₒ Hₒ
+open ProductsH prodH
+
+first′ : (Fₒ b ⇨ₘ Fₒ c) → (Fₒ (b × z) ⇨ₘ Fₒ (c × z))
+first′ f = subst₂′ _⇨ₘ_ F-× F-× (first f)
+
+⟦_⟧ₖ : (a ⇨ b) → (Fₒ a ⇨ₘ Fₒ b)
+⟦ ⌞ r ⌟ ⟧ₖ = ⟦ r ⟧ᵣ
+⟦ f ∘·first p ∘ r ⟧ₖ = ⟦ f ⟧ₖ ∘ first′ ⟦ p ⟧ₚ ∘ ⟦ r ⟧ᵣ
+
+-- TODO: Maybe move first′ to Category, and likewise for _⊗_, second,
+-- associators, and unitors.
+
+-- TODO: when proofs are done, consider localizing _∘ₖ_, firstₖ, and secondₖ
 
 instance
 
-  meaningful : Meaningful (a ⇨ b)
-  meaningful = record { ⟦_⟧ = ⟦_⟧′ }
-   where
-     ⟦_⟧′ : (a ⇨ b) → (a ty.⇨ b)
-     ⟦ ⌞ r ⌟ ⟧′ = ⟦ r ⟧
-     ⟦ f ∘·first p ∘ r ⟧′ = ⟦ f ⟧′ ∘ first ⟦ p ⟧ ∘ ⟦ r ⟧
+  -- TODO: Homomorphism instance
+  meaningful : Meaningful {μ = Fₒ a ⇨ₘ Fₒ b} (a ⇨ b)
+  meaningful = record { ⟦_⟧ = ⟦_⟧ₖ }
+
+  homomorphism : Homomorphism _⇨_ _⇨ₘ_
+  homomorphism = record { Fₘ = ⟦_⟧ₖ }
+
+  equivalent : Equivalent q _⇨_
+  equivalent = H-equiv homomorphism
 
   category : Category _⇨_
-  category = record { id = route id ; _∘_ = _∘′_ }
+  category = record { id = route id ; _∘_ = _∘ₖ_ }
 
   monoidal : Monoidal _⇨_
   monoidal = record
-               { _⊗_      = λ f g → second′ g ∘ first′ f
+               { _⊗_      = λ f g → secondₖ g ∘ firstₖ f
                ; !        = route !
                ; unitorᵉˡ = route unitorᵉˡ
                ; unitorᵉʳ = route unitorᵉʳ
@@ -81,12 +118,12 @@ instance
                }
 
   braided : Braided _⇨_
-  braided = record { swap = route swap }
+  braided = record { swap = swapₖ }
 
-  cartesian : Cartesian _⇨_
+  cartesian : ⦃ _ : Cartesian _⇨ᵣ_ ⦄ → Cartesian _⇨_
   cartesian = record { exl = route exl ; exr = route exr ; dup = route dup }
 
-  logic : Logic _⇨_
+  logic : ⦃ _ : Boolean obj ⦄ ⦃ _ : Logic _⇨ₚ_ ⦄ → Logic _⇨_
   logic = record
             { false = prim false
             ; true  = prim true
@@ -100,61 +137,55 @@ instance
 open ≈-Reasoning
 
 infixr 9 _⟦∘⟧_
-_⟦∘⟧_ : ∀ (g : b ⇨ c) (f : a ⇨ b) → ⟦ g ∘ f ⟧ ≈ ⟦ g ⟧ ∘ ⟦ f ⟧
+_⟦∘⟧_ : ∀ (g : b ⇨ c) (f : a ⇨ b) → ⟦ g ∘ f ⟧ₖ ≈ ⟦ g ⟧ₖ ∘ ⟦ f ⟧ₖ
 
-g ⟦∘⟧ (f ∘·first p ∘ r) = let open CategoryH r.⟦⟧-categoryH in
+g ⟦∘⟧ (f ∘·first p ∘ r) =
   begin
     ⟦ g ∘ (f ∘·first p ∘ r) ⟧
   ≡⟨⟩
     ⟦ (g ∘ f) ∘·first p ∘ r ⟧
   ≡⟨⟩
-    ⟦ g ∘ f ⟧ ∘ first ⟦ p ⟧ ∘ ⟦ r ⟧
-  ≈⟨ ∘-resp-≈ˡ {h = ⟦ g ∘ f ⟧} (g ⟦∘⟧ f) ⟩
-    (⟦ g ⟧ ∘ ⟦ f ⟧) ∘ first ⟦ p ⟧ ∘ ⟦ r ⟧
-  ≈⟨ assoc {g = ⟦ f ⟧}{h = ⟦ g ⟧} ⟩
-    ⟦ g ⟧ ∘ (⟦ f ⟧ ∘ first ⟦ p ⟧ ∘ ⟦ r ⟧)
+    ⟦ g ∘ f ⟧ ∘ first′ ⟦ p ⟧ₚ ∘ ⟦ r ⟧ᵣ
+  ≈⟨ ∘-resp-≈ˡ (g ⟦∘⟧ f) ⟩
+    (⟦ g ⟧ ∘ ⟦ f ⟧) ∘ first′ ⟦ p ⟧ₚ ∘ ⟦ r ⟧ᵣ
+  ≈⟨ assoc ⟩
+    ⟦ g ⟧ ∘ (⟦ f ⟧ ∘ first′ ⟦ p ⟧ₚ ∘ ⟦ r ⟧ᵣ)
   ≡⟨⟩
     ⟦ g ⟧ ∘ ⟦ f ∘·first p ∘ r ⟧
   ∎
 
-(g ∘·first p ∘ r₂) ⟦∘⟧ ⌞ r₁ ⌟ = let open CategoryH r.⟦⟧-categoryH in
+(g ∘·first p ∘ r₂) ⟦∘⟧ ⌞ r₁ ⌟ =
   begin
     ⟦ (g ∘·first p ∘ r₂) ∘ ⌞ r₁ ⌟ ⟧
   ≡⟨⟩
     ⟦ g ∘·first p ∘ (r₂ ∘ r₁) ⟧
   ≡⟨⟩
-    ⟦ g ⟧ ∘ first ⟦ p ⟧  ∘ ⟦ r₂ ∘ r₁ ⟧
-  ≈⟨ ∘-resp-≈ʳ {h = ⟦ g ⟧} (∘-resp-≈ʳ {h = first ⟦ p ⟧} (F-∘ r₂ r₁)) ⟩
-    ⟦ g ⟧ ∘ (first ⟦ p ⟧ ∘ (⟦ r₂ ⟧ ∘ ⟦ r₁ ⟧))
-  ≈˘⟨ ∘-resp-≈ʳ {h = ⟦ g ⟧} (assoc {f = ⟦ r₁ ⟧}{g = ⟦ r₂ ⟧}{h = first ⟦ p ⟧}) ⟩
-    ⟦ g ⟧ ∘ ((first ⟦ p ⟧ ∘ ⟦ r₂ ⟧) ∘ ⟦ r₁ ⟧)
-  ≈˘⟨ assoc {g = first ⟦ p ⟧ ∘ ⟦ r₂ ⟧}{h = ⟦ g ⟧}⟩
-    (⟦ g ⟧ ∘ (first ⟦ p ⟧ ∘ ⟦ r₂ ⟧)) ∘ ⟦ r₁ ⟧
+    ⟦ g ⟧ ∘ first′ ⟦ p ⟧ₚ ∘ ⟦ r₂ ∘ r₁ ⟧ᵣ
+  ≈⟨ ∘-resp-≈ʳ (∘-resp-≈ʳ (F-∘ r₂ r₁)) ⟩
+    ⟦ g ⟧ ∘ (first′ ⟦ p ⟧ₚ ∘ (⟦ r₂ ⟧ᵣ ∘ ⟦ r₁ ⟧ᵣ))
+  ≈˘⟨ ∘-resp-≈ʳ assoc ⟩
+    ⟦ g ⟧ ∘ ((first′ ⟦ p ⟧ₚ ∘ ⟦ r₂ ⟧ᵣ) ∘ ⟦ r₁ ⟧ᵣ)
+  ≈˘⟨ assoc ⟩
+    (⟦ g ⟧ ∘ (first′ ⟦ p ⟧ₚ ∘ ⟦ r₂ ⟧ᵣ)) ∘ ⟦ r₁ ⟧ᵣ
   ≡⟨⟩
     ⟦ g ∘·first p ∘ r₂ ⟧ ∘ ⟦ ⌞ r₁ ⌟ ⟧
   ∎
 
-⌞ r₂ ⌟ ⟦∘⟧ ⌞ r₁ ⌟ = F-∘ r₂ r₁   where open CategoryH r.⟦⟧-categoryH
+⌞ r₂ ⌟ ⟦∘⟧ ⌞ r₁ ⌟ = F-∘ r₂ r₁
 
-⟦⟧-Hₒ : Homomorphismₒ Ty Ty
-⟦⟧-Hₒ = record { Fₒ = id }
 
-⟦⟧-H : Homomorphism _⇨_ ty._⇨_
-⟦⟧-H = record { Fₘ = ⟦_⟧ }
+instance
 
-⟦⟧-categoryH : CategoryH _⇨_ ty._⇨_ 0ℓ ⦃ H = ⟦⟧-H ⦄
-⟦⟧-categoryH = record { F-id = λ _ → swizzle-id ; F-∘ = _⟦∘⟧_ }
+  categoryH : CategoryH _⇨_ _⇨ₘ_ q
+  categoryH = record { F-id = F-id ; F-∘ = _⟦∘⟧_ }
 
-equivalent : Equivalent 0ℓ _⇨_
-equivalent = H-equiv ⟦⟧-H
+  lawful-category : LawfulCategory _⇨_ q ⦃ equiv = equivalent ⦄
+  lawful-category = LawfulCategoryᶠ categoryH
 
-lawful-category : LawfulCategory _⇨_ 0ℓ ⦃ equiv = equivalent ⦄
-lawful-category = LawfulCategoryᶠ ⦃ H = ⟦⟧-H ⦄ ⟦⟧-categoryH
-
--- ⟦first⟧ : (f : a ⇨ c) → ⟦ first′ {b = b} f ⟧ ≈ first ⟦ f ⟧
+-- ⟦first⟧ : (f : a ⇨ c) → ⟦ firstₖ {b = b} f ⟧ ≈ first ⟦ f ⟧
 -- ⟦first⟧ {b = b} ⌞ r ⌟ =
 --   begin
---     ⟦ first′ ⌞ r ⌟ ⟧
+--     ⟦ firstₖ ⌞ r ⌟ ⟧
 --   ≡⟨⟩
 --     ⟦ ⌞ first r ⌟ ⟧
 --   ≡⟨⟩
@@ -163,7 +194,7 @@ lawful-category = LawfulCategoryᶠ ⦃ H = ⟦⟧-H ⦄ ⟦⟧-categoryH
 --     ⟦ r ⊗ id ⟧
 --   ≈⟨ F-⊗ {f = r}{g = id} ⟩
 --     ⟦ r ⟧ ⊗ ⟦ id {_⇨_ = r._⇨_} ⟧
---   -- ≈⟨ ∘-resp-≈ʳ {_⇨′_ = ty._⇨_} {!F-id!} ⟩
+--   -- ≈⟨ ∘-resp-≈ʳ {_⇨′_ = _⇨ₘ_} {!F-id!} ⟩
 --   ≈⟨ (λ x → {!!}) ⟩
 --     ⟦ r ⟧ ⊗ id
 --   ≡⟨⟩
@@ -178,16 +209,16 @@ lawful-category = LawfulCategoryᶠ ⦃ H = ⟦⟧-H ⦄ ⟦⟧-categoryH
 
 -- ⟦first⟧ (f ∘·first p ∘ r) = {!!}
 
--- ⟦ first′ ⌞ r ⌟ ⟧
+-- ⟦ firstₖ ⌞ r ⌟ ⟧
 -- ⟦ ⌞ first r ⌟ ⟧
 -- ⟦ first r ⟧
 -- first ⟦ r ⟧
 -- first ⟦ ⌞ r ⌟ ⟧
 
--- first′ : (a ⇨ c) → (a × b ⇨ c × b)
--- first′ ⌞ r ⌟ = ⌞ first r ⌟
--- first′ (f ∘·first p ∘ r) =
---   (first′ f ∘′ ⌞ assocˡ ⌟) ∘·first p ∘ (assocʳ ∘ first r)
+-- firstₖ : (a ⇨ c) → (a × b ⇨ c × b)
+-- firstₖ ⌞ r ⌟ = ⌞ first r ⌟
+-- firstₖ (f ∘·first p ∘ r) =
+--   (firstₖ f ∘ₖ ⌞ assocˡ ⌟) ∘·first p ∘ (assocʳ ∘ first r)
 
 
 -- infixr 7 _⟦⊗⟧_
@@ -195,7 +226,7 @@ lawful-category = LawfulCategoryᶠ ⦃ H = ⟦⟧-H ⦄ ⟦⟧-categoryH
 -- f ⟦⊗⟧ g = {!!}
 
 -- open import Relation.Binary.PropositionalEquality
--- ⟦⟧-monoidalH : MonoidalH _⇨_ ty._⇨_ 0ℓ ⦃ H = ⟦⟧-H ⦄
+-- ⟦⟧-monoidalH : MonoidalH _⇨_ _⇨ₘ_ 0ℓ ⦃ H = ⟦⟧-H ⦄
 -- ⟦⟧-monoidalH = record
 --   { categoryH  = ⟦⟧-categoryH
 --   ; F-⊗        = {!!}
@@ -208,12 +239,3 @@ lawful-category = LawfulCategoryᶠ ⦃ H = ⟦⟧-H ⦄ ⟦⟧-categoryH
 --   ; F-assocˡ   = λ x → swizzle-id
 --   }
 
-
-import Symbolic as s
--- Homomorphic compilation. Pretty and unnecessary. TODO: move this function
--- to Symbolic, and generalize the target category.
-compile : a s.⇨ b → a ⇨ b
-compile (s.`route r) = route r
-compile (s.`prim  p) = prim p
-compile ( g s.`∘ f ) = compile g ∘ compile f
-compile ( f s.`⊗ g ) = compile f ⊗ compile g
