@@ -323,6 +323,8 @@ record LawfulMonoidal {obj : Set o} ⦃ _ : Products obj ⦄
   field
     ⦃ lawful-cat ⦄ : LawfulCategory _⇨_ q
 
+    id⊗id : ∀ {a b : obj} → id {a = a} ⊗ id {a = b} ≈ id
+
     ∘⊗ : ∀ {a₁ b₁ a₂ b₂ a₃ b₃ : obj}
            {f : a₁ ⇨ a₂}{g : b₁ ⇨ b₂}
            {h : a₂ ⇨ a₃}{k : b₂ ⇨ b₃}
@@ -369,6 +371,36 @@ record LawfulMonoidal {obj : Set o} ⦃ _ : Products obj ⦄
       (id ∘ f) ⊗ (g ∘ id)
     ≈⟨ ⊗-resp-≈ identityˡ identityʳ ⟩
       f ⊗ g
+    ∎
+
+  first∘first : ∀ {f : a ⇨ b} {g : b ⇨ c} {z : obj}
+              → first g ∘ first f ≈ first {b = z} (g ∘ f)
+  first∘first {f = f}{g} = let open ≈-Reasoning in
+    begin
+      first g ∘ first f
+    ≡⟨⟩
+      (g ⊗ id) ∘ (f ⊗ id)
+    ≈⟨ ∘⊗ ⟩
+     (g ∘ f) ⊗ (id ∘ id)
+    ≈⟨ ⊗-resp-≈ˡ identityʳ ⟩
+      (g ∘ f) ⊗ id
+    ≡⟨⟩
+      first (g ∘ f)
+    ∎
+
+  second∘second : ∀ {f : a ⇨ b} {g : b ⇨ c} {z : obj}
+                → second g ∘ second f ≈ second {a = z} (g ∘ f)
+  second∘second {f = f}{g} = let open ≈-Reasoning in
+    begin
+      second g ∘ second f
+    ≡⟨⟩
+      (id ⊗ g) ∘ (id ⊗ f)
+    ≈⟨ ∘⊗ ⟩
+     (id ∘ id) ⊗ (g ∘ f)
+    ≈⟨ ⊗-resp-≈ʳ identityʳ ⟩
+      id ⊗ (g ∘ f)
+    ≡⟨⟩
+      second (g ∘ f)
     ∎
 
 open LawfulMonoidal ⦃ … ⦄ public
