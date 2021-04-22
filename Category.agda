@@ -379,7 +379,7 @@ open LawfulMonoidal ⦃ … ⦄ public
 
 record ProductsH {obj₁ : Set o₁} ⦃ _ : Products obj₁ ⦄
                  {obj₂ : Set o₂} ⦃ _ : Products obj₂ ⦄
-                 ⦃ Hₒ : Homomorphismₒ obj₁ obj₂ ⦄
+                 (Hₒ : Homomorphismₒ obj₁ obj₂)
        : Set (o₁ ⊔ o₂) where
   open Homomorphismₒ Hₒ -- public
   field
@@ -393,7 +393,7 @@ record ProductsH {obj₁ : Set o₁} ⦃ _ : Products obj₁ ⦄
 --     ⦃ Hₒ : Homomorphismₒ obj₁ obj₂ ⦄
 --     ⦃ H  : Homomorphism _⇨₁′_ _⇨₂′_ ⦄
 
-id-productsH : {obj : Set o} ⦃ _ : Products obj ⦄ → ProductsH ⦃ Hₒ = id-Hₒ ⦄
+id-productsH : {obj : Set o} ⦃ _ : Products obj ⦄ → ProductsH id-Hₒ
 id-productsH = record { F-⊤ = refl ; F-× = refl }
 
 -- Helpers for monoidal operations with homomorphisms.
@@ -403,7 +403,7 @@ module ᴴ
     {obj₂ : Set o₂} (_⇨₂_ : obj₂ → obj₂ → Set ℓ₂)(let infix 0 _⇨₂_; _⇨₂_ = _⇨₂_)
     ⦃ _ : Products obj₂ ⦄ ⦃ _ : Monoidal _⇨₂_ ⦄
     ⦃ Hₒ : Homomorphismₒ obj₁ obj₂ ⦄
-    ⦃ productsH : ProductsH ⦄
+    ⦃ productsH : ProductsH Hₒ ⦄
  where
   open ProductsH productsH
   open Homomorphismₒ Hₒ
@@ -450,7 +450,7 @@ module Lawfulᴴ
     {obj₂ : Set o₂} (_⇨₂_ : obj₂ → obj₂ → Set ℓ₂)(let infix 0 _⇨₂_; _⇨₂_ = _⇨₂_)
     ⦃ _ : Products obj₂ ⦄
     ⦃ Hₒ : Homomorphismₒ obj₁ obj₂ ⦄
-    ⦃ productsH : ProductsH ⦄
+    ⦃ productsH : ProductsH Hₒ ⦄
     q ⦃ equiv : Equivalent q _⇨₂_ ⦄ ⦃ _ : LawfulMonoidal _⇨₂_ q ⦄
  where
   open ProductsH productsH
@@ -513,7 +513,7 @@ record MonoidalH
   private infix 0 _⇨₂_; _⇨₂_ = _⇨₂′_
   field
     ⦃ -categoryH ⦄ : CategoryH _⇨₁_ _⇨₂_ q
-    ⦃ -productsH ⦄ : ProductsH
+    ⦃ -productsH ⦄ : ProductsH Hₒ
   open CategoryH -categoryH public
   open ProductsH -productsH public
   -- open Homomorphismₒ Hₒ
@@ -674,7 +674,7 @@ record LogicH
     ⦃ _ : Boolean obj₂ ⦄ ⦃ _ : Products obj₂ ⦄ ⦃ _ : Logic _⇨₂′_ ⦄
     ⦃ Hₒ : Homomorphismₒ obj₁ obj₂ ⦄
     ⦃ H : Homomorphism _⇨₁′_ _⇨₂′_ ⦄
-    ⦃ productsH : ProductsH ⦄
+    ⦃ productsH : ProductsH Hₒ ⦄
   : Set (o₁ ⊔ ℓ₁ ⊔ o₂ ⊔ ℓ₂ ⊔ q) where
   private infix 0 _⇨₁_; _⇨₁_ = _⇨₁′_
   private infix 0 _⇨₂_; _⇨₂_ = _⇨₂′_
