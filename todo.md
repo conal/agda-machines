@@ -1,5 +1,7 @@
 ## To do
 
+*   Consider making `q` implicit and `equiv` explicit.
+    In that case, maybe `_⇨₂_` implicit as well (determined by `equiv`).
 *   Revisit uses of `swizzle-id`.
     Can I refer to the routing category instead?
 *   Define some utilities to capture common method definitions, including most of `Monoidal` using routings.
