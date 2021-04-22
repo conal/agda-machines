@@ -22,13 +22,13 @@ module Stack {ℓₘ}{objₘ : Set ℓₘ} ⦃ _ : Products objₘ ⦄
              (_⇨ₚ_ : obj → obj → Set ℓ) (let infix 0 _⇨ₚ_; _⇨ₚ_ = _⇨ₚ_)
              (_⇨ᵣ_ : obj → obj → Set ℓ) (let infix 0 _⇨ᵣ_; _⇨ᵣ_ = _⇨ᵣ_)
              q ⦃ equivₘ : Equivalent q _⇨ₘ_ ⦄
-             ⦃ Hₒ : Homomorphismₒ obj objₘ ⦄ ⦃ prodH : ProductsH ⦃ Hₒ = Hₒ ⦄ ⦄
+             ⦃ Hₒ : Homomorphismₒ obj objₘ ⦄ -- ⦃ prodH : ProductsH ⦃ Hₒ = Hₒ ⦄ ⦄
              ⦃ _ : Monoidal _⇨ₘ_ ⦄
              ⦃ _ : LawfulCategory _⇨ₘ_ q ⦄  -- probably replace by LawfulMonoidal
              ⦃ _ : Braided  _⇨ᵣ_ ⦄
              ⦃ Hₚ : Homomorphism _⇨ₚ_ _⇨ₘ_ ⦄
              ⦃ Hᵣ : Homomorphism _⇨ᵣ_ _⇨ₘ_ ⦄
-             ⦃ categoryHᵣ : CategoryH _⇨ᵣ_ _⇨ₘ_ q ⦄
+             ⦃ monoidalHᵣ : MonoidalH _⇨ᵣ_ _⇨ₘ_ q ⦄
   where
 
 private variable a b c d z : obj
@@ -36,8 +36,9 @@ private variable a b c d z : obj
 open Homomorphismₒ Hₒ using () renaming (Fₒ to ⟦_⟧ₒ)
 open Homomorphism  Hₚ using () renaming (Fₘ to ⟦_⟧ₚ)
 open Homomorphism  Hᵣ using () renaming (Fₘ to ⟦_⟧ᵣ)
-open ProductsH prodH
-open CategoryH categoryHᵣ
+-- open ProductsH prodH
+-- open CategoryH categoryHᵣ
+open MonoidalH monoidalHᵣ
 
 -- TODO: reconsider having these homomorphism classes open in Category
 
@@ -76,12 +77,15 @@ secondₖ f = swapₖ ∘ₖ firstₖ f ∘ₖ swapₖ
 -- first f ∘ first (first p) ∘ first r
 -- first f ∘ assocˡ ∘ first f ∘ assocʳ ∘ first r
 
-first′ : (Fₒ b ⇨ₘ Fₒ c) → (Fₒ (b × z) ⇨ₘ Fₒ (c × z))
-first′ f = subst₂′ _⇨ₘ_ F-× F-× (first f)
+-- first′ : (Fₒ a ⇨ₘ Fₒ c) → (Fₒ (a × b) ⇨ₘ Fₒ (c × b))
+-- first′ f = subst₂′ _⇨ₘ_ F-× F-× (first f)
+
+open ᴴ obj _⇨ₘ_
 
 ⟦_⟧ₖ : (a ⇨ b) → (Fₒ a ⇨ₘ Fₒ b)
 ⟦ ⌞ r ⌟ ⟧ₖ = ⟦ r ⟧ᵣ
-⟦ f ∘·first p ∘ r ⟧ₖ = ⟦ f ⟧ₖ ∘ first′ ⟦ p ⟧ₚ ∘ ⟦ r ⟧ᵣ
+-- ⟦ f ∘·first p ∘ r ⟧ₖ = ⟦ f ⟧ₖ ∘ first′ ⟦ p ⟧ₚ ∘ ⟦ r ⟧ᵣ
+⟦ f ∘·first p ∘ r ⟧ₖ = ⟦ f ⟧ₖ ∘ firstᴴ ⟦ p ⟧ₚ ∘ ⟦ r ⟧ᵣ
 
 -- TODO: Maybe move first′ to Category, and likewise for _⊗_, second,
 -- associators, and unitors.
@@ -139,11 +143,11 @@ g ⟦∘⟧ (f ∘·first p ∘ r) =
   ≡⟨⟩
     ⟦ (g ∘ f) ∘·first p ∘ r ⟧ₖ
   ≡⟨⟩
-    ⟦ g ∘ f ⟧ₖ ∘ first′ ⟦ p ⟧ₚ ∘ ⟦ r ⟧ᵣ
+    ⟦ g ∘ f ⟧ₖ ∘ firstᴴ ⟦ p ⟧ₚ ∘ ⟦ r ⟧ᵣ
   ≈⟨ ∘-resp-≈ˡ (g ⟦∘⟧ f) ⟩
-    (⟦ g ⟧ₖ ∘ ⟦ f ⟧ₖ) ∘ first′ ⟦ p ⟧ₚ ∘ ⟦ r ⟧ᵣ
+    (⟦ g ⟧ₖ ∘ ⟦ f ⟧ₖ) ∘ firstᴴ ⟦ p ⟧ₚ ∘ ⟦ r ⟧ᵣ
   ≈⟨ assoc ⟩
-    ⟦ g ⟧ₖ ∘ (⟦ f ⟧ₖ ∘ first′ ⟦ p ⟧ₚ ∘ ⟦ r ⟧ᵣ)
+    ⟦ g ⟧ₖ ∘ (⟦ f ⟧ₖ ∘ firstᴴ ⟦ p ⟧ₚ ∘ ⟦ r ⟧ᵣ)
   ≡⟨⟩
     ⟦ g ⟧ₖ ∘ ⟦ f ∘·first p ∘ r ⟧ₖ
   ∎
@@ -154,21 +158,23 @@ g ⟦∘⟧ (f ∘·first p ∘ r) =
   ≡⟨⟩
     ⟦ g ∘·first p ∘ (r₂ ∘ r₁) ⟧ₖ
   ≡⟨⟩
-    ⟦ g ⟧ₖ ∘ first′ ⟦ p ⟧ₚ ∘ ⟦ r₂ ∘ r₁ ⟧ᵣ
+    ⟦ g ⟧ₖ ∘ firstᴴ ⟦ p ⟧ₚ ∘ ⟦ r₂ ∘ r₁ ⟧ᵣ
   ≈⟨ ∘-resp-≈ʳ (∘-resp-≈ʳ (F-∘ r₂ r₁)) ⟩
-    ⟦ g ⟧ₖ ∘ (first′ ⟦ p ⟧ₚ ∘ (⟦ r₂ ⟧ᵣ ∘ ⟦ r₁ ⟧ᵣ))
+    ⟦ g ⟧ₖ ∘ (firstᴴ ⟦ p ⟧ₚ ∘ (⟦ r₂ ⟧ᵣ ∘ ⟦ r₁ ⟧ᵣ))
   ≈˘⟨ ∘-resp-≈ʳ assoc ⟩
-    ⟦ g ⟧ₖ ∘ ((first′ ⟦ p ⟧ₚ ∘ ⟦ r₂ ⟧ᵣ) ∘ ⟦ r₁ ⟧ᵣ)
+    ⟦ g ⟧ₖ ∘ ((firstᴴ ⟦ p ⟧ₚ ∘ ⟦ r₂ ⟧ᵣ) ∘ ⟦ r₁ ⟧ᵣ)
   ≈˘⟨ assoc ⟩
-    (⟦ g ⟧ₖ ∘ (first′ ⟦ p ⟧ₚ ∘ ⟦ r₂ ⟧ᵣ)) ∘ ⟦ r₁ ⟧ᵣ
+    (⟦ g ⟧ₖ ∘ (firstᴴ ⟦ p ⟧ₚ ∘ ⟦ r₂ ⟧ᵣ)) ∘ ⟦ r₁ ⟧ᵣ
   ≡⟨⟩
     ⟦ g ∘·first p ∘ r₂ ⟧ₖ ∘ ⟦ ⌞ r₁ ⌟ ⟧ₖ
   ∎
 
 ⌞ r₂ ⌟ ⟦∘⟧ ⌞ r₁ ⌟ = F-∘ r₂ r₁
 
+⟦first⟧ : (f : a ⇨ c) → ⟦ firstₖ {b = b} f ⟧ₖ ≈ firstᴴ ⟦ f ⟧ₖ
 
--- ⟦first⟧ : (f : a ⇨ c) → ⟦ firstₖ {b = b} f ⟧ₖ ≈ first′ ⟦ f ⟧ₖ
+⟦first⟧ ⌞ r ⌟ = F-first r
+
 -- ⟦first⟧ ⌞ r ⌟ =
 --   begin
 --     ⟦ firstₖ ⌞ r ⌟ ⟧ₖ
@@ -176,12 +182,34 @@ g ⟦∘⟧ (f ∘·first p ∘ r) =
 --     ⟦ ⌞ first r ⌟ ⟧ₖ
 --   ≡⟨⟩
 --     ⟦ first r ⟧ᵣ
---   ≈⟨ {!F-first!} ⟩
---     first′ ⟦ r ⟧ᵣ
+--     ≈⟨ F-first ⟩
+--     firstᴴ ⟦ r ⟧ᵣ
 --   ≡⟨⟩
---     first′ ⟦ ⌞ r ⌟ ⟧ₖ
+--     firstᴴ ⟦ ⌞ r ⌟ ⟧ₖ
 --   ∎
--- ⟦first⟧ (f ∘·first p ∘ r) = {!!}
+
+⟦first⟧ (f ∘·first p ∘ r) =
+  begin
+    ⟦ firstₖ (f ∘·first p ∘ r) ⟧ₖ
+  ≡⟨⟩
+    ⟦ (firstₖ f ∘ₖ ⌞ assocˡ ⌟) ∘·first p ∘ (assocʳ ∘ first r) ⟧ₖ
+  ≡⟨⟩
+    ⟦ firstₖ f ∘ₖ ⌞ assocˡ ⌟ ⟧ₖ ∘ firstᴴ ⟦ p ⟧ₚ ∘ ⟦ assocʳ ∘ first r ⟧ᵣ
+  ≈⟨ ∘-resp-≈ (firstₖ f ⟦∘⟧ ⌞ assocˡ ⌟) (∘-resp-≈ʳ (F-∘ assocʳ (first r))) ⟩
+    (⟦ firstₖ f ⟧ₖ ∘ ⟦ ⌞ assocˡ ⌟ ⟧ₖ) ∘ firstᴴ ⟦ p ⟧ₚ ∘ (⟦ assocʳ ⟧ᵣ ∘ ⟦ first r ⟧ᵣ)
+  ≈⟨ {!!} ⟩
+    ⟦ firstₖ f ⟧ₖ ∘ (⟦ ⌞ assocˡ ⌟ ⟧ₖ ∘ firstᴴ ⟦ p ⟧ₚ ∘ ⟦ assocʳ ⟧ᵣ) ∘ ⟦ first r ⟧ᵣ
+  ≈⟨ {!!} ⟩
+    ⟦ firstₖ f ⟧ₖ ∘ (assocᴴˡ ∘ firstᴴ ⟦ p ⟧ₚ ∘ assocᴴʳ) ∘ firstᴴ ⟦ r ⟧ᵣ
+  ≈⟨ ∘-resp-≈ˡ (⟦first⟧ f) ⟩
+    firstᴴ ⟦ f ⟧ₖ ∘ (assocᴴˡ ∘ firstᴴ ⟦ p ⟧ₚ ∘ assocᴴʳ) ∘ firstᴴ ⟦ r ⟧ᵣ
+  ≈⟨ {!!} ⟩
+    firstᴴ ⟦ f ∘·first p ∘ r ⟧ₖ
+  ∎
+
+-- firstₖ (f ∘·first p ∘ r) = (firstₖ f ∘ₖ ⌞ assocˡ ⌟) ∘·first p ∘ (assocʳ ∘ first r)
+
+-- ⟦ f ∘·first p ∘ r ⟧ₖ = ⟦ f ⟧ₖ ∘ firstᴴ ⟦ p ⟧ₚ ∘ ⟦ r ⟧ᵣ
 
 instance
 

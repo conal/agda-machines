@@ -321,8 +321,64 @@ record ProductsH {obj₁ : Set o₁} ⦃ _ : Products obj₁ ⦄
     F-× : ∀ {a b} → Fₒ (a × b) ≡ (Fₒ a × Fₒ b)
     -- TODO: isomorphisms instead of equalities for F-⊤ & F-×?
 
+-- record ProductsH
+--     {obj₁ : Set o₁} ⦃ _ : Products obj₁ ⦄ (_⇨₁′_ : obj₁ → obj₁ → Set ℓ₁)
+--     {obj₂ : Set o₂} ⦃ _ : Products obj₂ ⦄ (_⇨₂′_ : obj₂ → obj₂ → Set ℓ₂)
+--     ⦃ Hₒ : Homomorphismₒ obj₁ obj₂ ⦄
+--     ⦃ H  : Homomorphism _⇨₁′_ _⇨₂′_ ⦄
+
 id-productsH : {obj : Set o} ⦃ _ : Products obj ⦄ → ProductsH ⦃ Hₒ = id-Hₒ ⦄
 id-productsH = record { F-⊤ = refl ; F-× = refl }
+
+module ᴴ
+    (obj₁ : Set o₁) -- {_⇨₁_ : obj₁ → obj₁ → Set ℓ₁}(let infix 0 _⇨₁_; _⇨₁_ = _⇨₁_)
+    {obj₂ : Set o₂} (_⇨₂_ : obj₂ → obj₂ → Set ℓ₂)(let infix 0 _⇨₂_; _⇨₂_ = _⇨₂_)
+    ⦃ _ : Products obj₁ ⦄ -- ⦃ _ : Monoidal _⇨₁_ ⦄
+    ⦃ _ : Products obj₂ ⦄ ⦃ _ : Monoidal _⇨₂_ ⦄
+    ⦃ Hₒ : Homomorphismₒ obj₁ obj₂ ⦄
+    -- (H : Homomorphism _⇨₁_ _⇨₂_)
+    ⦃ productsH : ProductsH ⦄
+ where
+  open ProductsH productsH
+  -- open Homomorphism H
+  open Homomorphismₒ Hₒ
+
+  !ᴴ : ∀ {a : obj₁} → Fₒ a ⇨₂ Fₒ ⊤
+  !ᴴ {a} = subst′ (Fₒ a ⇨₂_) F-⊤ !
+
+  infixr 7 _⊗ᴴ_
+  _⊗ᴴ_ : (f : Fₒ a ⇨₂ Fₒ c) (g : Fₒ b ⇨₂ Fₒ d) → Fₒ (a × b) ⇨₂ Fₒ (c × d)
+  f ⊗ᴴ g = subst₂′ _⇨₂_ F-× F-× (f ⊗ g)
+
+  firstᴴ  : (f : Fₒ a ⇨₂ Fₒ c) → Fₒ (a × b) ⇨₂ Fₒ (c × b)
+  firstᴴ  f = f ⊗ᴴ id
+
+  secondᴴ : (g : Fₒ b ⇨₂ Fₒ d) → Fₒ (a × b) ⇨₂ Fₒ (a × d)
+  secondᴴ g = id ⊗ᴴ g
+
+  unitorᴴᵉˡ : Fₒ (⊤ × a) ⇨₂ Fₒ a
+  unitorᴴᵉˡ {a} = subst′ (_⇨₂ Fₒ a) (trans F-× (cong (_× Fₒ a) F-⊤)) unitorᵉˡ
+
+  unitorᴴᵉʳ : Fₒ (a × ⊤) ⇨₂ Fₒ a
+  unitorᴴᵉʳ {a} = subst′ (_⇨₂ Fₒ a) (trans F-× (cong (Fₒ a ×_) F-⊤)) unitorᵉʳ
+
+  unitorᴴⁱˡ : Fₒ a ⇨₂ Fₒ (⊤ × a)
+  unitorᴴⁱˡ {a} = subst′ (Fₒ a ⇨₂_) (trans F-× (cong (_× Fₒ a) F-⊤)) unitorⁱˡ
+
+  unitorᴴⁱʳ : Fₒ a ⇨₂ Fₒ (a × ⊤)
+  unitorᴴⁱʳ {a} = subst′ (Fₒ a ⇨₂_) (trans F-× (cong (Fₒ a ×_) F-⊤)) unitorⁱʳ
+
+  assocᴴʳ : Fₒ ((a × b) × c) ⇨₂ Fₒ (a × (b × c))
+  assocᴴʳ {a}{b}{c} = subst₂′ _⇨₂_ (trans F-× (cong (_× Fₒ c) F-×))
+                                   (trans F-× (cong (Fₒ a ×_) F-×))
+                                   assocʳ
+
+  assocᴴˡ : Fₒ (a × (b × c)) ⇨₂ Fₒ ((a × b) × c)
+  assocᴴˡ {a}{b}{c} = subst₂′ _⇨₂_ (trans F-× (cong (Fₒ a ×_) F-×))
+                                   (trans F-× (cong (_× Fₒ c) F-×))
+                                   assocˡ
+
+  -- To do: Is there a suitable category for easing these substitutions?
 
 record MonoidalH
     {obj₁ : Set o₁} (_⇨₁′_ : obj₁ → obj₁ → Set ℓ₁)
@@ -336,36 +392,27 @@ record MonoidalH
   private infix 0 _⇨₁_; _⇨₁_ = _⇨₁′_
   private infix 0 _⇨₂_; _⇨₂_ = _⇨₂′_
   field
-    ⦃ categoryH ⦄ : CategoryH _⇨₁_ _⇨₂_ q
-    ⦃ productsH ⦄ : ProductsH
-  open CategoryH categoryH public
-  open ProductsH productsH public
+    ⦃ -categoryH ⦄ : CategoryH _⇨₁_ _⇨₂_ q
+    ⦃ -productsH ⦄ : ProductsH
+  open CategoryH -categoryH public
+  open ProductsH -productsH public
   -- open Homomorphismₒ Hₒ
+  open ᴴ obj₁ _⇨₂_
+
   field
-    F-! : ∀ {a} → Fₘ (! {a = a}) ≈ subst′ (Fₒ a ⇨₂_) F-⊤ !
-    F-⊗ : ∀ {f : a ⇨₁ c}{g : b ⇨₁ d}
-        → Fₘ (f ⊗ g) ≈ subst₂′ _⇨₂_ F-× F-× (Fₘ f ⊗ Fₘ g)
+    F-! : Fₘ (! {a = a}) ≈ !ᴴ {a}
+    F-⊗ : ∀ (f : a ⇨₁ c)(g : b ⇨₁ d) → Fₘ (f ⊗ g) ≈ Fₘ f ⊗ᴴ Fₘ g
 
-    F-unitorᵉˡ : ∀ {a : obj₁} →
-      Fₘ unitorᵉˡ ≈ subst′ (_⇨₂ Fₒ a) (trans F-× (cong (_× Fₒ a) F-⊤)) unitorᵉˡ
-    F-unitorⁱˡ : ∀ {a : obj₁} →
-      Fₘ unitorⁱˡ ≈ subst′ (Fₒ a ⇨₂_) (trans F-× (cong (_× Fₒ a) F-⊤)) unitorⁱˡ
+    F-first  : ∀ {b : obj₁}(f : a ⇨₁ c) → Fₘ (first  {b = b} f) ≈ firstᴴ  (Fₘ f)
+    F-second : ∀ {a : obj₁}(g : b ⇨₁ d) → Fₘ (second {a = a} g) ≈ secondᴴ (Fₘ g)
 
-    F-unitorᵉʳ : ∀ {a : obj₁} →
-      Fₘ unitorᵉʳ ≈ subst′ (_⇨₂ Fₒ a) (trans F-× (cong (Fₒ a ×_) F-⊤)) unitorᵉʳ
-    F-unitorⁱʳ : ∀ {a : obj₁} →
-      Fₘ unitorⁱʳ ≈ subst′ (Fₒ a ⇨₂_) (trans F-× (cong (Fₒ a ×_) F-⊤)) unitorⁱʳ
+    F-unitorᵉˡ : Fₘ unitorᵉˡ ≈ unitorᴴᵉˡ {a}
+    F-unitorⁱˡ : Fₘ unitorⁱˡ ≈ unitorᴴⁱˡ {a}
+    F-unitorᵉʳ : Fₘ unitorᵉʳ ≈ unitorᴴᵉʳ {a}
+    F-unitorⁱʳ : Fₘ unitorⁱʳ ≈ unitorᴴⁱʳ {a}
 
-    F-assocʳ : ∀ {a b c : obj₁} →
-      Fₘ (assocʳ {a = a}{b}{c}) ≈ subst₂′ _⇨₂_ (trans F-× (cong (_× Fₒ c) F-×))
-                                               (trans F-× (cong (Fₒ a ×_) F-×))
-                                               assocʳ
-    F-assocˡ : ∀ {a b c : obj₁} →
-      Fₘ (assocˡ {a = a}{b}{c}) ≈ subst₂′ _⇨₂_ (trans F-× (cong (Fₒ a ×_) F-×))
-                                               (trans F-× (cong (_× Fₒ c) F-×))
-                                               assocˡ
-
-    -- To do: define a suitable category for easing these substitutions.
+    F-assocˡ : Fₘ assocˡ ≈ assocᴴˡ {a}{b}{c}
+    F-assocʳ : Fₘ assocʳ ≈ assocᴴʳ {a}{b}{c}
 
 -- LawfulMonoidalᶠ : {obj₁ : Set o₁} {_⇨₁_ : obj₁ → obj₁ → Set ℓ₁}
 --                   {obj₂ : Set o₂} {_⇨₂_ : obj₂ → obj₂ → Set ℓ₂}
@@ -666,3 +713,4 @@ module CartUtils ⦃ _ : Products obj ⦄
   _◂↑_ : (a ⇨ b × a) → (n : ℕ) → (a ⇨ V b n × a)
   f ◂↑ zero  = unitorⁱˡ
   f ◂↑ suc n = (f ◂↑ n) ◂ f
+
