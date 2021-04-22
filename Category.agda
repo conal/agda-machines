@@ -299,13 +299,57 @@ record LawfulMonoidal {obj : Set o} ⦃ _ : Products obj ⦄
   private infix 0 _⇨_; _⇨_ = _⇨′_
   field
     ⦃ ⇨Monoidal ⦄ : Monoidal _⇨_
-    -- ⦃ lawful-cat ⦄ : LawfulCategory _⇨_ q
+    ⦃ lawful-cat ⦄ : LawfulCategory _⇨_ q
+
+    ∘⊗ : ∀ {a₁ b₁ a₂ b₂ a₃ b₃ : obj}
+           {f : a₁ ⇨ a₂}{g : b₁ ⇨ b₂}
+           {h : a₂ ⇨ a₃}{k : b₂ ⇨ b₃}
+       → (h ⊗ k) ∘ (f ⊗ g) ≈ (h ∘ f) ⊗ (k ∘ g)
 
     unitorᵉˡ∘unitorⁱˡ : ∀ {a : obj} → unitorᵉˡ ∘ unitorⁱˡ {a = a} ≈ id
     unitorⁱˡ∘unitorᵉˡ : ∀ {a : obj} → unitorⁱˡ ∘ unitorᵉˡ {a = a} ≈ id
 
     unitorᵉʳ∘unitorⁱʳ : ∀ {a : obj} → unitorᵉʳ ∘ unitorⁱʳ {a = a} ≈ id
     unitorⁱʳ∘unitorᵉʳ : ∀ {a : obj} → unitorⁱʳ ∘ unitorᵉʳ {a = a} ≈ id
+
+    ⊗-resp-≈ : ∀ {f g : a ⇨ c} {h k : b ⇨ d}
+             → f ≈ g → h ≈ k → h ⊗ f ≈ k ⊗ g
+
+  ⊗-resp-≈ˡ : ∀ {f : a ⇨ c} {h k : b ⇨ d} → h ≈ k → h ⊗ f ≈ k ⊗ f
+  ⊗-resp-≈ˡ h≈k = ⊗-resp-≈ refl≈ h≈k
+
+  ⊗-resp-≈ʳ : ∀ {f g : a ⇨ c} {h : b ⇨ d} → f ≈ g → h ⊗ f ≈ h ⊗ g
+  ⊗-resp-≈ʳ f≈g = ⊗-resp-≈ f≈g refl≈
+
+  -- first-resp-≈ : ∀ {f g : a ⇨ c}{b : obj} → f ≈ g → first {b = b} f ≈ first g
+  -- first-resp-≈ = ⊗-resp-≈ˡ
+
+  first∘second : ∀ {a b c d : obj} {f : a ⇨ c} {g : b ⇨ d}
+               → first f ∘ second g ≈ f ⊗ g
+  first∘second {f = f}{g = g} = let open ≈-Reasoning in
+    begin
+      first f ∘ second g
+    ≡⟨⟩
+      (f ⊗ id) ∘ (id ⊗ g)
+    ≈⟨ ∘⊗ ⟩
+      (f ∘ id) ⊗ (id ∘ g)
+    ≈⟨ ⊗-resp-≈ identityˡ identityʳ ⟩
+      f ⊗ g
+    ∎
+
+  second∘first : ∀ {a b c d : obj} {f : a ⇨ c} {g : b ⇨ d}
+               → second g ∘ first f ≈ f ⊗ g
+  second∘first {f = f}{g = g} = let open ≈-Reasoning in
+    begin
+      second g ∘ first f
+    ≡⟨⟩
+      (id ⊗ g) ∘ (f ⊗ id)
+    ≈⟨ ∘⊗ ⟩
+      (id ∘ f) ⊗ (g ∘ id)
+    ≈⟨ ⊗-resp-≈ identityʳ identityˡ ⟩
+      f ⊗ g
+    ∎
+
 
 open LawfulMonoidal ⦃ … ⦄ public
 
@@ -330,6 +374,8 @@ record ProductsH {obj₁ : Set o₁} ⦃ _ : Products obj₁ ⦄
 id-productsH : {obj : Set o} ⦃ _ : Products obj ⦄ → ProductsH ⦃ Hₒ = id-Hₒ ⦄
 id-productsH = record { F-⊤ = refl ; F-× = refl }
 
+-- Helpers for monoidal operations with homomorphisms.
+-- Needs a better module name and some experience using it.
 module ᴴ
     (obj₁ : Set o₁) -- {_⇨₁_ : obj₁ → obj₁ → Set ℓ₁}(let infix 0 _⇨₁_; _⇨₁_ = _⇨₁_)
     {obj₂ : Set o₂} (_⇨₂_ : obj₂ → obj₂ → Set ℓ₂)(let infix 0 _⇨₂_; _⇨₂_ = _⇨₂_)
@@ -403,9 +449,6 @@ record MonoidalH
     F-! : Fₘ (! {a = a}) ≈ !ᴴ {a}
     F-⊗ : ∀ (f : a ⇨₁ c)(g : b ⇨₁ d) → Fₘ (f ⊗ g) ≈ Fₘ f ⊗ᴴ Fₘ g
 
-    F-first  : ∀ {b : obj₁}(f : a ⇨₁ c) → Fₘ (first  {b = b} f) ≈ firstᴴ  (Fₘ f)
-    F-second : ∀ {a : obj₁}(g : b ⇨₁ d) → Fₘ (second {a = a} g) ≈ secondᴴ (Fₘ g)
-
     F-unitorᵉˡ : Fₘ unitorᵉˡ ≈ unitorᴴᵉˡ {a}
     F-unitorⁱˡ : Fₘ unitorⁱˡ ≈ unitorᴴⁱˡ {a}
     F-unitorᵉʳ : Fₘ unitorᵉʳ ≈ unitorᴴᵉʳ {a}
@@ -413,6 +456,11 @@ record MonoidalH
 
     F-assocˡ : Fₘ assocˡ ≈ assocᴴˡ {a}{b}{c}
     F-assocʳ : Fₘ assocʳ ≈ assocᴴʳ {a}{b}{c}
+
+
+  -- F-first  : ∀ {b : obj₁}(f : a ⇨₁ c) → Fₘ (first  {b = b} f) ≈ firstᴴ  (Fₘ f)
+  -- F-second : ∀ {a : obj₁}(g : b ⇨₁ d) → Fₘ (second {a = a} g) ≈ secondᴴ (Fₘ g)
+
 
 -- LawfulMonoidalᶠ : {obj₁ : Set o₁} {_⇨₁_ : obj₁ → obj₁ → Set ℓ₁}
 --                   {obj₂ : Set o₂} {_⇨₂_ : obj₂ → obj₂ → Set ℓ₂}
