@@ -117,6 +117,7 @@ record Category {obj : Set o} (_⇨_ : obj → obj → Set ℓ) : Set (lsuc o �
              ≡ subst₂ _⇨_ a₁≡a₂ c₁≡c₂ (g ∘ f)
   subst∘ {a₁≡a₂ = refl} {b₁≡b₂ = refl} {c₁≡c₂ = refl} = refl
 
+
 open Category ⦃ … ⦄ public
 
 record LawfulCategory {obj : Set o} (_⇨′_ : obj → obj → Set ℓ)
@@ -525,6 +526,38 @@ module Lawfulᴴ
     ≡⟨⟩
       f ⊗ᴴ g
     ∎
+
+  first∘firstᴴ : ∀ {f : Fₒ a ⇨₂ Fₒ b} {g : Fₒ b ⇨₂ Fₒ c} {z}
+               → firstᴴ g ∘ firstᴴ f ≈ firstᴴ {b = z} (g ∘ f)
+  first∘firstᴴ {f = f}{g} =
+    begin
+      firstᴴ g ∘ firstᴴ f
+    ≡⟨⟩
+       (subst₂′ _⇨₂_ F-× F-× (first g)) ∘ (subst₂′ _⇨₂_ F-× F-× (first f))
+    ≡⟨ subst∘ ⟩
+       subst₂′ _⇨₂_ F-× F-× (first g ∘ first f)
+    ≈⟨ subst≈ first∘first ⟩
+       subst₂′ _⇨₂_ F-× F-× (first (g ∘ f))
+    ≡⟨⟩
+      firstᴴ (g ∘ f)
+    ∎
+
+  second∘secondᴴ : ∀ {f : Fₒ a ⇨₂ Fₒ b} {g : Fₒ b ⇨₂ Fₒ c} {z}
+                 → secondᴴ g ∘ secondᴴ f ≈ secondᴴ {a = z} (g ∘ f)
+  second∘secondᴴ {f = f}{g} =
+    begin
+      secondᴴ g ∘ secondᴴ f
+    ≡⟨⟩
+       (subst₂′ _⇨₂_ F-× F-× (second g)) ∘ (subst₂′ _⇨₂_ F-× F-× (second f))
+    ≡⟨ subst∘ ⟩
+       subst₂′ _⇨₂_ F-× F-× (second g ∘ second f)
+    ≈⟨ subst≈ second∘second ⟩
+       subst₂′ _⇨₂_ F-× F-× (second (g ∘ f))
+    ≡⟨⟩
+      secondᴴ (g ∘ f)
+    ∎
+
+  -- TODO: Refactor these last few to make them all one-liners.
 
 
 record MonoidalH
