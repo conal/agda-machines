@@ -64,7 +64,6 @@ record Equivalent q {obj : Set o} (_⇨_ : obj → obj → Set ℓ)
   -- subst≈′ g≈f = subst≈ (sym≈ g≈f)
   -- -- subst≈′ a≡c b≡d g≈f = subst≈ a≡c b≡d (sym≈ g≈f)
 
-
 -- TODO: Replace Equivalent by Setoid?
 -- I think we need _⇨_ as an argument rather than field.
 
@@ -318,10 +317,10 @@ open Monoidal ⦃ … ⦄ public
 record LawfulMonoidal {obj : Set o} ⦃ _ : Products obj ⦄
          (_⇨′_ : obj → obj → Set ℓ)
          q ⦃ _ : Equivalent q _⇨′_ ⦄
+         ⦃ _ : Monoidal _⇨′_ ⦄
        : Set (lsuc o ⊔ ℓ ⊔ lsuc q) where
   private infix 0 _⇨_; _⇨_ = _⇨′_
   field
-    ⦃ ⇨Monoidal ⦄ : Monoidal _⇨_
     ⦃ lawful-cat ⦄ : LawfulCategory _⇨_ q
 
     ∘⊗ : ∀ {a₁ b₁ a₂ b₂ a₃ b₃ : obj}
@@ -372,7 +371,6 @@ record LawfulMonoidal {obj : Set o} ⦃ _ : Products obj ⦄
       f ⊗ g
     ∎
 
-
 open LawfulMonoidal ⦃ … ⦄ public
 
 -- I don't think there's a Monoidal instance for _≡_
@@ -386,12 +384,7 @@ record ProductsH {obj₁ : Set o₁} ⦃ _ : Products obj₁ ⦄
     F-⊤ : Fₒ ⊤ ≡ ⊤
     F-× : ∀ {a b} → Fₒ (a × b) ≡ (Fₒ a × Fₒ b)
     -- TODO: isomorphisms instead of equalities for F-⊤ & F-×?
-
--- record ProductsH
---     {obj₁ : Set o₁} ⦃ _ : Products obj₁ ⦄ (_⇨₁′_ : obj₁ → obj₁ → Set ℓ₁)
---     {obj₂ : Set o₂} ⦃ _ : Products obj₂ ⦄ (_⇨₂′_ : obj₂ → obj₂ → Set ℓ₂)
---     ⦃ Hₒ : Homomorphismₒ obj₁ obj₂ ⦄
---     ⦃ H  : Homomorphism _⇨₁′_ _⇨₂′_ ⦄
+    -- Equality seems to be working out and is easier to manage.
 
 id-productsH : {obj : Set o} ⦃ _ : Products obj ⦄ → ProductsH id-Hₒ
 id-productsH = record { F-⊤ = refl ; F-× = refl }
@@ -451,7 +444,8 @@ module Lawfulᴴ
     ⦃ _ : Products obj₂ ⦄
     ⦃ Hₒ : Homomorphismₒ obj₁ obj₂ ⦄
     ⦃ productsH : ProductsH Hₒ ⦄
-    q ⦃ equiv : Equivalent q _⇨₂_ ⦄ ⦃ _ : LawfulMonoidal _⇨₂_ q ⦄
+    q ⦃ equiv : Equivalent q _⇨₂_ ⦄
+    ⦃ _ : Monoidal _⇨₂_ ⦄ ⦃ _ : LawfulMonoidal _⇨₂_ q ⦄
  where
   open ProductsH productsH
   open Homomorphismₒ Hₒ
@@ -461,13 +455,13 @@ module Lawfulᴴ
             → f ≈ h → g ≈ k → f ⊗ᴴ g ≈ h ⊗ᴴ k
   ⊗ᴴ-resp-≈ f≈h g≈k = subst≈ (⊗-resp-≈ f≈h g≈k)
 
-  ⊗ᴴ-resp-≈ˡ : ∀ {f : Fₒ a ⇨₂ Fₒ c} {g k : Fₒ b ⇨₂ Fₒ d}
-             → g ≈ k → f ⊗ᴴ g ≈ f ⊗ᴴ k
-  ⊗ᴴ-resp-≈ˡ g≈k = ⊗ᴴ-resp-≈ refl≈ g≈k
-
-  ⊗ᴴ-resp-≈ʳ : ∀ {f h : Fₒ a ⇨₂ Fₒ c} {g : Fₒ b ⇨₂ Fₒ d}
+  ⊗ᴴ-resp-≈ˡ : ∀ {f h : Fₒ a ⇨₂ Fₒ c} {g : Fₒ b ⇨₂ Fₒ d}
              → f ≈ h → f ⊗ᴴ g ≈ h ⊗ᴴ g
-  ⊗ᴴ-resp-≈ʳ f≈h = ⊗ᴴ-resp-≈ f≈h refl≈
+  ⊗ᴴ-resp-≈ˡ f≈h = ⊗ᴴ-resp-≈ f≈h refl≈
+
+  ⊗ᴴ-resp-≈ʳ : ∀ {f : Fₒ a ⇨₂ Fₒ c} {g k : Fₒ b ⇨₂ Fₒ d}
+             → g ≈ k → f ⊗ᴴ g ≈ f ⊗ᴴ k
+  ⊗ᴴ-resp-≈ʳ g≈k = ⊗ᴴ-resp-≈ refl≈ g≈k
 
   first∘secondᴴ : ∀ {a b c d} {f : Fₒ a ⇨₂ Fₒ c} {g : Fₒ b ⇨₂ Fₒ d}
                 → firstᴴ f ∘ secondᴴ g ≈ f ⊗ᴴ g
@@ -475,7 +469,7 @@ module Lawfulᴴ
     begin
       firstᴴ f ∘ secondᴴ g
     ≡⟨⟩
-       (subst₂′ _⇨₂_ F-× F-× (first f)) ∘ (subst₂′ _⇨₂_ F-× F-× (second g))
+       subst₂′ _⇨₂_ F-× F-× (first f) ∘ subst₂′ _⇨₂_ F-× F-× (second g)
     ≡⟨ subst∘ ⟩
        subst₂′ _⇨₂_ F-× F-× (first f ∘ second g)
     ≈⟨ subst≈ first∘second ⟩
@@ -505,7 +499,7 @@ record MonoidalH
     {obj₂ : Set o₂} (_⇨₂′_ : obj₂ → obj₂ → Set ℓ₂)
     q ⦃ _ : Equivalent q _⇨₂′_ ⦄
     ⦃ _ : Products obj₁ ⦄ ⦃ _ : Monoidal _⇨₁′_ ⦄
-    ⦃ _ : Products obj₂ ⦄ ⦃ _ : Monoidal _⇨₂′_ ⦄
+    ⦃ _ : Products obj₂ ⦄ ⦃ _ : Monoidal _⇨₂′_ ⦄ ⦃ _ : LawfulMonoidal _⇨₂′_ q ⦄
     ⦃ Hₒ : Homomorphismₒ obj₁ obj₂ ⦄
     ⦃ H : Homomorphism _⇨₁′_ _⇨₂′_ ⦄
   : Set (o₁ ⊔ ℓ₁ ⊔ o₂ ⊔ ℓ₂ ⊔ q) where
@@ -518,7 +512,7 @@ record MonoidalH
   open ProductsH -productsH public
   -- open Homomorphismₒ Hₒ
   open ᴴ obj₁ _⇨₂_
-
+  open Lawfulᴴ obj₁ _⇨₂_ q
   field
     F-! : Fₘ (! {a = a}) ≈ !ᴴ {a}
     F-⊗ : ∀ (f : a ⇨₁ c)(g : b ⇨₁ d) → Fₘ (f ⊗ g) ≈ Fₘ f ⊗ᴴ Fₘ g
@@ -531,9 +525,33 @@ record MonoidalH
     F-assocˡ : Fₘ assocˡ ≈ assocᴴˡ {a}{b}{c}
     F-assocʳ : Fₘ assocʳ ≈ assocᴴʳ {a}{b}{c}
 
+  F-first  : ∀ {b : obj₁}(f : a ⇨₁ c) → Fₘ (first {b = b} f) ≈ firstᴴ (Fₘ f)
+  F-first f = let open ≈-Reasoning in
+    begin
+      Fₘ (first f)
+    ≡⟨⟩
+      Fₘ (f ⊗ id)
+    ≈⟨ F-⊗ f id ⟩
+      Fₘ f ⊗ᴴ Fₘ id
+    ≈⟨ ⊗ᴴ-resp-≈ʳ F-id ⟩
+      Fₘ f ⊗ᴴ id
+    ≡⟨⟩
+      firstᴴ (Fₘ f)
+    ∎
 
-  -- F-first  : ∀ {b : obj₁}(f : a ⇨₁ c) → Fₘ (first  {b = b} f) ≈ firstᴴ  (Fₘ f)
-  -- F-second : ∀ {a : obj₁}(g : b ⇨₁ d) → Fₘ (second {a = a} g) ≈ secondᴴ (Fₘ g)
+  F-second  : ∀ {a : obj₁}(g : b ⇨₁ d) → Fₘ (second {a = a} g) ≈ secondᴴ (Fₘ g)
+  F-second g = let open ≈-Reasoning in
+    begin
+      Fₘ (second g)
+    ≡⟨⟩
+      Fₘ (id ⊗ g)
+    ≈⟨ F-⊗ id g ⟩
+      Fₘ id ⊗ᴴ Fₘ g
+    ≈⟨ ⊗ᴴ-resp-≈ˡ F-id ⟩
+      id ⊗ᴴ Fₘ g
+    ≡⟨⟩
+      secondᴴ (Fₘ g)
+    ∎
 
 
 -- LawfulMonoidalᶠ : {obj₁ : Set o₁} {_⇨₁_ : obj₁ → obj₁ → Set ℓ₁}
@@ -595,12 +613,22 @@ record Braided {obj : Set o} ⦃ _ : Products obj ⦄
 
 open Braided ⦃ … ⦄ public
 
+record LawfulBraided {obj : Set o} ⦃ _ : Products obj ⦄
+         (_⇨′_ : obj → obj → Set ℓ)
+         q ⦃ _ : Equivalent q _⇨′_ ⦄
+         ⦃ _ : Braided _⇨′_ ⦄
+       : Set (lsuc o ⊔ ℓ ⊔ lsuc q) where
+  private infix 0 _⇨_; _⇨_ = _⇨′_
+  field
+    ⦃ lawful-monoidal ⦄ : LawfulMonoidal _⇨_ q
+    -- Laws go here
+
 record BraidedH
     {obj₁ : Set o₁} (_⇨₁′_ : obj₁ → obj₁ → Set ℓ₁)
     {obj₂ : Set o₂} (_⇨₂′_ : obj₂ → obj₂ → Set ℓ₂)
     q ⦃ _ : Equivalent q _⇨₂′_ ⦄
     ⦃ _ : Products obj₁ ⦄ ⦃ _ : Braided _⇨₁′_ ⦄
-    ⦃ _ : Products obj₂ ⦄ ⦃ _ : Braided _⇨₂′_ ⦄
+    ⦃ _ : Products obj₂ ⦄ ⦃ _ : Braided _⇨₂′_ ⦄ ⦃ _ : LawfulBraided _⇨₂′_ q ⦄
     ⦃ _ : Homomorphismₒ obj₁ obj₂ ⦄
     ⦃ _ : Homomorphism _⇨₁′_ _⇨₂′_ ⦄
   : Set (o₁ ⊔ ℓ₁ ⊔ o₂ ⊔ ℓ₂ ⊔ q) where
@@ -627,13 +655,24 @@ record Cartesian {obj : Set o} ⦃ _ : Products obj ⦄
 
 open Cartesian ⦃ … ⦄ public
 
-record CartesianH {obj₁ : Set o₁} (_⇨₁′_ : obj₁ → obj₁ → Set ℓ₁)
-                  {obj₂ : Set o₂} (_⇨₂′_ : obj₂ → obj₂ → Set ℓ₂)
-                  q ⦃ _ : Equivalent q _⇨₂′_ ⦄
-                  ⦃ _ : Products obj₁ ⦄ ⦃ _ : Cartesian _⇨₁′_ ⦄
-                  ⦃ _ : Products obj₂ ⦄ ⦃ _ : Cartesian _⇨₂′_ ⦄
-                  ⦃ _ : Homomorphismₒ obj₁ obj₂ ⦄
-                  ⦃ _ : Homomorphism _⇨₁′_ _⇨₂′_ ⦄
+record LawfulCartesian {obj : Set o} ⦃ _ : Products obj ⦄
+         (_⇨′_ : obj → obj → Set ℓ)
+         q ⦃ _ : Equivalent q _⇨′_ ⦄
+         ⦃ _ : Cartesian _⇨′_ ⦄
+       : Set (lsuc o ⊔ ℓ ⊔ lsuc q) where
+  private infix 0 _⇨_; _⇨_ = _⇨′_
+  field
+    ⦃ lawful-braided ⦄ : LawfulBraided _⇨_ q
+    -- Laws go here
+
+record CartesianH
+  {obj₁ : Set o₁} (_⇨₁′_ : obj₁ → obj₁ → Set ℓ₁)
+  {obj₂ : Set o₂} (_⇨₂′_ : obj₂ → obj₂ → Set ℓ₂)
+  q ⦃ _ : Equivalent q _⇨₂′_ ⦄
+  ⦃ _ : Products obj₁ ⦄ ⦃ _ : Cartesian _⇨₁′_ ⦄
+  ⦃ _ : Products obj₂ ⦄ ⦃ _ : Cartesian _⇨₂′_ ⦄ ⦃ _ : LawfulCartesian _⇨₂′_ q ⦄
+  ⦃ _ : Homomorphismₒ obj₁ obj₂ ⦄
+  ⦃ _ : Homomorphism _⇨₁′_ _⇨₂′_ ⦄
   : Set (o₁ ⊔ ℓ₁ ⊔ o₂ ⊔ ℓ₂ ⊔ q) where
   private infix 0 _⇨₁_; _⇨₁_ = _⇨₁′_
   private infix 0 _⇨₂_; _⇨₂_ = _⇨₂′_
