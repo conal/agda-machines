@@ -69,6 +69,8 @@ record Equivalent q {obj : Set o} (_⇨_ : obj → obj → Set ℓ)
 
 open Equivalent ⦃ … ⦄ public
 
+open ≈-Reasoning  -- (not public)
+
 record Homomorphismₒ (obj₁ : Set o₁) (obj₂ : Set o₂) : Set (o₁ ⊔ o₂) where
   field
     Fₒ : obj₁ → obj₂
@@ -215,7 +217,6 @@ LawfulCategoryᶠ F = record
       ∎
   }
  where open CategoryH F
-       open ≈-Reasoning
 
 -- TODO: LawfulMonoidalᶠ etc.
 
@@ -349,7 +350,7 @@ record LawfulMonoidal {obj : Set o} ⦃ _ : Products obj ⦄
 
   first∘second : ∀ {a b c d : obj} {f : a ⇨ c} {g : b ⇨ d}
                → first f ∘ second g ≈ f ⊗ g
-  first∘second {f = f}{g = g} = let open ≈-Reasoning in
+  first∘second {f = f}{g = g} =
     begin
       first f ∘ second g
     ≡⟨⟩
@@ -362,7 +363,7 @@ record LawfulMonoidal {obj : Set o} ⦃ _ : Products obj ⦄
 
   second∘first : ∀ {a b c d : obj} {f : a ⇨ c} {g : b ⇨ d}
                → second g ∘ first f ≈ f ⊗ g
-  second∘first {f = f}{g = g} = let open ≈-Reasoning in
+  second∘first {f = f}{g = g} =
     begin
       second g ∘ first f
     ≡⟨⟩
@@ -375,7 +376,7 @@ record LawfulMonoidal {obj : Set o} ⦃ _ : Products obj ⦄
 
   first∘first : ∀ {f : a ⇨ b} {g : b ⇨ c} {z : obj}
               → first g ∘ first f ≈ first {b = z} (g ∘ f)
-  first∘first {f = f}{g} = let open ≈-Reasoning in
+  first∘first {f = f}{g} =
     begin
       first g ∘ first f
     ≡⟨⟩
@@ -390,7 +391,7 @@ record LawfulMonoidal {obj : Set o} ⦃ _ : Products obj ⦄
 
   second∘second : ∀ {f : a ⇨ b} {g : b ⇨ c} {z : obj}
                 → second g ∘ second f ≈ second {a = z} (g ∘ f)
-  second∘second {f = f}{g} = let open ≈-Reasoning in
+  second∘second {f = f}{g} =
     begin
       second g ∘ second f
     ≡⟨⟩
@@ -497,7 +498,7 @@ module Lawfulᴴ
 
   first∘secondᴴ : ∀ {a b c d} {f : Fₒ a ⇨₂ Fₒ c} {g : Fₒ b ⇨₂ Fₒ d}
                 → firstᴴ f ∘ secondᴴ g ≈ f ⊗ᴴ g
-  first∘secondᴴ {f = f}{g = g} = let open ≈-Reasoning in
+  first∘secondᴴ {f = f}{g = g} =
     begin
       firstᴴ f ∘ secondᴴ g
     ≡⟨⟩
@@ -512,7 +513,7 @@ module Lawfulᴴ
 
   second∘firstᴴ : ∀ {a b c d} {f : Fₒ a ⇨₂ Fₒ c} {g : Fₒ b ⇨₂ Fₒ d}
                 → secondᴴ g ∘ firstᴴ f ≈ f ⊗ᴴ g
-  second∘firstᴴ {f = f}{g = g} = let open ≈-Reasoning in
+  second∘firstᴴ {f = f}{g = g} =
     begin
       secondᴴ g ∘ firstᴴ f
     ≡⟨⟩
@@ -558,7 +559,7 @@ record MonoidalH
     F-assocʳ : Fₘ assocʳ ≈ assocᴴʳ {a}{b}{c}
 
   F-first  : ∀ {b : obj₁}(f : a ⇨₁ c) → Fₘ (first {b = b} f) ≈ firstᴴ (Fₘ f)
-  F-first f = let open ≈-Reasoning in
+  F-first f =
     begin
       Fₘ (first f)
     ≡⟨⟩
@@ -572,7 +573,7 @@ record MonoidalH
     ∎
 
   F-second  : ∀ {a : obj₁}(g : b ⇨₁ d) → Fₘ (second {a = a} g) ≈ secondᴴ (Fₘ g)
-  F-second g = let open ≈-Reasoning in
+  F-second g =
     begin
       Fₘ (second g)
     ≡⟨⟩
@@ -620,7 +621,6 @@ record MonoidalH
 --   }
 --  where open MonoidalH F
 --        -- instance _ = H-equiv ⦃ equiv₂ = equiv₂ ⦄ H
---        open ≈-Reasoning
 
 
 record Braided {obj : Set o} ⦃ _ : Products obj ⦄
