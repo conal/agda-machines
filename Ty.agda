@@ -314,7 +314,7 @@ module ty where
     ⟦⟧-monoidalH : MonoidalH _⇨_ Function 0ℓ
     ⟦⟧-monoidalH = record
       { F-!        = λ _ → refl
-      ; F-⊗        = λ _ → refl
+      ; F-⊗        = λ f g _ → refl
       ; F-unitorᵉˡ = λ _ → refl
       ; F-unitorⁱˡ = λ _ → refl
       ; F-unitorᵉʳ = λ _ → refl
@@ -498,7 +498,7 @@ module r where
     ⟦⟧-monoidalH : MonoidalH _⇨_ ty._⇨_ 0ℓ
     ⟦⟧-monoidalH = record
       { F-!        = λ _ → refl
-      ; F-⊗        = λ _ → refl
+      ; F-⊗        = λ f g _ → refl
       ; F-unitorᵉˡ = λ _ → swizzle-id
       ; F-unitorⁱˡ = λ _ → swizzle-id
       ; F-unitorᵉʳ = λ _ → swizzle-id

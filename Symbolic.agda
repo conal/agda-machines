@@ -75,7 +75,7 @@ instance
   ⟦⟧-monoidalH : MonoidalH _⇨_ ty._⇨_ 0ℓ
   ⟦⟧-monoidalH = record
                    { F-!        = λ _ → refl
-                   ; F-⊗        = λ _ → refl
+                   ; F-⊗        = λ f g _ → refl
                    ; F-unitorᵉˡ = λ _ → swizzle-id
                    ; F-unitorⁱˡ = λ _ → swizzle-id
                    ; F-unitorᵉʳ = λ _ → swizzle-id
