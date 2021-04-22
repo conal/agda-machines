@@ -22,9 +22,9 @@ module Stack {ℓₘ}{objₘ : Set ℓₘ} ⦃ _ : Products objₘ ⦄
              (_⇨ₚ_ : obj → obj → Set ℓ) (let infix 0 _⇨ₚ_; _⇨ₚ_ = _⇨ₚ_)
              (_⇨ᵣ_ : obj → obj → Set ℓ) (let infix 0 _⇨ᵣ_; _⇨ᵣ_ = _⇨ᵣ_)
              q ⦃ equivₘ : Equivalent q _⇨ₘ_ ⦄
-             ⦃ Hₒ : Homomorphismₒ obj objₘ ⦄ -- ⦃ prodH : ProductsH ⦃ Hₒ = Hₒ ⦄ ⦄
+             ⦃ Hₒ : Homomorphismₒ obj objₘ ⦄ ⦃ prodH : ProductsH ⦃ Hₒ = Hₒ ⦄ ⦄
              ⦃ _ : Monoidal _⇨ₘ_ ⦄
-             ⦃ _ : LawfulCategory _⇨ₘ_ q ⦄  -- probably replace by LawfulMonoidal
+             ⦃ _ : LawfulCategory _⇨ₘ_ q ⦄ -- LawfulMonoidal
              ⦃ _ : Braided  _⇨ᵣ_ ⦄
              ⦃ Hₚ : Homomorphism _⇨ₚ_ _⇨ₘ_ ⦄
              ⦃ Hᵣ : Homomorphism _⇨ᵣ_ _⇨ₘ_ ⦄
@@ -84,11 +84,9 @@ open ᴴ obj _⇨ₘ_
 
 ⟦_⟧ₖ : (a ⇨ b) → (Fₒ a ⇨ₘ Fₒ b)
 ⟦ ⌞ r ⌟ ⟧ₖ = ⟦ r ⟧ᵣ
--- ⟦ f ∘·first p ∘ r ⟧ₖ = ⟦ f ⟧ₖ ∘ first′ ⟦ p ⟧ₚ ∘ ⟦ r ⟧ᵣ
 ⟦ f ∘·first p ∘ r ⟧ₖ = ⟦ f ⟧ₖ ∘ firstᴴ ⟦ p ⟧ₚ ∘ ⟦ r ⟧ᵣ
 
--- TODO: Maybe move first′ to Category, and likewise for _⊗_, second,
--- associators, and unitors.
+-- TODO: Maybe firstᴴ should absorb the homomorphism as I first defined it.
 
 -- TODO: when proofs are done, consider localizing _∘ₖ_, firstₖ, and secondₖ
 
@@ -171,6 +169,17 @@ g ⟦∘⟧ (f ∘·first p ∘ r) =
 
 ⌞ r₂ ⌟ ⟦∘⟧ ⌞ r₁ ⌟ = F-∘ r₂ r₁
 
+instance
+
+  categoryH : CategoryH _⇨_ _⇨ₘ_ q
+  categoryH = record { F-id = F-id ; F-∘ = _⟦∘⟧_ }  -- F-id from monoidalHᵣ
+
+  lawful-category : LawfulCategory _⇨_ q ⦃ equiv = equivalent ⦄
+  lawful-category = LawfulCategoryᶠ categoryH
+
+
+{-
+
 ⟦first⟧ : (f : a ⇨ c) → ⟦ firstₖ {b = b} f ⟧ₖ ≈ firstᴴ ⟦ f ⟧ₖ
 
 ⟦first⟧ ⌞ r ⌟ = F-first r
@@ -211,29 +220,93 @@ g ⟦∘⟧ (f ∘·first p ∘ r) =
 
 -- ⟦ f ∘·first p ∘ r ⟧ₖ = ⟦ f ⟧ₖ ∘ firstᴴ ⟦ p ⟧ₚ ∘ ⟦ r ⟧ᵣ
 
+-}
+
+⟦first⟧ : (f : a ⇨ c) → ⟦ firstₖ {b = b} f ⟧ₖ ≈ firstᴴ ⟦ f ⟧ₖ
+⟦first⟧ f = {!!}
+
+⟦second⟧ : (g : b ⇨ d) → ⟦ secondₖ {a = a} g ⟧ₖ ≈ secondᴴ ⟦ g ⟧ₖ
+⟦second⟧ g = {!!}
+
+infixr 7 _⟦⊗⟧_
+_⟦⊗⟧_ : ∀ (f : a ⇨ c) (g : b ⇨ d) → ⟦ f ⊗ g ⟧ₖ ≈ ⟦ f ⟧ₖ ⊗ᴴ ⟦ g ⟧ₖ
+
+f ⟦⊗⟧ g =
+  begin
+    ⟦ f ⊗ g ⟧ₖ
+  ≡⟨⟩
+    ⟦ secondₖ g ∘ firstₖ f ⟧ₖ
+  ≈⟨ secondₖ g ⟦∘⟧ firstₖ f ⟩
+    ⟦ secondₖ g ⟧ₖ ∘ ⟦ firstₖ f ⟧ₖ
+  ≈⟨ ∘-resp-≈ {_⇨′_ = _⇨ₘ_} (⟦second⟧ g) (⟦first⟧ f) ⟩
+    secondᴴ ⟦ g ⟧ₖ ∘ firstᴴ ⟦ f ⟧ₖ
+  ≈⟨ {!second∘firstᴴ!} ⟩
+    ⟦ f ⟧ₖ ⊗ᴴ ⟦ g ⟧ₖ
+  ∎
+ where open Lawfulᴴ obj _⇨_ ⦃ productsH = prodH ⦄ q
+
+-- ⌞ r ⌟ ⟦⊗⟧ g = {!!}
+
+-- ⌞ r ⌟ ⟦⊗⟧ g =
+--   begin
+--     ⟦ ⌞ r ⌟ ⊗ g ⟧ₖ
+--   ≡⟨⟩
+--     ⟦ secondₖ g ∘ₖ ⌞ first r ⌟ ⟧ₖ
+--   -- ≈⟨ secondₖ g ⟦∘⟧ ⌞ first r ⌟ ⟩
+--   --   ⟦ secondₖ g ⟧ₖ ∘ ⟦ first r ⟧ᵣ
+--   ≈⟨ ∘-resp-≈ (⟦second⟧ g) {!⟦first⟧ f!} ⟩
+--     secondᴴ ⟦ g ⟧ₖ ∘ firstᴴ ⟦ ⌞ first r ⌟ ⟧ᵣ
+--   ≈⟨ {!!} ⟩
+--     ⟦ ⌞ r ⌟ ⟧ₖ ⊗ᴴ ⟦ g ⟧ₖ
+--   ∎
+
+
+-- f ∘·first p ∘ r ⟦⊗⟧ g = {!!}
+
+-- f ⟦⊗⟧ ⌞ r ⌟ = {!!}
+
+-- f ⟦⊗⟧ ⌞ r ⌟ =
+--   begin
+--     ⟦ f ⊗ ⌞ r ⌟ ⟧ₖ
+--   ≡⟨⟩
+--     ⟦ secondₖ ⌞ r ⌟ ∘ₖ firstₖ f ⟧ₖ
+--   -- ≈⟨ {!!} ⟩
+--   --   ?
+--   ≈⟨ {!!} ⟩
+--     ⟦ f ⟧ₖ ⊗ᴴ ⟦ ⌞ r ⌟ ⟧ₖ
+--   ∎
+
+-- f ⟦⊗⟧ g ∘·first p ∘ r = {!!}
+
+-- f ⟦⊗⟧ g =
+--   begin
+--     ⟦ f ⊗ g ⟧ₖ
+--   ≡⟨⟩
+--     ⟦ secondₖ g ∘ₖ firstₖ f ⟧ₖ
+--   -- ≈⟨ {!!} ⟩
+--   --   ?
+--   ≈⟨ {!!} ⟩
+--     ⟦ f ⟧ₖ ⊗ᴴ ⟦ g ⟧ₖ
+--   ∎
+
+-- f ⊗ g = secondₖ g ∘ firstₖ f
+
+-- F-⊗ : ∀ (f : a ⇨₁ c)(g : b ⇨₁ d) → Fₘ (f ⊗ g) ≈ Fₘ f ⊗ᴴ Fₘ g
+
 instance
 
-  categoryH : CategoryH _⇨_ _⇨ₘ_ q
-  categoryH = record { F-id = F-id ; F-∘ = _⟦∘⟧_ }
+  -- Most properties transfer from monoidalHᵣ.
+  monoidalH : MonoidalH _⇨_ _⇨ₘ_ q
+  monoidalH = record
+                { F-!        = F-!
+                ; F-⊗        = _⟦⊗⟧_
+                ; F-unitorᵉˡ = F-unitorᵉˡ
+                ; F-unitorⁱˡ = F-unitorⁱˡ
+                ; F-unitorᵉʳ = F-unitorᵉʳ
+                ; F-unitorⁱʳ = F-unitorⁱʳ
+                ; F-assocˡ   = F-assocˡ
+                ; F-assocʳ   = F-assocʳ
+                }
 
-  lawful-category : LawfulCategory _⇨_ q ⦃ equiv = equivalent ⦄
-  lawful-category = LawfulCategoryᶠ categoryH
-
--- infixr 7 _⟦⊗⟧_
--- _⟦⊗⟧_ : ∀ (f : a ⇨ c) (g : c ⇨ d) → ⟦ f ⊗ g ⟧ ≈ ⟦ f ⟧ ⊗ ⟦ g ⟧
--- f ⟦⊗⟧ g = {!!}
-
--- open import Relation.Binary.PropositionalEquality
--- ⟦⟧-monoidalH : MonoidalH _⇨_ _⇨ₘ_ 0ℓ ⦃ H = ⟦⟧-H ⦄
--- ⟦⟧-monoidalH = record
---   { categoryH  = ⟦⟧-categoryH
---   ; F-⊗        = {!!}
---   ; F-!        = λ x → swizzle-id
---   ; F-unitorᵉˡ = λ x → swizzle-id
---   ; F-unitorⁱˡ = λ x → swizzle-id
---   ; F-unitorᵉʳ = λ x → swizzle-id
---   ; F-unitorⁱʳ = λ x → swizzle-id
---   ; F-assocʳ   = λ x → swizzle-id
---   ; F-assocˡ   = λ x → swizzle-id
---   }
-
+  -- lawful-monoidal : LawfulMonoidal _⇨_ q ⦃ equiv = equivalent ⦄
+  -- lawful-monoidal = LawfulMonoidalᶠ monoidalH
