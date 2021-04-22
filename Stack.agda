@@ -22,9 +22,8 @@ module Stack {ℓₘ}{objₘ : Set ℓₘ} ⦃ _ : Products objₘ ⦄
              (_⇨ₚ_ : obj → obj → Set ℓ) (let infix 0 _⇨ₚ_; _⇨ₚ_ = _⇨ₚ_)
              (_⇨ᵣ_ : obj → obj → Set ℓ) (let infix 0 _⇨ᵣ_; _⇨ᵣ_ = _⇨ᵣ_)
              q ⦃ equivₘ : Equivalent q _⇨ₘ_ ⦄
-             ⦃ Hₒ : Homomorphismₒ obj objₘ ⦄ ⦃ prodH : ProductsH ⦃ Hₒ = Hₒ ⦄ ⦄
-             ⦃ _ : Monoidal _⇨ₘ_ ⦄
-             ⦃ _ : LawfulCategory _⇨ₘ_ q ⦄ -- LawfulMonoidal
+             ⦃ Hₒ : Homomorphismₒ obj objₘ ⦄ { prodH : ProductsH Hₒ }
+             ⦃ _ : Monoidal _⇨ₘ_ ⦄ ⦃ _ : LawfulMonoidal _⇨ₘ_ q ⦄
              ⦃ _ : Braided  _⇨ᵣ_ ⦄
              ⦃ Hₚ : Homomorphism _⇨ₚ_ _⇨ₘ_ ⦄
              ⦃ Hᵣ : Homomorphism _⇨ᵣ_ _⇨ₘ_ ⦄
@@ -33,11 +32,12 @@ module Stack {ℓₘ}{objₘ : Set ℓₘ} ⦃ _ : Products objₘ ⦄
 
 private variable a b c d z : obj
 
+open Lawfulᴴ obj _⇨ₘ_ q
+
 open Homomorphismₒ Hₒ using () renaming (Fₒ to ⟦_⟧ₒ)
 open Homomorphism  Hₚ using () renaming (Fₘ to ⟦_⟧ₚ)
 open Homomorphism  Hᵣ using () renaming (Fₘ to ⟦_⟧ᵣ)
--- open ProductsH prodH
--- open CategoryH categoryHᵣ
+open ProductsH prodH
 open MonoidalH monoidalHᵣ
 
 -- TODO: reconsider having these homomorphism classes open in Category
@@ -223,7 +223,37 @@ instance
 -}
 
 ⟦first⟧ : (f : a ⇨ c) → ⟦ firstₖ {b = b} f ⟧ₖ ≈ firstᴴ ⟦ f ⟧ₖ
-⟦first⟧ f = {!!}
+⟦first⟧ ⌞ r ⌟ = F-first r
+⟦first⟧ (f ∘·first p ∘ r) =
+  begin
+    ⟦ firstₖ (f ∘·first p ∘ r) ⟧ₖ
+  ≡⟨⟩
+    ⟦ (firstₖ f ∘ ⌞ assocˡ ⌟) ∘·first p ∘ (assocʳ ∘ first r) ⟧ₖ
+  ≡⟨⟩
+    ⟦ firstₖ f ∘ ⌞ assocˡ ⌟ ⟧ₖ ∘ firstᴴ ⟦ p ⟧ₚ ∘ ⟦ assocʳ ∘ first r ⟧ᵣ
+  ≈⟨ ∘-resp-≈ {_⇨′_ = _⇨ₘ_} (firstₖ f ⟦∘⟧ ⌞ assocˡ ⌟)
+        (∘-resp-≈ʳ {_⇨′_ = _⇨ₘ_} (F-∘ assocʳ (first r))) ⟩
+    (⟦ firstₖ f ⟧ₖ ∘ ⟦ assocˡ ⟧ᵣ) ∘ firstᴴ ⟦ p ⟧ₚ ∘ (⟦ assocʳ ⟧ᵣ ∘ ⟦ first r ⟧ᵣ)
+  ≈˘⟨ ∘-resp-≈ʳ {_⇨′_ = _⇨ₘ_} (assoc {_⇨′_ = _⇨ₘ_}) ⟩
+    (⟦ firstₖ f ⟧ₖ ∘ ⟦ assocˡ ⟧ᵣ) ∘ (firstᴴ ⟦ p ⟧ₚ ∘ ⟦ assocʳ ⟧ᵣ) ∘ ⟦ first r ⟧ᵣ
+  ≈⟨ assoc {_⇨′_ = _⇨ₘ_} ⟩
+    ⟦ firstₖ f ⟧ₖ ∘ ⟦ assocˡ ⟧ᵣ ∘ (firstᴴ ⟦ p ⟧ₚ ∘ ⟦ assocʳ ⟧ᵣ) ∘ ⟦ first r ⟧ᵣ
+  ≈˘⟨ ∘-resp-≈ʳ {_⇨′_ = _⇨ₘ_} (assoc {_⇨′_ = _⇨ₘ_}) ⟩
+    ⟦ firstₖ f ⟧ₖ ∘ (⟦ assocˡ ⟧ᵣ ∘ firstᴴ ⟦ p ⟧ₚ ∘ ⟦ assocʳ ⟧ᵣ) ∘ ⟦ first r ⟧ᵣ
+
+  -- ≈⟨ ∘-resp-≈ʳ {_⇨′_ = _⇨ₘ_} (∘-resp-≈ˡ {!!}) ⟩
+  --   ⟦ firstₖ f ⟧ₖ ∘ (⟦ ⌞ assocˡ ⌟ ⟧ₖ ∘ firstᴴ ⟦ p ⟧ₚ ∘ ⟦ assocʳ ⟧ᵣ) ∘ ⟦ first r ⟧ᵣ
+
+
+  ≈⟨ {!!} ⟩
+    firstᴴ ⟦ f ⟧ₖ ∘ firstᴴ (firstᴴ ⟦ p ⟧ₚ) ∘ firstᴴ ⟦ r ⟧ᵣ
+  ≈⟨ ∘-resp-≈ʳ {_⇨′_ = _⇨ₘ_} first∘firstᴴ ⟩
+    firstᴴ ⟦ f ⟧ₖ ∘ firstᴴ (firstᴴ ⟦ p ⟧ₚ ∘ ⟦ r ⟧ᵣ)
+  ≈⟨ first∘firstᴴ ⟩
+    firstᴴ (⟦ f ⟧ₖ ∘ firstᴴ ⟦ p ⟧ₚ ∘ ⟦ r ⟧ᵣ)
+  ≡⟨⟩
+    firstᴴ ⟦ f ∘·first p ∘ r ⟧ₖ
+  ∎
 
 ⟦second⟧ : (g : b ⇨ d) → ⟦ secondₖ {a = a} g ⟧ₖ ≈ secondᴴ ⟦ g ⟧ₖ
 ⟦second⟧ g = {!!}
@@ -238,12 +268,11 @@ f ⟦⊗⟧ g =
     ⟦ secondₖ g ∘ firstₖ f ⟧ₖ
   ≈⟨ secondₖ g ⟦∘⟧ firstₖ f ⟩
     ⟦ secondₖ g ⟧ₖ ∘ ⟦ firstₖ f ⟧ₖ
-  ≈⟨ ∘-resp-≈ {_⇨′_ = _⇨ₘ_} (⟦second⟧ g) (⟦first⟧ f) ⟩
+    ≈⟨ ∘-resp-≈ {_⇨′_ = _⇨ₘ_} (⟦second⟧ g) (⟦first⟧ f) ⟩
     secondᴴ ⟦ g ⟧ₖ ∘ firstᴴ ⟦ f ⟧ₖ
-  ≈⟨ {!second∘firstᴴ!} ⟩
+  ≈⟨ second∘firstᴴ ⟩
     ⟦ f ⟧ₖ ⊗ᴴ ⟦ g ⟧ₖ
   ∎
- where open Lawfulᴴ obj _⇨_ ⦃ productsH = prodH ⦄ q
 
 -- ⌞ r ⌟ ⟦⊗⟧ g = {!!}
 
