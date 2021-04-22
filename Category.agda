@@ -55,6 +55,16 @@ record Equivalent q {obj : Set o} (_⇨_ : obj → obj → Set ℓ)
   module ≈-Reasoning {a b} where
     open SetoidR (≈setoid a b) public
 
+  subst≈ : ∀ {f g : a ⇨ b} {a≡c : a ≡ c} {b≡d : b ≡ d}
+         → f ≈ g → subst₂ _⇨_ a≡c b≡d f ≈ subst₂ _⇨_ a≡c b≡d g
+  subst≈ {a≡c = refl} {b≡d = refl} f≈g = f≈g
+
+  -- subst≈′ : ∀ {f g : a ⇨ b} {a≡c : a ≡ c} {b≡d : b ≡ d}
+  --         → g ≈ f → subst₂ _⇨_ a≡c b≡d f ≈ subst₂ _⇨_ a≡c b≡d g
+  -- subst≈′ g≈f = subst≈ (sym≈ g≈f)
+  -- -- subst≈′ a≡c b≡d g≈f = subst≈ a≡c b≡d (sym≈ g≈f)
+
+
 -- TODO: Replace Equivalent by Setoid?
 -- I think we need _⇨_ as an argument rather than field.
 
@@ -92,6 +102,19 @@ record Category {obj : Set o} (_⇨_ : obj → obj → Set ℓ) : Set (lsuc o �
   field
     id  : a ⇨ a
     _∘_ : (b ⇨ c) → (a ⇨ b) → (a ⇨ c)
+
+  subst-id : ∀ {a₁ a₂} {a₁≡a₂ : a₁ ≡ a₂}
+             → subst₂ _⇨_ a₁≡a₂ a₁≡a₂ (id {a = a₁}) ≡ id {a = a₂}
+  subst-id { a₁≡a₂ = refl } = refl
+  -- Useful?
+
+  subst∘ : ∀ {a₁ a₂} {a₁≡a₂ : a₁ ≡ a₂}
+             {b₁ b₂} {b₁≡b₂ : b₁ ≡ b₂}
+             {c₁ c₂} {c₁≡c₂ : c₁ ≡ c₂}
+             {f : a₁ ⇨ b₁}{g : b₁ ⇨ c₁}
+         → subst₂ _⇨_ b₁≡b₂ c₁≡c₂ g ∘ subst₂ _⇨_ a₁≡a₂ b₁≡b₂ f
+             ≡ subst₂ _⇨_ a₁≡a₂ c₁≡c₂ (g ∘ f)
+  subst∘ {a₁≡a₂ = refl} {b₁≡b₂ = refl} {c₁≡c₂ = refl} = refl
 
 open Category ⦃ … ⦄ public
 
@@ -312,14 +335,13 @@ record LawfulMonoidal {obj : Set o} ⦃ _ : Products obj ⦄
     unitorᵉʳ∘unitorⁱʳ : ∀ {a : obj} → unitorᵉʳ ∘ unitorⁱʳ {a = a} ≈ id
     unitorⁱʳ∘unitorᵉʳ : ∀ {a : obj} → unitorⁱʳ ∘ unitorᵉʳ {a = a} ≈ id
 
-    ⊗-resp-≈ : ∀ {f g : a ⇨ c} {h k : b ⇨ d}
-             → f ≈ g → h ≈ k → h ⊗ f ≈ k ⊗ g
+    ⊗-resp-≈ : ∀ {f h : a ⇨ c} {g k : b ⇨ d} → f ≈ h → g ≈ k → f ⊗ g ≈ h ⊗ k
 
-  ⊗-resp-≈ˡ : ∀ {f : a ⇨ c} {h k : b ⇨ d} → h ≈ k → h ⊗ f ≈ k ⊗ f
-  ⊗-resp-≈ˡ h≈k = ⊗-resp-≈ refl≈ h≈k
+  ⊗-resp-≈ˡ : ∀ {f : a ⇨ c} {g k : b ⇨ d} → g ≈ k → f ⊗ g ≈ f ⊗ k
+  ⊗-resp-≈ˡ g≈k = ⊗-resp-≈ refl≈ g≈k
 
-  ⊗-resp-≈ʳ : ∀ {f g : a ⇨ c} {h : b ⇨ d} → f ≈ g → h ⊗ f ≈ h ⊗ g
-  ⊗-resp-≈ʳ f≈g = ⊗-resp-≈ f≈g refl≈
+  ⊗-resp-≈ʳ : ∀ {f h : a ⇨ c} {g : b ⇨ d} → f ≈ h → f ⊗ g ≈ h ⊗ g
+  ⊗-resp-≈ʳ f≈h = ⊗-resp-≈ f≈h refl≈
 
   -- first-resp-≈ : ∀ {f g : a ⇨ c}{b : obj} → f ≈ g → first {b = b} f ≈ first g
   -- first-resp-≈ = ⊗-resp-≈ˡ
@@ -333,7 +355,7 @@ record LawfulMonoidal {obj : Set o} ⦃ _ : Products obj ⦄
       (f ⊗ id) ∘ (id ⊗ g)
     ≈⟨ ∘⊗ ⟩
       (f ∘ id) ⊗ (id ∘ g)
-    ≈⟨ ⊗-resp-≈ identityˡ identityʳ ⟩
+    ≈⟨ ⊗-resp-≈ identityʳ identityˡ ⟩
       f ⊗ g
     ∎
 
@@ -346,7 +368,7 @@ record LawfulMonoidal {obj : Set o} ⦃ _ : Products obj ⦄
       (id ⊗ g) ∘ (f ⊗ id)
     ≈⟨ ∘⊗ ⟩
       (id ∘ f) ⊗ (g ∘ id)
-    ≈⟨ ⊗-resp-≈ identityʳ identityˡ ⟩
+    ≈⟨ ⊗-resp-≈ identityˡ identityʳ ⟩
       f ⊗ g
     ∎
 
@@ -377,16 +399,13 @@ id-productsH = record { F-⊤ = refl ; F-× = refl }
 -- Helpers for monoidal operations with homomorphisms.
 -- Needs a better module name and some experience using it.
 module ᴴ
-    (obj₁ : Set o₁) -- {_⇨₁_ : obj₁ → obj₁ → Set ℓ₁}(let infix 0 _⇨₁_; _⇨₁_ = _⇨₁_)
+    (obj₁ : Set o₁) ⦃ _ : Products obj₁ ⦄
     {obj₂ : Set o₂} (_⇨₂_ : obj₂ → obj₂ → Set ℓ₂)(let infix 0 _⇨₂_; _⇨₂_ = _⇨₂_)
-    ⦃ _ : Products obj₁ ⦄ -- ⦃ _ : Monoidal _⇨₁_ ⦄
     ⦃ _ : Products obj₂ ⦄ ⦃ _ : Monoidal _⇨₂_ ⦄
     ⦃ Hₒ : Homomorphismₒ obj₁ obj₂ ⦄
-    -- (H : Homomorphism _⇨₁_ _⇨₂_)
     ⦃ productsH : ProductsH ⦄
  where
   open ProductsH productsH
-  -- open Homomorphism H
   open Homomorphismₒ Hₒ
 
   !ᴴ : ∀ {a : obj₁} → Fₒ a ⇨₂ Fₒ ⊤
@@ -425,6 +444,61 @@ module ᴴ
                                    assocˡ
 
   -- To do: Is there a suitable category for easing these substitutions?
+
+module Lawfulᴴ
+    (obj₁ : Set o₁) ⦃ _ : Products obj₁ ⦄
+    {obj₂ : Set o₂} (_⇨₂_ : obj₂ → obj₂ → Set ℓ₂)(let infix 0 _⇨₂_; _⇨₂_ = _⇨₂_)
+    ⦃ _ : Products obj₂ ⦄
+    ⦃ Hₒ : Homomorphismₒ obj₁ obj₂ ⦄
+    ⦃ productsH : ProductsH ⦄
+    q ⦃ equiv : Equivalent q _⇨₂_ ⦄ ⦃ _ : LawfulMonoidal _⇨₂_ q ⦄
+ where
+  open ProductsH productsH
+  open Homomorphismₒ Hₒ
+  open ᴴ obj₁ _⇨₂_
+
+  ⊗ᴴ-resp-≈ : ∀ {f h : Fₒ a ⇨₂ Fₒ c} {g k : Fₒ b ⇨₂ Fₒ d}
+            → f ≈ h → g ≈ k → f ⊗ᴴ g ≈ h ⊗ᴴ k
+  ⊗ᴴ-resp-≈ f≈h g≈k = subst≈ (⊗-resp-≈ f≈h g≈k)
+
+  ⊗ᴴ-resp-≈ˡ : ∀ {f : Fₒ a ⇨₂ Fₒ c} {g k : Fₒ b ⇨₂ Fₒ d}
+             → g ≈ k → f ⊗ᴴ g ≈ f ⊗ᴴ k
+  ⊗ᴴ-resp-≈ˡ g≈k = ⊗ᴴ-resp-≈ refl≈ g≈k
+
+  ⊗ᴴ-resp-≈ʳ : ∀ {f h : Fₒ a ⇨₂ Fₒ c} {g : Fₒ b ⇨₂ Fₒ d}
+             → f ≈ h → f ⊗ᴴ g ≈ h ⊗ᴴ g
+  ⊗ᴴ-resp-≈ʳ f≈h = ⊗ᴴ-resp-≈ f≈h refl≈
+
+  first∘secondᴴ : ∀ {a b c d} {f : Fₒ a ⇨₂ Fₒ c} {g : Fₒ b ⇨₂ Fₒ d}
+                → firstᴴ f ∘ secondᴴ g ≈ f ⊗ᴴ g
+  first∘secondᴴ {f = f}{g = g} = let open ≈-Reasoning in
+    begin
+      firstᴴ f ∘ secondᴴ g
+    ≡⟨⟩
+       (subst₂′ _⇨₂_ F-× F-× (first f)) ∘ (subst₂′ _⇨₂_ F-× F-× (second g))
+    ≡⟨ subst∘ ⟩
+       subst₂′ _⇨₂_ F-× F-× (first f ∘ second g)
+    ≈⟨ subst≈ first∘second ⟩
+       subst₂′ _⇨₂_ F-× F-× (f ⊗ g)
+    ≡⟨⟩
+      f ⊗ᴴ g
+    ∎
+
+  second∘firstᴴ : ∀ {a b c d} {f : Fₒ a ⇨₂ Fₒ c} {g : Fₒ b ⇨₂ Fₒ d}
+                → secondᴴ g ∘ firstᴴ f ≈ f ⊗ᴴ g
+  second∘firstᴴ {f = f}{g = g} = let open ≈-Reasoning in
+    begin
+      secondᴴ g ∘ firstᴴ f
+    ≡⟨⟩
+       (subst₂′ _⇨₂_ F-× F-× (second g)) ∘ (subst₂′ _⇨₂_ F-× F-× (first f))
+    ≡⟨ subst∘ ⟩
+       subst₂′ _⇨₂_ F-× F-× (second g ∘ first f)
+    ≈⟨ subst≈ second∘first ⟩
+       subst₂′ _⇨₂_ F-× F-× (f ⊗ g)
+    ≡⟨⟩
+      f ⊗ᴴ g
+    ∎
+
 
 record MonoidalH
     {obj₁ : Set o₁} (_⇨₁′_ : obj₁ → obj₁ → Set ℓ₁)
