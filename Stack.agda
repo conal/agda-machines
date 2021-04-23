@@ -240,12 +240,11 @@ instance
     ⟦ firstₖ f ⟧ₖ ∘ ⟦ assocˡ ⟧ᵣ ∘ (firstᴴ ⟦ p ⟧ₚ ∘ ⟦ assocʳ ⟧ᵣ) ∘ ⟦ first r ⟧ᵣ
   ≈˘⟨ ∘-resp-≈ʳ {_⇨′_ = _⇨ₘ_} (assoc {_⇨′_ = _⇨ₘ_}) ⟩
     ⟦ firstₖ f ⟧ₖ ∘ (⟦ assocˡ ⟧ᵣ ∘ firstᴴ ⟦ p ⟧ₚ ∘ ⟦ assocʳ ⟧ᵣ) ∘ ⟦ first r ⟧ᵣ
+  ≈˘⟨ ∘-resp-≈ʳ {_⇨′_ = _⇨ₘ_} (∘-resp-≈ˡ {_⇨′_ = _⇨ₘ_} (∘-resp-≈ ? ? {- F-assocˡ (∘-resp-≈ʳ F-assocʳ) -})) ⟩
+    ⟦ firstₖ f ⟧ₖ ∘ (assocᴴˡ ∘ firstᴴ ⟦ p ⟧ₚ ∘ assocᴴʳ) ∘ firstᴴ ⟦ r ⟧ᵣ
 
-  -- ≈⟨ ∘-resp-≈ʳ {_⇨′_ = _⇨ₘ_} (∘-resp-≈ˡ {!!}) ⟩
-  --   ⟦ firstₖ f ⟧ₖ ∘ (⟦ ⌞ assocˡ ⌟ ⟧ₖ ∘ firstᴴ ⟦ p ⟧ₚ ∘ ⟦ assocʳ ⟧ᵣ) ∘ ⟦ first r ⟧ᵣ
+  ≈⟨ {!∘-resp-≈ʳ (∘-resp-≈ˡ ?)!} ⟩
 
-
-  ≈⟨ {!!} ⟩
     firstᴴ ⟦ f ⟧ₖ ∘ firstᴴ (firstᴴ ⟦ p ⟧ₚ) ∘ firstᴴ ⟦ r ⟧ᵣ
   ≈⟨ ∘-resp-≈ʳ {_⇨′_ = _⇨ₘ_} first∘firstᴴ ⟩
     firstᴴ ⟦ f ⟧ₖ ∘ firstᴴ (firstᴴ ⟦ p ⟧ₚ ∘ ⟦ r ⟧ᵣ)

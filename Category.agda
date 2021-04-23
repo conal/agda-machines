@@ -379,6 +379,38 @@ record LawfulMonoidal {obj : Set o} ⦃ _ : Products obj ⦄
       f ⊗ (g ⊗ h)
     ∎
 
+  first-first : ∀ {a a′ b c} {f : a ⇨ a′}
+              → first {b = c} (first {b = b} f) ≈ assocˡ ∘ first f ∘ assocʳ
+  first-first {f = f} =
+    begin
+      first (first f)
+    ≡⟨⟩
+      (f ⊗ id) ⊗ id
+    ≈˘⟨ assocˡ∘assocʳ ⟩
+      assocˡ ∘ (f ⊗ (id ⊗ id)) ∘ assocʳ
+    ≈⟨ ∘-resp-≈ʳ (∘-resp-≈ˡ (∘-resp-≈ʳ id⊗id)) ⟩
+      assocˡ ∘ (f ⊗ id) ∘ assocʳ
+    ≡⟨⟩
+      assocˡ ∘ first f ∘ assocʳ
+    ∎
+
+  second-second : ∀ {a b c c′} {g : c ⇨ c′}
+                → second {a = a} (second {a = b} g) ≈ assocʳ ∘ second g ∘ assocˡ
+  second-second {g = g} = ?
+
+  -- second-second {g = g} =
+  --   begin
+  --     second (second g)
+  --   ≡⟨⟩
+  --     (g ⊗ id) ⊗ id
+  --   ≈˘⟨ assocˡ∘assocʳ ⟩
+  --     assocˡ ∘ (g ⊗ (id ⊗ id)) ∘ assocʳ
+  --   ≈⟨ ∘-resp-≈ʳ (∘-resp-≈ˡ (∘-resp-≈ʳ id⊗id)) ⟩
+  --     assocˡ ∘ (g ⊗ id) ∘ assocʳ
+  --   ≡⟨⟩
+  --     assocˡ ∘ second g ∘ assocʳ
+  --   ∎
+
   ⊗-resp-≈ˡ : ∀ {f : a ⇨ c} {g k : b ⇨ d} → g ≈ k → f ⊗ g ≈ f ⊗ k
   ⊗-resp-≈ˡ g≈k = ⊗-resp-≈ refl≈ g≈k
 
