@@ -338,16 +338,52 @@ record LawfulMonoidal {obj : Set o} ⦃ _ : Products obj ⦄
     unitorᵉʳ∘unitorⁱʳ : ∀ {a : obj} → unitorᵉʳ ∘ unitorⁱʳ {a = a} ≈ id
     unitorⁱʳ∘unitorᵉʳ : ∀ {a : obj} → unitorⁱʳ ∘ unitorᵉʳ {a = a} ≈ id
 
+    assocʳ∘assocˡ : ∀ {a b c : obj} → assocʳ ∘ assocˡ ≈ id {a = a × (b × c)}
+    assocˡ∘assocʳ : ∀ {a b c : obj} → assocˡ ∘ assocʳ ≈ id {a = (a × b) × c}
+
+    assocˡ∘⊗ : ∀ {a a′ b b′ c c′} {f : a ⇨ a′}{g : b ⇨ b′}{h : c ⇨ c′}
+             → assocˡ ∘ (f ⊗ (g ⊗ h)) ≈ ((f ⊗ g) ⊗ h) ∘ assocˡ
+
     ⊗-resp-≈ : ∀ {f h : a ⇨ c} {g k : b ⇨ d} → f ≈ h → g ≈ k → f ⊗ g ≈ h ⊗ k
+
+    assocʳ∘⊗ : ∀ {a a′ b b′ c c′} {f : a ⇨ a′}{g : b ⇨ b′}{h : c ⇨ c′}
+             → assocʳ ∘ ((f ⊗ g) ⊗ h) ≈ (f ⊗ (g ⊗ h)) ∘ assocʳ
+
+  assocˡ∘⊗∘assocʳ : ∀ {a a′ b b′ c c′} {f : a ⇨ a′}{g : b ⇨ b′}{h : c ⇨ c′}
+                  → assocˡ ∘ (f ⊗ (g ⊗ h)) ∘ assocʳ ≈ (f ⊗ g) ⊗ h
+  assocˡ∘⊗∘assocʳ {f = f}{g}{h} =
+    begin
+      assocˡ ∘ (f ⊗ (g ⊗ h)) ∘ assocʳ
+    ≈˘⟨ ∘-resp-≈ʳ assocʳ∘⊗ ⟩
+      assocˡ ∘ assocʳ ∘ ((f ⊗ g) ⊗ h)
+    ≈˘⟨ assoc ⟩
+      (assocˡ ∘ assocʳ) ∘ ((f ⊗ g) ⊗ h)
+    ≈⟨ ∘-resp-≈ˡ (assocˡ∘assocʳ) ⟩
+      id ∘ ((f ⊗ g) ⊗ h)
+    ≈⟨ identityˡ ⟩
+      (f ⊗ g) ⊗ h
+    ∎
+
+  assocʳ∘⊗∘assocˡ : ∀ {a a′ b b′ c c′} {f : a ⇨ a′}{g : b ⇨ b′}{h : c ⇨ c′}
+                  → assocʳ ∘ ((f ⊗ g) ⊗ h) ∘ assocˡ ≈ f ⊗ (g ⊗ h)
+  assocʳ∘⊗∘assocˡ {f = f}{g}{h} =
+    begin
+      assocʳ ∘ ((f ⊗ g) ⊗ h) ∘ assocˡ
+    ≈˘⟨ ∘-resp-≈ʳ assocˡ∘⊗ ⟩
+      assocʳ ∘ assocˡ ∘ (f ⊗ (g ⊗ h))
+    ≈˘⟨ assoc ⟩
+      (assocʳ ∘ assocˡ) ∘ (f ⊗ (g ⊗ h))
+    ≈⟨ ∘-resp-≈ˡ (assocʳ∘assocˡ) ⟩
+      id ∘ (f ⊗ (g ⊗ h))
+    ≈⟨ identityˡ ⟩
+      f ⊗ (g ⊗ h)
+    ∎
 
   ⊗-resp-≈ˡ : ∀ {f : a ⇨ c} {g k : b ⇨ d} → g ≈ k → f ⊗ g ≈ f ⊗ k
   ⊗-resp-≈ˡ g≈k = ⊗-resp-≈ refl≈ g≈k
 
   ⊗-resp-≈ʳ : ∀ {f h : a ⇨ c} {g : b ⇨ d} → f ≈ h → f ⊗ g ≈ h ⊗ g
   ⊗-resp-≈ʳ f≈h = ⊗-resp-≈ f≈h refl≈
-
-  -- first-resp-≈ : ∀ {f g : a ⇨ c}{b : obj} → f ≈ g → first {b = b} f ≈ first g
-  -- first-resp-≈ = ⊗-resp-≈ˡ
 
   first∘second : ∀ {a b c d : obj} {f : a ⇨ c} {g : b ⇨ d}
                → first f ∘ second g ≈ f ⊗ g
