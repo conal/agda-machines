@@ -66,22 +66,18 @@ record CategoryH {obj₁ : Set o₁} (_⇨₁_ : obj₁ → obj₁ → Set ℓ�
 -- we'll usually have a single special CategoryH instance per pairs of
 -- categories or not. For now, keep it explicit, and see what we learn.
 
-record MonoidalH
-    {obj₁ : Set o₁} (_⇨₁′_ : obj₁ → obj₁ → Set ℓ₁)
-    {obj₂ : Set o₂} (_⇨₂′_ : obj₂ → obj₂ → Set ℓ₂)
-    q ⦃ _ : Equivalent q _⇨₂′_ ⦄
-    ⦃ _ : Products obj₁ ⦄ ⦃ _ : Monoidal _⇨₁′_ ⦄
-    ⦃ _ : Products obj₂ ⦄ ⦃ _ : Monoidal _⇨₂′_ ⦄ -- ⦃ _ : LawfulMonoidal _⇨₂′_ q ⦄
+
+record ProductsH
+    {obj₁ : Set o₁} ⦃ _ : Products obj₁ ⦄ (_⇨₁′_ : obj₁ → obj₁ → Set ℓ₁)
+    {obj₂ : Set o₂} ⦃ _ : Products obj₂ ⦄ (_⇨₂′_ : obj₂ → obj₂ → Set ℓ₂)
+    q ⦃ equiv₂ : Equivalent q _⇨₂′_ ⦄
+    -- ⦃ cat₁ : Category _⇨₁′_ ⦄
+    ⦃ cat₂ : Category _⇨₂′_ ⦄
     ⦃ Hₒ : Homomorphismₒ obj₁ obj₂ ⦄
-    ⦃ H : Homomorphism _⇨₁′_ _⇨₂′_ ⦄
-  : Set (o₁ ⊔ ℓ₁ ⊔ o₂ ⊔ ℓ₂ ⊔ q) where
+    : Set (o₁ ⊔ ℓ₁ ⊔ o₂ ⊔ ℓ₂ ⊔ q) where
   private infix 0 _⇨₁_; _⇨₁_ = _⇨₁′_
   private infix 0 _⇨₂_; _⇨₂_ = _⇨₂′_
-  field
-    ⦃ -categoryH ⦄ : CategoryH _⇨₁_ _⇨₂_ q
-  open CategoryH -categoryH public
-  -- open Homomorphismₒ Hₒ
-
+  open Homomorphismₒ Hₒ -- public
   field
     -- https://ncatlab.org/nlab/show/monoidal+functor
     ε : ⊤ ⇨₂ Fₒ ⊤
@@ -90,8 +86,34 @@ record MonoidalH
     -- *Strong*
     ε⁻¹ : Fₒ ⊤ ⇨₂ ⊤
     μ⁻¹ : Fₒ (a × b) ⇨₂ Fₒ a × Fₒ b
-    -- TODO: isomorphism properties. Package as isomorphism.
 
+    ε∘ε⁻¹ : ε ∘ ε⁻¹ ≈ id
+    ε⁻¹∘ε : ε⁻¹ ∘ ε ≈ id
+
+    μ∘μ⁻¹ : μ{a}{b} ∘ μ⁻¹ ≈ id
+    μ⁻¹∘μ : μ⁻¹{a}{b} ∘ μ ≈ id
+
+    -- TODO: Package as isomorphisms.
+
+record MonoidalH
+    {obj₁ : Set o₁} (_⇨₁′_ : obj₁ → obj₁ → Set ℓ₁)
+    {obj₂ : Set o₂} (_⇨₂′_ : obj₂ → obj₂ → Set ℓ₂)
+    q ⦃ _ : Equivalent q _⇨₂′_ ⦄
+    ⦃ _ : Products obj₁ ⦄ ⦃ _ : Monoidal _⇨₁′_ ⦄
+    ⦃ _ : Products obj₂ ⦄ ⦃ _ : Monoidal _⇨₂′_ ⦄
+    ⦃ Hₒ : Homomorphismₒ obj₁ obj₂ ⦄
+    ⦃ pH : ProductsH _⇨₁′_ _⇨₂′_ q ⦄
+    ⦃ H : Homomorphism _⇨₁′_ _⇨₂′_ ⦄
+  : Set (o₁ ⊔ ℓ₁ ⊔ o₂ ⊔ ℓ₂ ⊔ q) where
+  private infix 0 _⇨₁_; _⇨₁_ = _⇨₁′_
+  private infix 0 _⇨₂_; _⇨₂_ = _⇨₂′_
+  field
+    ⦃ -categoryH ⦄ : CategoryH _⇨₁_ _⇨₂_ q
+  open CategoryH -categoryH public
+  open ProductsH pH public
+  -- open Homomorphismₒ Hₒ
+
+  field
     F-unitorᵉˡ : Fₘ unitorᵉˡ ∘ μ{⊤}{a} ∘ first  ε ≈ unitorᵉˡ
     F-unitorⁱˡ : Fₘ unitorⁱˡ ≈ μ{⊤}{a} ∘ first  ε ∘ unitorⁱˡ
     F-unitorᵉʳ : Fₘ unitorᵉʳ ∘ μ{a}{⊤} ∘ second ε ≈ unitorᵉʳ
@@ -108,7 +130,24 @@ record MonoidalH
 
 {-
 
-  -- The next two need ∘-resp-≈ and ⊗-resp-≈
+  -- Strong variant. Oops. Proof needs LawfulCategory
+  F-⊗′ : ∀ (f : a ⇨₁ c)(g : b ⇨₁ d) → Fₘ (f ⊗ g) ≈ μ ∘ (Fₘ f ⊗ Fₘ g) ∘ μ⁻¹
+  F-⊗′ f g =
+    begin
+      Fₘ (f ⊗ g)
+    ≈˘⟨ {!identityʳ!} ⟩
+      Fₘ (f ⊗ g) ∘ id
+    ≈⟨ {!!} ⟩
+      Fₘ (f ⊗ g) ∘ (μ ∘ μ⁻¹)
+    ≈⟨ {!!} ⟩
+      (Fₘ (f ⊗ g) ∘ μ) ∘ μ⁻¹
+    ≈⟨ {!!} ⟩
+      (μ ∘ (Fₘ f ⊗ Fₘ g)) ∘ μ⁻¹
+    ≈⟨ {!!} ⟩
+      μ ∘ (Fₘ f ⊗ Fₘ g) ∘ μ⁻¹
+    ∎
+
+  -- The next two need ∘-resp-≈ and ⊗-resp-≈ from LawfulCategory and LawfulMonoidal
 
   F-first : (f : a ⇨₁ c) → Fₘ (first f) ∘ μ{a}{b} ≈ μ{c}{b} ∘ first (Fₘ f)
   F-first f =
@@ -141,19 +180,20 @@ record MonoidalH
 -}
 
 
-record BraidedH
-    {obj₁ : Set o₁} (_⇨₁′_ : obj₁ → obj₁ → Set ℓ₁)
-    {obj₂ : Set o₂} (_⇨₂′_ : obj₂ → obj₂ → Set ℓ₂)
-    q ⦃ _ : Equivalent q _⇨₂′_ ⦄
-    ⦃ _ : Products obj₁ ⦄ ⦃ _ : Braided _⇨₁′_ ⦄
-    ⦃ _ : Products obj₂ ⦄ ⦃ _ : Braided _⇨₂′_ ⦄
-    ⦃ _ : Homomorphismₒ obj₁ obj₂ ⦄
-    ⦃ _ : Homomorphism _⇨₁′_ _⇨₂′_ ⦄
+record BraidedH {obj₁ : Set o₁} (_⇨₁′_ : obj₁ → obj₁ → Set ℓ₁)
+                {obj₂ : Set o₂} (_⇨₂′_ : obj₂ → obj₂ → Set ℓ₂)
+                q ⦃ _ : Equivalent q _⇨₂′_ ⦄
+                ⦃ _ : Products obj₁ ⦄ ⦃ _ : Braided _⇨₁′_ ⦄
+                ⦃ _ : Products obj₂ ⦄ ⦃ _ : Braided _⇨₂′_ ⦄
+                ⦃ _ : Homomorphismₒ obj₁ obj₂ ⦄
+                ⦃ pH : ProductsH _⇨₁′_ _⇨₂′_ q ⦄
+                ⦃ _ : Homomorphism _⇨₁′_ _⇨₂′_ ⦄
   : Set (o₁ ⊔ ℓ₁ ⊔ o₂ ⊔ ℓ₂ ⊔ q) where
   private infix 0 _⇨₁_; _⇨₁_ = _⇨₁′_
   private infix 0 _⇨₂_; _⇨₂_ = _⇨₂′_
   field
     ⦃ monoidalH ⦄ : MonoidalH _⇨₁_ _⇨₂_ q
+  -- open ProductsH pH
   open MonoidalH monoidalH public
   field
     F-swap : Fₘ swap ∘ μ{a}{b} ≈ μ{b}{a} ∘ swap
@@ -164,12 +204,14 @@ record CartesianH {obj₁ : Set o₁} (_⇨₁′_ : obj₁ → obj₁ → Set �
                   ⦃ _ : Products obj₁ ⦄ ⦃ _ : Cartesian _⇨₁′_ ⦄
                   ⦃ _ : Products obj₂ ⦄ ⦃ _ : Cartesian _⇨₂′_ ⦄
                   ⦃ _ : Homomorphismₒ obj₁ obj₂ ⦄
+                  ⦃ pH : ProductsH _⇨₁′_ _⇨₂′_ q ⦄
                   ⦃ _ : Homomorphism _⇨₁′_ _⇨₂′_ ⦄
   : Set (o₁ ⊔ ℓ₁ ⊔ o₂ ⊔ ℓ₂ ⊔ q) where
   private infix 0 _⇨₁_; _⇨₁_ = _⇨₁′_
   private infix 0 _⇨₂_; _⇨₂_ = _⇨₂′_
   field
     ⦃ braidedH ⦄ : BraidedH _⇨₁_ _⇨₂_ q
+  -- open ProductsH pH
   open BraidedH braidedH public
   field
     F-exl : Fₘ exl ∘ μ{a}{b} ≈ exl
@@ -177,10 +219,38 @@ record CartesianH {obj₁ : Set o₁} (_⇨₁′_ : obj₁ → obj₁ → Set �
     F-dup : Fₘ dup ≈ μ{a}{a} ∘ dup
 
 
-record BooleanH (obj₁ : Set o₁) (obj₂ : Set o₂)
-    ⦃ _ : Boolean obj₁ ⦄ ⦃ _ : Boolean obj₂ ⦄
+record BooleanH
+    {obj₁ : Set o₁} ⦃ _ : Boolean obj₁ ⦄ (_⇨₁′_ : obj₁ → obj₁ → Set ℓ₁)
+    {obj₂ : Set o₂} ⦃ _ : Boolean obj₂ ⦄ (_⇨₂′_ : obj₂ → obj₂ → Set ℓ₂)
     ⦃ Hₒ : Homomorphismₒ obj₁ obj₂ ⦄
-  : Set (o₁ ⊔ o₂) where
+    : Set (o₁ ⊔ ℓ₁ ⊔ o₂ ⊔ ℓ₂) where
   open Homomorphismₒ Hₒ public
+  private infix 0 _⇨₁_; _⇨₁_ = _⇨₁′_
+  private infix 0 _⇨₂_; _⇨₂_ = _⇨₂′_
   field
-    F-Bool : Fₒ Bool ≡ Bool
+    β : Bool ⇨₂ Fₒ Bool
+
+record LogicH
+    {obj₁ : Set o₁} (_⇨₁′_ : obj₁ → obj₁ → Set ℓ₁)
+    {obj₂ : Set o₂} (_⇨₂′_ : obj₂ → obj₂ → Set ℓ₂)
+    q ⦃ _ : Equivalent q _⇨₂′_ ⦄
+    ⦃ _ : Boolean obj₁ ⦄ ⦃ _ : Products obj₁ ⦄ ⦃ _ : Logic _⇨₁′_ ⦄
+    ⦃ _ : Boolean obj₂ ⦄ ⦃ _ : Products obj₂ ⦄ ⦃ _ : Logic _⇨₂′_ ⦄
+    ⦃ _ : Monoidal _⇨₂′_ ⦄
+    ⦃ Hₒ : Homomorphismₒ obj₁ obj₂ ⦄
+    ⦃ H : Homomorphism _⇨₁′_ _⇨₂′_ ⦄
+    ⦃ pH : ProductsH _⇨₁′_ _⇨₂′_ q ⦄ ⦃ bH : BooleanH _⇨₁′_ _⇨₂′_ ⦄
+  : Set (o₁ ⊔ ℓ₁ ⊔ o₂ ⊔ ℓ₂ ⊔ q) where
+  private infix 0 _⇨₁_; _⇨₁_ = _⇨₁′_
+  private infix 0 _⇨₂_; _⇨₂_ = _⇨₂′_
+  open Homomorphism H public
+  open ProductsH pH
+  open BooleanH  bH
+
+  field
+    F-false : Fₘ false ∘ ε ≈ β ∘ false
+    F-true  : Fₘ true  ∘ ε ≈ β ∘ true
+    F-not   : Fₘ not   ∘ β ≈ β ∘ not
+    F-∧     : Fₘ ∧   ∘ μ ∘ (β ⊗ β) ≈ β ∘ ∧
+    F-∨     : Fₘ ∨   ∘ μ ∘ (β ⊗ β) ≈ β ∘ ∨
+    F-xor   : Fₘ xor ∘ μ ∘ (β ⊗ β) ≈ β ∘ xor

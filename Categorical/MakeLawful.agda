@@ -16,6 +16,8 @@ import Relation.Binary.Reasoning.Setoid as SetoidR
 import Relation.Binary.Construct.On as On
 
 open import Categorical.Raw
+open import Categorical.Homomorphism
+open import Categorical.Laws
 
 open ≈-Reasoning
 
@@ -27,9 +29,6 @@ private
     obj obj₁ obj₂ : Set o
     a b c d e : obj
     a′ b′ c′ d′ e′ : obj
-
-open import Categorical.Homomorphism
-open import Categorical.Laws
 
 
 LawfulCategoryᶠ : {obj₁ : Set o₁} {_⇨₁_ : obj₁ → obj₁ → Set ℓ₁}
@@ -89,3 +88,73 @@ LawfulCategoryᶠ F = record
   }
  where open CategoryH F
 
+
+LawfulMonoidalᶠ : {obj₁ : Set o₁} ⦃ _ : Products obj₁ ⦄ {_⇨₁_ : obj₁ → obj₁ → Set ℓ₁}
+                  {obj₂ : Set o₂} ⦃ _ : Products obj₂ ⦄ {_⇨₂_ : obj₂ → obj₂ → Set ℓ₂}
+                  {q : Level} ⦃ _ : Equivalent q _⇨₂_ ⦄
+                  ⦃ _ : Monoidal _⇨₁_ ⦄ ⦃ _ : Monoidal _⇨₂_ ⦄
+                  ⦃ _ : LawfulMonoidal _⇨₂_ q ⦄
+                  ⦃ _ : Homomorphismₒ obj₁ obj₂ ⦄
+                  ⦃ H : Homomorphism _⇨₁_ _⇨₂_ ⦄
+                  ⦃ pH : ProductsH _⇨₁_ _⇨₂_ q ⦄
+                  ⦃ _ : LawfulCategory _⇨₁_ q ⦃ equiv = H-equiv H ⦄ ⦄
+                  ⦃ cH : CategoryH _⇨₁_ _⇨₂_ q ⦄
+                  (F : MonoidalH _⇨₁_ _⇨₂_ q)
+                → LawfulMonoidal _⇨₁_ q ⦃ equiv = H-equiv H ⦄
+LawfulMonoidalᶠ ⦃ H = H ⦄ ⦃ pH = pH ⦄ ⦃ cH = cH ⦄ F = 
+  let -- open Homomorphism H
+      -- open ProductsH pH
+      -- open CategoryH cH
+      open MonoidalH F
+  in record
+  { id⊗id =
+      begin
+        Fₘ (id ⊗ id)
+      ≈⟨ {!!} ⟩
+        μ ∘ (Fₘ id ⊗ Fₘ id) ∘ μ⁻¹
+      ≈⟨ ∘-resp-≈ʳ (∘-resp-≈ˡ (⊗-resp-≈ F-id F-id)) ⟩
+        μ ∘ (id ⊗ id) ∘ μ⁻¹
+      ≈⟨ ∘-resp-≈ʳ (∘-resp-≈ˡ id⊗id) ⟩
+        μ ∘ id ∘ μ⁻¹
+      ≈⟨ ∘-resp-≈ʳ identityˡ ⟩
+        μ ∘ μ⁻¹
+      ≈⟨ {!!} ⟩
+        id
+      ≈˘⟨ F-id ⟩
+        Fₘ id
+      ∎
+  ; ∘⊗                = {!!}
+  ; unitorᵉˡ∘unitorⁱˡ = {!!}
+  ; unitorⁱˡ∘unitorᵉˡ = {!!}
+  ; unitorᵉʳ∘unitorⁱʳ = {!!}
+  ; unitorⁱʳ∘unitorᵉʳ = {!!}
+  ; assocʳ∘assocˡ     = {!!}
+  ; assocˡ∘assocʳ     = {!!}
+  ; assocˡ∘⊗          = {!!}
+  ; assocʳ∘⊗          = {!!}
+  ; ⊗-resp-≈          = {!!}
+  }
+
+    -- id⊗id : ∀ {a b : obj} → id {a = a} ⊗ id {a = b} ≈ id
+
+    -- ∘⊗ : ∀ {a₁ b₁ a₂ b₂ a₃ b₃ : obj}
+    --        {f : a₁ ⇨ a₂}{g : b₁ ⇨ b₂}
+    --        {h : a₂ ⇨ a₃}{k : b₂ ⇨ b₃}
+    --    → (h ⊗ k) ∘ (f ⊗ g) ≈ (h ∘ f) ⊗ (k ∘ g)
+
+    -- unitorᵉˡ∘unitorⁱˡ : ∀ {a : obj} → unitorᵉˡ ∘ unitorⁱˡ {a = a} ≈ id
+    -- unitorⁱˡ∘unitorᵉˡ : ∀ {a : obj} → unitorⁱˡ ∘ unitorᵉˡ {a = a} ≈ id
+
+    -- unitorᵉʳ∘unitorⁱʳ : ∀ {a : obj} → unitorᵉʳ ∘ unitorⁱʳ {a = a} ≈ id
+    -- unitorⁱʳ∘unitorᵉʳ : ∀ {a : obj} → unitorⁱʳ ∘ unitorᵉʳ {a = a} ≈ id
+
+    -- assocʳ∘assocˡ : ∀ {a b c : obj} → assocʳ ∘ assocˡ ≈ id {a = a × (b × c)}
+    -- assocˡ∘assocʳ : ∀ {a b c : obj} → assocˡ ∘ assocʳ ≈ id {a = (a × b) × c}
+
+    -- assocˡ∘⊗ : ∀ {a a′ b b′ c c′} {f : a ⇨ a′}{g : b ⇨ b′}{h : c ⇨ c′}
+    --          → assocˡ ∘ (f ⊗ (g ⊗ h)) ≈ ((f ⊗ g) ⊗ h) ∘ assocˡ
+
+    -- assocʳ∘⊗ : ∀ {a a′ b b′ c c′} {f : a ⇨ a′}{g : b ⇨ b′}{h : c ⇨ c′}
+    --          → assocʳ ∘ ((f ⊗ g) ⊗ h) ≈ (f ⊗ (g ⊗ h)) ∘ assocʳ
+
+    -- ⊗-resp-≈ : ∀ {f h : a ⇨ c} {g k : b ⇨ d} → f ≈ h → g ≈ k → f ⊗ g ≈ h ⊗ k

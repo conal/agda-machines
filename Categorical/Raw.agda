@@ -152,10 +152,11 @@ open Cartesian ⦃ … ⦄ public
 record Boolean (obj : Set o) : Set (lsuc o) where
   field
     Bool : obj
+
 open Boolean ⦃ … ⦄ public
 
 record Logic {obj : Set o} ⦃ _ : Products obj ⦄ ⦃ _ : Boolean obj ⦄
-         (_⇨′_ : obj → obj → Set ℓ) : Set (lsuc o ⊔ ℓ) where
+             (_⇨′_ : obj → obj → Set ℓ) : Set (lsuc o ⊔ ℓ) where
   private infix 0 _⇨_; _⇨_ = _⇨′_
   field
     false true : ⊤ ⇨ Bool
@@ -175,6 +176,28 @@ record Show (A : Set o) : Set (lsuc o) where
     show : A → String
 open Show ⦃ … ⦄ public
 
+instance
+
+    import Data.Bool as B
+    import Data.Bool.Show as BS
+    import Data.Nat.Show as NS
+    open import Data.Fin using (Fin)
+    import Data.Fin.Show as FS
+
+    Bool-Show : Show B.Bool
+    Bool-Show = record { show = BS.show }
+
+    ℕ-Show : Show ℕ
+    ℕ-Show = record { show = NS.show }
+
+    Fin-Show : ∀ {n} → Show (Fin n)
+    Fin-Show = record { show = FS.show }
+
+    import Data.String as S
+    String-Show : Show S.String
+    String-Show = record { show = S.show }
+
+    -- etc
 
 
 -- Unsure where we want Equivalent. It's used by Homomorphism and Laws.
@@ -202,95 +225,3 @@ record Equivalent q {obj : Set o} (_⇨_ : obj → obj → Set ℓ)
 -- I think we need _⇨_ as an argument rather than field.
 
 open Equivalent ⦃ … ⦄ public
-
-
-
--- TODO: Consider using setoid functions instead
-Function : Set o → Set o → Set o
-Function a b = a → b
-
-module →RawInstances where
-
-  instance
-
-    equivalent : Equivalent o Function
-    equivalent = record
-      { _≈_ = _≗_
-      ; equiv = λ {a}{b} → record
-          { refl  = λ x → refl
-          ; sym   = λ f∼g x → sym (f∼g x)
-          ; trans = λ f∼g g∼h x → trans (f∼g x) (g∼h x)
-          }
-      }
-
-    category : Category (Function {o})
-    category = record { id = id′ ; _∘_ = _∘′_ }
-
-    -- lawful-category : LawfulCategory Function o
-    -- lawful-category = record
-    --   { identityˡ = λ x → refl
-    --   ; identityʳ = λ x → refl
-    --   ; assoc     = λ x → refl
-    --   ; ∘-resp-≈  = λ {a b c}{f g}{h k} h∼k f∼g x
-    --                   → trans (h∼k (f x)) (cong k (f∼g x))
-    --   }
-
-    products : Products (Set o)
-    products = record { ⊤ = ⊤′ ; _×_ = _×′_ }
-
-    monoidal : Monoidal (Function {o})
-    monoidal = record
-                  { _⊗_ = λ f g (x , y) → (f x , g y)
-                  ; unitorᵉˡ = λ (tt , y) → y
-                  ; unitorᵉʳ = λ (x , tt) → x
-                  ; unitorⁱˡ = tt ,_
-                  ; unitorⁱʳ = _, tt
-                  ; assocʳ   = λ ((x , y) , z) → x , (y , z)
-                  ; assocˡ   = λ (x , (y , z)) → (x , y) , z
-                  }
-
-    braided : Braided (Function {o})
-    braided = record { swap = λ (a , b) → b , a }
-
-    cartesian : Cartesian (Function {o})
-    cartesian = record { exl = proj₁ ; exr = proj₂ ; dup = λ z → z , z }
-
-    -- meaningful : Meaningful (Set ℓ)
-    -- meaningful = record { ⟦_⟧ = id }
-
-    import Data.Bool as B
-
-    boolean : Boolean Set
-    boolean = record { Bool  = B.Bool }
-    -- Can I make level-polymorphic? Probably with Lift.
-
-    logic : Logic Function
-    logic = record
-              { ∧     = uncurry B._∧_
-              ; ∨     = uncurry B._∨_
-              ; xor   = uncurry B._xor_
-              ; not   = B.not
-              ; true  = const B.true
-              ; false = const B.false
-              ; cond  = λ (c , (a , b)) → B.if c then b else a
-              }
-
-    import Data.Bool.Show as BS
-    import Data.Nat.Show as NS
-    open import Data.Fin using (Fin)
-    import Data.Fin.Show as FS
-
-    Bool-Show : Show Bool
-    Bool-Show = record { show = BS.show }
-
-    ℕ-Show : Show ℕ
-    ℕ-Show = record { show = NS.show }
-
-    Fin-Show : ∀ {n} → Show (Fin n)
-    Fin-Show = record { show = FS.show }
-
-    import Data.String as S
-    String-Show : Show S.String
-    String-Show = record { show = S.show }
-
-    -- etc
