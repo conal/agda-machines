@@ -26,13 +26,6 @@ private
     a b c d e : obj
     a′ b′ c′ d′ e′ : obj
 
-record Homomorphismₒ (obj₁ : Set o₁) (obj₂ : Set o₂) : Set (o₁ ⊔ o₂) where
-  field
-    Fₒ : obj₁ → obj₂
-
-id-Hₒ : Homomorphismₒ obj obj
-id-Hₒ = record { Fₒ = id′ }
-
 record Homomorphism
   {obj₁ : Set o₁} (_⇨₁_ : obj₁ → obj₁ → Set ℓ₁)
   {obj₂ : Set o₂} (_⇨₂_ : obj₂ → obj₂ → Set ℓ₂)

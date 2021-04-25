@@ -563,7 +563,7 @@ open Show ⦃ … ⦄ public
 Function : Set o → Set o → Set o
 Function a b = a → b
 
-module →Instances where
+module →RawInstances where
 
   instance
 
