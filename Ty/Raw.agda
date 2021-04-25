@@ -12,6 +12,7 @@ open import Data.String using (String; parens; _++_)
 open import Relation.Binary.PropositionalEquality
 
 open import Categorical.Raw
+open import Categorical.Instances.Function.Raw
 
 infixr 2 _`×_
 data Ty : Set where
@@ -26,7 +27,7 @@ private variable A B C D : Ty
 ⟦ σ `× τ ⟧ᵗ = ⟦ σ ⟧ᵗ × ⟦ τ ⟧ᵗ
 ⟦ `Bool ⟧ᵗ  = Bool
 
--- Unused
+-- Currently unused, but seems useful
 showTy : ⟦ A ⟧ᵗ → String
 showTy = go true′
  where

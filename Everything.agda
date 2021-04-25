@@ -1,21 +1,27 @@
+-- {-# OPTIONS --safe --without-K #-}
+
+{-# OPTIONS --allow-unsolved-metas #-}  -- experiment
+
 module Everything where
 
-import Category
-import Ty
-import Mealy
-import VecFun
-import Primitive
-import Symbolic
-import Stack
-import Dot
-import Test
+open import Categorical
 
-import Examples.Add
+-- import Category
+-- import Ty
+-- import Mealy
+-- import VecFun
+-- import Primitive
+-- import Symbolic
+-- import Stack
+-- import Dot
+-- import Test
 
--- Experimental modules not used above.
-import Tinkering.StreamFun
-import Tinkering.FunFun
-import Tinkering.SumIso
+-- import Examples.Add
 
-import Tinkering.Reflection.Quote
-import Tinkering.Reflection.CtoCA
+-- -- Experimental modules not used above.
+-- import Tinkering.StreamFun
+-- import Tinkering.FunFun
+-- import Tinkering.SumIso
+
+-- import Tinkering.Reflection.Quote
+-- import Tinkering.Reflection.CtoCA

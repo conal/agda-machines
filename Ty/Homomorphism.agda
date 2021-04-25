@@ -14,6 +14,7 @@ open import Relation.Binary.PropositionalEquality
 open import Categorical.Raw
 open import Categorical.Homomorphism
 
+open import 
 open import Ty.Raw
 
 module ty-hom-instances where

@@ -10,13 +10,10 @@ open import Data.Unit.Polymorphic using () renaming (⊤ to ⊤′)
 open import Data.Product using (_,_; proj₁; proj₂; uncurry)
   renaming (_×_ to _×′_)
 
+open import Miscellany using (Function)
 open import Categorical.Raw
 
 private variable o : Level
-
--- TODO: Consider using setoid functions instead
-Function : Set o → Set o → Set o
-Function a b = a → b
 
 module →RawInstances where
 
