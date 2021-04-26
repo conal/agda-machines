@@ -46,6 +46,10 @@ record LawfulCategory {obj : Set o} (_⇨′_ : obj → obj → Set ℓ)
   ∘-resp-≈ʳ : ∀ {f g : a ⇨ b} {h : b ⇨ c} → f ≈ g → h ∘ f ≈ h ∘ g
   ∘-resp-≈ʳ f≈g = ∘-resp-≈ refl≈ f≈g
 
+  assoc-middle : {f : a ⇨ b}{g : b ⇨ c}{h : c ⇨ d}{k : d ⇨ e}
+               → (k ∘ h) ∘ (g ∘ f) ≈ k ∘ (h ∘ g) ∘ f
+  assoc-middle = trans≈ assoc (∘-resp-≈ʳ (sym≈ assoc))
+
 open LawfulCategory ⦃ … ⦄ public
 
 
@@ -80,7 +84,7 @@ record LawfulMonoidal {obj : Set o} ⦃ _ : Products obj ⦄
     assocʳ∘⊗ : ∀ {a a′ b b′ c c′} {f : a ⇨ a′}{g : b ⇨ b′}{h : c ⇨ c′}
              → assocʳ ∘ ((f ⊗ g) ⊗ h) ≈ (f ⊗ (g ⊗ h)) ∘ assocʳ
 
-    ⊗-resp-≈ : ∀ {f h : a ⇨ c} {g k : b ⇨ d} → f ≈ h → g ≈ k → f ⊗ g ≈ h ⊗ k
+    ⊗-resp-≈ : ∀ {f h : a ⇨ c} {g k : b ⇨ d} (f≈h : f ≈ h) (g≈k : g ≈ k) → f ⊗ g ≈ h ⊗ k
 
   ⊗-resp-≈ʳ : ∀ {f : a ⇨ c} {g k : b ⇨ d} → g ≈ k → f ⊗ g ≈ f ⊗ k
   ⊗-resp-≈ʳ g≈k = ⊗-resp-≈ refl≈ g≈k

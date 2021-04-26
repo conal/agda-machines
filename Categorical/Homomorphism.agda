@@ -128,57 +128,6 @@ record MonoidalH
     F-! : Fₘ {a} ! ≈ ε ∘ !
     F-⊗ : ∀ (f : a ⇨₁ c)(g : b ⇨₁ d) → Fₘ (f ⊗ g) ∘ μ ≈ μ ∘ (Fₘ f ⊗ Fₘ g)
 
-{-
-
-  -- Strong variant. Oops. Proof needs LawfulCategory
-  F-⊗′ : ∀ (f : a ⇨₁ c)(g : b ⇨₁ d) → Fₘ (f ⊗ g) ≈ μ ∘ (Fₘ f ⊗ Fₘ g) ∘ μ⁻¹
-  F-⊗′ f g =
-    begin
-      Fₘ (f ⊗ g)
-    ≈˘⟨ {!identityʳ!} ⟩
-      Fₘ (f ⊗ g) ∘ id
-    ≈⟨ {!!} ⟩
-      Fₘ (f ⊗ g) ∘ (μ ∘ μ⁻¹)
-    ≈⟨ {!!} ⟩
-      (Fₘ (f ⊗ g) ∘ μ) ∘ μ⁻¹
-    ≈⟨ {!!} ⟩
-      (μ ∘ (Fₘ f ⊗ Fₘ g)) ∘ μ⁻¹
-    ≈⟨ {!!} ⟩
-      μ ∘ (Fₘ f ⊗ Fₘ g) ∘ μ⁻¹
-    ∎
-
-  -- The next two need ∘-resp-≈ and ⊗-resp-≈ from LawfulCategory and LawfulMonoidal
-
-  F-first : (f : a ⇨₁ c) → Fₘ (first f) ∘ μ{a}{b} ≈ μ{c}{b} ∘ first (Fₘ f)
-  F-first f =
-    begin
-      Fₘ (first f) ∘ μ
-    ≡⟨⟩
-      Fₘ (f ⊗ id) ∘ μ
-    ≈⟨ F-⊗ f id ⟩
-      μ ∘ (Fₘ f ⊗ Fₘ id)
-    ≈⟨ ∘-resp-≈ʳ (⊗-resp-≈ʳ F-id) ⟩
-      μ ∘ (Fₘ f ⊗ id)
-    ≡⟨⟩
-      μ ∘ first (Fₘ f)
-    ∎
-
-  F-second : (g : b ⇨₁ d) → Fₘ (second g) ∘ μ{a}{b} ≈ μ{a}{d} ∘ second (Fₘ g)
-  F-second g = 
-    begin
-      Fₘ (second g) ∘ μ
-    ≡⟨⟩
-      Fₘ (id ⊗ g) ∘ μ
-    ≈⟨ F-⊗ id g ⟩
-      μ ∘ (Fₘ id ⊗ Fₘ g)
-    ≈⟨ ∘-resp-≈ʳ (⊗-resp-≈ˡ F-id) ⟩
-      μ ∘ (id ⊗ Fₘ g)
-    ≡⟨⟩
-      μ ∘ second (Fₘ g)
-    ∎
-
--}
-
 
 record BraidedH {obj₁ : Set o₁} (_⇨₁′_ : obj₁ → obj₁ → Set ℓ₁)
                 {obj₂ : Set o₂} (_⇨₂′_ : obj₂ → obj₂ → Set ℓ₂)

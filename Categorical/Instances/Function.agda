@@ -2,5 +2,5 @@
 
 module Categorical.Instances.Function where
 
-open import Categorical.Instances.Function.Raw
-open import Categorical.Instances.Function.Laws
+open import Categorical.Instances.Function.Raw   public
+open import Categorical.Instances.Function.Laws  public

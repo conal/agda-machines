@@ -14,10 +14,11 @@ open import Relation.Binary.PropositionalEquality
 open import Categorical.Raw
 open import Categorical.Homomorphism
 
-open import 
+open import Miscellany
+open import Categorical.Instances.Function
 open import Ty.Raw
 
-module ty-hom-instances where
+module ty-hom where
 
   instance
 
@@ -29,9 +30,6 @@ module ty-hom-instances where
 
     categoryH : CategoryH _⇨_ Function 0ℓ
     categoryH = record { F-id = λ x → refl ; F-∘ = λ f g x → refl }
-
-    -- lawful-category : LawfulCategory _⇨_ 0ℓ
-    -- lawful-category = LawfulCategoryᶠ ⟦⟧-categoryH
 
     productsH : ProductsH _⇨_ Function 0ℓ
     productsH = record
@@ -57,18 +55,15 @@ module ty-hom-instances where
                   ; F-⊗        = λ f g x → refl
                   }
 
-    -- lawful-monoidal : LawfulMonoidal _⇨_ 0ℓ
-    -- lawful-monoidal = LawfulMonoidalᶠ ⟦⟧-monoidalH
+    -- braidedH : BraidedH _⇨_ Function 0ℓ
+    -- braidedH = record { F-swap = λ x → refl }
 
-    -- ⟦⟧-braidedH : BraidedH _⇨_ Function 0ℓ
-    -- ⟦⟧-braidedH = record { F-swap = λ x → refl }
-
-    -- ⟦⟧-cartesianH : CartesianH _⇨_ Function 0ℓ
-    -- ⟦⟧-cartesianH = record
+    -- cartesianH : CartesianH _⇨_ Function 0ℓ
+    -- cartesianH = record
     --   { F-exl = λ _ → refl ; F-exr = λ _ → refl ; F-dup = λ _ → refl }
 
-    -- ⟦⟧-logicH : LogicH _⇨_ Function 0ℓ
-    -- ⟦⟧-logicH = record
+    -- logicH : LogicH _⇨_ Function 0ℓ
+    -- logicH = record
     --    { F-Bool  = refl
     --    ; F-false = λ _ → refl
     --    ; F-true  = λ _ → refl
