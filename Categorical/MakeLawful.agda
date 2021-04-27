@@ -518,17 +518,17 @@ LawfulMonoidalᶠ {_⇨₁_ = _⇨₁_} {_⇨₂_ = _⇨₂_} {q = q} ⦃ F = F 
             -- ≈⟨ {!!} ⟩
             --   μ ∘ first μ ∘ assocˡ ∘ second μ⁻¹ ∘
             --   (Fₘ f ⊗ (μ ∘ (Fₘ g ⊗ Fₘ h) ∘ μ⁻¹)) ∘ μ⁻¹
+            -- ≈⟨ {!!} ⟩
+            --   μ ∘ first μ ∘ assocˡ ∘ (Fₘ f ⊗ (Fₘ g ⊗ Fₘ h) ∘ μ⁻¹) ∘ μ⁻¹
+            -- ≈⟨ {!!} ⟩
+            --   μ ∘ first μ ∘ assocˡ ∘ ((Fₘ f ⊗ (Fₘ g ⊗ Fₘ h)) ∘ second μ⁻¹) ∘ μ⁻¹
+            -- ≈⟨ {!!} ⟩
+            --   μ ∘ first μ ∘ assocˡ ∘ (Fₘ f ⊗ (Fₘ g ⊗ Fₘ h)) ∘ second μ⁻¹ ∘ μ⁻¹
             ≈⟨ {!!} ⟩
-              μ ∘ first μ ∘ assocˡ ∘
-              (Fₘ f ⊗ (Fₘ g ⊗ Fₘ h) ∘ μ⁻¹) ∘ μ⁻¹
-
-            -- I don't know where to go from here. I deviated from the usual
-            -- monoidal category laws, and maybe the property doesn't hold.
+              μ ∘ first μ ∘ ((Fₘ f ⊗ Fₘ g) ⊗ Fₘ h) ∘ assocˡ ∘ second μ⁻¹ ∘ μ⁻¹
             ≈˘⟨ {!!} ⟩
-
-              μ ∘ (μ ∘ (Fₘ f ⊗ Fₘ g) ⊗ Fₘ h) ∘
-              assocˡ ∘ second μ⁻¹ ∘ μ⁻¹
-            -- ≈˘⟨ {!!} ⟩
+              μ ∘ (μ ∘ (Fₘ f ⊗ Fₘ g) ⊗ Fₘ h) ∘ assocˡ ∘ second μ⁻¹ ∘ μ⁻¹
+            ≈˘⟨ {!!} ⟩
             --   μ ∘ (μ ∘ (Fₘ f ⊗ Fₘ g) ∘ μ⁻¹ ⊗ Fₘ h) ∘
             --   first μ ∘ assocˡ ∘ second μ⁻¹ ∘ μ⁻¹
             -- ≈˘⟨ {!!} ⟩
