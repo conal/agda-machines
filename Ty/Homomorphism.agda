@@ -3,12 +3,6 @@
 module Ty.Homomorphism where
 
 open import Level using (0ℓ)
-open import Data.Bool using (if_then_else_)
-  renaming (false to false′; true to true′)
-open import Data.Bool.Show as BS
-open import Data.Product using (_,_; uncurry)
-open import Data.Nat
-open import Data.String using (String; parens; _++_)
 import Relation.Binary.PropositionalEquality as ≡
 
 open import Categorical.Raw

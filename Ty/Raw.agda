@@ -2,14 +2,9 @@
 
 module Ty.Raw where
 
-open import Level using (0ℓ)
-open import Data.Bool using (if_then_else_)
-  renaming (false to 𝕗; true to 𝕥)
-open import Data.Bool.Show as BS
-open import Data.Product using (_,_; uncurry)
-open import Data.Nat
+open import Data.Bool using (if_then_else_) renaming (false to 𝕗; true to 𝕥)
+open import Data.Product using (_,_)
 open import Data.String using (String; parens; _++_)
-open import Relation.Binary.PropositionalEquality
 
 open import Categorical.Raw
 open import Categorical.Instances.Function.Raw
@@ -34,7 +29,7 @@ showTy = go 𝕥
    -- Flag says we're in the left part of a pair
    go : Bool → ⟦ A ⟧ᵗ → String
    go {`⊤} _ tt = "tt"
-   go {`Bool} _ b = BS.show b
+   go {`Bool} _ b = show b
    go {_ `× _} p (x , y) = (if p then parens else id) (go 𝕥 x ++ "," ++ go 𝕗 y)
 
 
