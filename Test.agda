@@ -9,7 +9,7 @@ open import Data.Unit.Polymorphic using () renaming (⊤ to ⊤₀)
 open import Data.Bool using (if_then_else_) renaming (false to 𝕗; true to 𝕥)
 open import Data.Vec using ([_]; []; _∷_)
 open import Data.String using (String; _++_)
-open import Relation.Binary.PropositionalEquality using (subst)
+-- open import Relation.Binary.PropositionalEquality using (subst)
 open import IO
 
 open import Category ; open CartUtils

@@ -6,7 +6,7 @@ module Symbolic where
 open import Level using (0ℓ)
 open import Data.Product using (_,_)
 open import Data.String using (String)
-open import Relation.Binary.PropositionalEquality
+-- open import Relation.Binary.PropositionalEquality
 open import Function using (_on_) renaming (const to const′)
 import Relation.Binary.Reasoning.Setoid as SetoidR
 

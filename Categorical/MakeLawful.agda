@@ -1,4 +1,4 @@
--- {-# OPTIONS --safe --without-K #-}
+{-# OPTIONS --safe --without-K #-}
 
 -- Make lawfuls from lawfuls and homomorphisms
 
@@ -6,7 +6,7 @@ module Categorical.MakeLawful where
 
 open import Level renaming (zero to lzero; suc to lsuc)
 open import Function using (_∘′_; const; _on_; flip) renaming (id to id′)
-open import Relation.Binary.PropositionalEquality
+-- open import Relation.Binary.PropositionalEquality
 open import Data.Nat using (ℕ; zero; suc)
 open import Data.Unit.Polymorphic using () renaming (⊤ to ⊤′)
 open import Data.Product using (_,_; proj₁; proj₂; uncurry)
@@ -460,16 +460,61 @@ LawfulMonoidalᶠ {_⇨₁_ = _⇨₁_} {_⇨₂_ = _⇨₂_} {q = q} ⦃ F = F 
             --   Fₘ id
             -- ∎
 
+{-
+
          ; assocʳ∘assocˡ =
             begin
               Fₘ (assocʳ ∘ assocˡ)
             ≈⟨ F-∘ _ _ ⟩
               Fₘ assocʳ ∘ Fₘ assocˡ
-            ≈⟨ ∘-resp-≈ {!F-assocʳ′!} {!!} ⟩
-              (μ ∘ second μ ∘ assocʳ ∘ first  μ⁻¹ ∘ μ⁻¹) ∘ Fₘ assocˡ
-            ≈⟨ {!!} ⟩
+            ≈⟨ ∘-resp-≈ F-assocʳ′ F-assocˡ′ ⟩
+              (μ ∘ second μ ∘ assocʳ ∘ first μ⁻¹ ∘ μ⁻¹) ∘ (μ ∘ first μ ∘ assocˡ ∘ second μ⁻¹ ∘ μ⁻¹)
+
+            -- ≈⟨ μ∘μ⁻¹
+            --  • inAssoc ( g⁻¹∘g∘f (second⁻¹ μ∘μ⁻¹)
+            --            • inAssoc ( g⁻¹∘g∘f assocʳ∘assocˡ
+            --                      • inAssoc ( g⁻¹∘g∘f (first⁻¹ μ⁻¹∘μ)
+            --                                • inAssoc (g⁻¹∘g∘f μ⁻¹∘μ)))) ⟩
+            --   id
+
+            -- ≈⟨ μ∘μ⁻¹ ◎ g⁻¹∘g∘f (second⁻¹ μ∘μ⁻¹) ◎ g⁻¹∘g∘f assocʳ∘assocˡ ◎ g⁻¹∘g∘f (first⁻¹ μ⁻¹∘μ) ◎ g⁻¹∘g∘f μ⁻¹∘μ ⟩
+
+
+            ≈⟨ μ∘μ⁻¹ ◎ (g⁻¹∘g∘f (second⁻¹ μ∘μ⁻¹) ◎ (g⁻¹∘g∘f assocʳ∘assocˡ ◎ (g⁻¹∘g∘f (first⁻¹ μ⁻¹∘μ) ◎ g⁻¹∘g∘f μ⁻¹∘μ))) ⟩
+
+
+            -- ≈⟨ μ∘μ⁻¹ ⊙ second⁻¹ μ∘μ⁻¹ ⊙ assocʳ∘assocˡ ⊙ first⁻¹ μ⁻¹∘μ ⊙ μ⁻¹∘μ ⟩
+
+              id
+            ≈⟨ sym F-id ⟩
               Fₘ id
             ∎
+
+-}
+
+         ; assocʳ∘assocˡ =
+            begin
+              Fₘ (assocʳ ∘ assocˡ)
+            ≈⟨ F-∘ _ _ ⟩
+              Fₘ assocʳ ∘ Fₘ assocˡ
+            ≈⟨ ∘-resp-≈ F-assocʳ′ F-assocˡ′ ⟩
+              (μ ∘ second μ ∘ assocʳ ∘ first μ⁻¹ ∘ μ⁻¹) ∘ (μ ∘ first μ ∘ assocˡ ∘ second μ⁻¹ ∘ μ⁻¹)
+            ≈⟨ assoc⁵ ⟩
+              μ ∘ second μ ∘ assocʳ ∘ first μ⁻¹ ∘ μ⁻¹ ∘ μ ∘ first μ ∘ assocˡ ∘ second μ⁻¹ ∘ μ⁻¹
+            ≈⟨ ∘-resp-≈ʳ (∘-resp-≈ʳ (∘-resp-≈ʳ (∘-resp-≈ʳ (g⁻¹∘g∘f μ⁻¹∘μ)))) ⟩
+              μ ∘ second μ ∘ assocʳ ∘ first μ⁻¹ ∘ first μ ∘ assocˡ ∘ second μ⁻¹ ∘ μ⁻¹
+            ≈⟨ ∘-resp-≈ʳ (∘-resp-≈ʳ (∘-resp-≈ʳ (g⁻¹∘g∘f (first⁻¹ μ⁻¹∘μ)))) ⟩
+              μ ∘ second μ ∘ assocʳ ∘ assocˡ ∘ second μ⁻¹ ∘ μ⁻¹
+            ≈⟨ ∘-resp-≈ʳ (∘-resp-≈ʳ (g⁻¹∘g∘f assocʳ∘assocˡ)) ⟩
+              μ ∘ second μ ∘ second μ⁻¹ ∘ μ⁻¹
+            ≈⟨ ∘-resp-≈ʳ (g⁻¹∘g∘f (second⁻¹ μ∘μ⁻¹)) ⟩
+              μ ∘ μ⁻¹
+            ≈⟨ μ∘μ⁻¹ ⟩
+              id
+            ≈⟨ sym F-id ⟩
+              Fₘ id
+            ∎
+
 
          ; assocˡ∘assocʳ =
             begin

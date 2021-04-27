@@ -10,7 +10,7 @@ open import Data.Nat using (ℕ; suc; zero)
 open import Data.String hiding (toList; concat; show)
 open import Data.List using (List; []; _∷_; concat; map; upTo)
   renaming (_++_ to _++ᴸ_)
-open import Relation.Binary.PropositionalEquality using (_≡_; refl)
+-- open import Relation.Binary.PropositionalEquality using (_≡_; refl)
 
 open import Category
 open import Ty renaming (map to mapᵀ)
@@ -54,11 +54,6 @@ showIx = show ∘ toFin
 
 wire : String → TyIx a → OPort → String
 wire compName i oport = oport ++ " -> " ++  compName ++ ":In" ++ showIx i
-
--- open import Function using (_∋_)
--- _ : wire "Foo" (TyIx (Bool ↑ 5) ∋ right (right (left here)))
---        "c2:Out4" ≡ "c2:Out4 -> Foo:In2"
--- _ = refl
 
 comp : String → String → TyF OPort i → Ty → List String
 comp {i} compName opName ins o with size i | size o

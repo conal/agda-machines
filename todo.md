@@ -1,5 +1,7 @@
 ## To do
 
+*   Infix alternative for `trans`.
+    Can I use categorical language?
 *   Revisit uses of `swizzle-id`.
     Can I refer to the routing category instead?
 *   Define some utilities to capture common method definitions, including most of `Monoidal` using routings.

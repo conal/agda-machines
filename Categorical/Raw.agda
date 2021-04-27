@@ -4,7 +4,7 @@ module Categorical.Raw where
 
 open import Level renaming (zero to lzero; suc to lsuc)
 open import Function using (_∘′_; const; _on_; flip) renaming (id to id′)
-open import Relation.Binary.PropositionalEquality
+-- open import Relation.Binary.PropositionalEquality
 open import Data.Nat using (ℕ; zero; suc)
 open import Data.Unit.Polymorphic using () renaming (⊤ to ⊤′)
 open import Data.Product using (_,_; proj₁; proj₂; uncurry)
@@ -12,6 +12,8 @@ open import Data.Product using (_,_; proj₁; proj₂; uncurry)
 open import Relation.Binary
 import Relation.Binary.Reasoning.Setoid as SetoidR
 import Relation.Binary.Construct.On as On
+
+open import Data.Nat hiding (_⊔_)
 
 -- TODO: trim imports
 
@@ -39,10 +41,9 @@ record Category {obj : Set o} (_⇨_ : obj → obj → Set ℓ) : Set (lsuc o �
   infixr 9 _∘_
   field
     id  : a ⇨ a
-    _∘_ : (b ⇨ c) → (a ⇨ b) → (a ⇨ c)
+    _∘_ : (g : b ⇨ c) (f : a ⇨ b) → (a ⇨ c)
 
 open Category ⦃ … ⦄ public
-
 
 -- Iterated composition
 infixr 8 _↑_
@@ -56,12 +57,10 @@ record Products (obj : Set o) : Set (lsuc o) where
     ⊤ : obj
     _×_ : obj → obj → obj
 
-  infixr 2 _×≡_
-  _×≡_ : ∀ {a₁ a₂ b₁ b₂ : obj}
-       → a₁ ≡ a₂ → b₁ ≡ b₂ → (a₁ × b₁) ≡ (a₂ × b₂)
-  refl ×≡ refl = refl
-
-  open import Data.Nat
+  -- infixr 2 _×≡_
+  -- _×≡_ : ∀ {a₁ a₂ b₁ b₂ : obj}
+  --      → a₁ ≡ a₂ → b₁ ≡ b₂ → (a₁ × b₁) ≡ (a₂ × b₂)
+  -- refl ×≡ refl = refl
 
   V T : obj → ℕ → obj
   V A n = ((A ×_) ↑ n) ⊤
@@ -200,6 +199,28 @@ instance
     -- etc
 
 
+-------------------------------------------------------------------------------
+-- | Some generally useful categories. Perhaps should go elsewhere.
+-------------------------------------------------------------------------------
+
+module ⟺ {obj : Set o} (_⇨_ : obj → obj → Set ℓ) ⦃ cat : Category _⇨_ ⦄ where
+
+  -- A pair of opposite arrows. See also _≅_ in Laws.
+  infix 0 _⟺_
+  record _⟺_ (a b : obj) : Set (lsuc o ⊔ ℓ) where
+    constructor mk⟺
+    field
+      to   : a ⇨ b 
+      from : b ⇨ a 
+
+  instance
+    ⟺-cat : Category _⟺_
+    ⟺-cat = record
+     { id = mk⟺ id id
+     ; _∘_ = λ { (mk⟺ g g⁻¹) (mk⟺ f f⁻¹) → mk⟺ (g ∘ f) (f⁻¹ ∘ g⁻¹) }
+     }
+
+
 -- Unsure where we want Equivalent. It's used by Homomorphism and Laws.
 -- Could go in its own module.
 
@@ -212,7 +233,7 @@ record Equivalent q {obj : Set o} (_⇨_ : obj → obj → Set ℓ)
 
   module Equiv {a b} where
     open IsEquivalence (equiv {a}{b}) public
-      renaming (refl to refl≈; sym to sym≈; trans to trans≈)
+      -- renaming (refl to refl≈; sym to sym≈; trans to trans≈)
   open Equiv public
 
   ≈setoid : obj → obj → Setoid ℓ q
@@ -221,7 +242,19 @@ record Equivalent q {obj : Set o} (_⇨_ : obj → obj → Set ℓ)
   module ≈-Reasoning {a b} where
     open SetoidR (≈setoid a b) public
 
+  infixr 9 _•_
+  _•_ : {f g h : a ⇨ b} (g≈h : g ≈ h) (f≈g : f ≈ g) → f ≈ h
+  g≈h • f≈g = trans f≈g g≈h
+
+  -- Conflicts with other instances
+
+  -- -- Experiment
+  -- instance
+  --   category : Category (_≈_ {a}{b})
+  --   category = record { id = refl ; _∘_ = flip trans }
+
 -- TODO: Replace Equivalent by Setoid?
 -- I think we need _⇨_ as an argument rather than field.
 
 open Equivalent ⦃ … ⦄ public
+
