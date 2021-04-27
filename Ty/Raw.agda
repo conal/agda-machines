@@ -83,5 +83,3 @@ module ty-instances where
                    ; ∧ = mk ∧ ; ∨ = mk ∨ ; xor = mk xor ; not = mk not
                    ; cond = mk cond
                    }
-
-
