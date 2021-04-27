@@ -4,7 +4,6 @@ module Categorical.Instances.Function.Raw where
 
 open import Level using (Level)
 open import Function using (_∘′_; const; _on_; flip) renaming (id to id′)
--- open import Relation.Binary.PropositionalEquality
 open import Data.Nat using (ℕ; zero; suc)
 open import Data.Unit.Polymorphic using () renaming (⊤ to ⊤′)
 open import Data.Product using (_,_; proj₁; proj₂; uncurry)
@@ -18,16 +17,6 @@ private variable o : Level
 module →RawInstances where
 
   instance
-
-    equivalent : Equivalent o Function
-    equivalent = record
-      { _≈_ = _≗_
-      ; equiv = λ {a}{b} → record
-          { refl  = λ x → refl
-          ; sym   = λ f∼g x → sym (f∼g x)
-          ; trans = λ f∼g g∼h x → trans (f∼g x) (g∼h x)
-          }
-      }
 
     category : Category (Function {o})
     category = record { id = id′ ; _∘_ = _∘′_ }

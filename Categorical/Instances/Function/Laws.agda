@@ -4,7 +4,7 @@ module Categorical.Instances.Function.Laws where
 
 open import Level using (Level)
 open import Function using (_∘′_; const; _on_; flip) renaming (id to id′)
--- open import Relation.Binary.PropositionalEquality
+open import Relation.Binary.PropositionalEquality as ≡ using (_≗_; cong)
 open import Data.Nat using (ℕ; zero; suc)
 open import Data.Unit.Polymorphic using () renaming (⊤ to ⊤′)
 open import Data.Product using (_,_; proj₁; proj₂; uncurry)
@@ -26,9 +26,9 @@ module →Lawful where
     equivalent = record
       { _≈_ = _≗_
       ; equiv = λ {a}{b} → record
-          { refl  = λ x → refl
-          ; sym   = λ f∼g x → sym (f∼g x)
-          ; trans = λ f∼g g∼h x → trans (f∼g x) (g∼h x)
+          { refl  = λ x → ≡.refl
+          ; sym   = λ f∼g x → ≡.sym (f∼g x)
+          ; trans = λ f∼g g∼h x → ≡.trans (f∼g x) (g∼h x)
           }
       }
 
@@ -36,24 +36,24 @@ module →Lawful where
 
     lawful-category : LawfulCategory Function o
     lawful-category = record
-      { identityˡ = λ x → refl
-      ; identityʳ = λ x → refl
-      ; assoc     = λ x → refl
+      { identityˡ = λ x → ≡.refl
+      ; identityʳ = λ x → ≡.refl
+      ; assoc     = λ x → ≡.refl
       ; ∘-resp-≈  = λ {a b c}{f g}{h k} h∼k f∼g x
-                      → trans (h∼k (f x)) (cong k (f∼g x))
+                      → ≡.trans (h∼k (f x)) (cong k (f∼g x))
       }
 
     lawful-monoidal : LawfulMonoidal Function o
     lawful-monoidal = record
-      { id⊗id             = λ x → refl
-      ; ∘⊗                = λ x → refl
-      ; unitorᵉˡ∘unitorⁱˡ = λ x → refl
-      ; unitorⁱˡ∘unitorᵉˡ = λ x → refl
-      ; unitorᵉʳ∘unitorⁱʳ = λ x → refl
-      ; unitorⁱʳ∘unitorᵉʳ = λ x → refl
-      ; assocʳ∘assocˡ     = λ x → refl
-      ; assocˡ∘assocʳ     = λ x → refl
-      ; assocˡ∘⊗          = λ x → refl
+      { id⊗id             = λ x → ≡.refl
+      ; ∘⊗                = λ x → ≡.refl
+      ; unitorᵉˡ∘unitorⁱˡ = λ x → ≡.refl
+      ; unitorⁱˡ∘unitorᵉˡ = λ x → ≡.refl
+      ; unitorᵉʳ∘unitorⁱʳ = λ x → ≡.refl
+      ; unitorⁱʳ∘unitorᵉʳ = λ x → ≡.refl
+      ; assocʳ∘assocˡ     = λ x → ≡.refl
+      ; assocˡ∘assocʳ     = λ x → ≡.refl
+      ; assocˡ∘⊗          = λ x → ≡.refl
       ; ⊗-resp-≈          = λ f≗h g≗k → λ (x , y) → f≗h x ≡,≡ g≗k y
-      ; assocʳ∘⊗          = λ x → refl
+      ; assocʳ∘⊗          = λ x → ≡.refl
       }
