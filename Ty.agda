@@ -95,13 +95,13 @@ open import Function using (_∘′_)  -- temp
 ∘≗ f g h f≗g x = cong h (f≗g x)
 
 tabulate≗ : ∀ {f g : TyIx A → Bool} → f ≗ g → tabulate f ≡ tabulate g
-tabulate≗ {`⊤}     {f = f} {g} f̄f≗g = refl
-tabulate≗ {`Bool}  {f = f} {g} f̄f≗g = f̄f≗g here
-tabulate≗ {A `× B} {f = f} {g} f̄f≗g =
+tabulate≗ {`⊤}     {f = f} {g} f≗g = refl
+tabulate≗ {`Bool}  {f = f} {g} f≗g = f≗g here
+tabulate≗ {A `× B} {f = f} {g} f≗g =
   begin
     (tabulate (f ∘ left) , tabulate (f ∘ right))
-  ≡⟨ cong₂ _,_ (tabulate≗ (λ x → f̄f≗g (left x)))
-               (tabulate≗ (λ x → f̄f≗g (right x))) ⟩
+  ≡⟨ cong₂ _,_ (tabulate≗ (λ x → f≗g (left x)))
+               (tabulate≗ (λ x → f≗g (right x))) ⟩
     (tabulate (g ∘ left) , tabulate (g ∘ right))
   ∎
  where open ≡-Reasoning

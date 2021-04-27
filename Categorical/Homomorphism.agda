@@ -15,6 +15,9 @@ import Relation.Binary.Construct.On as On
 
 open import Categorical.Raw
 
+-- For id-productsH. If Categorical.Laws gets slow to load, reconsider.
+open import Categorical.Laws
+
 open ≈-Reasoning
 
 -- TODO: trim imports
@@ -94,6 +97,23 @@ record ProductsH
     μ⁻¹∘μ : μ⁻¹{a}{b} ∘ μ ≈ id
 
     -- TODO: Package as isomorphisms.
+
+id-productsH :
+    {obj : Set o} ⦃ _ : Products obj ⦄ {_⇨₁_ : obj → obj → Set ℓ₁}
+    {_⇨₂_ : obj → obj → Set ℓ₂}
+    {q : Level} ⦃ equiv₂ : Equivalent q _⇨₂_ ⦄
+    ⦃ cat₂ : Category _⇨₂_ ⦄
+    ⦃ lawful-cat₂ : LawfulCategory _⇨₂_ q ⦄
+    → ProductsH _⇨₁_ _⇨₂_ q ⦃ Hₒ = id-Hₒ ⦄
+id-productsH = record { ε     = id
+                      ; μ     = id
+                      ; ε⁻¹   = id
+                      ; μ⁻¹   = id
+                      ; ε∘ε⁻¹ = identityˡ
+                      ; ε⁻¹∘ε = identityˡ
+                      ; μ∘μ⁻¹ = identityˡ
+                      ; μ⁻¹∘μ = identityˡ
+                      }
 
 record MonoidalH
     {obj₁ : Set o₁} (_⇨₁′_ : obj₁ → obj₁ → Set ℓ₁)

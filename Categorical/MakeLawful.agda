@@ -30,8 +30,6 @@ private
     a b c d e : obj
     a′ b′ c′ d′ e′ : obj
 
-{-
-
 LawfulCategoryᶠ : {obj₁ : Set o₁} {_⇨₁_ : obj₁ → obj₁ → Set ℓ₁}
                   {obj₂ : Set o₂} {_⇨₂_ : obj₂ → obj₂ → Set ℓ₂}
                   {q : Level} ⦃ _ : Equivalent q _⇨₂_ ⦄
@@ -89,7 +87,7 @@ LawfulCategoryᶠ F = record
   }
  where open CategoryH F
 
--}
+{-
 
 module LawfulMonoidalH
     {obj₁ : Set o₁} (_⇨₁′_ : obj₁ → obj₁ → Set ℓ₁)
@@ -582,3 +580,5 @@ LawfulMonoidalᶠ {_⇨₁_ = _⇨₁_} {_⇨₂_ = _⇨₂_} {q = q} ⦃ F = F 
     --          → assocʳ ∘ ((f ⊗ g) ⊗ h) ≈ (f ⊗ (g ⊗ h)) ∘ assocʳ
 
     -- ⊗-resp-≈ : ∀ {f h : a ⇨ c} {g k : b ⇨ d} → f ≈ h → g ≈ k → f ⊗ g ≈ h ⊗ k
+
+-}

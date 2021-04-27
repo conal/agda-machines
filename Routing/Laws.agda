@@ -1,21 +1,24 @@
 {-# OPTIONS --safe --without-K #-}
 
-module Ty.Laws where
+module Routing.Laws where
 
 open import Level using (0ℓ)
 
--- open import Categorical.Raw
--- open import Categorical.Homomorphism
 open import Categorical.Laws
 open import Categorical.MakeLawful
 
 open import Categorical.Instances.Function
-open import Ty.Raw
+
+-- TODO: Replace these three imports with "open import Ty hiding (_⇨_)"
+open import Ty.Raw using (module ty-instances)
 open import Ty.Homomorphism
+open import Ty.Laws
 
-module ty-laws where
+open import Routing.Raw
+open import Routing.Homomorphism
 
-  open ty-hom
+module routing-laws where
+
   instance
 
     lawful-category : LawfulCategory _⇨_ 0ℓ

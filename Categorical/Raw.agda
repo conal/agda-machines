@@ -28,15 +28,6 @@ private
 import Data.Unit as U
 pattern tt = lift U.tt
 
-
-record Homomorphismₒ (obj₁ : Set o₁) (obj₂ : Set o₂) : Set (o₁ ⊔ o₂) where
-  field
-    Fₒ : obj₁ → obj₂
-
-id-Hₒ : Homomorphismₒ obj obj
-id-Hₒ = record { Fₒ = id′ }
-
-
 record Category {obj : Set o} (_⇨_ : obj → obj → Set ℓ) : Set (lsuc o ⊔ ℓ) where
   infixr 9 _∘_
   field
@@ -258,3 +249,10 @@ record Equivalent q {obj : Set o} (_⇨_ : obj → obj → Set ℓ)
 
 open Equivalent ⦃ … ⦄ public
 
+-- TODO: consider moving to Categorical.Homomorphism.
+record Homomorphismₒ (obj₁ : Set o₁) (obj₂ : Set o₂) : Set (o₁ ⊔ o₂) where
+  field
+    Fₒ : obj₁ → obj₂
+
+id-Hₒ : Homomorphismₒ obj obj
+id-Hₒ = record { Fₒ = id′ }
