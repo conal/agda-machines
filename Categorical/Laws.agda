@@ -105,16 +105,6 @@ record LawfulCategory {obj : Set o} (_⇨′_ : obj → obj → Set ℓ)
         (h∘gf≈k : h ∘ gf ≈ k) (g∘f≈gf : g ∘ f ≈ gf) → (h ∘ g) ∘ f ≈ k
   q ◎ g∘f≈gf = q • inAssoc g∘f≈gf
 
-  -- infixr 9 _⊙_
-  -- _⊙_ : {f : a ⇨ b}{g : b ⇨ c}{g⁻¹ : c ⇨ b}{h : b ⇨ d}{k : a ⇨ d}
-  --       (h∘f≈k : h ∘ f ≈ k) (g⁻¹∘g≈id : g⁻¹ ∘ g ≈ id)
-  --     → (h ∘ g⁻¹) ∘ (g ∘ f) ≈ k
-  -- h∘f≈k ⊙ g⁻¹∘g≈id = h∘f≈k ◎ g⁻¹∘g∘f g⁻¹∘g≈id
-
-  -- infixr 9 _⊙_
-  -- _⊙_ : {!!}
-  -- g⁻¹∘g≈id ⊙ h∘f≈k = g⁻¹∘g∘f g⁻¹∘g≈id ◎ h∘f≈k 
-
 
 open LawfulCategory ⦃ … ⦄ public
 

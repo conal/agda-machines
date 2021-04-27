@@ -460,82 +460,100 @@ LawfulMonoidalᶠ {_⇨₁_ = _⇨₁_} {_⇨₂_ = _⇨₂_} {q = q} ⦃ F = F 
             --   Fₘ id
             -- ∎
 
-{-
+         ; assocʳ∘assocˡ = {!!}
 
-         ; assocʳ∘assocˡ =
-            begin
-              Fₘ (assocʳ ∘ assocˡ)
-            ≈⟨ F-∘ _ _ ⟩
-              Fₘ assocʳ ∘ Fₘ assocˡ
-            ≈⟨ ∘-resp-≈ F-assocʳ′ F-assocˡ′ ⟩
-              (μ ∘ second μ ∘ assocʳ ∘ first μ⁻¹ ∘ μ⁻¹) ∘ (μ ∘ first μ ∘ assocˡ ∘ second μ⁻¹ ∘ μ⁻¹)
-
+            -- begin
+            --   Fₘ (assocʳ ∘ assocˡ)
+            -- ≈⟨ F-∘ _ _ ⟩
+            --   Fₘ assocʳ ∘ Fₘ assocˡ
+            -- ≈⟨ ∘-resp-≈ F-assocʳ′ F-assocˡ′ ⟩
+            --   (μ ∘ second μ ∘ assocʳ ∘ first μ⁻¹ ∘ μ⁻¹) ∘
+            --   (μ ∘ first μ ∘ assocˡ ∘ second μ⁻¹ ∘ μ⁻¹)
             -- ≈⟨ μ∘μ⁻¹
-            --  • inAssoc ( g⁻¹∘g∘f (second⁻¹ μ∘μ⁻¹)
-            --            • inAssoc ( g⁻¹∘g∘f assocʳ∘assocˡ
-            --                      • inAssoc ( g⁻¹∘g∘f (first⁻¹ μ⁻¹∘μ)
-            --                                • inAssoc (g⁻¹∘g∘f μ⁻¹∘μ)))) ⟩
+            --    ◎ g⁻¹∘g∘f (second⁻¹ μ∘μ⁻¹)
+            --      ◎ g⁻¹∘g∘f assocʳ∘assocˡ
+            --        ◎ g⁻¹∘g∘f (first⁻¹ μ⁻¹∘μ)
+            --          ◎ g⁻¹∘g∘f μ⁻¹∘μ ⟩
             --   id
+            -- ≈⟨ sym F-id ⟩
+            --   Fₘ id
+            -- ∎
 
-            -- ≈⟨ μ∘μ⁻¹ ◎ g⁻¹∘g∘f (second⁻¹ μ∘μ⁻¹) ◎ g⁻¹∘g∘f assocʳ∘assocˡ ◎ g⁻¹∘g∘f (first⁻¹ μ⁻¹∘μ) ◎ g⁻¹∘g∘f μ⁻¹∘μ ⟩
+         ; assocˡ∘assocʳ = {!!}
 
-
-            ≈⟨ μ∘μ⁻¹ ◎ (g⁻¹∘g∘f (second⁻¹ μ∘μ⁻¹) ◎ (g⁻¹∘g∘f assocʳ∘assocˡ ◎ (g⁻¹∘g∘f (first⁻¹ μ⁻¹∘μ) ◎ g⁻¹∘g∘f μ⁻¹∘μ))) ⟩
-
-
-            -- ≈⟨ μ∘μ⁻¹ ⊙ second⁻¹ μ∘μ⁻¹ ⊙ assocʳ∘assocˡ ⊙ first⁻¹ μ⁻¹∘μ ⊙ μ⁻¹∘μ ⟩
-
-              id
-            ≈⟨ sym F-id ⟩
-              Fₘ id
-            ∎
-
--}
-
-         ; assocʳ∘assocˡ =
-            begin
-              Fₘ (assocʳ ∘ assocˡ)
-            ≈⟨ F-∘ _ _ ⟩
-              Fₘ assocʳ ∘ Fₘ assocˡ
-            ≈⟨ ∘-resp-≈ F-assocʳ′ F-assocˡ′ ⟩
-              (μ ∘ second μ ∘ assocʳ ∘ first μ⁻¹ ∘ μ⁻¹) ∘ (μ ∘ first μ ∘ assocˡ ∘ second μ⁻¹ ∘ μ⁻¹)
-            ≈⟨ assoc⁵ ⟩
-              μ ∘ second μ ∘ assocʳ ∘ first μ⁻¹ ∘ μ⁻¹ ∘ μ ∘ first μ ∘ assocˡ ∘ second μ⁻¹ ∘ μ⁻¹
-            ≈⟨ ∘-resp-≈ʳ (∘-resp-≈ʳ (∘-resp-≈ʳ (∘-resp-≈ʳ (g⁻¹∘g∘f μ⁻¹∘μ)))) ⟩
-              μ ∘ second μ ∘ assocʳ ∘ first μ⁻¹ ∘ first μ ∘ assocˡ ∘ second μ⁻¹ ∘ μ⁻¹
-            ≈⟨ ∘-resp-≈ʳ (∘-resp-≈ʳ (∘-resp-≈ʳ (g⁻¹∘g∘f (first⁻¹ μ⁻¹∘μ)))) ⟩
-              μ ∘ second μ ∘ assocʳ ∘ assocˡ ∘ second μ⁻¹ ∘ μ⁻¹
-            ≈⟨ ∘-resp-≈ʳ (∘-resp-≈ʳ (g⁻¹∘g∘f assocʳ∘assocˡ)) ⟩
-              μ ∘ second μ ∘ second μ⁻¹ ∘ μ⁻¹
-            ≈⟨ ∘-resp-≈ʳ (g⁻¹∘g∘f (second⁻¹ μ∘μ⁻¹)) ⟩
-              μ ∘ μ⁻¹
-            ≈⟨ μ∘μ⁻¹ ⟩
-              id
-            ≈⟨ sym F-id ⟩
-              Fₘ id
-            ∎
-
-
-         ; assocˡ∘assocʳ =
-            begin
-              Fₘ (assocˡ ∘ assocʳ)
-            ≈⟨ {!!} ⟩
-              Fₘ id
-            ∎
+            -- begin
+            --   Fₘ (assocˡ ∘ assocʳ)
+            -- ≈⟨ F-∘ _ _ ⟩
+            --   Fₘ assocˡ ∘ Fₘ assocʳ
+            -- ≈⟨ ∘-resp-≈ F-assocˡ′ F-assocʳ′ ⟩
+            --   (μ ∘ first μ ∘ assocˡ ∘ second μ⁻¹ ∘ μ⁻¹) ∘
+            --   (μ ∘ second μ ∘ assocʳ ∘ first μ⁻¹ ∘ μ⁻¹)
+            -- ≈⟨ μ∘μ⁻¹
+            --    ◎ g⁻¹∘g∘f (first⁻¹ μ∘μ⁻¹)
+            --      ◎ g⁻¹∘g∘f assocˡ∘assocʳ
+            --        ◎ g⁻¹∘g∘f (second⁻¹ μ⁻¹∘μ)
+            --          ◎ g⁻¹∘g∘f μ⁻¹∘μ ⟩
+            --   id
+            -- ≈⟨ sym F-id ⟩
+            --   Fₘ id
+            -- ∎
 
          ; assocˡ∘⊗ = λ {a a′ b b′ c c′} {f g h} → 
             begin
               Fₘ (assocˡ ∘ (f ⊗ (g ⊗ h)))
+            -- ≈⟨ F-∘ _ _ ⟩
+            --   Fₘ assocˡ ∘ Fₘ (f ⊗ (g ⊗ h))
+            -- ≈⟨ ∘-resp-≈ F-assocˡ′ (F-⊗′ _ _) ⟩
+            --   (μ ∘ first μ ∘ assocˡ ∘ second μ⁻¹ ∘ μ⁻¹) ∘
+            --   (μ ∘ (Fₘ f ⊗ Fₘ (g ⊗ h)) ∘ μ⁻¹)
+            -- ≈⟨ ∘-resp-≈ʳ {!!} ⟩
+            --   (μ ∘ first μ ∘ assocˡ ∘ second μ⁻¹ ∘ μ⁻¹) ∘
+            --   (μ ∘ (Fₘ f ⊗ μ ∘ (Fₘ g ⊗ Fₘ h) ∘ μ⁻¹) ∘ μ⁻¹)
+            -- ≈⟨ ∘-resp-≈ʳ {!!} ⟩
+            --   (μ ∘ first μ ∘ assocˡ ∘ second μ⁻¹ ∘ μ⁻¹) ∘
+            --   (μ ∘ (Fₘ f ⊗ (μ ∘ (Fₘ g ⊗ Fₘ h) ∘ μ⁻¹)) ∘ μ⁻¹)
+            -- ≈⟨ {!!} ⟩
+            --   μ ∘ first μ ∘ assocˡ ∘ second μ⁻¹ ∘ μ⁻¹ ∘
+            --   μ ∘ (Fₘ f ⊗ (μ ∘ (Fₘ g ⊗ Fₘ h) ∘ μ⁻¹)) ∘ μ⁻¹
+            -- ≈⟨ {!!} ⟩
+            --   μ ∘ first μ ∘ assocˡ ∘ second μ⁻¹ ∘
+            --   (Fₘ f ⊗ (μ ∘ (Fₘ g ⊗ Fₘ h) ∘ μ⁻¹)) ∘ μ⁻¹
             ≈⟨ {!!} ⟩
+              μ ∘ first μ ∘ assocˡ ∘
+              (Fₘ f ⊗ (Fₘ g ⊗ Fₘ h) ∘ μ⁻¹) ∘ μ⁻¹
+
+            -- I don't know where to go from here. I deviated from the usual
+            -- monoidal category laws, and maybe the property doesn't hold.
+            ≈˘⟨ {!!} ⟩
+
+              μ ∘ (μ ∘ (Fₘ f ⊗ Fₘ g) ⊗ Fₘ h) ∘
+              assocˡ ∘ second μ⁻¹ ∘ μ⁻¹
+            -- ≈˘⟨ {!!} ⟩
+            --   μ ∘ (μ ∘ (Fₘ f ⊗ Fₘ g) ∘ μ⁻¹ ⊗ Fₘ h) ∘
+            --   first μ ∘ assocˡ ∘ second μ⁻¹ ∘ μ⁻¹
+            -- ≈˘⟨ {!!} ⟩
+            --   μ ∘ (μ ∘ (Fₘ f ⊗ Fₘ g) ∘ μ⁻¹ ⊗ Fₘ h) ∘ μ⁻¹ ∘
+            --   μ ∘ first μ ∘ assocˡ ∘ second μ⁻¹ ∘ μ⁻¹
+            -- ≈˘⟨ {!!} ⟩
+            --   (μ ∘ (μ ∘ (Fₘ f ⊗ Fₘ g) ∘ μ⁻¹ ⊗ Fₘ h) ∘ μ⁻¹) ∘
+            --   (μ ∘ first μ ∘ assocˡ ∘ second μ⁻¹ ∘ μ⁻¹)
+            -- ≈˘⟨ ∘-resp-≈ˡ (∘-resp-≈ʳ (∘-resp-≈ˡ (⊗-resp-≈ˡ (F-⊗′ _ _)))) ⟩
+            --   (μ ∘ (Fₘ (f ⊗ g) ⊗ Fₘ h) ∘ μ⁻¹) ∘
+            --   (μ ∘ first μ ∘ assocˡ ∘ second μ⁻¹ ∘ μ⁻¹)
+            -- ≈˘⟨ ∘-resp-≈ (F-⊗′ _ _) F-assocˡ′ ⟩
+            --   Fₘ ((f ⊗ g) ⊗ h) ∘ Fₘ assocˡ
+            -- ≈˘⟨ F-∘ _ _ ⟩
               Fₘ (((f ⊗ g) ⊗ h) ∘ assocˡ)
             ∎
- 
-         ; assocʳ∘⊗ = λ {a a′ b b′ c c′} {f g h} → 
-            begin
-              Fₘ (assocʳ ∘ ((f ⊗ g) ⊗ h))
-            ≈⟨ {!!} ⟩
-              Fₘ ((f ⊗ (g ⊗ h)) ∘ assocʳ)
-            ∎
+
+
+         ; assocʳ∘⊗ = λ {a a′ b b′ c c′} {f g h} → {!!}
+
+            -- begin
+            --   Fₘ (assocʳ ∘ ((f ⊗ g) ⊗ h))
+            -- ≈⟨ {!!} ⟩
+            --   Fₘ ((f ⊗ (g ⊗ h)) ∘ assocʳ)
+            -- ∎
 
          ; ⊗-resp-≈ = λ f≈h g≈k → {!!}
 
