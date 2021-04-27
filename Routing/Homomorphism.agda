@@ -95,13 +95,6 @@ swizzle-∘ g f {a} =
           → g ≗ h → g ∘′ f ≗ h ∘′ f
        ≗∘ g h f g≗h x = g≗h (f x)
 
-swiz⊗ : (f : TyIx C → TyIx A) (g : TyIx D → TyIx B) → TyIx (C × D) → TyIx (A × B)
-swiz⊗ f g = λ { (left x) → left (f x) ; (right x) → right (g x) }
-
-swizzle-⊗ : (f : TyIx C → TyIx A) (g : TyIx D → TyIx B) {p : ⟦ A ⟧ᵗ × ⟦ B ⟧ᵗ}
-          → swizzle (swiz⊗ f g) p ≡ (swizzle f ⊗ swizzle g) p
-swizzle-⊗ f g {a , b} = refl≡
-
 open ≈-Reasoning
 
 instance
@@ -150,9 +143,6 @@ instance
     ; F-exr = λ _ → swizzle-id
     ; F-dup = λ _ → swizzle-id
     }
-
-  -- lawful-category : LawfulCategory _⇨_ 0ℓ
-  -- lawful-category = LawfulCategoryᶠ categoryH
 
 -- ⟦_⟧′ : A ⇨ B → ∀ {X} → TyF X A → TyF X B
 -- ⟦ mk f ⟧′ = swizzle′ f
