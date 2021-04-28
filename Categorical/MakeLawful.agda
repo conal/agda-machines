@@ -31,13 +31,13 @@ private
     a′ b′ c′ d′ e′ : obj
 
 LawfulCategoryᶠ : {obj₁ : Set o₁} {_⇨₁_ : obj₁ → obj₁ → Set ℓ₁}
-                  {obj₂ : Set o₂} {_⇨₂_ : obj₂ → obj₂ → Set ℓ₂}
+                  {obj₂ : Set o₂} (_⇨₂_ : obj₂ → obj₂ → Set ℓ₂)
                   {q : Level} ⦃ _ : Equivalent q _⇨₂_ ⦄
                   ⦃ _ : Category _⇨₁_ ⦄ ⦃ _ : Category _⇨₂_ ⦄
                   ⦃ _ : LawfulCategory _⇨₂_ q ⦄
                   ⦃ _ : Homomorphismₒ obj₁ obj₂ ⦄
                   ⦃ H : Homomorphism _⇨₁_ _⇨₂_ ⦄
-                  (F : CategoryH _⇨₁_ _⇨₂_ q)
+                  ⦃ F : CategoryH _⇨₁_ _⇨₂_ q ⦄
                 → LawfulCategory _⇨₁_ q ⦃ equiv = H-equiv H ⦄
 LawfulCategoryᶠ F = record
   { identityˡ = λ {a b} {f} →
@@ -85,7 +85,6 @@ LawfulCategoryᶠ F = record
         Fₘ (k ∘ g)
       ∎
   }
- where open CategoryH F
 
 {-
 

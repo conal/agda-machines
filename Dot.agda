@@ -23,7 +23,6 @@ import Routing.Homomorphism as rh
 open import Routing.Functor renaming (map to mapᵀ)
 open import Linearize.Raw t._⇨_ p._⇨_ r._⇨_ 0ℓ as k using (_∘·first_∘_; ⌞_⌟; ⟦_⟧ₖ)
 
-open Homomorphismₒ (id-Hₒ {obj = Ty})
 open Homomorphism ty-hom.H renaming (Fₘ to ⟦_⟧ₜ)
 open Homomorphism rh.H     renaming (Fₘ to ⟦_⟧ᵣ)
 
@@ -81,6 +80,7 @@ oport compName o = compName ++ ":Out" ++ showIx o
 module _ {s} (stateF₀ : ⊤ k.⇨ s) where
 
   state₀ : ⟦ s ⟧ᵗ
+  -- state₀ = Fₘ {_⇨₁_ = t._⇨_}{_⇨₂_ = Function } (Fₘ { _⇨₁_ = k._⇨_}{_⇨₂_ = t._⇨_ } stateF₀) tt
   state₀ = ⟦ ⟦ stateF₀ ⟧ₖ ⟧ₜ tt
   
   reg : TyIx a → String

@@ -9,10 +9,7 @@ open import Categorical.MakeLawful
 
 open import Categorical.Instances.Function
 
--- TODO: Replace these three imports with "open import Ty hiding (_⇨_)"
-open import Ty.Raw using (module ty-instances)
-open import Ty.Homomorphism
-open import Ty.Laws
+open import Ty renaming (_⇨_ to _⇨ₜ_)
 
 open import Routing.Raw
 open import Routing.Homomorphism
@@ -22,7 +19,7 @@ module routing-laws where
   instance
 
     lawful-category : LawfulCategory _⇨_ 0ℓ
-    lawful-category = LawfulCategoryᶠ categoryH
+    lawful-category = LawfulCategoryᶠ _⇨ₜ_
 
     -- lawful-monoidal : LawfulMonoidal _⇨_ 0ℓ
     -- lawful-monoidal = LawfulMonoidalᶠ monoidalH

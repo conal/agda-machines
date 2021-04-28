@@ -35,14 +35,6 @@ module Linearize.Raw {ℓₘ}{objₘ : Set ℓₘ} ⦃ _ : Products objₘ ⦄
 
 private variable a b c d z : obj
 
-open Homomorphismₒ Hₒ -- using () renaming (Fₒ to ⟦_⟧ₒ)
-open ProductsH productsH
-
-open Homomorphism Hₚ using () renaming (Fₘ to ⟦_⟧ₚ)
-open Homomorphism Hᵣ using () renaming (Fₘ to ⟦_⟧ᵣ)
-
--- TODO: reconsider having these homomorphism classes open in Category
-
 infix 0 _⇨_
 infixr 9 _∘·first_∘_
 data _⇨_ : obj → obj → Set ℓ where
@@ -82,8 +74,8 @@ secondₖ f = swapₖ ∘ₖ firstₖ f ∘ₖ swapₖ
 -- first′ f = subst₂′ _⇨ₘ_ F-× F-× (first f)
 
 ⟦_⟧ₖ : (a ⇨ b) → (Fₒ a ⇨ₘ Fₒ b)
-⟦ ⌞ r ⌟ ⟧ₖ = ⟦ r ⟧ᵣ
-⟦ f ∘·first p ∘ r ⟧ₖ = ⟦ f ⟧ₖ ∘ μ ∘ first ⟦ p ⟧ₚ ∘ μ⁻¹ ∘ ⟦ r ⟧ᵣ
+⟦ ⌞ r ⌟ ⟧ₖ = Fₘ r
+⟦ f ∘·first p ∘ r ⟧ₖ = ⟦ f ⟧ₖ ∘ μ ∘ first (Fₘ p) ∘ μ⁻¹ ∘ Fₘ r
 
 -- TODO: when proofs are done, consider localizing _∘ₖ_, firstₖ, and secondₖ
 
@@ -120,126 +112,3 @@ instance
             ; xor   = prim xor
             ; cond  = prim cond
             }
-
-
-{-
-
-open ≈-Reasoning
-
-infixr 9 _⟦∘⟧_
-_⟦∘⟧_ : ∀ (g : b ⇨ c) (f : a ⇨ b) → ⟦ g ∘ f ⟧ₖ ≈ ⟦ g ⟧ₖ ∘ ⟦ f ⟧ₖ
-
-g ⟦∘⟧ (f ∘·first p ∘ r) =
-  begin
-    ⟦ g ∘ (f ∘·first p ∘ r) ⟧ₖ
-  ≡⟨⟩
-    ⟦ (g ∘ f) ∘·first p ∘ r ⟧ₖ
-  ≡⟨⟩
-    ⟦ g ∘ f ⟧ₖ ∘ firstᴴ ⟦ p ⟧ₚ ∘ ⟦ r ⟧ᵣ
-  ≈⟨ ∘-resp-≈ˡ (g ⟦∘⟧ f) ⟩
-    (⟦ g ⟧ₖ ∘ ⟦ f ⟧ₖ) ∘ firstᴴ ⟦ p ⟧ₚ ∘ ⟦ r ⟧ᵣ
-  ≈⟨ assoc ⟩
-    ⟦ g ⟧ₖ ∘ (⟦ f ⟧ₖ ∘ firstᴴ ⟦ p ⟧ₚ ∘ ⟦ r ⟧ᵣ)
-  ≡⟨⟩
-    ⟦ g ⟧ₖ ∘ ⟦ f ∘·first p ∘ r ⟧ₖ
-  ∎
-
-(g ∘·first p ∘ r₂) ⟦∘⟧ ⌞ r₁ ⌟ =
-  begin
-    ⟦ (g ∘·first p ∘ r₂) ∘ ⌞ r₁ ⌟ ⟧ₖ
-  ≡⟨⟩
-    ⟦ g ∘·first p ∘ (r₂ ∘ r₁) ⟧ₖ
-  ≡⟨⟩
-    ⟦ g ⟧ₖ ∘ firstᴴ ⟦ p ⟧ₚ ∘ ⟦ r₂ ∘ r₁ ⟧ᵣ
-  ≈⟨ ∘-resp-≈ʳ (∘-resp-≈ʳ (F-∘ r₂ r₁)) ⟩
-    ⟦ g ⟧ₖ ∘ (firstᴴ ⟦ p ⟧ₚ ∘ (⟦ r₂ ⟧ᵣ ∘ ⟦ r₁ ⟧ᵣ))
-  ≈˘⟨ ∘-resp-≈ʳ assoc ⟩
-    ⟦ g ⟧ₖ ∘ ((firstᴴ ⟦ p ⟧ₚ ∘ ⟦ r₂ ⟧ᵣ) ∘ ⟦ r₁ ⟧ᵣ)
-  ≈˘⟨ assoc ⟩
-    (⟦ g ⟧ₖ ∘ (firstᴴ ⟦ p ⟧ₚ ∘ ⟦ r₂ ⟧ᵣ)) ∘ ⟦ r₁ ⟧ᵣ
-  ≡⟨⟩
-    ⟦ g ∘·first p ∘ r₂ ⟧ₖ ∘ ⟦ ⌞ r₁ ⌟ ⟧ₖ
-  ∎
-
-⌞ r₂ ⌟ ⟦∘⟧ ⌞ r₁ ⌟ = F-∘ r₂ r₁
-
-instance
-
-  categoryH : CategoryH _⇨_ _⇨ₘ_ q
-  categoryH = record { F-id = F-id ; F-∘ = _⟦∘⟧_ }  -- F-id from monoidalHᵣ
-
-  lawful-category : LawfulCategory _⇨_ q ⦃ equiv = equivalent ⦄
-  lawful-category = LawfulCategoryᶠ categoryH
-
-{-
-
-⟦first⟧ : {b : obj} (f : a ⇨ c) → ⟦ firstₖ {b = b} f ⟧ₖ ≈ firstᴴ ⟦ f ⟧ₖ
-⟦first⟧ ⌞ r ⌟ = F-first r
-⟦first⟧ (f ∘·first p ∘ r) =
-  begin
-    ⟦ firstₖ (f ∘·first p ∘ r) ⟧ₖ
-  ≡⟨⟩
-    ⟦ (firstₖ f ∘ ⌞ assocˡ ⌟) ∘·first p ∘ (assocʳ ∘ first r) ⟧ₖ
-  ≡⟨⟩
-    ⟦ firstₖ f ∘ ⌞ assocˡ ⌟ ⟧ₖ ∘ firstᴴ ⟦ p ⟧ₚ ∘ ⟦ assocʳ ∘ first r ⟧ᵣ
-  ≈⟨ ∘-resp-≈ {_⇨′_ = _⇨ₘ_} (firstₖ f ⟦∘⟧ ⌞ assocˡ ⌟)
-        (∘-resp-≈ʳ {_⇨′_ = _⇨ₘ_} (F-∘ assocʳ (first r))) ⟩
-    (⟦ firstₖ f ⟧ₖ ∘ ⟦ assocˡ ⟧ᵣ) ∘ firstᴴ ⟦ p ⟧ₚ ∘ (⟦ assocʳ ⟧ᵣ ∘ ⟦ first r ⟧ᵣ)
-  ≈˘⟨ ∘-resp-≈ʳ {_⇨′_ = _⇨ₘ_} (assoc {_⇨′_ = _⇨ₘ_}) ⟩
-    (⟦ firstₖ f ⟧ₖ ∘ ⟦ assocˡ ⟧ᵣ) ∘ (firstᴴ ⟦ p ⟧ₚ ∘ ⟦ assocʳ ⟧ᵣ) ∘ ⟦ first r ⟧ᵣ
-  ≈⟨ assoc {_⇨′_ = _⇨ₘ_} ⟩
-    ⟦ firstₖ f ⟧ₖ ∘ ⟦ assocˡ ⟧ᵣ ∘ (firstᴴ ⟦ p ⟧ₚ ∘ ⟦ assocʳ ⟧ᵣ) ∘ ⟦ first r ⟧ᵣ
-  ≈˘⟨ ∘-resp-≈ʳ {_⇨′_ = _⇨ₘ_} (assoc {_⇨′_ = _⇨ₘ_}) ⟩
-    ⟦ firstₖ f ⟧ₖ ∘ (⟦ assocˡ ⟧ᵣ ∘ firstᴴ ⟦ p ⟧ₚ ∘ ⟦ assocʳ ⟧ᵣ) ∘ ⟦ first r ⟧ᵣ
-  ≈⟨ ∘-resp-≈ʳ {_⇨′_ = _⇨ₘ_} (∘-resp-≈ {_⇨′_ = _⇨ₘ_} (∘-resp-≈ {_⇨′_ = _⇨ₘ_} F-assocˡ (∘-resp-≈ʳ {_⇨′_ = _⇨ₘ_} F-assocʳ)) (F-first r)) ⟩
-    ⟦ firstₖ f ⟧ₖ ∘ (assocᴴˡ ∘ firstᴴ ⟦ p ⟧ₚ ∘ assocᴴʳ) ∘ firstᴴ ⟦ r ⟧ᵣ
-  ≈⟨ ∘-resp-≈ʳ (∘-resp-≈ˡ {!!}) ⟩
-    firstᴴ ⟦ f ⟧ₖ ∘ firstᴴ (firstᴴ ⟦ p ⟧ₚ) ∘ firstᴴ ⟦ r ⟧ᵣ
-  ≈⟨ ∘-resp-≈ʳ {_⇨′_ = _⇨ₘ_} first∘firstᴴ ⟩
-    firstᴴ ⟦ f ⟧ₖ ∘ firstᴴ (firstᴴ ⟦ p ⟧ₚ ∘ ⟦ r ⟧ᵣ)
-  ≈⟨ first∘firstᴴ ⟩
-    firstᴴ (⟦ f ⟧ₖ ∘ firstᴴ ⟦ p ⟧ₚ ∘ ⟦ r ⟧ᵣ)
-  ≡⟨⟩
-    firstᴴ ⟦ f ∘·first p ∘ r ⟧ₖ
-  ∎
-
-⟦second⟧ : (g : b ⇨ d) → ⟦ secondₖ {a = a} g ⟧ₖ ≈ secondᴴ ⟦ g ⟧ₖ
-⟦second⟧ g = {!!}
-
-infixr 7 _⟦⊗⟧_
-_⟦⊗⟧_ : ∀ (f : a ⇨ c) (g : b ⇨ d) → ⟦ f ⊗ g ⟧ₖ ≈ ⟦ f ⟧ₖ ⊗ᴴ ⟦ g ⟧ₖ
-
-f ⟦⊗⟧ g =
-  begin
-    ⟦ f ⊗ g ⟧ₖ
-  ≡⟨⟩
-    ⟦ secondₖ g ∘ firstₖ f ⟧ₖ
-  ≈⟨ secondₖ g ⟦∘⟧ firstₖ f ⟩
-    ⟦ secondₖ g ⟧ₖ ∘ ⟦ firstₖ f ⟧ₖ
-    ≈⟨ ∘-resp-≈ {_⇨′_ = _⇨ₘ_} (⟦second⟧ g) (⟦first⟧ f) ⟩
-    secondᴴ ⟦ g ⟧ₖ ∘ firstᴴ ⟦ f ⟧ₖ
-  ≈⟨ second∘firstᴴ ⟩
-    ⟦ f ⟧ₖ ⊗ᴴ ⟦ g ⟧ₖ
-  ∎
-
-instance
-
-  -- Most properties transfer from monoidalHᵣ.
-  monoidalH : MonoidalH _⇨_ _⇨ₘ_ q
-  monoidalH = record
-                { F-!        = F-!
-                ; F-⊗        = _⟦⊗⟧_
-                ; F-unitorᵉˡ = F-unitorᵉˡ
-                ; F-unitorⁱˡ = F-unitorⁱˡ
-                ; F-unitorᵉʳ = F-unitorᵉʳ
-                ; F-unitorⁱʳ = F-unitorⁱʳ
-                ; F-assocˡ   = F-assocˡ
-                ; F-assocʳ   = F-assocʳ
-                }
-
-  lawful-monoidal : LawfulMonoidal _⇨_ q ⦃ equiv = equivalent ⦄
-  lawful-monoidal = LawfulMonoidalᶠ monoidalH
-
--}
-
--}

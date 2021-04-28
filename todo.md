@@ -1,7 +1,5 @@
 ## To do
 
-*   Infix alternative for `trans`.
-    Can I use categorical language?
 *   Revisit uses of `swizzle-id`.
     Can I refer to the routing category instead?
 *   Define some utilities to capture common method definitions, including most of `Monoidal` using routings.
@@ -72,6 +70,8 @@
 
 ## Did
 
+*   Infix alternative for `trans`.
+    I defined a category, but there's too much instance overlap to be useful.
 *   Fix uses of `tt` in modules importing `Data.Unit.Polymorphic`.
     Define a `tt` pattern somewhere and use it instead of a misleading variable name.
 *   Introduce `Functor`.

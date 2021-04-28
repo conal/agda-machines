@@ -34,7 +34,7 @@ module routing-laws where
     equivalent = H-equiv homomorphism
 
     lawful-category : LawfulCategory _⇨_ q
-    lawful-category = LawfulCategoryᶠ categoryH
+    lawful-category = LawfulCategoryᶠ _⇨ₘ_
 
     -- lawful-monoidal : LawfulMonoidal _⇨_ 0ℓ
     -- lawful-monoidal = LawfulMonoidalᶠ monoidalH

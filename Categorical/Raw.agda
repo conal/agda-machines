@@ -153,8 +153,8 @@ record Logic {obj : Set o} ⦃ _ : Products obj ⦄ ⦃ _ : Boolean obj ⦄
     not : Bool ⇨ Bool
     ∧ ∨ xor : Bool × Bool ⇨ Bool
     cond : Bool × (a × a) ⇨ a
-open Logic ⦃ … ⦄ public
 
+open Logic ⦃ … ⦄ public
 
 
 import Data.String as S
@@ -164,6 +164,7 @@ open S using (String)
 record Show (A : Set o) : Set (lsuc o) where
   field
     show : A → String
+
 open Show ⦃ … ⦄ public
 
 instance
@@ -253,6 +254,8 @@ open Equivalent ⦃ … ⦄ public
 record Homomorphismₒ (obj₁ : Set o₁) (obj₂ : Set o₂) : Set (o₁ ⊔ o₂) where
   field
     Fₒ : obj₁ → obj₂
+
+open Homomorphismₒ ⦃ … ⦄ public
 
 id-Hₒ : Homomorphismₒ obj obj
 id-Hₒ = record { Fₒ = id′ }

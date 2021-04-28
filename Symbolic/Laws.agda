@@ -9,14 +9,14 @@ open import Categorical.MakeLawful
 
 open import Symbolic.Raw using (_⇨_)
 open import Symbolic.Homomorphism
-import Ty
+open import Ty renaming (_⇨_ to _⇨ₜ_)
 
-module ty-laws where
+module symbolic-laws where
 
   instance
 
     lawful-category : LawfulCategory _⇨_ 0ℓ
-    lawful-category = LawfulCategoryᶠ categoryH
+    lawful-category = LawfulCategoryᶠ _⇨ₜ_
 
     -- lawful-monoidal : LawfulMonoidal _⇨_ 0ℓ
     -- lawful-monoidal = LawfulMonoidalᶠ monoidalH

@@ -34,11 +34,10 @@ record Homomorphism
   {obj₂ : Set o₂} (_⇨₂_ : obj₂ → obj₂ → Set ℓ₂)
   ⦃ Hₒ : Homomorphismₒ obj₁ obj₂ ⦄
   : Set (o₁ ⊔ ℓ₁ ⊔ o₂ ⊔ ℓ₂) where
-  open Homomorphismₒ Hₒ public
   field
     Fₘ : (a ⇨₁ b) → (Fₒ a ⇨₂ Fₒ b)
 
--- open Homomorphism ⦃ … ⦄ public  -- yes or no?
+open Homomorphism ⦃ … ⦄ public
 
 H-equiv : {obj₁ : Set o₁} {_⇨₁_ : obj₁ → obj₁ → Set ℓ₁}
           {obj₂ : Set o₂} {_⇨₂_ : obj₂ → obj₂ → Set ℓ₂}
@@ -57,38 +56,30 @@ record CategoryH {obj₁ : Set o₁} (_⇨₁_ : obj₁ → obj₁ → Set ℓ�
                  ⦃ _ : Homomorphismₒ obj₁ obj₂ ⦄
                  ⦃ H : Homomorphism _⇨₁_ _⇨₂_ ⦄
        : Set (o₁ ⊔ ℓ₁ ⊔ o₂ ⊔ ℓ₂ ⊔ q) where
-  open Homomorphism H public
   field
-    F-id : Fₘ {a = a} id ≈ id
+    F-id : Fₘ (id {_⇨_ = _⇨₁_}{a = a}) ≈ id
     F-∘  : ∀ (g : b ⇨₁ c) (f : a ⇨₁ b) → Fₘ (g ∘ f) ≈ Fₘ g ∘ Fₘ f
 
--- open CategoryH ⦃ … ⦄ public
-
--- I don't know whether to open CategoryH and use it with instances or keep it
--- closed and open explicitly where used. I guess the main question is whether
--- we'll usually have a single special CategoryH instance per pairs of
--- categories or not. For now, keep it explicit, and see what we learn.
+open CategoryH ⦃ … ⦄ public
 
 
 record ProductsH
     {obj₁ : Set o₁} ⦃ _ : Products obj₁ ⦄ (_⇨₁′_ : obj₁ → obj₁ → Set ℓ₁)
     {obj₂ : Set o₂} ⦃ _ : Products obj₂ ⦄ (_⇨₂′_ : obj₂ → obj₂ → Set ℓ₂)
     q ⦃ equiv₂ : Equivalent q _⇨₂′_ ⦄
-    -- ⦃ cat₁ : Category _⇨₁′_ ⦄
     ⦃ cat₂ : Category _⇨₂′_ ⦄
     ⦃ Hₒ : Homomorphismₒ obj₁ obj₂ ⦄
     : Set (o₁ ⊔ ℓ₁ ⊔ o₂ ⊔ ℓ₂ ⊔ q) where
   private infix 0 _⇨₁_; _⇨₁_ = _⇨₁′_
   private infix 0 _⇨₂_; _⇨₂_ = _⇨₂′_
-  open Homomorphismₒ Hₒ -- public
   field
     -- https://ncatlab.org/nlab/show/monoidal+functor
     ε : ⊤ ⇨₂ Fₒ ⊤
-    μ : Fₒ a × Fₒ b ⇨₂ Fₒ (a × b)
+    μ : {a b : obj₁} → Fₒ a × Fₒ b ⇨₂ Fₒ (a × b)
 
     -- *Strong*
     ε⁻¹ : Fₒ ⊤ ⇨₂ ⊤
-    μ⁻¹ : Fₒ (a × b) ⇨₂ Fₒ a × Fₒ b
+    μ⁻¹ : {a b : obj₁} → Fₒ (a × b) ⇨₂ Fₒ a × Fₒ b
 
     ε∘ε⁻¹ : ε ∘ ε⁻¹ ≈ id
     ε⁻¹∘ε : ε⁻¹ ∘ ε ≈ id
@@ -97,6 +88,8 @@ record ProductsH
     μ⁻¹∘μ : μ⁻¹{a}{b} ∘ μ ≈ id
 
     -- TODO: Package as isomorphisms.
+
+open ProductsH ⦃ … ⦄ public
 
 id-productsH :
     {obj : Set o} ⦃ _ : Products obj ⦄ {_⇨₁_ : obj → obj → Set ℓ₁}
@@ -128,25 +121,24 @@ record MonoidalH
   private infix 0 _⇨₁_; _⇨₁_ = _⇨₁′_
   private infix 0 _⇨₂_; _⇨₂_ = _⇨₂′_
   field
-    ⦃ -categoryH ⦄ : CategoryH _⇨₁_ _⇨₂_ q
-  open CategoryH -categoryH public
-  open ProductsH pH public
-  -- open Homomorphismₒ Hₒ
+    ⦃ monoidal-categoryH ⦄ : CategoryH _⇨₁_ _⇨₂_ q
 
   field
-    F-unitorᵉˡ : Fₘ unitorᵉˡ ∘ μ{⊤}{a} ∘ first  ε ≈ unitorᵉˡ
-    F-unitorⁱˡ : Fₘ unitorⁱˡ ≈ μ{⊤}{a} ∘ first  ε ∘ unitorⁱˡ
-    F-unitorᵉʳ : Fₘ unitorᵉʳ ∘ μ{a}{⊤} ∘ second ε ≈ unitorᵉʳ
-    F-unitorⁱʳ : Fₘ unitorⁱʳ ≈ μ{a}{⊤} ∘ second ε ∘ unitorⁱʳ
+    F-unitorᵉˡ : {a b : obj₁} → Fₘ unitorᵉˡ ∘ μ{a = ⊤}{a} ∘ first  ε ≈ unitorᵉˡ
+    F-unitorⁱˡ : {a b : obj₁} → Fₘ unitorⁱˡ ≈ μ{a = ⊤}{a} ∘ first  ε ∘ unitorⁱˡ
+    F-unitorᵉʳ : {a b : obj₁} → Fₘ unitorᵉʳ ∘ μ{a = a}{⊤} ∘ second ε ≈ unitorᵉʳ
+    F-unitorⁱʳ : {a b : obj₁} → Fₘ unitorⁱʳ ≈ μ{a = a}{⊤} ∘ second ε ∘ unitorⁱʳ
 
-    F-assocˡ :
-      Fₘ assocˡ ∘ μ{a}{b × c} ∘ second μ ≈ μ{a × b}{c} ∘ first  μ ∘ assocˡ
-    F-assocʳ :
-      Fₘ assocʳ ∘ μ{a × b}{c} ∘ first  μ ≈ μ{a}{b × c} ∘ second μ ∘ assocʳ
+    F-assocˡ : {a b c : obj₁} → 
+      Fₘ assocˡ ∘ μ{a = a}{b × c} ∘ second μ ≈ μ ∘ first  μ ∘ assocˡ
+    F-assocʳ : {a b c : obj₁} → 
+      Fₘ assocʳ ∘ μ{a = a × b}{c} ∘ first  μ ≈ μ{a = a}{b × c} ∘ second μ ∘ assocʳ
 
     -- Are the next two properties theorems? I don't see them on nlab.
-    F-! : Fₘ {a} ! ≈ ε ∘ !
+    F-! : Fₘ {_⇨₁_ = _⇨₁_}{a = a} ! ≈ ε ∘ !
     F-⊗ : ∀ (f : a ⇨₁ c)(g : b ⇨₁ d) → Fₘ (f ⊗ g) ∘ μ ≈ μ ∘ (Fₘ f ⊗ Fₘ g)
+
+open MonoidalH ⦃ … ⦄ public
 
 
 record BraidedH {obj₁ : Set o₁} (_⇨₁′_ : obj₁ → obj₁ → Set ℓ₁)
@@ -161,11 +153,11 @@ record BraidedH {obj₁ : Set o₁} (_⇨₁′_ : obj₁ → obj₁ → Set ℓ
   private infix 0 _⇨₁_; _⇨₁_ = _⇨₁′_
   private infix 0 _⇨₂_; _⇨₂_ = _⇨₂′_
   field
-    ⦃ monoidalH ⦄ : MonoidalH _⇨₁_ _⇨₂_ q
-  -- open ProductsH pH
-  open MonoidalH monoidalH public
+    ⦃ braided-monoidalH ⦄ : MonoidalH _⇨₁_ _⇨₂_ q
   field
-    F-swap : Fₘ swap ∘ μ{a}{b} ≈ μ{b}{a} ∘ swap
+    F-swap : {a b : obj₁} → Fₘ swap ∘ μ{a = a}{b} ≈ μ{a = b}{a} ∘ swap
+
+open BraidedH ⦃ … ⦄ public
 
 record CartesianH {obj₁ : Set o₁} (_⇨₁′_ : obj₁ → obj₁ → Set ℓ₁)
                   {obj₂ : Set o₂} (_⇨₂′_ : obj₂ → obj₂ → Set ℓ₂)
@@ -179,13 +171,13 @@ record CartesianH {obj₁ : Set o₁} (_⇨₁′_ : obj₁ → obj₁ → Set �
   private infix 0 _⇨₁_; _⇨₁_ = _⇨₁′_
   private infix 0 _⇨₂_; _⇨₂_ = _⇨₂′_
   field
-    ⦃ braidedH ⦄ : BraidedH _⇨₁_ _⇨₂_ q
-  -- open ProductsH pH
-  open BraidedH braidedH public
+    ⦃ cartesian-braidedH ⦄ : BraidedH _⇨₁_ _⇨₂_ q
   field
-    F-exl : Fₘ exl ∘ μ{a}{b} ≈ exl
-    F-exr : Fₘ exr ∘ μ{a}{b} ≈ exr
-    F-dup : Fₘ dup ≈ μ{a}{a} ∘ dup
+    F-exl : {a b : obj₁} → Fₘ exl ∘ μ{a = a}{b} ≈ exl
+    F-exr : {a b : obj₁} → Fₘ exr ∘ μ{a = a}{b} ≈ exr
+    F-dup : {a b : obj₁} → Fₘ dup ≈ μ{a = a}{a} ∘ dup
+
+open CartesianH ⦃ … ⦄ public
 
 
 record BooleanH
@@ -193,11 +185,12 @@ record BooleanH
     {obj₂ : Set o₂} ⦃ _ : Boolean obj₂ ⦄ (_⇨₂′_ : obj₂ → obj₂ → Set ℓ₂)
     ⦃ Hₒ : Homomorphismₒ obj₁ obj₂ ⦄
     : Set (o₁ ⊔ ℓ₁ ⊔ o₂ ⊔ ℓ₂) where
-  open Homomorphismₒ Hₒ public
   private infix 0 _⇨₁_; _⇨₁_ = _⇨₁′_
   private infix 0 _⇨₂_; _⇨₂_ = _⇨₂′_
   field
     β : Bool ⇨₂ Fₒ Bool
+
+open BooleanH ⦃ … ⦄ public
 
 id-booleanH : {obj : Set o} ⦃ _ : Boolean obj ⦄
               {_⇨₁_ : obj → obj → Set ℓ₁} {_⇨₂_ : obj → obj → Set ℓ₂}
@@ -219,9 +212,6 @@ record LogicH
   : Set (o₁ ⊔ ℓ₁ ⊔ o₂ ⊔ ℓ₂ ⊔ q) where
   private infix 0 _⇨₁_; _⇨₁_ = _⇨₁′_
   private infix 0 _⇨₂_; _⇨₂_ = _⇨₂′_
-  open Homomorphism H public
-  open ProductsH pH
-  open BooleanH  bH
 
   field
     F-false : Fₘ false ∘ ε ≈ β ∘ false
@@ -230,3 +220,5 @@ record LogicH
     F-∧     : Fₘ ∧   ∘ μ ∘ (β ⊗ β) ≈ β ∘ ∧
     F-∨     : Fₘ ∨   ∘ μ ∘ (β ⊗ β) ≈ β ∘ ∨
     F-xor   : Fₘ xor ∘ μ ∘ (β ⊗ β) ≈ β ∘ xor
+
+open LogicH ⦃ … ⦄ public
