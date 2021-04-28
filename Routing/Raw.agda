@@ -9,39 +9,39 @@ open import Categorical.Raw
 open import Categorical.Instances.Function.Raw
 open import Ty.Raw renaming (_⇨_ to _⇨ₜ_)
 
-private variable A B C D : Ty
+private variable a b c d : Ty
 
 -- Index of a bit in a type
 data TyIx : Ty → Set where
   here : TyIx Bool
-  left  : TyIx A → TyIx (A × B)
-  right : TyIx B → TyIx (A × B)
+  left  : TyIx a → TyIx (a × b)
+  right : TyIx b → TyIx (a × b)
 
-swapIx : TyIx (B × A) → TyIx (A × B)
+swapIx : TyIx (b × a) → TyIx (a × b)
 swapIx (left x) = right x
 swapIx (right x) = left x
 
-assocIxʳ : TyIx (A × (B × C)) → TyIx ((A × B) × C)
+assocIxʳ : TyIx (a × (b × c)) → TyIx ((a × b) × c)
 assocIxʳ (left x) = left (left x)
 assocIxʳ (right (left x)) = left (right x)
 assocIxʳ (right (right x)) = right x
 
-assocIxˡ : TyIx ((A × B) × C) → TyIx (A × (B × C))
+assocIxˡ : TyIx ((a × b) × c) → TyIx (a × (b × c))
 assocIxˡ (left (left x)) = left x
 assocIxˡ (left (right x)) = right (left x)
 assocIxˡ (right x) = right (right x)
 
 infixr 7 _⊗Ix_
-_⊗Ix_ : (f : TyIx C → TyIx A) (g : TyIx D → TyIx B) → TyIx (C × D) → TyIx (A × B)
+_⊗Ix_ : (f : TyIx c → TyIx a) (g : TyIx d → TyIx b) → TyIx (c × d) → TyIx (a × b)
 (f ⊗Ix g) (left  x) = left  (f x)
 (f ⊗Ix g) (right y) = right (g y)
 
 
 infix 0 _⇨_
-record _⇨_ (A B : Ty) : Set where
+record _⇨_ (a b : Ty) : Set where
   constructor mk
   field
-    f : TyIx B → TyIx A
+    f : TyIx b → TyIx a
 
 instance
 

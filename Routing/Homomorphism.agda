@@ -17,37 +17,37 @@ open import Ty.Laws
 
 open import Routing.Raw
 
-private variable A B C D : Ty
+private variable a b c d : Ty
 
 -- Extract a bit
--- ⟦_⟧ᵇ : ∀ {A} → TyIx A → A →ᵗ Bool
-⟦_⟧ᵇ : ∀ {A} → TyIx A → ⟦ A ⟧ᵗ → Bool
+-- ⟦_⟧ᵇ : TyIx a → a →ᵗ Bool
+⟦_⟧ᵇ : TyIx a → ⟦ a ⟧ᵗ → Bool
 ⟦ here    ⟧ᵇ x = x
 ⟦ left  i ⟧ᵇ (x , y) = ⟦ i ⟧ᵇ x
 ⟦ right i ⟧ᵇ (x , y) = ⟦ i ⟧ᵇ y
 
-lookup : ⟦ A ⟧ᵗ → (TyIx A → Bool)
+lookup : ⟦ a ⟧ᵗ → (TyIx a → Bool)
 lookup a i = ⟦ i ⟧ᵇ a
 
-tabulate : (TyIx A → Bool) → ⟦ A ⟧ᵗ
+tabulate : (TyIx a → Bool) → ⟦ a ⟧ᵗ
 tabulate {`⊤} f = tt
 tabulate {`Bool} f = f here
 tabulate {_ `× _} f = tabulate (f ∘ left) , tabulate (f ∘ right)
 
-lookup∘tabulate : ∀ (f : TyIx A → Bool) → lookup (tabulate f) ≗ f
+lookup∘tabulate : ∀ (f : TyIx a → Bool) → lookup (tabulate f) ≗ f
 lookup∘tabulate f here      = refl≡
 lookup∘tabulate f (left  x) = lookup∘tabulate (f ∘ left ) x
 lookup∘tabulate f (right y) = lookup∘tabulate (f ∘ right) y
 
-swizzle : (TyIx B → TyIx A) → (⟦ A ⟧ᵗ → ⟦ B ⟧ᵗ)
+swizzle : (TyIx b → TyIx a) → (⟦ a ⟧ᵗ → ⟦ b ⟧ᵗ)
 swizzle r a = tabulate (lookup a ∘ r)
 
 
-swizzle-tt : ∀ (f : TyIx B → TyIx ⊤) (i : TyIx B) → B ≡ ⊤
+swizzle-tt : ∀ (f : TyIx b → TyIx ⊤) (i : TyIx b) → b ≡ ⊤
 swizzle-tt f i with f i ; ... | ()
 -- Is there a more straightforward formulation of this fact?
 
-swizzle-id : ∀ {a : ⟦ A ⟧ᵗ} → swizzle id a ≡ a
+swizzle-id : ∀ {a : ⟦ a ⟧ᵗ} → swizzle id a ≡ a
 swizzle-id {`⊤}     = refl≡
 swizzle-id {`Bool}  = refl≡
 swizzle-id {_ `× _} = cong₂ _,_ swizzle-id swizzle-id
@@ -63,7 +63,7 @@ swizzle-id {_ `× _} = cong₂ _,_ swizzle-id swizzle-id
 --  where open ≡-Reasoning
 
 
-tabulate≗ : ∀ {f g : TyIx A → Bool} → f ≗ g → tabulate f ≡ tabulate g
+tabulate≗ : ∀ {f g : TyIx a → Bool} → f ≗ g → tabulate f ≡ tabulate g
 tabulate≗ {`⊤}     {f = f} {g} f≗g = refl≡
 tabulate≗ {`Bool}  {f = f} {g} f≗g = f≗g here
 tabulate≗ {A `× B} {f = f} {g} f≗g =
@@ -76,8 +76,8 @@ tabulate≗ {A `× B} {f = f} {g} f≗g =
  where open ≡-Reasoning
 
 
-swizzle-∘ : (g : TyIx C → TyIx B) (f : TyIx B → TyIx A)
-          → ∀ {a : ⟦ A ⟧ᵗ} → swizzle (f ∘ g) a ≡ (swizzle g ∘ swizzle f) a
+swizzle-∘ : (g : TyIx c → TyIx b) (f : TyIx b → TyIx a)
+          → ∀ {a : ⟦ a ⟧ᵗ} → swizzle (f ∘ g) a ≡ (swizzle g ∘ swizzle f) a
 swizzle-∘ g f {a} =
   begin
     swizzle (f ∘ g) a

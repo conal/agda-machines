@@ -14,30 +14,21 @@ import Primitive as p
 open Homomorphism rh.H renaming (Fₘ to ⟦_⟧ᵣ)
 open Homomorphism p.H  renaming (Fₘ to ⟦_⟧ₚ)
 
-private variable A B C D : Ty
+private variable a b c d : Ty
 
 infix  0 _⇨_
 infixr 7 _`⊗_
 infixr 9 _`∘_
 
 data _⇨_ : Ty → Ty → Set where
-  `route : (A r.⇨ B) → (A ⇨ B)
-  `prim  : (A p.⇨ B) → (A ⇨ B)
-  _`∘_   : (B ⇨ C) → (A ⇨ B) → (A ⇨ C)
-  _`⊗_   : (A ⇨ C) → (B ⇨ D) → (A × B ⇨ C × D)
+  `route : (a r.⇨ b) → (a ⇨ b)
+  `prim  : (a p.⇨ b) → (a ⇨ b)
+  _`∘_   : (b ⇨ c) → (a ⇨ b) → (a ⇨ c)
+  _`⊗_   : (a ⇨ c) → (b ⇨ d) → (a × b ⇨ c × d)
 
 module symbolic-raw-instances where
 
   instance
-
-  --   meaningful : Meaningful (A ⇨ B)
-  --   meaningful = record { ⟦_⟧ = ⟦_⟧′ }
-  --    where
-  --      ⟦_⟧′ : (A ⇨ B) → (A ty.⇨ B)
-  --      ⟦ `route f ⟧′ = ⟦ f ⟧
-  --      ⟦ `prim  p ⟧′ = ⟦ p ⟧
-  --      ⟦  g `∘ f  ⟧′ = ⟦ g ⟧′ ∘ ⟦ f ⟧′
-  --      ⟦  f `⊗ g  ⟧′ = ⟦ f ⟧′ ⊗ ⟦ g ⟧′
 
     category : Category _⇨_
     category = record { id = `route id ; _∘_ = _`∘_ }

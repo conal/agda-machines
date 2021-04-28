@@ -15,7 +15,7 @@ data Ty : Set where
   `Bool : Ty
   _`×_  : (x : Ty) (y : Ty) → Ty
 
-private variable A B C D : Ty
+private variable a b c d : Ty
 
 ⟦_⟧ᵗ : Ty → Set
 ⟦ `⊤ ⟧ᵗ     = ⊤
@@ -23,21 +23,21 @@ private variable A B C D : Ty
 ⟦ `Bool ⟧ᵗ  = Bool
 
 -- Currently unused, but seems useful
-showTy : ⟦ A ⟧ᵗ → String
+showTy : ⟦ a ⟧ᵗ → String
 showTy = go 𝕥
  where
    -- Flag says we're in the left part of a pair
-   go : Bool → ⟦ A ⟧ᵗ → String
+   go : Bool → ⟦ a ⟧ᵗ → String
    go {`⊤} _ tt = "tt"
    go {`Bool} _ b = show b
    go {_ `× _} p (x , y) = (if p then parens else id) (go 𝕥 x ++ "," ++ go 𝕗 y)
 
 
 infix 0 _⇨_
-record _⇨_ (A B : Ty) : Set where
+record _⇨_ (a b : Ty) : Set where
   constructor mk
   field
-    ⟦_⟧ : ⟦ A ⟧ᵗ → ⟦ B ⟧ᵗ
+    ⟦_⟧ : ⟦ a ⟧ᵗ → ⟦ b ⟧ᵗ
 
 module ty-instances where
 
@@ -89,11 +89,11 @@ module TyUtils {ℓ} {_⇨_ : Ty → Ty → Set ℓ} (let infix 0 _⇨_; _⇨_ =
   module _ ⦃ _ : Braided ⦃ products ⦄ _⇨_ ⦄ where
 
     -- Todo: rename
-    replicate′ : ∀ n → (⊤ ⇨ A) → (⊤ ⇨ V A n)
+    replicate′ : ∀ n → (⊤ ⇨ a) → (⊤ ⇨ V a n)
     replicate′ zero    a = !
     replicate′ (suc n) a = a ⦂ replicate′ n a
 
-    shiftR : Bool × A ⇨ A × Bool
+    shiftR : Bool × a ⇨ a × Bool
     shiftR {`⊤}     = swap
     shiftR {`Bool}  = id
     shiftR {_ `× _} = assocˡ ∘ second shiftR ∘ assocʳ ∘ first shiftR ∘ assocˡ
@@ -105,7 +105,7 @@ module TyUtils {ℓ} {_⇨_ : Ty → Ty → Set ℓ} (let infix 0 _⇨_; _⇨_ =
     -- u′ , (v′ , o)
     -- (u′ , v′) , o
 
-    shiftL : A × Bool ⇨ Bool × A
+    shiftL : a × Bool ⇨ Bool × a
     shiftL {`⊤}     = swap
     shiftL {`Bool}  = id
     shiftL {_ `× _} = assocʳ ∘ first shiftL ∘ assocˡ ∘ second shiftL ∘ assocʳ
@@ -119,15 +119,15 @@ module TyUtils {ℓ} {_⇨_ : Ty → Ty → Set ℓ} (let infix 0 _⇨_; _⇨_ =
 
   module _ ⦃ _ : Cartesian ⦃ products ⦄ _⇨_ ⦄ where
 
-    shiftR⇃ : Bool × A ⇨ A
+    shiftR⇃ : Bool × a ⇨ a
     shiftR⇃ = exl ∘ shiftR
 
-    shiftL⇃ : A × Bool ⇨ A
+    shiftL⇃ : a × Bool ⇨ a
     shiftL⇃ = exr ∘ shiftL
 
     module _ ⦃ _ : Logic _⇨_ ⦄ where
 
-      condᵀ : (A × A) × Bool ⇨ A  -- false , true
+      condᵀ : (a × a) × Bool ⇨ a  -- false , true
 
       condᵀ {  `⊤  } = !
       condᵀ {`Bool } = ∨ ∘ (∧ ⊗ ∧ ∘ first not) ∘ transpose ∘ second dup

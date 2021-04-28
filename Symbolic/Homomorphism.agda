@@ -15,7 +15,7 @@ import Primitive as p
 
 open import Symbolic.Raw
 
-private variable A B C D : Ty
+private variable a b c d : Ty
 
 instance
 
@@ -25,7 +25,7 @@ instance
   H : Homomorphism _⇨_ _⇨ₜ_
   H = record { Fₘ = ⟦_⟧′ }
    where
-     ⟦_⟧′ : (A ⇨ B) → (A ⇨ₜ B)
+     ⟦_⟧′ : (a ⇨ b) → (a ⇨ₜ b)
      ⟦ `route f ⟧′ = Fₘ f
      ⟦ `prim  p ⟧′ = Fₘ p
      ⟦  g `∘ f  ⟧′ = ⟦ g ⟧′ ∘ ⟦ f ⟧′
