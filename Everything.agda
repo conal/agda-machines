@@ -6,6 +6,7 @@ module Everything where
 
 open import Categorical
 
+import VecFun
 import Ty
 import Mealy
 import Primitive
@@ -15,7 +16,6 @@ import Test
 
 import Examples.Add
 
--- import VecFun
 -- import Symbolic
 
 -- -- Experimental modules not used above.
