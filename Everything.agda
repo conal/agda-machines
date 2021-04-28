@@ -8,6 +8,7 @@ open import Categorical
 
 import VecFun
 import Ty
+import Symbolic
 import Mealy
 import Primitive
 import Linearize
