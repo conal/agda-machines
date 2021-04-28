@@ -16,8 +16,8 @@ infix 0 _⇨_
 ⌞_⌟ : obj → Set ℓ
 ⌞ A ⌟ = ⊤ ↠ A
 
--- Note: using ⊤ ↠ A obviates needing Meaningful, but it might also prevent any
--- efficient implementation for functions.
+-- Note: using ⊤ ↠ A might also prevent any efficient implementation for
+-- functions.
 
 -- Synchronous state machine.
 -- For composability, the state type is not visible in the type.
@@ -36,12 +36,6 @@ delay : ⦃ _ : Braided _↠_ ⦄ → ⌞ A ⌟ → A ⇨ A
 delay a₀ = mealy a₀ swap
 
 instance
-
-  -- meaningful : ∀ {A B} → Meaningful {μ = ⟦ A ⟧ m.⇨ ⟦ B ⟧} (A ⇨ B)
-  -- meaningful {A}{B} =
-  --   record { ⟦_⟧ = λ { (mealy s₀ f) → m.mealy s₀ (ty.mk⁻¹ ⟦ f ⟧) } }
-
-  -- TODO: Give a semantics without values?
 
   category : ⦃ _ : Braided _↠_ ⦄ → Category _⇨_
   category = record { id = comb id ; _∘_ = _⊙_ }

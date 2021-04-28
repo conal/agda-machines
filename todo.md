@@ -1,6 +1,5 @@
 ## To do
 
-*   Remove `Meaningful` commented code.
 *   Finish `LawfulMonoidalᶠ`, and use it.
 *   Reconsider introduction of inner modules in various `Homomorphism` and `Laws`.
 *   Maybe move `Function` instances into main `Categorical`, since they get imported often, and they're small.
@@ -8,7 +7,7 @@
 *   Mealy machines as a layout of pure/combinational computations.
 *   Circuit optimizations.
 *   Netlist generation as an instance/parametrization of the linearization category rather than a use of the result.
-    Ditto for GLSL and C generation.
+    Ditto for GLSL/WebGL and C generation.
 *   Fix `Monoidal` to align with [nLab's definition](https://ncatlab.org/nlab/show/monoidal+category).
     Likewise for [monoidal functors](https://ncatlab.org/nlab/show/monoidal+functor).
 
@@ -82,6 +81,8 @@
 
 ## Did
 
+*   Remove `Meaningful` commented code.
+    Subsumed by `Homomorphism`.
 *   Resolve upper vs lower case for object variables.
     Switched lower consistently.
 *   Trim `variable` lists.

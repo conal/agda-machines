@@ -40,9 +40,6 @@ module →RawInstances where
     cartesian : Cartesian (Function {o})
     cartesian = record { exl = proj₁ ; exr = proj₂ ; dup = λ z → z , z }
 
-    -- meaningful : Meaningful (Set ℓ)
-    -- meaningful = record { ⟦_⟧ = id }
-
     import Data.Bool as B
 
     boolean : Boolean Set

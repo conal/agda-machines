@@ -47,9 +47,6 @@ zip′ = uncurry zip
 module VecFunRawInstances where
   instance
 
-    -- meaningful : ∀ {A}{B} → Meaningful {μ = A ↠ B} (A ⇨ B)
-    -- meaningful = record { ⟦_⟧ = λ { (mk f) → f } }
-
     category : Category _⇨_
     category = record { id = mk id ; _∘_ = λ (mk g) (mk f) → mk (g ∘ f) }
 
