@@ -1,7 +1,7 @@
 ## To do
 
 *   Remove `Meaningful` commented code.
-*   Finish `LawfulMonoidalᶠ`.
+*   Finish `LawfulMonoidalᶠ`, and use it.
 *   Reconsider introduction of inner modules in various `Homomorphism` and `Laws`.
 *   Maybe move `Function` instances into main `Categorical`, since they get imported often, and they're small.
 *   `Closed` for `Linearize`.
