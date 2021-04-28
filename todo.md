@@ -70,6 +70,7 @@
 
 ## Did
 
+*   Try again with homomorphisms and instance selection.
 *   Infix alternative for `trans`.
     I defined a category, but there's too much instance overlap to be useful.
 *   Fix uses of `tt` in modules importing `Data.Unit.Polymorphic`.
