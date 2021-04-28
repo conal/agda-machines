@@ -1,6 +1,7 @@
 module Everything where
 
-open import Categorical
+import Categorical
+import Categorical.Instances.Function
 
 import VecFun
 import Ty
