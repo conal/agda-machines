@@ -18,7 +18,6 @@ private
     o ℓ o₁ ℓ₁ o₂ ℓ₂ : Level
     obj obj₁ obj₂ : Set o
     a b c d e : obj
-    a′ b′ c′ d′ e′ : obj
 
 record Homomorphism
   {obj₁ : Set o₁} (_⇨₁_ : obj₁ → obj₁ → Set ℓ₁)

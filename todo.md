@@ -1,8 +1,10 @@
 ## To do
 
+*   Resolve upper vs lower case for object variables.
+    I'm inclined to use lower consistently.
+*   Finish `LawfulMonoidalᶠ`.
 *   Reconsider introduction of inner modules in various `Homomorphism` and `Laws`.
 *   Maybe move `Function` instances into main `Categorical`, since they get imported often, and they're small.
-*   Trim `variable` lists.
 *   `Closed` for `Linearize`.
 *   Mealy machines as a layout of pure/combinational computations.
 *   Circuit optimizations.
@@ -81,6 +83,7 @@
 
 ## Did
 
+*   Trim `variable` lists.
 *   Trim imports.
 *   Try again with homomorphisms and instance selection.
 *   Infix alternative for `trans`.

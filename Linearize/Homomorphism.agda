@@ -26,7 +26,7 @@ open import Categorical.Laws
 
 open import Linearize.Raw _⇨ₘ_ _⇨ₚ_ _⇨ᵣ_ q
 
-private variable a b c d z : obj
+private variable a b c d : obj
 
 open Homomorphismₒ Hₒ -- using () renaming (Fₒ to ⟦_⟧ₒ)
 open MonoidalH monoidalHᵣ
