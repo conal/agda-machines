@@ -2,10 +2,8 @@
 -- to be "combinational".
 {-# OPTIONS --safe --without-K #-}
 
-open import Level
-
-open import Category
-open import Ty
+open import Level using (_⊔_)
+open import Categorical.Raw
 
 module Mealy {o} {obj : Set o} ⦃ _ : Products obj ⦄
         {ℓ}(_↠′_ : obj → obj → Set ℓ) (let private infix 0 _↠_; _↠_ = _↠′_) where

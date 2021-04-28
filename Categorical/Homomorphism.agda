@@ -199,6 +199,13 @@ record BooleanH
   field
     β : Bool ⇨₂ Fₒ Bool
 
+id-booleanH : {obj : Set o} ⦃ _ : Boolean obj ⦄
+              {_⇨₁_ : obj → obj → Set ℓ₁} {_⇨₂_ : obj → obj → Set ℓ₂}
+              ⦃ cat₂ : Category _⇨₂_ ⦄
+            → BooleanH _⇨₁_ _⇨₂_ ⦃ Hₒ = id-Hₒ ⦄
+id-booleanH = record { β = id }
+
+
 record LogicH
     {obj₁ : Set o₁} (_⇨₁′_ : obj₁ → obj₁ → Set ℓ₁)
     {obj₂ : Set o₂} (_⇨₂′_ : obj₂ → obj₂ → Set ℓ₂)

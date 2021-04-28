@@ -78,3 +78,71 @@ module ty-instances where
                    ; ∧ = mk ∧ ; ∨ = mk ∨ ; xor = mk xor ; not = mk not
                    ; cond = mk cond
                    }
+
+
+-- Miscellaneous utilities, perhaps to move elsewhere
+module TyUtils {ℓ} {_⇨_ : Ty → Ty → Set ℓ} (let infix 0 _⇨_; _⇨_ = _⇨_) where
+
+  open import Data.Nat
+  open ty-instances using (products)
+
+  module _ ⦃ _ : Braided ⦃ products ⦄ _⇨_ ⦄ where
+
+    -- Todo: rename
+    replicate′ : ∀ n → (⊤ ⇨ A) → (⊤ ⇨ V A n)
+    replicate′ zero    a = !
+    replicate′ (suc n) a = a ⦂ replicate′ n a
+
+    shiftR : Bool × A ⇨ A × Bool
+    shiftR {`⊤}     = swap
+    shiftR {`Bool}  = id
+    shiftR {_ `× _} = assocˡ ∘ second shiftR ∘ assocʳ ∘ first shiftR ∘ assocˡ
+
+    -- i , (u , v)
+    -- (i , u) , v
+    -- (u′ , m) , v
+    -- u′ , (m , v)
+    -- u′ , (v′ , o)
+    -- (u′ , v′) , o
+
+    shiftL : A × Bool ⇨ Bool × A
+    shiftL {`⊤}     = swap
+    shiftL {`Bool}  = id
+    shiftL {_ `× _} = assocʳ ∘ first shiftL ∘ assocˡ ∘ second shiftL ∘ assocʳ
+
+    -- (u , v) , i
+    -- u , (v , i)
+    -- u , (m , v′)
+    -- (u , m) , v′
+    -- (o , u′) , v′
+    -- o , (u′ , v′)
+
+  module _ ⦃ _ : Cartesian ⦃ products ⦄ _⇨_ ⦄ where
+
+    shiftR⇃ : Bool × A ⇨ A
+    shiftR⇃ = exl ∘ shiftR
+
+    shiftL⇃ : A × Bool ⇨ A
+    shiftL⇃ = exr ∘ shiftL
+
+    module _ ⦃ _ : Logic _⇨_ ⦄ where
+
+      condᵀ : (A × A) × Bool ⇨ A  -- false , true
+
+      condᵀ {  `⊤  } = !
+      condᵀ {`Bool } = ∨ ∘ (∧ ⊗ ∧ ∘ first not) ∘ transpose ∘ second dup
+      condᵀ {_ `× _} = (condᵀ ⊗ condᵀ) ∘ transpose ∘ (transpose ⊗ dup)
+
+      -- -- `Bool
+      -- (e , t) , c
+      -- (e , t) , (c , c)
+      -- (e , c) , (t , c)
+      -- (e , not c) , (t , c)
+      -- e ∧ not c , t ∧ c
+      -- (e ∧ not c) ∨ (t ∧ c)
+
+      -- _ `× _:
+      -- ((e , e′) , (t , t′)) , c
+      -- ((e , t) , (e′ , t′)) , (c , c)
+      -- ((e , t) , c) , ((e′ , t′) , c)
+      -- r , r′

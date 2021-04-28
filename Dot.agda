@@ -10,12 +10,22 @@ open import Data.Nat using (ℕ; suc; zero)
 open import Data.String hiding (toList; concat; show)
 open import Data.List using (List; []; _∷_; concat; map; upTo)
   renaming (_++_ to _++ᴸ_)
--- open import Relation.Binary.PropositionalEquality using (_≡_; refl)
 
-open import Category
-open import Ty renaming (map to mapᵀ)
-import Primitive as p    -- for Show
-open import Stack ty._⇨_ p._⇨_ r._⇨_ 0ℓ as k using (_∘·first_∘_; ⌞_⌟; ⟦_⟧ₖ)
+open import Categorical.Raw
+open import Categorical.Instances.Function.Raw -- TODO: maybe move into Categorical.Raw
+open import Categorical.Homomorphism
+
+open import Ty.Raw as t using (Ty; ⟦_⟧ᵗ)
+open import Ty.Homomorphism -- for equiv
+import Primitive   as p    -- for Show
+import Routing.Raw as r ; open r using (TyIx)
+import Routing.Homomorphism as rh
+open import Routing.Functor renaming (map to mapᵀ)
+open import Linearize.Raw t._⇨_ p._⇨_ r._⇨_ 0ℓ as k using (_∘·first_∘_; ⌞_⌟; ⟦_⟧ₖ)
+
+open Homomorphismₒ (id-Hₒ {obj = Ty})
+open Homomorphism ty-hom.H renaming (Fₘ to ⟦_⟧ₜ)
+open Homomorphism rh.H     renaming (Fₘ to ⟦_⟧ᵣ)
 
 private variable a b c d i o s z zⁱ zᵒ zᵃ : Ty
 
@@ -70,8 +80,8 @@ oport compName o = compName ++ ":Out" ++ showIx o
 
 module _ {s} (stateF₀ : ⊤ k.⇨ s) where
 
-  state₀ : ⟦ s ⟧
-  state₀ = ⟦ ⟦ stateF₀ ⟧ₖ ⟧ tt
+  state₀ : ⟦ s ⟧ᵗ
+  state₀ = ⟦ ⟦ stateF₀ ⟧ₖ ⟧ₜ tt
   
   reg : TyIx a → String
   reg j = "reg" ++ showIx j
@@ -84,11 +94,11 @@ module _ {s} (stateF₀ : ⊤ k.⇨ s) where
 
   dotᵏ : ℕ → TyF OPort i → (i k.⇨ (o × s)) → List String
 
-  dotᵏ comp# ins ⌞ r ⌟ with r.⟦ r ⟧′ ins ; ... | os ､ ss =
+  dotᵏ comp# ins ⌞ r ⌟ with ⟦ r ⟧′ ins ; ... | os ､ ss =
     concat (toList (mapᵀ register allIx ⊛ →TyF state₀ ⊛ ss))
     ++ᴸ comp "output" "output" os ⊤
 
-  dotᵏ comp# ins (f ∘·first p ∘ r) with r.⟦ r ⟧′ ins ; ... | os ､ ss =
+  dotᵏ comp# ins (f ∘·first p ∘ r) with ⟦ r ⟧′ ins ; ... | os ､ ss =
     let compName = "c" ++ show comp# in
       comp compName (show p) os (codᵖ p)
       ++ᴸ dotᵏ (suc comp#) (mapᵀ (oport compName) allIx ､ ss) f
@@ -97,6 +107,6 @@ module _ {s} (stateF₀ : ⊤ k.⇨ s) where
   dot {i = i} f = package (
     comp "input" "input" · i ++ᴸ
     dotᵏ 0 ( mapᵀ (oport "input") allIx ､
-             mapᵀ (λ r → oport (reg r) here) allIx) f)
+             mapᵀ (λ r → oport (reg r) r.here) allIx) f)
 
   -- TODO: Consider reworking with stateF₀ as input to registers

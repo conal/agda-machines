@@ -256,3 +256,23 @@ record Homomorphismₒ (obj₁ : Set o₁) (obj₂ : Set o₂) : Set (o₁ ⊔ o
 
 id-Hₒ : Homomorphismₒ obj obj
 id-Hₒ = record { Fₒ = id′ }
+
+
+-- Some category-polymorphic idioms
+module CartUtils ⦃ _ : Products obj ⦄
+  {_⇨_ : obj → obj → Set ℓ} (let infix 0 _⇨_; _⇨_ = _⇨_) -- Note
+  ⦃ _ : Cartesian _⇨_ ⦄ where
+
+  -- Note: fixity hack. See https://github.com/agda/agda/issues/1235
+
+  -- Like _∘_, but accumulating extra outputs
+  -- (g ◂ f) a = let u , b = f a ; v , c = g b in (u , v) , c
+  infixr 9 _◂_
+  _◂_ : ∀ {u v} → (b ⇨ v × c) → (a ⇨ u × b) → (a ⇨ (u × v) × c)
+  g ◂ f = assocˡ ∘ second g ∘ f
+
+  -- Repeated _◂_
+  infixl 5 _◂↑_
+  _◂↑_ : (a ⇨ b × a) → (n : ℕ) → (a ⇨ V b n × a)
+  f ◂↑ zero  = unitorⁱˡ
+  f ◂↑ suc n = (f ◂↑ n) ◂ f

@@ -1,8 +1,10 @@
-open import Category
+open import Categorical.Raw
 
 open import Data.Nat
 
-open import Ty  -- Specialize for speculate
+-- open import Ty  -- Specialize for speculate
+
+open import Ty.Raw
 
 module Examples.Add
          {_⇨_ : Ty → Ty → Set} (let private infix 0 _⇨_; _⇨_ = _⇨_)

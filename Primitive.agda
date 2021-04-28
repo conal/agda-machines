@@ -3,8 +3,14 @@
 
 module Primitive where
 
-open import Category
-open import Ty
+open import Categorical.Raw
+open import Categorical.Homomorphism
+open import Categorical.Instances.Function.Raw
+
+-- TODO: Replace with single import
+open import Ty.Raw as ty hiding (_⇨_)
+open import Ty.Homomorphism
+open import Ty.Laws
 
 private variable A B : Ty
 
@@ -17,16 +23,19 @@ data _⇨_ : Ty → Ty → Set where
 
 instance
 
-  meaningful : Meaningful {μ = A ty.⇨ B} (A ⇨ B)
-  meaningful = record
-    { ⟦_⟧ = λ { `false → ty.mk false
-              ; `true  → ty.mk true
-              ; `not   → ty.mk not
-              ; `∧     → ty.mk ∧
-              ; `∨     → ty.mk ∨
-              ; `xor   → ty.mk xor
-              ; `cond  → ty.mk cond
-              } }
+  Hₒ : Homomorphismₒ Ty Ty
+  Hₒ = id-Hₒ
+
+  H : Homomorphism _⇨_ ty._⇨_
+  H = record { Fₘ = λ { `false → mk false
+                      ; `true  → mk true
+                      ; `not   → mk not
+                      ; `∧     → mk ∧
+                      ; `∨     → mk ∨
+                      ; `xor   → mk xor
+                      ; `cond  → mk cond
+                      }
+             }
 
   p-show : Show (A ⇨ B)
   p-show = record { show = λ { `false → "false"
@@ -43,26 +52,22 @@ instance
   logic = record { false = `false ; true = `true
                  ; not = `not ; ∧ = `∧ ; ∨ = `∨ ; xor = `xor ; cond = `cond}
 
-  -- ⟦⟧-Hₒ : Homomorphismₒ Ty Ty
-  -- ⟦⟧-Hₒ = id-Hₒ
-
-  -- TODO: Why is ⟦⟧-Hₒ needed in Symbolic but not here, considering
-  -- that id-homomorphismₒ is visible to both?
-
-  ⟦⟧-H : Homomorphism _⇨_ ty._⇨_
-  ⟦⟧-H = record { Fₘ = ⟦_⟧ }
-
-  open import Relation.Binary.PropositionalEquality
+  -- open import Relation.Binary.PropositionalEquality
 
   open import Level using (0ℓ)
 
+  productsH : ProductsH _⇨_ ty._⇨_ 0ℓ
+  productsH = id-productsH
+
+  booleanH : BooleanH _⇨_ ty._⇨_
+  booleanH = id-booleanH
+
   logicH : LogicH _⇨_ ty._⇨_ 0ℓ
   logicH = record
-             { F-Bool  = refl
-             ; F-false = λ _ → refl
-             ; F-true  = λ _ → refl
-             ; F-not   = λ _ → refl
-             ; F-∧     = λ _ → refl
-             ; F-∨     = λ _ → refl
-             ; F-xor   = λ _ → refl
+             { F-false = refl
+             ; F-true  = refl
+             ; F-not   = refl
+             ; F-∧     = refl
+             ; F-∨     = refl
+             ; F-xor   = refl
              }

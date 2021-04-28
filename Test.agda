@@ -9,19 +9,22 @@ open import Data.Unit.Polymorphic using () renaming (⊤ to ⊤₀)
 open import Data.Bool using (if_then_else_) renaming (false to 𝕗; true to 𝕥)
 open import Data.Vec using ([_]; []; _∷_)
 open import Data.String using (String; _++_)
--- open import Relation.Binary.PropositionalEquality using (subst)
 open import IO
 
-open import Category ; open CartUtils
-open import Ty
+open import Categorical.Raw ; open CartUtils
+open import Categorical.Instances.Function.Raw
+
+import Ty.Raw as ty
+import Ty.Homomorphism
 import Primitive as p
-import Stack ty._⇨_ p._⇨_ r._⇨_ 0ℓ as k
+import Routing.Raw as r
+import Routing.Homomorphism
+
+import Linearize.Raw ty._⇨_ p._⇨_ r._⇨_ 0ℓ as k
 import Mealy k._⇨_ as m
 open import Dot
 
--- open CartUtils
-
-open TyUtils
+open ty.TyUtils
 open import Examples.Add
 
 -- Combinational examples

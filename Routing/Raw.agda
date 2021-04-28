@@ -36,6 +36,7 @@ _⊗Ix_ : (f : TyIx C → TyIx A) (g : TyIx D → TyIx B) → TyIx (C × D) → 
 (f ⊗Ix g) (left  x) = left  (f x)
 (f ⊗Ix g) (right y) = right (g y)
 
+
 infix 0 _⇨_
 record _⇨_ (A B : Ty) : Set where
   constructor mk

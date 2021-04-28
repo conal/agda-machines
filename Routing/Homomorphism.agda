@@ -97,6 +97,7 @@ swizzle-∘ g f {a} =
 
 open ≈-Reasoning
 
+
 instance
 
   -- meaningful : ∀ {a b} → Meaningful {μ = a ty.⇨ b} (a ⇨ b)
