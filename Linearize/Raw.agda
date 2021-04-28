@@ -58,7 +58,7 @@ firstₖ ⌞ r ⌟ = ⌞ first r ⌟
 firstₖ (f ∘·first p ∘ r) =
   (firstₖ f ∘ₖ ⌞ assocˡ ⌟) ∘·first p ∘ (assocʳ ∘ first r)
 
-swapₖ : (a × b ⇨ b × a)
+swapₖ : a × b ⇨ b × a
 swapₖ = route swap
 
 secondₖ : (b ⇨ d) → (a × b ⇨ a × d)

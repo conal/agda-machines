@@ -46,7 +46,7 @@ g ⟦∘⟧ (f ∘·first p ∘ r) =
     ⟦ (g ∘ f) ∘·first p ∘ r ⟧ₖ
   ≡⟨⟩
     ⟦ g ∘ f ⟧ₖ ∘ μ ∘ first ⟦ p ⟧ₚ ∘ μ⁻¹ ∘ ⟦ r ⟧ᵣ
-  ≈⟨ ∘-resp-≈ˡ (g ⟦∘⟧ f) ⟩
+  ≈⟨ ∘≈ˡ (g ⟦∘⟧ f) ⟩
     (⟦ g ⟧ₖ ∘ ⟦ f ⟧ₖ) ∘ μ ∘ first ⟦ p ⟧ₚ ∘ μ⁻¹ ∘ ⟦ r ⟧ᵣ
   ≈⟨ assoc ⟩
     ⟦ g ⟧ₖ ∘ ⟦ f ⟧ₖ ∘ μ ∘ first ⟦ p ⟧ₚ ∘ μ⁻¹ ∘ ⟦ r ⟧ᵣ
@@ -61,7 +61,7 @@ g ⟦∘⟧ (f ∘·first p ∘ r) =
     ⟦ g ∘·first p ∘ (r₂ ∘ r₁) ⟧ₖ
   ≡⟨⟩
     ⟦ g ⟧ₖ ∘ μ ∘ first ⟦ p ⟧ₚ ∘ μ⁻¹ ∘ ⟦ r₂ ∘ r₁ ⟧ᵣ
-  ≈⟨ ∘-resp-≈ʳ (∘-resp-≈ʳ (∘-resp-≈ʳ (∘-resp-≈ʳ (F-∘ r₂ r₁)))) ⟩
+  ≈⟨ ∘≈ʳ (∘≈ʳ (∘≈ʳ (∘≈ʳ (F-∘ r₂ r₁)))) ⟩
     ⟦ g ⟧ₖ ∘ μ ∘ first ⟦ p ⟧ₚ ∘ μ⁻¹ ∘ ⟦ r₂ ⟧ᵣ ∘ ⟦ r₁ ⟧ᵣ
   ≈˘⟨ assoc⁵ ⟩
     (⟦ g ⟧ₖ ∘ μ ∘ first ⟦ p ⟧ₚ ∘ μ⁻¹ ∘ ⟦ r₂ ⟧ᵣ) ∘ ⟦ r₁ ⟧ᵣ
@@ -82,20 +82,20 @@ g ⟦∘⟧ (f ∘·first p ∘ r) =
     ⟦ (firstₖ f ∘ ⌞ assocˡ ⌟) ∘·first p ∘ (assocʳ ∘ first r) ⟧ₖ
   ≡⟨⟩
     ⟦ firstₖ f ∘ ⌞ assocˡ ⌟ ⟧ₖ ∘ firstᴴ ⟦ p ⟧ₚ ∘ ⟦ assocʳ ∘ first r ⟧ᵣ
-  ≈⟨ ∘-resp-≈ {_⇨′_ = _⇨ₘ_} (firstₖ f ⟦∘⟧ ⌞ assocˡ ⌟)
-        (∘-resp-≈ʳ {_⇨′_ = _⇨ₘ_} (F-∘ assocʳ (first r))) ⟩
+  ≈⟨ ∘≈ {_⇨′_ = _⇨ₘ_} (firstₖ f ⟦∘⟧ ⌞ assocˡ ⌟)
+        (∘≈ʳ {_⇨′_ = _⇨ₘ_} (F-∘ assocʳ (first r))) ⟩
     (⟦ firstₖ f ⟧ₖ ∘ ⟦ assocˡ ⟧ᵣ) ∘ firstᴴ ⟦ p ⟧ₚ ∘ (⟦ assocʳ ⟧ᵣ ∘ ⟦ first r ⟧ᵣ)
-  ≈˘⟨ ∘-resp-≈ʳ {_⇨′_ = _⇨ₘ_} (assoc {_⇨′_ = _⇨ₘ_}) ⟩
+  ≈˘⟨ ∘≈ʳ {_⇨′_ = _⇨ₘ_} (assoc {_⇨′_ = _⇨ₘ_}) ⟩
     (⟦ firstₖ f ⟧ₖ ∘ ⟦ assocˡ ⟧ᵣ) ∘ (firstᴴ ⟦ p ⟧ₚ ∘ ⟦ assocʳ ⟧ᵣ) ∘ ⟦ first r ⟧ᵣ
   ≈⟨ assoc {_⇨′_ = _⇨ₘ_} ⟩
     ⟦ firstₖ f ⟧ₖ ∘ ⟦ assocˡ ⟧ᵣ ∘ (firstᴴ ⟦ p ⟧ₚ ∘ ⟦ assocʳ ⟧ᵣ) ∘ ⟦ first r ⟧ᵣ
-  ≈˘⟨ ∘-resp-≈ʳ {_⇨′_ = _⇨ₘ_} (assoc {_⇨′_ = _⇨ₘ_}) ⟩
+  ≈˘⟨ ∘≈ʳ {_⇨′_ = _⇨ₘ_} (assoc {_⇨′_ = _⇨ₘ_}) ⟩
     ⟦ firstₖ f ⟧ₖ ∘ (⟦ assocˡ ⟧ᵣ ∘ firstᴴ ⟦ p ⟧ₚ ∘ ⟦ assocʳ ⟧ᵣ) ∘ ⟦ first r ⟧ᵣ
-  ≈⟨ ∘-resp-≈ʳ {_⇨′_ = _⇨ₘ_} (∘-resp-≈ {_⇨′_ = _⇨ₘ_} (∘-resp-≈ {_⇨′_ = _⇨ₘ_} F-assocˡ (∘-resp-≈ʳ {_⇨′_ = _⇨ₘ_} F-assocʳ)) (F-first r)) ⟩
+  ≈⟨ ∘≈ʳ {_⇨′_ = _⇨ₘ_} (∘≈ {_⇨′_ = _⇨ₘ_} (∘≈ {_⇨′_ = _⇨ₘ_} F-assocˡ (∘≈ʳ {_⇨′_ = _⇨ₘ_} F-assocʳ)) (F-first r)) ⟩
     ⟦ firstₖ f ⟧ₖ ∘ (assocᴴˡ ∘ firstᴴ ⟦ p ⟧ₚ ∘ assocᴴʳ) ∘ firstᴴ ⟦ r ⟧ᵣ
-  ≈⟨ ∘-resp-≈ʳ (∘-resp-≈ˡ {!!}) ⟩
+  ≈⟨ ∘≈ʳ (∘≈ˡ {!!}) ⟩
     firstᴴ ⟦ f ⟧ₖ ∘ firstᴴ (firstᴴ ⟦ p ⟧ₚ) ∘ firstᴴ ⟦ r ⟧ᵣ
-  ≈⟨ ∘-resp-≈ʳ {_⇨′_ = _⇨ₘ_} first∘firstᴴ ⟩
+  ≈⟨ ∘≈ʳ {_⇨′_ = _⇨ₘ_} first∘firstᴴ ⟩
     firstᴴ ⟦ f ⟧ₖ ∘ firstᴴ (firstᴴ ⟦ p ⟧ₚ ∘ ⟦ r ⟧ᵣ)
   ≈⟨ first∘firstᴴ ⟩
     firstᴴ (⟦ f ⟧ₖ ∘ firstᴴ ⟦ p ⟧ₚ ∘ ⟦ r ⟧ᵣ)
@@ -116,7 +116,7 @@ f ⟦⊗⟧ g =
     ⟦ secondₖ g ∘ firstₖ f ⟧ₖ
   ≈⟨ secondₖ g ⟦∘⟧ firstₖ f ⟩
     ⟦ secondₖ g ⟧ₖ ∘ ⟦ firstₖ f ⟧ₖ
-    ≈⟨ ∘-resp-≈ {_⇨′_ = _⇨ₘ_} (⟦second⟧ g) (⟦first⟧ f) ⟩
+    ≈⟨ ∘≈ {_⇨′_ = _⇨ₘ_} (⟦second⟧ g) (⟦first⟧ f) ⟩
     secondᴴ ⟦ g ⟧ₖ ∘ firstᴴ ⟦ f ⟧ₖ
   ≈⟨ second∘firstᴴ ⟩
     ⟦ f ⟧ₖ ⊗ᴴ ⟦ g ⟧ₖ

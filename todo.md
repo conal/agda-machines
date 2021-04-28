@@ -81,6 +81,7 @@
 
 ## Did
 
+*   Shorten "`∘-resp-≈`" and "`⊗-resp-≈`" to "`∘≈`" and "`⊗≈`".
 *   Remove `Meaningful` commented code.
     Subsumed by `Homomorphism`.
 *   Resolve upper vs lower case for object variables.

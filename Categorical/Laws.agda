@@ -29,13 +29,13 @@ record LawfulCategory {obj : Set o} (_⇨′_ : obj → obj → Set ℓ)
     assoc     : {f : a ⇨ b} {g : b ⇨ c} {h : c ⇨ d}
               → (h ∘ g) ∘ f ≈ h ∘ (g ∘ f)
 
-    ∘-resp-≈ : ∀ {f g : a ⇨ b} {h k : b ⇨ c} → h ≈ k → f ≈ g → h ∘ f ≈ k ∘ g
+    ∘≈ : ∀ {f g : a ⇨ b} {h k : b ⇨ c} → h ≈ k → f ≈ g → h ∘ f ≈ k ∘ g
 
-  ∘-resp-≈ˡ : ∀ {f : a ⇨ b} {h k : b ⇨ c} → h ≈ k → h ∘ f ≈ k ∘ f
-  ∘-resp-≈ˡ h≈k = ∘-resp-≈ h≈k refl
+  ∘≈ˡ : ∀ {f : a ⇨ b} {h k : b ⇨ c} → h ≈ k → h ∘ f ≈ k ∘ f
+  ∘≈ˡ h≈k = ∘≈ h≈k refl
 
-  ∘-resp-≈ʳ : ∀ {f g : a ⇨ b} {h : b ⇨ c} → f ≈ g → h ∘ f ≈ h ∘ g
-  ∘-resp-≈ʳ f≈g = ∘-resp-≈ refl f≈g
+  ∘≈ʳ : ∀ {f g : a ⇨ b} {h : b ⇨ c} → f ≈ g → h ∘ f ≈ h ∘ g
+  ∘≈ʳ f≈g = ∘≈ refl f≈g
 
   assoc² : {a₀ a₁ a₂ a₃ : obj}
            {f₁ : a₀ ⇨ a₁}{f₂ : a₁ ⇨ a₂}{f₃ : a₂ ⇨ a₃}
@@ -45,23 +45,23 @@ record LawfulCategory {obj : Set o} (_⇨′_ : obj → obj → Set ℓ)
   assoc³ : {a₀ a₁ a₂ a₃ a₄ : obj}
            {f₁ : a₀ ⇨ a₁}{f₂ : a₁ ⇨ a₂}{f₃ : a₂ ⇨ a₃}{f₄ : a₃ ⇨ a₄}
          → (f₄ ∘ f₃ ∘ f₂) ∘ f₁ ≈ f₄ ∘ f₃ ∘ f₂ ∘ f₁
-  assoc³ = ∘-resp-≈ʳ assoc² • assoc
+  assoc³ = ∘≈ʳ assoc² • assoc
 
   assoc⁴ : {a₀ a₁ a₂ a₃ a₄ a₅ : obj}
      {f₁ : a₀ ⇨ a₁}{f₂ : a₁ ⇨ a₂}{f₃ : a₂ ⇨ a₃}{f₄ : a₃ ⇨ a₄}{f₅ : a₄ ⇨ a₅}
    → (f₅ ∘ f₄ ∘ f₃ ∘ f₂) ∘ f₁ ≈ f₅ ∘ f₄ ∘ f₃ ∘ f₂ ∘ f₁
-  assoc⁴ = ∘-resp-≈ʳ assoc³ • assoc
+  assoc⁴ = ∘≈ʳ assoc³ • assoc
 
   assoc⁵ : {a₀ a₁ a₂ a₃ a₄ a₅ a₆ : obj}
      {f₁ : a₀ ⇨ a₁}{f₂ : a₁ ⇨ a₂}{f₃ : a₂ ⇨ a₃}{f₄ : a₃ ⇨ a₄}{f₅ : a₄ ⇨ a₅}{f₆ : a₅ ⇨ a₆}
    → (f₆ ∘ f₅ ∘ f₄ ∘ f₃ ∘ f₂) ∘ f₁ ≈ f₆ ∘ f₅ ∘ f₄ ∘ f₃ ∘ f₂ ∘ f₁
-  assoc⁵ = ∘-resp-≈ʳ assoc⁴ • assoc
+  assoc⁵ = ∘≈ʳ assoc⁴ • assoc
 
   -- TODO: can we define general assoc↑ that takes a ℕ?
 
   assoc-middle : {f : a ⇨ b}{g : b ⇨ c}{h : c ⇨ d}{k : d ⇨ e}
                → (k ∘ h) ∘ (g ∘ f) ≈ k ∘ (h ∘ g) ∘ f
-  assoc-middle = ∘-resp-≈ʳ (sym assoc) • assoc
+  assoc-middle = ∘≈ʳ (sym assoc) • assoc
 
   inAssoc : {f : a ⇨ b}{g : b ⇨ c}{h : c ⇨ d}{gf : a ⇨ c}
             (g∘f≈gf : g ∘ f ≈ gf) → (h ∘ g) ∘ f ≈ h ∘ gf
@@ -70,7 +70,7 @@ record LawfulCategory {obj : Set o} (_⇨′_ : obj → obj → Set ℓ)
       (h ∘ g) ∘ f
     ≈⟨ assoc ⟩
       h ∘ g ∘ f
-    ≈⟨ ∘-resp-≈ʳ g∘f≈gf ⟩
+    ≈⟨ ∘≈ʳ g∘f≈gf ⟩
       h ∘ gf
     ∎
 
@@ -81,13 +81,13 @@ record LawfulCategory {obj : Set o} (_⇨′_ : obj → obj → Set ℓ)
       h ∘ g ∘ f
     ≈⟨ sym assoc ⟩
       (h ∘ g) ∘ f
-    ≈⟨ ∘-resp-≈ˡ h∘g≈hg ⟩
+    ≈⟨ ∘≈ˡ h∘g≈hg ⟩
       hg ∘ f
     ∎
 
   g⁻¹∘g∘f : {f : a ⇨ b}{g : b ⇨ c}{g⁻¹ : c ⇨ b}
             (g⁻¹∘g : g⁻¹ ∘ g ≈ id) → g⁻¹ ∘ g ∘ f ≈ f
-  g⁻¹∘g∘f {f = f}{g}{g⁻¹} g⁻¹∘g = identityˡ • ∘-resp-≈ˡ g⁻¹∘g • sym assoc
+  g⁻¹∘g∘f {f = f}{g}{g⁻¹} g⁻¹∘g = identityˡ • ∘≈ˡ g⁻¹∘g • sym assoc
   
   -- infixr 8 _✂_
 
@@ -131,13 +131,13 @@ record LawfulMonoidal {obj : Set o} ⦃ _ : Products obj ⦄
     assocʳ∘⊗ : ∀ {a a′ b b′ c c′} {f : a ⇨ a′}{g : b ⇨ b′}{h : c ⇨ c′}
              → assocʳ ∘ ((f ⊗ g) ⊗ h) ≈ (f ⊗ (g ⊗ h)) ∘ assocʳ
 
-    ⊗-resp-≈ : ∀ {f h : a ⇨ c} {g k : b ⇨ d} (f≈h : f ≈ h) (g≈k : g ≈ k) → f ⊗ g ≈ h ⊗ k
+    ⊗≈ : ∀ {f h : a ⇨ c} {g k : b ⇨ d} (f≈h : f ≈ h) (g≈k : g ≈ k) → f ⊗ g ≈ h ⊗ k
 
-  ⊗-resp-≈ʳ : ∀ {f : a ⇨ c} {g k : b ⇨ d} → g ≈ k → f ⊗ g ≈ f ⊗ k
-  ⊗-resp-≈ʳ g≈k = ⊗-resp-≈ refl g≈k
+  ⊗≈ʳ : ∀ {f : a ⇨ c} {g k : b ⇨ d} → g ≈ k → f ⊗ g ≈ f ⊗ k
+  ⊗≈ʳ g≈k = ⊗≈ refl g≈k
 
-  ⊗-resp-≈ˡ : ∀ {f h : a ⇨ c} {g : b ⇨ d} → f ≈ h → f ⊗ g ≈ h ⊗ g
-  ⊗-resp-≈ˡ f≈h = ⊗-resp-≈ f≈h refl
+  ⊗≈ˡ : ∀ {f h : a ⇨ c} {g : b ⇨ d} → f ≈ h → f ⊗ g ≈ h ⊗ g
+  ⊗≈ˡ f≈h = ⊗≈ f≈h refl
 
   first∘second : ∀ {a b c d : obj} {f : a ⇨ c} {g : b ⇨ d}
                → first f ∘ second g ≈ f ⊗ g
@@ -148,7 +148,7 @@ record LawfulMonoidal {obj : Set o} ⦃ _ : Products obj ⦄
       (f ⊗ id) ∘ (id ⊗ g)
     ≈⟨ ∘⊗ ⟩
       (f ∘ id) ⊗ (id ∘ g)
-    ≈⟨ ⊗-resp-≈ identityʳ identityˡ ⟩
+    ≈⟨ ⊗≈ identityʳ identityˡ ⟩
       f ⊗ g
     ∎
 
@@ -161,7 +161,7 @@ record LawfulMonoidal {obj : Set o} ⦃ _ : Products obj ⦄
       (id ⊗ g) ∘ (f ⊗ id)
     ≈⟨ ∘⊗ ⟩
       (id ∘ f) ⊗ (g ∘ id)
-    ≈⟨ ⊗-resp-≈ identityˡ identityʳ ⟩
+    ≈⟨ ⊗≈ identityˡ identityʳ ⟩
       f ⊗ g
     ∎
 
@@ -174,7 +174,7 @@ record LawfulMonoidal {obj : Set o} ⦃ _ : Products obj ⦄
       (g ⊗ id) ∘ (f ⊗ id)
     ≈⟨ ∘⊗ ⟩
      (g ∘ f) ⊗ (id ∘ id)
-    ≈⟨ ⊗-resp-≈ʳ identityʳ ⟩
+    ≈⟨ ⊗≈ʳ identityʳ ⟩
       (g ∘ f) ⊗ id
     ≡⟨⟩
       first (g ∘ f)
@@ -189,7 +189,7 @@ record LawfulMonoidal {obj : Set o} ⦃ _ : Products obj ⦄
       (id ⊗ g) ∘ (id ⊗ f)
     ≈⟨ ∘⊗ ⟩
      (id ∘ id) ⊗ (g ∘ f)
-    ≈⟨ ⊗-resp-≈ˡ identityʳ ⟩
+    ≈⟨ ⊗≈ˡ identityʳ ⟩
       id ⊗ (g ∘ f)
     ≡⟨⟩
       second (g ∘ f)
@@ -200,11 +200,11 @@ record LawfulMonoidal {obj : Set o} ⦃ _ : Products obj ⦄
   assocˡ∘⊗∘assocʳ {f = f}{g}{h} =
     begin
       assocˡ ∘ (f ⊗ (g ⊗ h)) ∘ assocʳ
-    ≈˘⟨ ∘-resp-≈ʳ assocʳ∘⊗ ⟩
+    ≈˘⟨ ∘≈ʳ assocʳ∘⊗ ⟩
       assocˡ ∘ assocʳ ∘ ((f ⊗ g) ⊗ h)
     ≈˘⟨ assoc ⟩
       (assocˡ ∘ assocʳ) ∘ ((f ⊗ g) ⊗ h)
-    ≈⟨ ∘-resp-≈ˡ (assocˡ∘assocʳ) ⟩
+    ≈⟨ ∘≈ˡ (assocˡ∘assocʳ) ⟩
       id ∘ ((f ⊗ g) ⊗ h)
     ≈⟨ identityˡ ⟩
       (f ⊗ g) ⊗ h
@@ -215,11 +215,11 @@ record LawfulMonoidal {obj : Set o} ⦃ _ : Products obj ⦄
   assocʳ∘⊗∘assocˡ {f = f}{g}{h} =
     begin
       assocʳ ∘ ((f ⊗ g) ⊗ h) ∘ assocˡ
-    ≈˘⟨ ∘-resp-≈ʳ assocˡ∘⊗ ⟩
+    ≈˘⟨ ∘≈ʳ assocˡ∘⊗ ⟩
       assocʳ ∘ assocˡ ∘ (f ⊗ (g ⊗ h))
     ≈˘⟨ assoc ⟩
       (assocʳ ∘ assocˡ) ∘ (f ⊗ (g ⊗ h))
-    ≈⟨ ∘-resp-≈ˡ (assocʳ∘assocˡ) ⟩
+    ≈⟨ ∘≈ˡ (assocʳ∘assocˡ) ⟩
       id ∘ (f ⊗ (g ⊗ h))
     ≈⟨ identityˡ ⟩
       f ⊗ (g ⊗ h)
@@ -234,7 +234,7 @@ record LawfulMonoidal {obj : Set o} ⦃ _ : Products obj ⦄
       (f ⊗ id) ⊗ id
     ≈˘⟨ assocˡ∘⊗∘assocʳ ⟩
       assocˡ ∘ (f ⊗ (id ⊗ id)) ∘ assocʳ
-    ≈⟨ ∘-resp-≈ʳ (∘-resp-≈ˡ (⊗-resp-≈ʳ id⊗id)) ⟩
+    ≈⟨ ∘≈ʳ (∘≈ˡ (⊗≈ʳ id⊗id)) ⟩
       assocˡ ∘ (f ⊗ id) ∘ assocʳ
     ≡⟨⟩
       assocˡ ∘ first f ∘ assocʳ
@@ -249,7 +249,7 @@ record LawfulMonoidal {obj : Set o} ⦃ _ : Products obj ⦄
       id ⊗ (id ⊗ g)
     ≈˘⟨ assocʳ∘⊗∘assocˡ ⟩
       assocʳ ∘ ((id ⊗ id) ⊗ g) ∘ assocˡ
-    ≈⟨ ∘-resp-≈ʳ (∘-resp-≈ˡ (⊗-resp-≈ˡ id⊗id)) ⟩
+    ≈⟨ ∘≈ʳ (∘≈ˡ (⊗≈ˡ id⊗id)) ⟩
       assocʳ ∘ (id ⊗ g) ∘ assocˡ
     ≡⟨⟩
       assocʳ ∘ second g ∘ assocˡ
@@ -262,7 +262,7 @@ record LawfulMonoidal {obj : Set o} ⦃ _ : Products obj ⦄
       (f⁻¹ ⊗ g⁻¹) ∘ (f ⊗ g)
     ≈⟨ ∘⊗ ⟩
       (f⁻¹ ∘ f) ⊗ (g⁻¹ ∘ g)
-    ≈⟨ ⊗-resp-≈ f⁻¹∘f≈id g⁻¹∘g ⟩
+    ≈⟨ ⊗≈ f⁻¹∘f≈id g⁻¹∘g ⟩
       id ⊗ id
     ≈⟨ id⊗id ⟩
       id

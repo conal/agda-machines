@@ -21,7 +21,7 @@ module VecFunLawfulInstances where
       { identityˡ = λ {a b}{f}{n} as → ≡.refl
       ; identityʳ = λ {a b}{f}{n} as → ≡.refl
       ; assoc     = λ {c d b a}{f g h}{n} as → ≡.refl
-      ; ∘-resp-≈  = λ {a b c}{(mk f) (mk g)}{(mk h) (mk k)} h≈k f≈g {n} →
+      ; ∘≈  = λ {a b c}{(mk f) (mk g)}{(mk h) (mk k)} h≈k f≈g {n} →
          let open ≈-Reasoning {_⇨_ = Function} in
           begin
             ⟦ mk h ∘ mk f ⟧ₛ {n}
@@ -29,7 +29,7 @@ module VecFunLawfulInstances where
             ⟦ mk (h ∘ f) ⟧ₛ {n}
           ≡⟨⟩
             h {n} ∘ f {n}
-          ≈⟨ ∘-resp-≈ (h≈k {n}) (f≈g {n}) ⟩
+          ≈⟨ ∘≈ (h≈k {n}) (f≈g {n}) ⟩
             k {n} ∘ g {n}
           ≡⟨⟩
             ⟦ mk (k ∘ g) ⟧ₛ {n}

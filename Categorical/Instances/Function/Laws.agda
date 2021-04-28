@@ -34,7 +34,7 @@ module →Lawful where
       { identityˡ = λ x → ≡.refl
       ; identityʳ = λ x → ≡.refl
       ; assoc     = λ x → ≡.refl
-      ; ∘-resp-≈  = λ {a b c}{f g}{h k} h∼k f∼g x
+      ; ∘≈  = λ {a b c}{f g}{h k} h∼k f∼g x
                       → ≡.trans (h∼k (f x)) (cong k (f∼g x))
       }
 
@@ -49,6 +49,6 @@ module →Lawful where
       ; assocʳ∘assocˡ     = λ x → ≡.refl
       ; assocˡ∘assocʳ     = λ x → ≡.refl
       ; assocˡ∘⊗          = λ x → ≡.refl
-      ; ⊗-resp-≈          = λ f≗h g≗k → λ (x , y) → f≗h x ≡,≡ g≗k y
+      ; ⊗≈          = λ f≗h g≗k → λ (x , y) → f≗h x ≡,≡ g≗k y
       ; assocʳ∘⊗          = λ x → ≡.refl
       }

@@ -90,7 +90,7 @@ swizzle-∘ g f {a} =
   ∎
  where open ≡-Reasoning
        open import Function using (_∘′_)  -- temp
-       -- Special case of ∘-resp-≈ˡ, but let's not import Categorical.Laws
+       -- Special case of ∘≈ˡ, but let's not import Categorical.Laws
        ≗∘ : ∀ {a}{A : Set a}{b}{B : Set b}{c}{C : Set c} (g h : B → C) (f : A → B)
           → g ≗ h → g ∘′ f ≗ h ∘′ f
        ≗∘ g h f g≗h x = g≗h (f x)

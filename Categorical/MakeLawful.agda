@@ -36,7 +36,7 @@ LawfulCategoryᶠ F = record
         Fₘ (id ∘ f)
       ≈⟨ F-∘ id f ⟩
         Fₘ id ∘ Fₘ f
-      ≈⟨ ∘-resp-≈ˡ F-id  ⟩
+      ≈⟨ ∘≈ˡ F-id  ⟩
         id ∘ Fₘ f
       ≈⟨ identityˡ ⟩
         Fₘ f
@@ -46,7 +46,7 @@ LawfulCategoryᶠ F = record
         Fₘ (f ∘ id)
       ≈⟨ F-∘ f id ⟩
         Fₘ f ∘ Fₘ id
-      ≈⟨ ∘-resp-≈ʳ F-id  ⟩
+      ≈⟨ ∘≈ʳ F-id  ⟩
         Fₘ f ∘ id
       ≈⟨ identityʳ ⟩
         Fₘ f
@@ -56,21 +56,21 @@ LawfulCategoryᶠ F = record
         Fₘ ((h ∘ g) ∘ f)
       ≈⟨ F-∘ _ _ ⟩
         Fₘ (h ∘ g) ∘ Fₘ f
-      ≈⟨ ∘-resp-≈ˡ (F-∘ _ _) ⟩
+      ≈⟨ ∘≈ˡ (F-∘ _ _) ⟩
         (Fₘ h ∘ Fₘ g) ∘ Fₘ f
       ≈⟨ assoc ⟩
         Fₘ h ∘ (Fₘ g ∘ Fₘ f)
-      ≈˘⟨ ∘-resp-≈ʳ (F-∘ _ _) ⟩
+      ≈˘⟨ ∘≈ʳ (F-∘ _ _) ⟩
         Fₘ h ∘ (Fₘ (g ∘ f))
       ≈˘⟨ F-∘ _ _ ⟩
         Fₘ (h ∘ (g ∘ f))
       ∎
-  ; ∘-resp-≈ = λ {a b c}{f g h k} h∼k f∼g →
+  ; ∘≈ = λ {a b c}{f g h k} h∼k f∼g →
       begin
         Fₘ (h ∘ f)
       ≈⟨ F-∘ h f ⟩
         Fₘ h ∘ Fₘ f
-      ≈⟨ ∘-resp-≈ h∼k f∼g ⟩
+      ≈⟨ ∘≈ h∼k f∼g ⟩
         Fₘ k ∘ Fₘ g
       ≈˘⟨ F-∘ k g ⟩
         Fₘ (k ∘ g)
@@ -107,21 +107,21 @@ module LawfulMonoidalH
   --     Fₘ unitorᵉˡ
   --   ≈˘⟨ identityʳ ⟩
   --     Fₘ unitorᵉˡ ∘ id
-  --   ≈˘⟨ ∘-resp-≈ʳ μ∘μ⁻¹ ⟩
+  --   ≈˘⟨ ∘≈ʳ μ∘μ⁻¹ ⟩
   --     Fₘ unitorᵉˡ ∘ (μ ∘ μ⁻¹)
-  --   ≈˘⟨ ∘-resp-≈ʳ (∘-resp-≈ʳ identityˡ) ⟩
+  --   ≈˘⟨ ∘≈ʳ (∘≈ʳ identityˡ) ⟩
   --     Fₘ unitorᵉˡ ∘ (μ ∘ id ∘ μ⁻¹)
-  --   ≈˘⟨ ∘-resp-≈ʳ (∘-resp-≈ʳ (∘-resp-≈ˡ id⊗id)) ⟩
+  --   ≈˘⟨ ∘≈ʳ (∘≈ʳ (∘≈ˡ id⊗id)) ⟩
   --     Fₘ unitorᵉˡ ∘ (μ ∘ first id ∘ μ⁻¹)
-  --   ≈˘⟨ ∘-resp-≈ʳ (∘-resp-≈ʳ (∘-resp-≈ˡ (⊗-resp-≈ˡ ε∘ε⁻¹))) ⟩
+  --   ≈˘⟨ ∘≈ʳ (∘≈ʳ (∘≈ˡ (⊗≈ˡ ε∘ε⁻¹))) ⟩
   --     Fₘ unitorᵉˡ ∘ (μ ∘ first (ε ∘ ε⁻¹) ∘ μ⁻¹)
-  --   ≈˘⟨ ∘-resp-≈ʳ (∘-resp-≈ʳ (∘-resp-≈ˡ first∘first)) ⟩
+  --   ≈˘⟨ ∘≈ʳ (∘≈ʳ (∘≈ˡ first∘first)) ⟩
   --     Fₘ unitorᵉˡ ∘ (μ ∘ (first ε ∘ first ε⁻¹) ∘ μ⁻¹)
-  --   ≈˘⟨ ∘-resp-≈ʳ assoc-middle ⟩
+  --   ≈˘⟨ ∘≈ʳ assoc-middle ⟩
   --     Fₘ unitorᵉˡ ∘ ((μ ∘ first ε) ∘ (first ε⁻¹ ∘ μ⁻¹))
   --   ≈˘⟨ assoc ⟩
   --     (Fₘ unitorᵉˡ ∘ μ ∘ first ε) ∘ first ε⁻¹ ∘ μ⁻¹
-  --   ≈⟨ ∘-resp-≈ˡ F-unitorᵉˡ ⟩
+  --   ≈⟨ ∘≈ˡ F-unitorᵉˡ ⟩
   --     unitorᵉˡ ∘ first ε⁻¹ ∘ μ⁻¹
   --   ∎
 
@@ -132,21 +132,21 @@ module LawfulMonoidalH
   --     Fₘ unitorᵉʳ
   --   ≈˘⟨ identityʳ ⟩
   --     Fₘ unitorᵉʳ ∘ id
-  --   ≈˘⟨ ∘-resp-≈ʳ μ∘μ⁻¹ ⟩
+  --   ≈˘⟨ ∘≈ʳ μ∘μ⁻¹ ⟩
   --     Fₘ unitorᵉʳ ∘ (μ ∘ μ⁻¹)
-  --   ≈˘⟨ ∘-resp-≈ʳ (∘-resp-≈ʳ identityˡ) ⟩
+  --   ≈˘⟨ ∘≈ʳ (∘≈ʳ identityˡ) ⟩
   --     Fₘ unitorᵉʳ ∘ (μ ∘ id ∘ μ⁻¹)
-  --   ≈˘⟨ ∘-resp-≈ʳ (∘-resp-≈ʳ (∘-resp-≈ˡ id⊗id)) ⟩
+  --   ≈˘⟨ ∘≈ʳ (∘≈ʳ (∘≈ˡ id⊗id)) ⟩
   --     Fₘ unitorᵉʳ ∘ (μ ∘ second id ∘ μ⁻¹)
-  --   ≈˘⟨ ∘-resp-≈ʳ (∘-resp-≈ʳ (∘-resp-≈ˡ (⊗-resp-≈ʳ ε∘ε⁻¹))) ⟩
+  --   ≈˘⟨ ∘≈ʳ (∘≈ʳ (∘≈ˡ (⊗≈ʳ ε∘ε⁻¹))) ⟩
   --     Fₘ unitorᵉʳ ∘ (μ ∘ second (ε ∘ ε⁻¹) ∘ μ⁻¹)
-  --   ≈˘⟨ ∘-resp-≈ʳ (∘-resp-≈ʳ (∘-resp-≈ˡ second∘second)) ⟩
+  --   ≈˘⟨ ∘≈ʳ (∘≈ʳ (∘≈ˡ second∘second)) ⟩
   --     Fₘ unitorᵉʳ ∘ (μ ∘ (second ε ∘ second ε⁻¹) ∘ μ⁻¹)
-  --   ≈˘⟨ ∘-resp-≈ʳ assoc-middle ⟩
+  --   ≈˘⟨ ∘≈ʳ assoc-middle ⟩
   --     Fₘ unitorᵉʳ ∘ ((μ ∘ second ε) ∘ (second ε⁻¹ ∘ μ⁻¹))
   --   ≈˘⟨ assoc ⟩
   --     (Fₘ unitorᵉʳ ∘ μ ∘ second ε) ∘ second ε⁻¹ ∘ μ⁻¹
-  --   ≈⟨ ∘-resp-≈ˡ F-unitorᵉʳ ⟩
+  --   ≈⟨ ∘≈ˡ F-unitorᵉʳ ⟩
   --     unitorᵉʳ ∘ second ε⁻¹ ∘ μ⁻¹
   --   ∎
 
@@ -158,11 +158,11 @@ module LawfulMonoidalH
   --     Fₘ (f ⊗ g)
   --   ≈˘⟨ identityʳ ⟩
   --     Fₘ (f ⊗ g) ∘ id
-  --   ≈˘⟨ ∘-resp-≈ʳ μ∘μ⁻¹ ⟩
+  --   ≈˘⟨ ∘≈ʳ μ∘μ⁻¹ ⟩
   --     Fₘ (f ⊗ g) ∘ (μ ∘ μ⁻¹)
   --   ≈˘⟨ assoc ⟩
   --     (Fₘ (f ⊗ g) ∘ μ) ∘ μ⁻¹
-  --   ≈⟨ ∘-resp-≈ˡ (F-⊗ f g) ⟩
+  --   ≈⟨ ∘≈ˡ (F-⊗ f g) ⟩
   --     (μ ∘ (Fₘ f ⊗ Fₘ g)) ∘ μ⁻¹
   --   ≈⟨ assoc ⟩
   --     μ ∘ (Fₘ f ⊗ Fₘ g) ∘ μ⁻¹
@@ -177,7 +177,7 @@ module LawfulMonoidalH
   --     Fₘ (f ⊗ id) ∘ μ
   --   ≈⟨ F-⊗ f id ⟩
   --     μ ∘ (Fₘ f ⊗ Fₘ id)
-  --   ≈⟨ ∘-resp-≈ʳ (⊗-resp-≈ʳ F-id) ⟩
+  --   ≈⟨ ∘≈ʳ (⊗≈ʳ F-id) ⟩
   --     μ ∘ (Fₘ f ⊗ id)
   --   ≡⟨⟩
   --     μ ∘ first (Fₘ f)
@@ -192,7 +192,7 @@ module LawfulMonoidalH
   --     Fₘ (id ⊗ g) ∘ μ
   --   ≈⟨ F-⊗ id g ⟩
   --     μ ∘ (Fₘ id ⊗ Fₘ g)
-  --   ≈⟨ ∘-resp-≈ʳ (⊗-resp-≈ˡ F-id) ⟩
+  --   ≈⟨ ∘≈ʳ (⊗≈ˡ F-id) ⟩
   --     μ ∘ (id ⊗ Fₘ g)
   --   ≡⟨⟩
   --     μ ∘ second (Fₘ g)
@@ -206,25 +206,25 @@ module LawfulMonoidalH
   --     Fₘ assocˡ
   --   ≈˘⟨ identityʳ ⟩
   --     Fₘ assocˡ ∘ id
-  --   ≈˘⟨ ∘-resp-≈ʳ μ∘μ⁻¹ ⟩
+  --   ≈˘⟨ ∘≈ʳ μ∘μ⁻¹ ⟩
   --     Fₘ assocˡ ∘ (μ ∘ μ⁻¹)
-  --   ≈˘⟨ ∘-resp-≈ʳ (∘-resp-≈ʳ identityˡ) ⟩
+  --   ≈˘⟨ ∘≈ʳ (∘≈ʳ identityˡ) ⟩
   --     Fₘ assocˡ ∘ (μ ∘ id ∘ μ⁻¹)
-  --   ≈˘⟨ ∘-resp-≈ʳ (∘-resp-≈ʳ (∘-resp-≈ˡ id⊗id)) ⟩
+  --   ≈˘⟨ ∘≈ʳ (∘≈ʳ (∘≈ˡ id⊗id)) ⟩
   --     Fₘ assocˡ ∘ (μ ∘ second id ∘ μ⁻¹)
-  --   ≈˘⟨ ∘-resp-≈ʳ (∘-resp-≈ʳ (∘-resp-≈ˡ (⊗-resp-≈ʳ μ∘μ⁻¹))) ⟩
+  --   ≈˘⟨ ∘≈ʳ (∘≈ʳ (∘≈ˡ (⊗≈ʳ μ∘μ⁻¹))) ⟩
   --     Fₘ assocˡ ∘ (μ ∘ second (μ ∘ μ⁻¹) ∘ μ⁻¹)
-  --   ≈˘⟨ ∘-resp-≈ʳ (∘-resp-≈ʳ (∘-resp-≈ˡ second∘second)) ⟩
+  --   ≈˘⟨ ∘≈ʳ (∘≈ʳ (∘≈ˡ second∘second)) ⟩
   --     Fₘ assocˡ ∘ (μ ∘ (second μ ∘ second μ⁻¹) ∘ μ⁻¹)
-  --   ≈˘⟨ ∘-resp-≈ʳ assoc-middle ⟩
+  --   ≈˘⟨ ∘≈ʳ assoc-middle ⟩
   --     Fₘ assocˡ ∘ (μ ∘ second μ) ∘ (second μ⁻¹ ∘ μ⁻¹)
   --   ≈˘⟨ assoc ⟩
   --     (Fₘ assocˡ ∘ μ ∘ second μ) ∘ (second μ⁻¹ ∘ μ⁻¹)
-  --   ≈⟨ ∘-resp-≈ˡ F-assocˡ ⟩
+  --   ≈⟨ ∘≈ˡ F-assocˡ ⟩
   --     (μ ∘ first  μ ∘ assocˡ) ∘ (second μ⁻¹ ∘ μ⁻¹)
   --   ≈⟨ assoc ⟩
   --     μ ∘ (first  μ ∘ assocˡ) ∘ (second μ⁻¹ ∘ μ⁻¹)
-  --   ≈⟨ ∘-resp-≈ʳ assoc ⟩
+  --   ≈⟨ ∘≈ʳ assoc ⟩
   --     μ ∘ first  μ ∘ assocˡ ∘ second μ⁻¹ ∘ μ⁻¹
   --   ∎
 
@@ -236,25 +236,25 @@ module LawfulMonoidalH
   --     Fₘ assocʳ
   --   ≈˘⟨ identityʳ ⟩
   --     Fₘ assocʳ ∘ id
-  --   ≈˘⟨ ∘-resp-≈ʳ μ∘μ⁻¹ ⟩
+  --   ≈˘⟨ ∘≈ʳ μ∘μ⁻¹ ⟩
   --     Fₘ assocʳ ∘ (μ ∘ μ⁻¹)
-  --   ≈˘⟨ ∘-resp-≈ʳ (∘-resp-≈ʳ identityˡ) ⟩
+  --   ≈˘⟨ ∘≈ʳ (∘≈ʳ identityˡ) ⟩
   --     Fₘ assocʳ ∘ (μ ∘ id ∘ μ⁻¹)
-  --   ≈˘⟨ ∘-resp-≈ʳ (∘-resp-≈ʳ (∘-resp-≈ˡ id⊗id)) ⟩
+  --   ≈˘⟨ ∘≈ʳ (∘≈ʳ (∘≈ˡ id⊗id)) ⟩
   --     Fₘ assocʳ ∘ (μ ∘ first id ∘ μ⁻¹)
-  --   ≈˘⟨ ∘-resp-≈ʳ (∘-resp-≈ʳ (∘-resp-≈ˡ (⊗-resp-≈ˡ μ∘μ⁻¹))) ⟩
+  --   ≈˘⟨ ∘≈ʳ (∘≈ʳ (∘≈ˡ (⊗≈ˡ μ∘μ⁻¹))) ⟩
   --     Fₘ assocʳ ∘ (μ ∘ first (μ ∘ μ⁻¹) ∘ μ⁻¹)
-  --   ≈˘⟨ ∘-resp-≈ʳ (∘-resp-≈ʳ (∘-resp-≈ˡ first∘first)) ⟩
+  --   ≈˘⟨ ∘≈ʳ (∘≈ʳ (∘≈ˡ first∘first)) ⟩
   --     Fₘ assocʳ ∘ (μ ∘ (first μ ∘ first μ⁻¹) ∘ μ⁻¹)
-  --   ≈˘⟨ ∘-resp-≈ʳ assoc-middle ⟩
+  --   ≈˘⟨ ∘≈ʳ assoc-middle ⟩
   --     Fₘ assocʳ ∘ (μ ∘ first μ) ∘ (first μ⁻¹ ∘ μ⁻¹)
   --   ≈˘⟨ assoc ⟩
   --     (Fₘ assocʳ ∘ μ ∘ first μ) ∘ (first μ⁻¹ ∘ μ⁻¹)
-  --   ≈⟨ ∘-resp-≈ˡ F-assocʳ ⟩
+  --   ≈⟨ ∘≈ˡ F-assocʳ ⟩
   --     (μ ∘ second  μ ∘ assocʳ) ∘ (first μ⁻¹ ∘ μ⁻¹)
   --   ≈⟨ assoc ⟩
   --     μ ∘ (second  μ ∘ assocʳ) ∘ (first μ⁻¹ ∘ μ⁻¹)
-  --   ≈⟨ ∘-resp-≈ʳ assoc ⟩
+  --   ≈⟨ ∘≈ʳ assoc ⟩
   --     μ ∘ second  μ ∘ assocʳ ∘ first μ⁻¹ ∘ μ⁻¹
   --   ∎
 
@@ -282,11 +282,11 @@ LawfulMonoidalᶠ {_⇨₁_ = _⇨₁_} {_⇨₂_ = _⇨₂_} {q = q} ⦃ F = F 
              --   Fₘ (id ⊗ id)
              -- ≈⟨ F-⊗′ id id ⟩
              --   μ ∘ (Fₘ id ⊗ Fₘ id) ∘ μ⁻¹
-             -- ≈⟨ ∘-resp-≈ʳ (∘-resp-≈ˡ (⊗-resp-≈ F-id F-id)) ⟩
+             -- ≈⟨ ∘≈ʳ (∘≈ˡ (⊗≈ F-id F-id)) ⟩
              --   μ ∘ (id ⊗ id) ∘ μ⁻¹
-             -- ≈⟨ ∘-resp-≈ʳ (∘-resp-≈ˡ id⊗id) ⟩
+             -- ≈⟨ ∘≈ʳ (∘≈ˡ id⊗id) ⟩
              --   μ ∘ id ∘ μ⁻¹
-             -- ≈⟨ ∘-resp-≈ʳ identityˡ ⟩
+             -- ≈⟨ ∘≈ʳ identityˡ ⟩
              --   μ ∘ μ⁻¹
              -- ≈⟨ μ∘μ⁻¹ ⟩
              --   id
@@ -300,21 +300,21 @@ LawfulMonoidalᶠ {_⇨₁_ = _⇨₁_} {_⇨₂_ = _⇨₂_} {q = q} ⦃ F = F 
              --   Fₘ ((h ⊗ k) ∘ (f ⊗ g))
              -- ≈⟨ F-∘ _ _ ⟩
              --   Fₘ (h ⊗ k) ∘ Fₘ (f ⊗ g)
-             -- ≈⟨ ∘-resp-≈ (F-⊗′ h k) (F-⊗′ f g) ⟩
+             -- ≈⟨ ∘≈ (F-⊗′ h k) (F-⊗′ f g) ⟩
              --   (μ ∘ (Fₘ h ⊗ Fₘ k) ∘ μ⁻¹) ∘ (μ ∘ (Fₘ f ⊗ Fₘ g) ∘ μ⁻¹)
-             -- ≈˘⟨ ∘-resp-≈ˡ assoc ⟩
+             -- ≈˘⟨ ∘≈ˡ assoc ⟩
              --   ((μ ∘ (Fₘ h ⊗ Fₘ k)) ∘ μ⁻¹) ∘ (μ ∘ (Fₘ f ⊗ Fₘ g) ∘ μ⁻¹)
              -- ≈⟨ assoc-middle ⟩
              --   (μ ∘ (Fₘ h ⊗ Fₘ k)) ∘ (μ⁻¹ ∘ μ) ∘ ((Fₘ f ⊗ Fₘ g) ∘ μ⁻¹)
-             -- ≈⟨ ∘-resp-≈ʳ (∘-resp-≈ˡ μ⁻¹∘μ) ⟩
+             -- ≈⟨ ∘≈ʳ (∘≈ˡ μ⁻¹∘μ) ⟩
              --   (μ ∘ (Fₘ h ⊗ Fₘ k)) ∘ id ∘ ((Fₘ f ⊗ Fₘ g) ∘ μ⁻¹)
-             -- ≈⟨ ∘-resp-≈ʳ identityˡ ⟩
+             -- ≈⟨ ∘≈ʳ identityˡ ⟩
              --   (μ ∘ (Fₘ h ⊗ Fₘ k)) ∘ ((Fₘ f ⊗ Fₘ g) ∘ μ⁻¹)
              -- ≈⟨ assoc-middle ⟩
              --   μ ∘ ((Fₘ h ⊗ Fₘ k) ∘ (Fₘ f ⊗ Fₘ g)) ∘ μ⁻¹
-             -- ≈⟨ ∘-resp-≈ʳ (∘-resp-≈ˡ ∘⊗) ⟩
+             -- ≈⟨ ∘≈ʳ (∘≈ˡ ∘⊗) ⟩
              --   μ ∘ ((Fₘ h ∘ Fₘ f) ⊗ (Fₘ k ∘ Fₘ g)) ∘ μ⁻¹
-             -- ≈˘⟨ ∘-resp-≈ʳ (∘-resp-≈ˡ (⊗-resp-≈ (F-∘ _ _) (F-∘ _ _))) ⟩
+             -- ≈˘⟨ ∘≈ʳ (∘≈ˡ (⊗≈ (F-∘ _ _) (F-∘ _ _))) ⟩
              --   μ ∘ (Fₘ (h ∘ f) ⊗ Fₘ (k ∘ g)) ∘ μ⁻¹
              -- ≈˘⟨ F-⊗′ _ _ ⟩
              --   Fₘ ((h ∘ f) ⊗ (k ∘ g))
@@ -326,25 +326,25 @@ LawfulMonoidalᶠ {_⇨₁_ = _⇨₁_} {_⇨₂_ = _⇨₂_} {q = q} ⦃ F = F 
             --   Fₘ (unitorᵉˡ ∘ unitorⁱˡ)
             -- ≈⟨ F-∘ _ _ ⟩
             --   Fₘ unitorᵉˡ ∘ Fₘ unitorⁱˡ
-            -- ≈⟨ ∘-resp-≈ F-unitorᵉˡ′ F-unitorⁱˡ ⟩
+            -- ≈⟨ ∘≈ F-unitorᵉˡ′ F-unitorⁱˡ ⟩
             --   (unitorᵉˡ ∘ first ε⁻¹ ∘ μ⁻¹) ∘ (μ ∘ first ε ∘ unitorⁱˡ)
-            -- ≈˘⟨ ∘-resp-≈ˡ assoc ⟩
+            -- ≈˘⟨ ∘≈ˡ assoc ⟩
             --   ((unitorᵉˡ ∘ first ε⁻¹) ∘ μ⁻¹) ∘ (μ ∘ first ε ∘ unitorⁱˡ)
             -- ≈⟨ assoc-middle ⟩
             --   (unitorᵉˡ ∘ first ε⁻¹) ∘ (μ⁻¹ ∘ μ) ∘ (first ε ∘ unitorⁱˡ)
-            -- ≈⟨ ∘-resp-≈ʳ (∘-resp-≈ˡ μ⁻¹∘μ) ⟩
+            -- ≈⟨ ∘≈ʳ (∘≈ˡ μ⁻¹∘μ) ⟩
             --   (unitorᵉˡ ∘ first ε⁻¹) ∘ id ∘ (first ε ∘ unitorⁱˡ)
-            -- ≈⟨ ∘-resp-≈ʳ identityˡ ⟩
+            -- ≈⟨ ∘≈ʳ identityˡ ⟩
             --   (unitorᵉˡ ∘ first ε⁻¹) ∘ (first ε ∘ unitorⁱˡ)
             -- ≈⟨ assoc-middle ⟩
             --   unitorᵉˡ ∘ (first ε⁻¹ ∘ first ε) ∘ unitorⁱˡ
-            -- ≈⟨ ∘-resp-≈ʳ (∘-resp-≈ˡ first∘first) ⟩
+            -- ≈⟨ ∘≈ʳ (∘≈ˡ first∘first) ⟩
             --   unitorᵉˡ ∘ first (ε⁻¹ ∘ ε) ∘ unitorⁱˡ
-            -- ≈⟨ ∘-resp-≈ʳ (∘-resp-≈ˡ (⊗-resp-≈ˡ ε⁻¹∘ε)) ⟩
+            -- ≈⟨ ∘≈ʳ (∘≈ˡ (⊗≈ˡ ε⁻¹∘ε)) ⟩
             --   unitorᵉˡ ∘ first id ∘ unitorⁱˡ
-            -- ≈⟨ ∘-resp-≈ʳ (∘-resp-≈ˡ id⊗id) ⟩
+            -- ≈⟨ ∘≈ʳ (∘≈ˡ id⊗id) ⟩
             --   unitorᵉˡ ∘ id ∘ unitorⁱˡ
-            -- ≈⟨ ∘-resp-≈ʳ identityˡ ⟩
+            -- ≈⟨ ∘≈ʳ identityˡ ⟩
             --   unitorᵉˡ ∘ unitorⁱˡ
             -- ≈⟨ unitorᵉˡ∘unitorⁱˡ ⟩
             --   id
@@ -358,25 +358,25 @@ LawfulMonoidalᶠ {_⇨₁_ = _⇨₁_} {_⇨₂_ = _⇨₂_} {q = q} ⦃ F = F 
             --   Fₘ (unitorⁱˡ ∘ unitorᵉˡ)
             -- ≈⟨ F-∘ _ _ ⟩
             --   Fₘ unitorⁱˡ ∘ Fₘ unitorᵉˡ
-            -- ≈⟨ ∘-resp-≈ F-unitorⁱˡ F-unitorᵉˡ′ ⟩
+            -- ≈⟨ ∘≈ F-unitorⁱˡ F-unitorᵉˡ′ ⟩
             --   (μ ∘ first ε ∘ unitorⁱˡ) ∘ (unitorᵉˡ ∘ first ε⁻¹ ∘ μ⁻¹)
-            -- ≈⟨ ∘-resp-≈ˡ (sym≈ assoc) ⟩
+            -- ≈⟨ ∘≈ˡ (sym≈ assoc) ⟩
             --   ((μ ∘ first ε) ∘ unitorⁱˡ) ∘ (unitorᵉˡ ∘ first ε⁻¹ ∘ μ⁻¹)
             -- ≈⟨ assoc-middle ⟩
             --   (μ ∘ first ε) ∘ (unitorⁱˡ ∘ unitorᵉˡ) ∘ (first ε⁻¹ ∘ μ⁻¹)
-            -- ≈⟨ ∘-resp-≈ʳ (∘-resp-≈ˡ unitorⁱˡ∘unitorᵉˡ) ⟩
+            -- ≈⟨ ∘≈ʳ (∘≈ˡ unitorⁱˡ∘unitorᵉˡ) ⟩
             --   (μ ∘ first ε) ∘ id ∘ (first ε⁻¹ ∘ μ⁻¹)
-            -- ≈⟨ ∘-resp-≈ʳ identityˡ ⟩
+            -- ≈⟨ ∘≈ʳ identityˡ ⟩
             --   (μ ∘ first ε) ∘ (first ε⁻¹ ∘ μ⁻¹)
             -- ≈⟨ assoc-middle ⟩
             --   μ ∘ (first ε ∘ first ε⁻¹) ∘ μ⁻¹
-            -- ≈⟨ ∘-resp-≈ʳ (∘-resp-≈ˡ first∘first) ⟩
+            -- ≈⟨ ∘≈ʳ (∘≈ˡ first∘first) ⟩
             --   μ ∘ first (ε ∘ ε⁻¹) ∘ μ⁻¹
-            -- ≈⟨ ∘-resp-≈ʳ (∘-resp-≈ˡ (⊗-resp-≈ˡ ε∘ε⁻¹)) ⟩
+            -- ≈⟨ ∘≈ʳ (∘≈ˡ (⊗≈ˡ ε∘ε⁻¹)) ⟩
             --   μ ∘ first id ∘ μ⁻¹
-            -- ≈⟨ ∘-resp-≈ʳ (∘-resp-≈ˡ id⊗id) ⟩
+            -- ≈⟨ ∘≈ʳ (∘≈ˡ id⊗id) ⟩
             --   μ ∘ id ∘ μ⁻¹
-            -- ≈⟨ ∘-resp-≈ʳ identityˡ ⟩
+            -- ≈⟨ ∘≈ʳ identityˡ ⟩
             --   μ ∘ μ⁻¹
             -- ≈⟨ μ∘μ⁻¹ ⟩
             --   id
@@ -390,25 +390,25 @@ LawfulMonoidalᶠ {_⇨₁_ = _⇨₁_} {_⇨₂_ = _⇨₂_} {q = q} ⦃ F = F 
             --   Fₘ (unitorᵉʳ ∘ unitorⁱʳ)
             -- ≈⟨ F-∘ _ _ ⟩
             --   Fₘ unitorᵉʳ ∘ Fₘ unitorⁱʳ
-            -- ≈⟨ ∘-resp-≈ F-unitorᵉʳ′ F-unitorⁱʳ ⟩
+            -- ≈⟨ ∘≈ F-unitorᵉʳ′ F-unitorⁱʳ ⟩
             --   (unitorᵉʳ ∘ second ε⁻¹ ∘ μ⁻¹) ∘ (μ ∘ second ε ∘ unitorⁱʳ)
-            -- ≈˘⟨ ∘-resp-≈ˡ assoc ⟩
+            -- ≈˘⟨ ∘≈ˡ assoc ⟩
             --   ((unitorᵉʳ ∘ second ε⁻¹) ∘ μ⁻¹) ∘ (μ ∘ second ε ∘ unitorⁱʳ)
             -- ≈⟨ assoc-middle ⟩
             --   (unitorᵉʳ ∘ second ε⁻¹) ∘ (μ⁻¹ ∘ μ) ∘ (second ε ∘ unitorⁱʳ)
-            -- ≈⟨ ∘-resp-≈ʳ (∘-resp-≈ˡ μ⁻¹∘μ) ⟩
+            -- ≈⟨ ∘≈ʳ (∘≈ˡ μ⁻¹∘μ) ⟩
             --   (unitorᵉʳ ∘ second ε⁻¹) ∘ id ∘ (second ε ∘ unitorⁱʳ)
-            -- ≈⟨ ∘-resp-≈ʳ identityˡ ⟩
+            -- ≈⟨ ∘≈ʳ identityˡ ⟩
             --   (unitorᵉʳ ∘ second ε⁻¹) ∘ (second ε ∘ unitorⁱʳ)
             -- ≈⟨ assoc-middle ⟩
             --   unitorᵉʳ ∘ (second ε⁻¹ ∘ second ε) ∘ unitorⁱʳ
-            -- ≈⟨ ∘-resp-≈ʳ (∘-resp-≈ˡ second∘second) ⟩
+            -- ≈⟨ ∘≈ʳ (∘≈ˡ second∘second) ⟩
             --   unitorᵉʳ ∘ second (ε⁻¹ ∘ ε) ∘ unitorⁱʳ
-            -- ≈⟨ ∘-resp-≈ʳ (∘-resp-≈ˡ (⊗-resp-≈ʳ ε⁻¹∘ε)) ⟩
+            -- ≈⟨ ∘≈ʳ (∘≈ˡ (⊗≈ʳ ε⁻¹∘ε)) ⟩
             --   unitorᵉʳ ∘ second id ∘ unitorⁱʳ
-            -- ≈⟨ ∘-resp-≈ʳ (∘-resp-≈ˡ id⊗id) ⟩
+            -- ≈⟨ ∘≈ʳ (∘≈ˡ id⊗id) ⟩
             --   unitorᵉʳ ∘ id ∘ unitorⁱʳ
-            -- ≈⟨ ∘-resp-≈ʳ identityˡ ⟩
+            -- ≈⟨ ∘≈ʳ identityˡ ⟩
             --   unitorᵉʳ ∘ unitorⁱʳ
             -- ≈⟨ unitorᵉʳ∘unitorⁱʳ ⟩
             --   id
@@ -422,25 +422,25 @@ LawfulMonoidalᶠ {_⇨₁_ = _⇨₁_} {_⇨₂_ = _⇨₂_} {q = q} ⦃ F = F 
             --   Fₘ (unitorⁱʳ ∘ unitorᵉʳ)
             -- ≈⟨ F-∘ _ _ ⟩
             --   Fₘ unitorⁱʳ ∘ Fₘ unitorᵉʳ
-            -- ≈⟨ ∘-resp-≈ F-unitorⁱʳ F-unitorᵉʳ′ ⟩
+            -- ≈⟨ ∘≈ F-unitorⁱʳ F-unitorᵉʳ′ ⟩
             --   (μ ∘ second ε ∘ unitorⁱʳ) ∘ (unitorᵉʳ ∘ second ε⁻¹ ∘ μ⁻¹)
-            -- ≈⟨ ∘-resp-≈ˡ (sym≈ assoc) ⟩
+            -- ≈⟨ ∘≈ˡ (sym≈ assoc) ⟩
             --   ((μ ∘ second ε) ∘ unitorⁱʳ) ∘ (unitorᵉʳ ∘ second ε⁻¹ ∘ μ⁻¹)
             -- ≈⟨ assoc-middle ⟩
             --   (μ ∘ second ε) ∘ (unitorⁱʳ ∘ unitorᵉʳ) ∘ (second ε⁻¹ ∘ μ⁻¹)
-            -- ≈⟨ ∘-resp-≈ʳ (∘-resp-≈ˡ unitorⁱʳ∘unitorᵉʳ) ⟩
+            -- ≈⟨ ∘≈ʳ (∘≈ˡ unitorⁱʳ∘unitorᵉʳ) ⟩
             --   (μ ∘ second ε) ∘ id ∘ (second ε⁻¹ ∘ μ⁻¹)
-            -- ≈⟨ ∘-resp-≈ʳ identityˡ ⟩
+            -- ≈⟨ ∘≈ʳ identityˡ ⟩
             --   (μ ∘ second ε) ∘ (second ε⁻¹ ∘ μ⁻¹)
             -- ≈⟨ assoc-middle ⟩
             --   μ ∘ (second ε ∘ second ε⁻¹) ∘ μ⁻¹
-            -- ≈⟨ ∘-resp-≈ʳ (∘-resp-≈ˡ second∘second) ⟩
+            -- ≈⟨ ∘≈ʳ (∘≈ˡ second∘second) ⟩
             --   μ ∘ second (ε ∘ ε⁻¹) ∘ μ⁻¹
-            -- ≈⟨ ∘-resp-≈ʳ (∘-resp-≈ˡ (⊗-resp-≈ʳ ε∘ε⁻¹)) ⟩
+            -- ≈⟨ ∘≈ʳ (∘≈ˡ (⊗≈ʳ ε∘ε⁻¹)) ⟩
             --   μ ∘ second id ∘ μ⁻¹
-            -- ≈⟨ ∘-resp-≈ʳ (∘-resp-≈ˡ id⊗id) ⟩
+            -- ≈⟨ ∘≈ʳ (∘≈ˡ id⊗id) ⟩
             --   μ ∘ id ∘ μ⁻¹
-            -- ≈⟨ ∘-resp-≈ʳ identityˡ ⟩
+            -- ≈⟨ ∘≈ʳ identityˡ ⟩
             --   μ ∘ μ⁻¹
             -- ≈⟨ μ∘μ⁻¹ ⟩
             --   id
@@ -454,7 +454,7 @@ LawfulMonoidalᶠ {_⇨₁_ = _⇨₁_} {_⇨₂_ = _⇨₂_} {q = q} ⦃ F = F 
             --   Fₘ (assocʳ ∘ assocˡ)
             -- ≈⟨ F-∘ _ _ ⟩
             --   Fₘ assocʳ ∘ Fₘ assocˡ
-            -- ≈⟨ ∘-resp-≈ F-assocʳ′ F-assocˡ′ ⟩
+            -- ≈⟨ ∘≈ F-assocʳ′ F-assocˡ′ ⟩
             --   (μ ∘ second μ ∘ assocʳ ∘ first μ⁻¹ ∘ μ⁻¹) ∘
             --   (μ ∘ first μ ∘ assocˡ ∘ second μ⁻¹ ∘ μ⁻¹)
             -- ≈⟨ μ∘μ⁻¹
@@ -473,7 +473,7 @@ LawfulMonoidalᶠ {_⇨₁_ = _⇨₁_} {_⇨₂_ = _⇨₂_} {q = q} ⦃ F = F 
             --   Fₘ (assocˡ ∘ assocʳ)
             -- ≈⟨ F-∘ _ _ ⟩
             --   Fₘ assocˡ ∘ Fₘ assocʳ
-            -- ≈⟨ ∘-resp-≈ F-assocˡ′ F-assocʳ′ ⟩
+            -- ≈⟨ ∘≈ F-assocˡ′ F-assocʳ′ ⟩
             --   (μ ∘ first μ ∘ assocˡ ∘ second μ⁻¹ ∘ μ⁻¹) ∘
             --   (μ ∘ second μ ∘ assocʳ ∘ first μ⁻¹ ∘ μ⁻¹)
             -- ≈⟨ μ∘μ⁻¹
@@ -491,13 +491,13 @@ LawfulMonoidalᶠ {_⇨₁_ = _⇨₁_} {_⇨₂_ = _⇨₂_} {q = q} ⦃ F = F 
               Fₘ (assocˡ ∘ (f ⊗ (g ⊗ h)))
             -- ≈⟨ F-∘ _ _ ⟩
             --   Fₘ assocˡ ∘ Fₘ (f ⊗ (g ⊗ h))
-            -- ≈⟨ ∘-resp-≈ F-assocˡ′ (F-⊗′ _ _) ⟩
+            -- ≈⟨ ∘≈ F-assocˡ′ (F-⊗′ _ _) ⟩
             --   (μ ∘ first μ ∘ assocˡ ∘ second μ⁻¹ ∘ μ⁻¹) ∘
             --   (μ ∘ (Fₘ f ⊗ Fₘ (g ⊗ h)) ∘ μ⁻¹)
-            -- ≈⟨ ∘-resp-≈ʳ {!!} ⟩
+            -- ≈⟨ ∘≈ʳ {!!} ⟩
             --   (μ ∘ first μ ∘ assocˡ ∘ second μ⁻¹ ∘ μ⁻¹) ∘
             --   (μ ∘ (Fₘ f ⊗ μ ∘ (Fₘ g ⊗ Fₘ h) ∘ μ⁻¹) ∘ μ⁻¹)
-            -- ≈⟨ ∘-resp-≈ʳ {!!} ⟩
+            -- ≈⟨ ∘≈ʳ {!!} ⟩
             --   (μ ∘ first μ ∘ assocˡ ∘ second μ⁻¹ ∘ μ⁻¹) ∘
             --   (μ ∘ (Fₘ f ⊗ (μ ∘ (Fₘ g ⊗ Fₘ h) ∘ μ⁻¹)) ∘ μ⁻¹)
             -- ≈⟨ {!!} ⟩
@@ -525,10 +525,10 @@ LawfulMonoidalᶠ {_⇨₁_ = _⇨₁_} {_⇨₂_ = _⇨₂_} {q = q} ⦃ F = F 
             -- ≈˘⟨ {!!} ⟩
             --   (μ ∘ (μ ∘ (Fₘ f ⊗ Fₘ g) ∘ μ⁻¹ ⊗ Fₘ h) ∘ μ⁻¹) ∘
             --   (μ ∘ first μ ∘ assocˡ ∘ second μ⁻¹ ∘ μ⁻¹)
-            -- ≈˘⟨ ∘-resp-≈ˡ (∘-resp-≈ʳ (∘-resp-≈ˡ (⊗-resp-≈ˡ (F-⊗′ _ _)))) ⟩
+            -- ≈˘⟨ ∘≈ˡ (∘≈ʳ (∘≈ˡ (⊗≈ˡ (F-⊗′ _ _)))) ⟩
             --   (μ ∘ (Fₘ (f ⊗ g) ⊗ Fₘ h) ∘ μ⁻¹) ∘
             --   (μ ∘ first μ ∘ assocˡ ∘ second μ⁻¹ ∘ μ⁻¹)
-            -- ≈˘⟨ ∘-resp-≈ (F-⊗′ _ _) F-assocˡ′ ⟩
+            -- ≈˘⟨ ∘≈ (F-⊗′ _ _) F-assocˡ′ ⟩
             --   Fₘ ((f ⊗ g) ⊗ h) ∘ Fₘ assocˡ
             -- ≈˘⟨ F-∘ _ _ ⟩
               Fₘ (((f ⊗ g) ⊗ h) ∘ assocˡ)
@@ -543,7 +543,7 @@ LawfulMonoidalᶠ {_⇨₁_ = _⇨₁_} {_⇨₂_ = _⇨₂_} {q = q} ⦃ F = F 
             --   Fₘ ((f ⊗ (g ⊗ h)) ∘ assocʳ)
             -- ∎
 
-         ; ⊗-resp-≈ = λ f≈h g≈k → {!!}
+         ; ⊗≈ = λ f≈h g≈k → {!!}
 
          }
 
@@ -569,6 +569,6 @@ LawfulMonoidalᶠ {_⇨₁_ = _⇨₁_} {_⇨₂_ = _⇨₂_} {q = q} ⦃ F = F 
     -- assocʳ∘⊗ : ∀ {a a′ b b′ c c′} {f : a ⇨ a′}{g : b ⇨ b′}{h : c ⇨ c′}
     --          → assocʳ ∘ ((f ⊗ g) ⊗ h) ≈ (f ⊗ (g ⊗ h)) ∘ assocʳ
 
-    -- ⊗-resp-≈ : ∀ {f h : a ⇨ c} {g k : b ⇨ d} → f ≈ h → g ≈ k → f ⊗ g ≈ h ⊗ k
+    -- ⊗≈ : ∀ {f h : a ⇨ c} {g k : b ⇨ d} → f ≈ h → g ≈ k → f ⊗ g ≈ h ⊗ k
 
 -}
