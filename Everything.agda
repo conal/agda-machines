@@ -6,17 +6,17 @@ module Everything where
 
 open import Categorical
 
--- import Category
--- import Ty
--- import Mealy
--- import VecFun
--- import Primitive
--- import Symbolic
--- import Stack
--- import Dot
--- import Test
+import Ty
+import Mealy
+import Primitive
+import Linearize
+import Dot
+import Test
 
--- import Examples.Add
+import Examples.Add
+
+-- import VecFun
+-- import Symbolic
 
 -- -- Experimental modules not used above.
 -- import Tinkering.StreamFun
