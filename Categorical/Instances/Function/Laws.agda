@@ -3,17 +3,12 @@
 module Categorical.Instances.Function.Laws where
 
 open import Level using (Level)
-open import Function using (_∘′_; const; _on_; flip) renaming (id to id′)
 open import Relation.Binary.PropositionalEquality as ≡ using (_≗_; cong)
-open import Data.Nat using (ℕ; zero; suc)
-open import Data.Unit.Polymorphic using () renaming (⊤ to ⊤′)
-open import Data.Product using (_,_; proj₁; proj₂; uncurry)
-  renaming (_×_ to _×′_)
+open import Data.Product using (_,_)
 
 open import Miscellany
 open import Categorical.Raw
 open import Categorical.Laws
-
 open import Categorical.Instances.Function.Raw
 
 private variable o : Level

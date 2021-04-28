@@ -3,8 +3,7 @@
 module Categorical.Instances.Function.Raw where
 
 open import Level using (Level)
-open import Function using (_∘′_; const; _on_; flip) renaming (id to id′)
-open import Data.Nat using (ℕ; zero; suc)
+open import Function using (_∘′_; const) renaming (id to id′)
 open import Data.Unit.Polymorphic using () renaming (⊤ to ⊤′)
 open import Data.Product using (_,_; proj₁; proj₂; uncurry)
   renaming (_×_ to _×′_)

@@ -2,7 +2,7 @@
 
 module VecFun.Properties where
 
-open import Data.Product using (_,_; uncurry; <_,_>)
+open import Data.Product using (_,_)
 open import Data.Nat
 open import Data.Vec
 

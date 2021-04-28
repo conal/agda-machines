@@ -1,8 +1,8 @@
 ## To do
 
 *   Reconsider introduction of inner modules in various `Homomorphism` and `Laws`.
-*   Move `Function` instances into main `Categorical`, since they get imported often, and they're small.
-*   Trim imports and `variable` lists.
+*   Maybe move `Function` instances into main `Categorical`, since they get imported often, and they're small.
+*   Trim `variable` lists.
 *   `Closed` for `Linearize`.
 *   Mealy machines as a layout of pure/combinational computations.
 *   Circuit optimizations.
@@ -81,6 +81,7 @@
 
 ## Did
 
+*   Trim imports.
 *   Try again with homomorphisms and instance selection.
 *   Infix alternative for `trans`.
     I defined a category, but there's too much instance overlap to be useful.

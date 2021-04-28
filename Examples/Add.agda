@@ -2,8 +2,6 @@ open import Categorical.Raw
 
 open import Data.Nat
 
--- open import Ty  -- Specialize for speculate
-
 open import Ty.Raw
 
 module Examples.Add

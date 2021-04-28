@@ -3,11 +3,7 @@
 module VecFun.Laws where
 
 open import Level using (0ℓ)
--- open import Data.Product using (_,_; uncurry; <_,_>)
--- open import Data.Nat
--- open import Data.Vec
--- open import Data.Vec.Properties
-open import Relation.Binary.PropositionalEquality as ≡ using (_≡_)
+open import Relation.Binary.PropositionalEquality as ≡
 
 open import Miscellany using (Function)
 

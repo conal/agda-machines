@@ -15,9 +15,6 @@ import Primitive as p
 
 open import Symbolic.Raw
 
-open Homomorphism r.H renaming (Fₘ to ⟦_⟧ᵣ)
-open Homomorphism p.H renaming (Fₘ to ⟦_⟧ₚ)
-
 private variable A B C D : Ty
 
 instance
@@ -29,8 +26,8 @@ instance
   H = record { Fₘ = ⟦_⟧′ }
    where
      ⟦_⟧′ : (A ⇨ B) → (A ⇨ₜ B)
-     ⟦ `route f ⟧′ = ⟦ f ⟧ᵣ
-     ⟦ `prim  p ⟧′ = ⟦ p ⟧ₚ
+     ⟦ `route f ⟧′ = Fₘ f
+     ⟦ `prim  p ⟧′ = Fₘ p
      ⟦  g `∘ f  ⟧′ = ⟦ g ⟧′ ∘ ⟦ f ⟧′
      ⟦  f `⊗ g  ⟧′ = ⟦ f ⟧′ ⊗ ⟦ g ⟧′
 

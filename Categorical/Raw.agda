@@ -2,20 +2,12 @@
 
 module Categorical.Raw where
 
-open import Level renaming (zero to lzero; suc to lsuc)
-open import Function using (_∘′_; const; _on_; flip) renaming (id to id′)
--- open import Relation.Binary.PropositionalEquality
-open import Data.Nat using (ℕ; zero; suc)
-open import Data.Unit.Polymorphic using () renaming (⊤ to ⊤′)
-open import Data.Product using (_,_; proj₁; proj₂; uncurry)
-  renaming (_×_ to _×′_)
-open import Relation.Binary
+open import Level using (Level; lift; _⊔_) renaming (suc to lsuc)
+open import Function using (_∘′_) renaming (id to id′)
+open import Relation.Binary using (Rel; IsEquivalence; Setoid)
 import Relation.Binary.Reasoning.Setoid as SetoidR
-import Relation.Binary.Construct.On as On
 
 open import Data.Nat hiding (_⊔_)
-
--- TODO: trim imports
 
 private
   variable

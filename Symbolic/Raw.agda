@@ -4,13 +4,6 @@
 
 module Symbolic.Raw where
 
-open import Level using (0ℓ)
-open import Data.Product using (_,_)
-open import Data.String using (String)
--- open import Relation.Binary.PropositionalEquality
-open import Function using (_on_) renaming (const to const′)
-import Relation.Binary.Reasoning.Setoid as SetoidR
-
 open import Categorical.Raw
 open import Categorical.Homomorphism
 open import Ty renaming (_⇨_ to _⇨ₜ_)
