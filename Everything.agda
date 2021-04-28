@@ -1,5 +1,3 @@
-{-# OPTIONS --safe --without-K #-}
-
 module Everything where
 
 open import Categorical
