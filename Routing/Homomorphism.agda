@@ -97,11 +97,7 @@ swizzle-∘ g f {a} =
 
 open ≈-Reasoning
 
-
 instance
-
-  -- meaningful : ∀ {a b} → Meaningful {μ = a ty.⇨ b} (a ⇨ b)
-  -- meaningful = record { ⟦_⟧ = λ (mk r) → ty.mk (swizzle r) }
 
   Hₒ : Homomorphismₒ Ty Ty
   Hₒ = id-Hₒ
@@ -111,8 +107,6 @@ instance
 
   equivalent : Equivalent 0ℓ _⇨_
   equivalent = H-equiv H
-
-  -- open import Function using (_on_)
 
   categoryH : CategoryH _⇨_ _⇨ₜ_ 0ℓ
   categoryH = record
@@ -144,6 +138,3 @@ instance
     ; F-exr = λ _ → swizzle-id
     ; F-dup = λ _ → swizzle-id
     }
-
--- ⟦_⟧′ : A ⇨ B → ∀ {X} → TyF X A → TyF X B
--- ⟦ mk f ⟧′ = swizzle′ f
