@@ -1,5 +1,16 @@
 ## To do
 
+*   Reconsider introduction of inner modules in various `Homomorphism` and `Laws`.
+*   Move `Function` instances into main `Categorical`, since they get imported often, and they're small.
+*   Trim imports and `variable` lists.
+*   `Closed` for `Linearize`.
+*   Mealy machines as a layout of pure/combinational computations.
+*   Circuit optimizations.
+*   Netlist generation as an instance/parametrization of the linearization category rather than a use of the result.
+    Ditto for GLSL and C generation.
+*   Fix `Monoidal` to align with [nLab's definition](https://ncatlab.org/nlab/show/monoidal+category).
+    Likewise for [monoidal functors](https://ncatlab.org/nlab/show/monoidal+functor).
+
 *   Revisit uses of `swizzle-id`.
     Can I refer to the routing category instead?
 *   Define some utilities to capture common method definitions, including most of `Monoidal` using routings.
