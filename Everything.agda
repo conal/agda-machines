@@ -1,6 +1,4 @@
--- {-# OPTIONS --safe --without-K #-}
-
-{-# OPTIONS --allow-unsolved-metas #-}  -- experiment
+{-# OPTIONS --safe --without-K #-}
 
 module Everything where
 
@@ -16,8 +14,6 @@ import Dot
 import Test
 
 import Examples.Add
-
--- import Symbolic
 
 -- -- Experimental modules not used above.
 -- import Tinkering.StreamFun
