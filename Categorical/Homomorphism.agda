@@ -114,10 +114,10 @@ record MonoidalH
     ⦃ monoidal-categoryH ⦄ : CategoryH _⇨₁_ _⇨₂_ q
 
   field
-    F-unitorᵉˡ : {a b : obj₁} → Fₘ unitorᵉˡ ∘ μ{a = ⊤}{a} ∘ first  ε ≈ unitorᵉˡ
-    F-unitorⁱˡ : {a b : obj₁} → Fₘ unitorⁱˡ ≈ μ{a = ⊤}{a} ∘ first  ε ∘ unitorⁱˡ
-    F-unitorᵉʳ : {a b : obj₁} → Fₘ unitorᵉʳ ∘ μ{a = a}{⊤} ∘ second ε ≈ unitorᵉʳ
-    F-unitorⁱʳ : {a b : obj₁} → Fₘ unitorⁱʳ ≈ μ{a = a}{⊤} ∘ second ε ∘ unitorⁱʳ
+    F-unitorᵉˡ : {a : obj₁} → Fₘ unitorᵉˡ ∘ μ{a = ⊤}{a} ∘ first  ε ≈ unitorᵉˡ
+    F-unitorⁱˡ : {a : obj₁} → Fₘ unitorⁱˡ ≈ μ{a = ⊤}{a} ∘ first  ε ∘ unitorⁱˡ
+    F-unitorᵉʳ : {a : obj₁} → Fₘ unitorᵉʳ ∘ μ{a = a}{⊤} ∘ second ε ≈ unitorᵉʳ
+    F-unitorⁱʳ : {a : obj₁} → Fₘ unitorⁱʳ ≈ μ{a = a}{⊤} ∘ second ε ∘ unitorⁱʳ
 
     F-assocˡ : {a b c : obj₁} → 
       Fₘ assocˡ ∘ μ{a = a}{b × c} ∘ second μ ≈ μ ∘ first  μ ∘ assocˡ
