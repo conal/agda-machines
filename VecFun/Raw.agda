@@ -77,16 +77,6 @@ module VecFunRawInstances where
               ; cond = arr cond
               }
 
-    equivalent : Equivalent 0ℓ _⇨_
-    equivalent = record
-      { _≈_ = λ (mk f) (mk g) → ∀ {n} (as : Vec _ n) → f as ≡ g as
-      ; equiv = record
-        { refl  = λ _ → ≡.refl
-        ; sym   = λ f∼g as → ≡.sym (f∼g as)
-        ; trans = λ f∼g g∼h as → ≡.trans (f∼g as) (g∼h as)
-        }
-      }
-
 {-
 
 -------------------------------------------------------------------------------
