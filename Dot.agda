@@ -1,5 +1,5 @@
 {-# OPTIONS --safe --without-K #-}
--- Generate GraphViz/Dot format from stack morphism
+-- Generate GraphViz/Dot format from linearized morphisms
 
 module Dot where
 
@@ -15,7 +15,7 @@ open import Categorical.Raw
 open import Categorical.Instances.Function.Raw -- TODO: maybe move into Categorical.Raw
 open import Categorical.Homomorphism
 
-open import Ty.Raw as t using (Ty; ⟦_⟧ᵗ)
+open import Ty.Raw as t using (Ty)
 open import Ty.Homomorphism -- for equiv
 import Primitive   as p    -- for Show
 import Routing.Raw as r ; open r using (TyIx)
@@ -76,12 +76,12 @@ oport compName o = compName ++ ":Out" ++ showIx o
 
 module _ {s} (stateF₀ : ⊤ k.⇨ s) where
 
-  open Homomorphism ty-hom.H renaming (Fₘ to ⟦_⟧ₜ)
-  open Homomorphism rh.H     renaming (Fₘ to ⟦_⟧ᵣ)
+  open import Miscellany using (Function)
+  open import Linearize.Homomorphism t._⇨_ p._⇨_ r._⇨_ 0ℓ
+  open import Ty.Laws
 
-  state₀ : ⟦ s ⟧ᵗ
-  -- state₀ = Fₘ {_⇨₁_ = t._⇨_}{_⇨₂_ = Function } (Fₘ { _⇨₁_ = k._⇨_}{_⇨₂_ = t._⇨_ } stateF₀) tt
-  state₀ = ⟦ ⟦ stateF₀ ⟧ₖ ⟧ₜ tt
+  state₀ : Fₒ s
+  state₀ = Fₘ (Fₘ stateF₀) tt
   
   reg : TyIx a → String
   reg j = "reg" ++ showIx j
