@@ -31,24 +31,24 @@ module →Lawful where
 
     lawful-category : LawfulCategory Function o
     lawful-category = record
-      { identityˡ = λ x → ≡.refl
-      ; identityʳ = λ x → ≡.refl
-      ; assoc     = λ x → ≡.refl
+      { identityˡ = refl
+      ; identityʳ = refl
+      ; assoc     = refl
       ; ∘≈  = λ {a b c}{f g}{h k} h∼k f∼g x
                       → ≡.trans (h∼k (f x)) (cong k (f∼g x))
       }
 
     lawful-monoidal : LawfulMonoidal Function o
     lawful-monoidal = record
-      { id⊗id             = λ x → ≡.refl
-      ; ∘⊗                = λ x → ≡.refl
-      ; unitorᵉˡ∘unitorⁱˡ = λ x → ≡.refl
-      ; unitorⁱˡ∘unitorᵉˡ = λ x → ≡.refl
-      ; unitorᵉʳ∘unitorⁱʳ = λ x → ≡.refl
-      ; unitorⁱʳ∘unitorᵉʳ = λ x → ≡.refl
-      ; assocʳ∘assocˡ     = λ x → ≡.refl
-      ; assocˡ∘assocʳ     = λ x → ≡.refl
-      ; assocˡ∘⊗          = λ x → ≡.refl
-      ; ⊗≈          = λ f≗h g≗k → λ (x , y) → f≗h x ≡,≡ g≗k y
-      ; assocʳ∘⊗          = λ x → ≡.refl
+      { id⊗id             = refl
+      ; ∘⊗                = refl
+      ; unitorᵉˡ∘unitorⁱˡ = refl
+      ; unitorⁱˡ∘unitorᵉˡ = refl
+      ; unitorᵉʳ∘unitorⁱʳ = refl
+      ; unitorⁱʳ∘unitorᵉʳ = refl
+      ; assocʳ∘assocˡ     = refl
+      ; assocˡ∘assocʳ     = refl
+      ; assocˡ∘⊗          = refl
+      ; assocʳ∘⊗          = refl
+      ; ⊗≈ = λ f≗h g≗k → λ (x , y) → f≗h x ≡,≡ g≗k y
       }
