@@ -137,7 +137,7 @@ record Boolean (obj : Set o) : Set (lsuc o) where
 
 open Boolean ⦃ … ⦄ public
 
-record Logic {obj : Set o} ⦃ _ : Products obj ⦄ ⦃ _ : Boolean obj ⦄
+record Logic {obj : Set o} ⦃ products : Products obj ⦄ ⦃ boolean : Boolean obj ⦄
              (_⇨′_ : obj → obj → Set ℓ) : Set (lsuc o ⊔ ℓ) where
   private infix 0 _⇨_; _⇨_ = _⇨′_
   field
