@@ -1,5 +1,7 @@
 {-# OPTIONS --safe --without-K #-}
 
+-- TODO: Generalize to map to *any* monoidal category, not just to functions.
+
 module Ty.Raw where
 
 open import Data.Bool using (if_then_else_) renaming (false to 𝕗; true to 𝕥)
@@ -13,7 +15,7 @@ infixr 2 _`×_
 data Ty : Set where
   `⊤    : Ty
   `Bool : Ty
-  _`×_  : (x : Ty) (y : Ty) → Ty
+  _`×_  : (a : Ty) (b : Ty) → Ty
 
 private variable a b c d : Ty
 
@@ -30,7 +32,7 @@ showTy = go 𝕥
    go : Bool → ⟦ a ⟧ᵗ → String
    go {`⊤} _ tt = "tt"
    go {`Bool} _ b = show b
-   go {_ `× _} p (x , y) = (if p then parens else id) (go 𝕥 x ++ "," ++ go 𝕗 y)
+   go {_ `× _} p (x , y) = (if p then parens else id) (go 𝕥 x ++ " , " ++ go 𝕗 y)
 
 
 infix 0 _⇨_
