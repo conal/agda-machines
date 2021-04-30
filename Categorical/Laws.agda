@@ -276,6 +276,35 @@ record LawfulMonoidal {obj : Set o} ⦃ _ : Products obj ⦄
            → (g⁻¹∘g : g⁻¹ ∘ g ≈ id) → second {a = a} g⁻¹ ∘ second g ≈ id
   second⁻¹ g⁻¹∘g = ⊗⁻¹ identityˡ g⁻¹∘g
 
+  -- Useful for proving monoidal homomorphisms.
+  ∘id⊗ : {f : a × b ⇨ c} → f ∘ id ∘ (id ⊗ id) ≈ f
+  ∘id⊗ = identityʳ • ∘≈ʳ (identityˡ • ∘≈ʳ id⊗id)
+
+  -- ∘id⊗ {f = f} = 
+  --   begin
+  --     f ∘ id ∘ (id ⊗ id)
+  --   ≈⟨ ∘≈ʳ (∘≈ʳ id⊗id) ⟩
+  --     f ∘ id ∘ id
+  --   ≈⟨ ∘≈ʳ identityˡ ⟩
+  --     f ∘ id
+  --   ≈⟨ identityʳ ⟩
+  --     f
+  --   ∎ 
+
+  id⊗∘ : {f : a ⇨ c × d} → id ∘ (id ⊗ id) ∘ f ≈ f
+  id⊗∘ = identityˡ • ∘≈ˡ id⊗id • identityˡ
+
+  -- id⊗∘ {f = f} = 
+  --   begin
+  --     id ∘ (id ⊗ id) ∘ f
+  --   ≈⟨ identityˡ ⟩
+  --     (id ⊗ id) ∘ f
+  --   ≈⟨ ∘≈ˡ id⊗id ⟩
+  --     id ∘ f
+  --   ≈⟨ identityˡ ⟩
+  --     f
+  --   ∎ 
+
   -- -- Experimental:
   -- first⁻¹∘first∘ : {f : a ⇨ c}{f⁻¹ : c ⇨ a}{k : d ⇨ a × e}
   --                → (f⁻¹∘f : f⁻¹ ∘ f ≈ id) → first f⁻¹ ∘ first f ∘ k ≈ k
