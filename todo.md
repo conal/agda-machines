@@ -1,5 +1,11 @@
 ## To do
 
+*   Generalize `Ty` to map to *any* monoidal category rather than just functions.
+*   Add a congruence property to `Homomorphism`: `f ≈ g → Fₘ f ≈ Fₘ g`.
+*   Introduce explicit isomorphisms for things like `assoc×`, `ε`, and `μ`.
+    We'll need both raw and lawful isomorphisms.
+*   Consider renaming `LawfulCategory` to `Category` and distinguishing raw from lawful by module prefixes.
+*   Add some short-hands for cascading `∘≈ʳ` and `∘≈ˡ`
 *   Finish `LawfulMonoidalᶠ`, and use it.
 *   Reconsider introduction of inner modules in various `Homomorphism` and `Laws`.
 *   Maybe move `Function` instances into main `Categorical`, since they get imported often, and they're small.
