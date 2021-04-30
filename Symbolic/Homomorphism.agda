@@ -5,10 +5,10 @@
 module Symbolic.Homomorphism where
 
 open import Level using (0ℓ)
-import Relation.Binary.PropositionalEquality as ≡
 
 open import Categorical.Raw
 open import Categorical.Homomorphism
+open import Categorical.Instances.Function
 open import Ty renaming (_⇨_ to _⇨ₜ_)
 open import Routing as r using (swizzle-id)
 import Primitive as p
@@ -16,6 +16,11 @@ import Primitive as p
 open import Symbolic.Raw
 
 private variable a b c d : Ty
+
+private
+  -- Category-specialized
+  refl′ : ∀ {o}{a b : Set o} {f : a → b} → f ≈ f
+  refl′ = refl
 
 instance
 
@@ -37,7 +42,7 @@ instance
   categoryH : CategoryH _⇨_ _⇨ₜ_ 0ℓ
   categoryH = record
     { F-id = λ x → swizzle-id
-    ; F-∘  = λ g f x → ≡.refl   -- direct from _∘_ definition
+    ; F-∘  = λ g f → refl′   -- direct from _∘_ definition
     }
 
   productsH : ProductsH _⇨_ _⇨ₜ_ 0ℓ
@@ -51,8 +56,8 @@ instance
                    ; F-unitorⁱʳ = λ _ → swizzle-id
                    ; F-assocʳ   = λ _ → swizzle-id
                    ; F-assocˡ   = λ _ → swizzle-id
-                   ; F-!        = λ _ → ≡.refl
-                   ; F-⊗        = λ f g _ → ≡.refl
+                   ; F-!        = refl′
+                   ; F-⊗        = λ f g → refl′
                    }
 
   braidedH : BraidedH _⇨_ _⇨ₜ_ 0ℓ
