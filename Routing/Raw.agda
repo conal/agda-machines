@@ -7,7 +7,7 @@ open import Data.Product using (_,_)
 open import Categorical.Raw
 
 open import Categorical.Instances.Function.Raw
-open import Ty.Raw renaming (_⇨_ to _⇨ₜ_)
+open import Ty.Raw using (Ty)
 
 private variable a b c d : Ty
 
