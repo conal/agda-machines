@@ -198,7 +198,8 @@ record LogicH
     ⦃ _ : Monoidal _⇨₂′_ ⦄
     ⦃ Hₒ : Homomorphismₒ obj₁ obj₂ ⦄
     ⦃ H : Homomorphism _⇨₁′_ _⇨₂′_ ⦄
-    ⦃ pH : ProductsH _⇨₁′_ _⇨₂′_ q ⦄ ⦃ bH : BooleanH _⇨₁′_ _⇨₂′_ ⦄
+    ⦃ productsH : ProductsH _⇨₁′_ _⇨₂′_ q ⦄
+    ⦃ booleanH  : BooleanH _⇨₁′_ _⇨₂′_ ⦄
   : Set (o₁ ⊔ ℓ₁ ⊔ o₂ ⊔ ℓ₂ ⊔ q) where
   private infix 0 _⇨₁_; _⇨₁_ = _⇨₁′_
   private infix 0 _⇨₂_; _⇨₂_ = _⇨₂′_
@@ -212,3 +213,40 @@ record LogicH
     F-xor   : Fₘ xor ∘ μ ∘ (β ⊗ β) ≈ β ∘ xor
 
 open LogicH ⦃ … ⦄ public
+
+{-
+
+id-logicH :
+    {obj : Set o} ⦃ _ : Boolean obj ⦄ ⦃ _ : Products obj ⦄
+    {_⇨₁_ : obj → obj → Set ℓ₁} ⦃ _ : Logic _⇨₁_ ⦄
+    {_⇨₂_ : obj → obj → Set ℓ₂} ⦃ _ : Logic _⇨₂_ ⦄
+    {q : Level} ⦃ equiv₂ : Equivalent q _⇨₂_ ⦄
+    ⦃ _ : Monoidal _⇨₂_ ⦄
+    ⦃ lawful-cat₂ : LawfulCategory _⇨₂_ q ⦄
+    ⦃ H : Homomorphism _⇨₁_ _⇨₂_ ⦃ Hₒ = id-Hₒ ⦄ ⦄
+    ⦃ H : BooleanH     _⇨₁_ _⇨₂_ ⦃ Hₒ = id-Hₒ ⦄ ⦄
+    → LogicH _⇨₁_ _⇨₂_ q ⦃ Hₒ = id-Hₒ ⦄ ⦃ productsH = id-productsH ⦄
+id-logicH {obj = obj} {_⇨₁_ = _⇨₁_}{_⇨₂_ = _⇨₂_} ⦃ equiv₂ = equiv₂ ⦄ = record
+              { F-false = -- {!trans identityʳ (sym identityˡ)!}
+                  
+                  begin
+                    Fₘ false ∘ ε
+                  ≡⟨⟩
+                    {!!}
+                  ≈⟨ {!!} ⟩
+                    {!!}
+                  ≡⟨⟩
+                    β ∘ false
+                  ∎
+    
+
+              ; F-true  = {!!}
+              ; F-not   = {!!}
+              ; F-∧     = {!!}
+              ; F-∨     = {!!}
+              ; F-xor   = {!!}
+              }
+ where instance _ = id-Hₒ { obj = obj }
+       instance _ = id-productsH {_⇨₁_ = _⇨₁_}{_⇨₂_ = _⇨₂_} ⦃ equiv₂ = equiv₂ ⦄
+            
+-}
