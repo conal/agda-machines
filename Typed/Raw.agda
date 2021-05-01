@@ -10,20 +10,20 @@ open import Data.Nat
 open import Categorical.Instances.Function.Raw
 
 infixr 2 _`×_
-data Typed : Set where
-  `⊤    : Typed
-  `Bool : Typed
-  _`×_  : Typed → Typed → Typed
+data Ty : Set where
+  `⊤    : Ty
+  `Bool : Ty
+  _`×_  : Ty → Ty → Ty
 
-private variable a b c d : Typed
+private variable a b c d : Ty
 
-⟦_⟧ : Typed → obj
+⟦_⟧ : Ty → obj
 ⟦ `⊤ ⟧     = ⊤
 ⟦ σ `× τ ⟧ = ⟦ σ ⟧ × ⟦ τ ⟧
 ⟦ `Bool ⟧  = Bool
 
 infix 0 _⇨_
-record _⇨_ (a b : Typed) : Set ℓ where
+record _⇨_ (a b : Ty) : Set ℓ where
   constructor mk
   field
     f : ⟦ a ⟧ ↠ ⟦ b ⟧
@@ -32,7 +32,7 @@ module typed-instances where
 
   instance
 
-    products : Products Typed
+    products : Products Ty
     products = record { ⊤ = `⊤ ; _×_ = _`×_ }
 
     category : ⦃ _ : Category _↠_ ⦄ → Category _⇨_
@@ -56,7 +56,7 @@ module typed-instances where
     cartesian : ⦃ _ : Cartesian _↠_ ⦄ → Cartesian _⇨_
     cartesian = record { exl = mk exl ; exr = mk exr ; dup = mk dup }
 
-    boolean : Boolean Typed
+    boolean : Boolean Ty
     boolean = record { Bool = `Bool }
 
     logic : ⦃ _ : Logic _↠_ ⦄ → Logic ⦃ boolean = boolean ⦄ _⇨_
@@ -66,8 +66,8 @@ module typed-instances where
                    }
 
 -- Miscellaneous utilities, perhaps to move elsewhere
-module TypedUtils {ℓ}
-  {_⇨_ : Typed → Typed → Set ℓ} (let infix 0 _⇨_; _⇨_ = _⇨_) where
+module TyUtils {ℓ}
+  {_⇨_ : Ty → Ty → Set ℓ} (let infix 0 _⇨_; _⇨_ = _⇨_) where
 
   open import Data.Nat
   open typed-instances using (products)

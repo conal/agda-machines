@@ -4,8 +4,8 @@ open import Level using (Level)
 open import Categorical.Raw
 
 module Typed.Homomorphism
-    {o ℓ} {obj : Set o} (_↠_ : obj → obj → Set ℓ)
-    ⦃ _ : Products obj ⦄ ⦃ _ : Boolean obj ⦄
+    {o ℓ} {obj : Set o} ⦃ _ : Products obj ⦄ ⦃ _ : Boolean obj ⦄
+    (_↠_ : obj → obj → Set ℓ)
     (q : Level) ⦃ _ : Equivalent q _↠_ ⦄
   where
 
@@ -30,7 +30,7 @@ module typed-hom where
 
   instance
 
-    Hₒ : Homomorphismₒ Typed obj
+    Hₒ : Homomorphismₒ Ty obj
     Hₒ = record { Fₒ = ⟦_⟧ }
 
     H : Homomorphism _⇨_ _↠_
