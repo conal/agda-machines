@@ -2,14 +2,29 @@
 
 module Symbolic.Laws where
 
-open import Level using (0ℓ)
+open import Level using (Level; 0ℓ)
 
-open import Categorical.Laws
-open import Categorical.MakeLawful
+open import Miscellany using (Function)
+
+open import Categorical
+
+open import Categorical.Instances.Function.Raw
+open import Categorical.Instances.Function.Laws
+
+private
+  _↠_ : Set → Set → Set
+  _↠_ = Function {0ℓ}
+
+  q : Level
+  q = 0ℓ
 
 open import Symbolic.Raw using (_⇨_)
 open import Symbolic.Homomorphism
-open import Ty renaming (_⇨_ to _⇨ₜ_)
+
+-- TODO: Replace with single import
+open import Typed.Raw          _↠_ renaming (_⇨_ to _⇨ₜ_)
+open import Typed.Homomorphism _↠_ q
+open import Typed.Laws         _↠_ q
 
 module symbolic-laws where
 

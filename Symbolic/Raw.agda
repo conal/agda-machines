@@ -4,15 +4,29 @@
 
 module Symbolic.Raw where
 
+open import Level using (Level; 0ℓ)
+
+open import Miscellany using (Function)
 open import Categorical.Raw
 open import Categorical.Homomorphism
-open import Ty renaming (_⇨_ to _⇨ₜ_)
+open import Categorical.Instances.Function.Raw
+import Categorical.Instances.Function.Laws
+
+private
+  _↠_ : Set → Set → Set
+  _↠_ = Function {0ℓ}
+
+  q : Level
+  q = 0ℓ
+
+-- TODO: Replace with single import
+open import Typed.Raw          _↠_ renaming (_⇨_ to _⇨ₜ_)
+-- open import Typed.Homomorphism _↠_ q
+-- open import Typed.Laws         _↠_ q
+
 import Routing.Raw as r
 import Routing.Homomorphism as rh
-import Primitive as p
-
-open Homomorphism rh.H renaming (Fₘ to ⟦_⟧ᵣ)
-open Homomorphism p.H  renaming (Fₘ to ⟦_⟧ₚ)
+import Primitive _↠_ q as p
 
 private variable a b c d : Ty
 

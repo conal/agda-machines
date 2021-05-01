@@ -3,7 +3,7 @@
 
 module Dot where
 
-open import Level using (0ℓ)
+open import Level using (Level; 0ℓ)
 open import Data.Product using (_,_)
 open import Data.Fin using (Fin; toℕ; suc; zero)
 open import Data.Nat using (ℕ; suc; zero)
@@ -11,17 +11,31 @@ open import Data.String hiding (toList; concat; show)
 open import Data.List using (List; []; _∷_; concat; map; upTo)
   renaming (_++_ to _++ᴸ_)
 
+open import Miscellany using (Function)
 open import Categorical.Raw
-open import Categorical.Instances.Function.Raw -- TODO: maybe move into Categorical.Raw
+open import Categorical.Instances.Function.Raw
+open import Categorical.Instances.Function.Laws
 open import Categorical.Homomorphism
 
-open import Ty.Raw as t using (Ty)
-open import Ty.Homomorphism -- for equiv
-import Primitive   as p    -- for Show
-import Routing.Raw as r ; open r using (TyIx)
-import Routing.Homomorphism as rh
+private
+
+  _↠_ : Set → Set → Set
+  _↠_ = Function {0ℓ}
+
+  q : Level
+  q = 0ℓ
+
+open import Typed.Raw _↠_ as t using (Ty) renaming (_⇨_ to _⇨ₜ_)
+open import Typed.Homomorphism _↠_ q
+open import Typed.Laws _↠_ q
+
+open import Primitive _↠_ q as p using () renaming (_⇨_ to _⇨ₚ_)
+
+import Routing.Raw as r ; open r using (TyIx) renaming (_⇨_ to _⇨ᵣ_)
+import Routing.Homomorphism
 open import Routing.Functor renaming (map to mapᵀ)
-open import Linearize.Raw t._⇨_ p._⇨_ r._⇨_ 0ℓ as k using (_∘·first_∘_; ⌞_⌟; ⟦_⟧ₖ)
+
+open import Linearize.Raw _⇨ₜ_ _⇨ₚ_ _⇨ᵣ_ 0ℓ as k using (_∘·first_∘_; ⌞_⌟; ⟦_⟧ₖ)
 
 private variable a b i o : Ty
 
@@ -77,8 +91,7 @@ oport compName o = compName ++ ":Out" ++ showIx o
 module _ {s} (stateF₀ : ⊤ k.⇨ s) where
 
   open import Miscellany using (Function)
-  open import Linearize.Homomorphism t._⇨_ p._⇨_ r._⇨_ 0ℓ
-  open import Ty.Laws
+  open import Linearize.Homomorphism _⇨ₜ_ _⇨ₚ_ _⇨ᵣ_ 0ℓ
 
   state₀ : Fₒ s
   state₀ = Fₘ (Fₘ stateF₀) tt
@@ -89,7 +102,7 @@ module _ {s} (stateF₀ : ⊤ k.⇨ s) where
   register : TyIx s → Bool → OPort → List String
   register j s₀ src = comp (reg j) ("cons " ++ show s₀) [ src ] Bool
 
-  codᵖ : (a p.⇨ b) → Ty
+  codᵖ : (a ⇨ₚ b) → Ty
   codᵖ {b = b} _ = b
 
   dotᵏ : ℕ → TyF OPort i → (i k.⇨ (o × s)) → List String

@@ -7,9 +7,10 @@ open import Level using (0ℓ)
 open import Categorical.Laws
 open import Categorical.MakeLawful
 
+open import Miscellany using (Function)
 open import Categorical.Instances.Function
 
-open import Ty renaming (_⇨_ to _⇨ₜ_)
+open import Typed (Function {0ℓ}) 0ℓ renaming (_⇨_ to _⇨ₜ_)
 
 open import Routing.Raw
 open import Routing.Homomorphism

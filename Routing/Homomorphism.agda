@@ -11,9 +11,14 @@ open import Categorical.Homomorphism
 
 open import Miscellany using (Function)
 open import Categorical.Instances.Function.Raw
-open import Ty.Raw renaming (_⇨_ to _⇨ₜ_)
-open import Ty.Homomorphism
-open import Ty.Laws
+open import Categorical.Instances.Function.Laws
+
+open import Typed.Raw (Function {0ℓ}) renaming (_⇨_ to _⇨ₜ_)
+open import Typed.Homomorphism (Function {0ℓ}) 0ℓ
+open import Typed.Laws         (Function {0ℓ}) 0ℓ
+
+-- -- I don't know why the following alternative leads to problems
+-- open import Typed (Function {0ℓ}) 0ℓ renaming (_⇨_ to _⇨ₜ_)
 
 open import Routing.Raw
 
@@ -21,15 +26,15 @@ private variable a b c d : Ty
 
 -- Extract a bit
 -- ⟦_⟧ᵇ : TyIx a → a →ᵗ Bool
-⟦_⟧ᵇ : TyIx a → ⟦ a ⟧ᵗ → Bool
+⟦_⟧ᵇ : TyIx a → ⟦ a ⟧ → Bool
 ⟦ here    ⟧ᵇ x = x
 ⟦ left  i ⟧ᵇ (x , y) = ⟦ i ⟧ᵇ x
 ⟦ right i ⟧ᵇ (x , y) = ⟦ i ⟧ᵇ y
 
-lookup : ⟦ a ⟧ᵗ → (TyIx a → Bool)
+lookup : ⟦ a ⟧ → (TyIx a → Bool)
 lookup a i = ⟦ i ⟧ᵇ a
 
-tabulate : (TyIx a → Bool) → ⟦ a ⟧ᵗ
+tabulate : (TyIx a → Bool) → ⟦ a ⟧
 tabulate {`⊤} f = tt
 tabulate {`Bool} f = f here
 tabulate {_ `× _} f = tabulate (f ∘ left) , tabulate (f ∘ right)
@@ -39,7 +44,7 @@ lookup∘tabulate f here      = refl≡
 lookup∘tabulate f (left  x) = lookup∘tabulate (f ∘ left ) x
 lookup∘tabulate f (right y) = lookup∘tabulate (f ∘ right) y
 
-swizzle : (TyIx b → TyIx a) → (⟦ a ⟧ᵗ → ⟦ b ⟧ᵗ)
+swizzle : (TyIx b → TyIx a) → (⟦ a ⟧ → ⟦ b ⟧)
 swizzle r a = tabulate (lookup a ∘ r)
 
 
@@ -47,21 +52,10 @@ swizzle-tt : ∀ (f : TyIx b → TyIx ⊤) (i : TyIx b) → b ≡ ⊤
 swizzle-tt f i with f i ; ... | ()
 -- Is there a more straightforward formulation of this fact?
 
-swizzle-id : ∀ {a : ⟦ a ⟧ᵗ} → swizzle id a ≡ a
-swizzle-id {`⊤}     = refl≡
-swizzle-id {`Bool}  = refl≡
-swizzle-id {_ `× _} = cong₂ _,_ swizzle-id swizzle-id
-
--- swizzle-id {A = _ `× _} {a , b} =
---   begin
---     swizzle id (a , b)
---   ≡⟨⟩
---     swizzle id a , swizzle id b
---   ≡⟨ cong₂ _,_ swizzle-id swizzle-id ⟩
---     (a , b)
---   ∎
---  where open ≡-Reasoning
-
+swizzle-id : ∀ a {x : ⟦ a ⟧} → swizzle {b = a} id x ≡ x
+swizzle-id `⊤       = refl≡
+swizzle-id `Bool    = refl≡
+swizzle-id (a `× b) = cong₂ _,_ (swizzle-id a) (swizzle-id b)
 
 tabulate≗ : ∀ {f g : TyIx a → Bool} → f ≗ g → tabulate f ≡ tabulate g
 tabulate≗ {`⊤}     {f = f} {g} f≗g = refl≡
@@ -75,9 +69,8 @@ tabulate≗ {A `× B} {f = f} {g} f≗g =
   ∎
  where open ≡-Reasoning
 
-
 swizzle-∘ : (g : TyIx c → TyIx b) (f : TyIx b → TyIx a)
-          → ∀ {a : ⟦ a ⟧ᵗ} → swizzle (f ∘ g) a ≡ (swizzle g ∘ swizzle f) a
+          → ∀ {a : ⟦ a ⟧} → swizzle (f ∘ g) a ≡ (swizzle g ∘ swizzle f) a
 swizzle-∘ g f {a} =
   begin
     swizzle (f ∘ g) a
@@ -95,6 +88,7 @@ swizzle-∘ g f {a} =
           → g ≗ h → g ∘′ f ≗ h ∘′ f
        ≗∘ g h f g≗h x = g≗h (f x)
 
+
 open ≈-Reasoning
 
 instance
@@ -110,7 +104,7 @@ instance
 
   categoryH : CategoryH _⇨_ _⇨ₜ_ 0ℓ
   categoryH = record
-    { F-id = λ x → swizzle-id 
+    { F-id = λ {a} → λ x → swizzle-id a
     ; F-∘  = λ (mk g) (mk f) → λ x → swizzle-∘ g f
     }
 
@@ -119,22 +113,22 @@ instance
 
   monoidalH : MonoidalH _⇨_ _⇨ₜ_ 0ℓ
   monoidalH = record
-                { F-unitorᵉˡ = λ _ → swizzle-id
-                ; F-unitorⁱˡ = λ _ → swizzle-id
-                ; F-unitorᵉʳ = λ _ → swizzle-id
-                ; F-unitorⁱʳ = λ _ → swizzle-id
-                ; F-assocˡ   = λ _ → swizzle-id
-                ; F-assocʳ   = λ _ → swizzle-id
-                ; F-!        = λ _ → swizzle-id
-                ; F-⊗        = λ f g _ → refl≡
+                { F-unitorᵉˡ = λ {a}     _ → swizzle-id a
+                ; F-unitorⁱˡ = λ {a}     _ → swizzle-id (⊤ × a)
+                ; F-unitorᵉʳ = λ {a}     _ → swizzle-id a
+                ; F-unitorⁱʳ = λ {a}     _ → swizzle-id (a × ⊤)
+                ; F-assocˡ   = λ {a b c} _ → swizzle-id ((a × b) × c)
+                ; F-assocʳ   = λ {a b c} _ → swizzle-id (a × (b × c))
+                ; F-!        = λ         _ → swizzle-id ⊤
+                ; F-⊗        = λ f g     _ → refl≡
                 }
 
   braidedH : BraidedH _⇨_ _⇨ₜ_ 0ℓ
-  braidedH = record { F-swap = λ _ → swizzle-id }
+  braidedH = record { F-swap = λ {a b} _ → swizzle-id (b × a) }
 
   cartesianH : CartesianH _⇨_ _⇨ₜ_ 0ℓ
   cartesianH = record
-    { F-exl = λ _ → swizzle-id
-    ; F-exr = λ _ → swizzle-id
-    ; F-dup = λ _ → swizzle-id
+    { F-exl = λ {a b} _ → swizzle-id a
+    ; F-exr = λ {a b} _ → swizzle-id b
+    ; F-dup = λ {a}   _ → swizzle-id (a × a)
     }

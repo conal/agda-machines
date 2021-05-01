@@ -4,10 +4,10 @@ import Categorical
 import Categorical.Instances.Function
 
 import VecFun
-import Ty
+import Typed
+import Primitive
 import Symbolic
 import Mealy
-import Primitive
 import Linearize
 import Dot
 import Test

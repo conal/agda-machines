@@ -4,14 +4,28 @@
 
 module Symbolic.Homomorphism where
 
-open import Level using (0ℓ)
+open import Level using (Level; 0ℓ)
 
+open import Miscellany using (Function)
 open import Categorical.Raw
 open import Categorical.Homomorphism
-open import Categorical.Instances.Function
-open import Ty renaming (_⇨_ to _⇨ₜ_)
+open import Categorical.Instances.Function.Raw
+open import Categorical.Instances.Function.Laws
+
+private
+  _↠_ : Set → Set → Set
+  _↠_ = Function {0ℓ}
+
+  q : Level
+  q = 0ℓ
+
+-- TODO: Replace with single import
+open import Typed.Raw          _↠_ renaming (_⇨_ to _⇨ₜ_)
+open import Typed.Homomorphism _↠_ q
+open import Typed.Laws         _↠_ q
+
 open import Routing as r using (swizzle-id)
-import Primitive as p
+import Primitive _↠_ q as p
 
 open import Symbolic.Raw
 
@@ -27,7 +41,7 @@ instance
   Hₒ : Homomorphismₒ Ty Ty
   Hₒ = id-Hₒ
 
-  H : Homomorphism _⇨_ _⇨ₜ_
+  H : Homomorphism _⇨_ _⇨ₜ_ ⦃ Hₒ = Hₒ ⦄
   H = record { Fₘ = ⟦_⟧′ }
    where
      ⟦_⟧′ : (a ⇨ b) → (a ⇨ₜ b)
@@ -41,7 +55,7 @@ instance
 
   categoryH : CategoryH _⇨_ _⇨ₜ_ 0ℓ
   categoryH = record
-    { F-id = λ x → swizzle-id
+    { F-id = λ {a} _ → swizzle-id a
     ; F-∘  = λ g f → refl′   -- direct from _∘_ definition
     }
 
@@ -50,22 +64,24 @@ instance
 
   monoidalH : MonoidalH _⇨_ _⇨ₜ_ 0ℓ
   monoidalH = record
-                   { F-unitorᵉˡ = λ _ → swizzle-id
-                   ; F-unitorⁱˡ = λ _ → swizzle-id
-                   ; F-unitorᵉʳ = λ _ → swizzle-id
-                   ; F-unitorⁱʳ = λ _ → swizzle-id
-                   ; F-assocʳ   = λ _ → swizzle-id
-                   ; F-assocˡ   = λ _ → swizzle-id
-                   ; F-!        = refl′
-                   ; F-⊗        = λ f g → refl′
-                   }
+                { F-unitorᵉˡ = λ {a}     _ → swizzle-id a
+                ; F-unitorⁱˡ = λ {a}     _ → swizzle-id (⊤ × a)
+                ; F-unitorᵉʳ = λ {a}     _ → swizzle-id a
+                ; F-unitorⁱʳ = λ {a}     _ → swizzle-id (a × ⊤)
+                ; F-assocˡ   = λ {a b c} _ → swizzle-id ((a × b) × c)
+                ; F-assocʳ   = λ {a b c} _ → swizzle-id (a × (b × c))
+                ; F-!        = λ         _ → swizzle-id ⊤
+                ; F-⊗        = λ f g → refl′
+                }
 
   braidedH : BraidedH _⇨_ _⇨ₜ_ 0ℓ
-  braidedH = record { F-swap = λ _ → swizzle-id }
+  braidedH = record { F-swap = λ {a b} _ → swizzle-id (b × a) }
 
   cartesianH : CartesianH _⇨_ _⇨ₜ_ 0ℓ
   cartesianH = record
-    { F-exl = λ _ → swizzle-id
-    ; F-exr = λ _ → swizzle-id
-    ; F-dup = λ _ → swizzle-id
+    { F-exl = λ {a b} _ → swizzle-id a
+    ; F-exr = λ {a b} _ → swizzle-id b
+    ; F-dup = λ {a}   _ → swizzle-id (a × a)
     }
+
+  -- TODO: Use monoidalH, braidedH, and cartesianH from Routing.Homomorphism.

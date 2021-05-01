@@ -1,8 +1,12 @@
-open import Categorical.Raw
-
+open import Level using (0ℓ)
 open import Data.Nat
 
-open import Ty.Raw
+open import Categorical.Raw
+
+open import Miscellany using (Function)
+open import Categorical.Instances.Function.Raw
+
+open import Typed.Raw Function
 
 module Examples.Add
          {_⇨_ : Ty → Ty → Set} (let private infix 0 _⇨_; _⇨_ = _⇨_)

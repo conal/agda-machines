@@ -2,7 +2,7 @@
 
 module Test where
 
-open import Level using (0ℓ)
+open import Level using (Level; 0ℓ)
 open import Data.Product using (_,_)
 open import Data.Nat
 open import Data.Unit.Polymorphic using () renaming (⊤ to ⊤₀)
@@ -11,12 +11,22 @@ open import Data.Vec using ([_]; []; _∷_)
 open import Data.String using (String; _++_)
 open import IO
 
+open import Miscellany using (Function)
 open import Categorical.Raw ; open CartUtils
 open import Categorical.Instances.Function.Raw
+open import Categorical.Instances.Function.Laws
 
-import Ty.Raw as ty
-import Ty.Homomorphism
-import Primitive as p
+private
+
+  _↠_ : Set → Set → Set
+  _↠_ = Function {0ℓ}
+
+  q : Level
+  q = 0ℓ
+
+import Typed.Raw _↠_ as ty
+import Typed.Homomorphism _↠_ q as th
+import Primitive _↠_ q as p
 import Routing.Raw as r
 import Routing.Homomorphism
 

@@ -4,9 +4,9 @@
 
 module Categorical where
 
-open import Categorical.Raw
-open import Categorical.Laws
-open import Categorical.Homomorphism
-open import Categorical.MakeLawful
+open import Categorical.Raw          public
+open import Categorical.Laws         public
+open import Categorical.Homomorphism public
+open import Categorical.MakeLawful   public
 
-open import Categorical.Instances
+open import Categorical.Instances    public

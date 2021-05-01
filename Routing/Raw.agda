@@ -2,12 +2,14 @@
 
 module Routing.Raw where
 
+open import Level
 open import Data.Product using (_,_)
 
+open import Miscellany using (Function)
 open import Categorical.Raw
-
 open import Categorical.Instances.Function.Raw
-open import Ty.Raw using (Ty)
+
+open import Typed.Raw (Function {0ℓ}) hiding (_⇨_)
 
 private variable a b c d : Ty
 
