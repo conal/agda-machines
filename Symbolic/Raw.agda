@@ -19,10 +19,7 @@ private
   q : Level
   q = 0ℓ
 
--- TODO: Replace with single import
-open import Typed.Raw          _↠_ renaming (_⇨_ to _⇨ₜ_)
--- open import Typed.Homomorphism _↠_ q
--- open import Typed.Laws         _↠_ q
+open import Typed.Raw _↠_ renaming (_⇨_ to _⇨ₜ_)
 
 import Routing.Raw as r
 import Routing.Homomorphism as rh
