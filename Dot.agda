@@ -17,25 +17,8 @@ open import Categorical.Instances.Function.Raw
 open import Categorical.Instances.Function.Laws
 open import Categorical.Homomorphism
 
-private
-
-  _↠_ : Set → Set → Set
-  _↠_ = Function {0ℓ}
-
-  q : Level
-  q = 0ℓ
-
-open import Typed.Raw _↠_ as t using (Ty) renaming (_⇨_ to _⇨ₜ_)
-open import Typed.Homomorphism _↠_ q
-open import Typed.Laws _↠_ q
-
-open import Primitive _↠_ q as p using () renaming (_⇨_ to _⇨ₚ_)
-
-import Routing.Raw as r ; open r using (TyIx) renaming (_⇨_ to _⇨ᵣ_)
-import Routing.Homomorphism
-open import Routing.Functor renaming (map to mapᵀ)
-
-open import Linearize.Raw _⇨ₜ_ _⇨ₚ_ _⇨ᵣ_ 0ℓ as k using (_∘·first_∘_; ⌞_⌟; ⟦_⟧ₖ)
+open import Linearize.Simple
+open import Routing.Raw using (here)
 
 private variable a b i o : Ty
 
@@ -88,7 +71,7 @@ comp {i} compName opName ins o with size i | size o
 oport : String → TyIx a → OPort
 oport compName o = compName ++ ":Out" ++ showIx o
 
-module _ {s} (stateF₀ : ⊤ k.⇨ s) where
+module _ {s} (stateF₀ : ⊤ ⇨ₖ s) where
 
   open import Miscellany using (Function)
   open import Linearize.Homomorphism _⇨ₜ_ _⇨ₚ_ _⇨ᵣ_ 0ℓ
@@ -105,7 +88,7 @@ module _ {s} (stateF₀ : ⊤ k.⇨ s) where
   codᵖ : (a ⇨ₚ b) → Ty
   codᵖ {b = b} _ = b
 
-  dotᵏ : ℕ → TyF OPort i → (i k.⇨ (o × s)) → List String
+  dotᵏ : ℕ → TyF OPort i → (i ⇨ₖ o × s) → List String
 
   dotᵏ comp# ins ⌞ r ⌟ with ⟦ r ⟧′ ins ; ... | os ､ ss =
     concat (toList (mapᵀ register allIx ⊛ →TyF state₀ ⊛ ss))
@@ -116,10 +99,10 @@ module _ {s} (stateF₀ : ⊤ k.⇨ s) where
       comp compName (show p) os (codᵖ p)
       ++ᴸ dotᵏ (suc comp#) (mapᵀ (oport compName) allIx ､ ss) f
 
-  dot : i × s k.⇨ o × s → String
+  dot : i × s ⇨ₖ o × s → String
   dot {i = i} f = package (
     comp "input" "input" · i ++ᴸ
     dotᵏ 0 ( mapᵀ (oport "input") allIx ､
-             mapᵀ (λ r → oport (reg r) r.here) allIx) f)
+             mapᵀ (λ r → oport (reg r) here) allIx) f)
 
   -- TODO: Consider reworking with stateF₀ as input to registers
