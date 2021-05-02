@@ -18,7 +18,6 @@ open import Categorical.Raw
 open import Categorical.Homomorphism
 open import Categorical.Laws
 
-
 module Linearize.Raw {ℓₘ}{objₘ : Set ℓₘ} ⦃ _ : Products objₘ ⦄
              (_⇨ₘ_ : objₘ → objₘ → Set ℓₘ) (let infix 0 _⇨ₘ_; _⇨ₘ_ = _⇨ₘ_)
              {ℓ}{obj : Set ℓ} ⦃ _ : Products obj ⦄
@@ -40,6 +39,10 @@ infixr 9 _∘·first_∘_
 data _⇨_ : obj → obj → Set ℓ where
   ⌞_⌟ : (r : a ⇨ᵣ b) → (a ⇨ b)
   _∘·first_∘_ : (f : c × z ⇨ d) (p : b ⇨ₚ c) (r : a ⇨ᵣ b × z) → (a ⇨ d)
+
+⟦_⟧ₖ : (a ⇨ b) → (Fₒ a ⇨ₘ Fₒ b)
+⟦ ⌞ r ⌟ ⟧ₖ = Fₘ r
+⟦ f ∘·first p ∘ r ⟧ₖ = ⟦ f ⟧ₖ ∘ μ ∘ first (Fₘ p) ∘ μ⁻¹ ∘ Fₘ r
 
 route : (a ⇨ᵣ b) → (a ⇨ b)
 route = ⌞_⌟
@@ -72,10 +75,6 @@ secondₖ f = swapₖ ∘ₖ firstₖ f ∘ₖ swapₖ
 
 -- first′ : (Fₒ a ⇨ₘ Fₒ c) → (Fₒ (a × b) ⇨ₘ Fₒ (c × b))
 -- first′ f = subst₂′ _⇨ₘ_ F-× F-× (first f)
-
-⟦_⟧ₖ : (a ⇨ b) → (Fₒ a ⇨ₘ Fₒ b)
-⟦ ⌞ r ⌟ ⟧ₖ = Fₘ r
-⟦ f ∘·first p ∘ r ⟧ₖ = ⟦ f ⟧ₖ ∘ μ ∘ first (Fₘ p) ∘ μ⁻¹ ∘ Fₘ r
 
 -- TODO: when proofs are done, consider localizing _∘ₖ_, firstₖ, and secondₖ
 
