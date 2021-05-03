@@ -74,6 +74,6 @@ mapℕ : {A B : Set} → (ℕ → A → B) → List A → List B
 mapℕ f as = zipWith f (upTo (lengthᴸ as)) as
 
 show-SSA : SSA → String
-show-SSA ssa = concat (mapℕ show-stmt ssa)
+show-SSA = concat ∘ mapℕ show-stmt
 
 -- TODO: sort out what to make private.
