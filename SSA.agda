@@ -11,12 +11,16 @@ open import Data.Product using (_,_; curry)
 open import Data.Fin using (Fin; toℕ; suc; zero)
 open import Data.Nat using (ℕ; suc; zero; _+_)
 open import Data.String hiding (toList; show)
-open import Data.List using (List; []; _∷_; upTo; zipWith)
+open import Data.List using (List; []; _∷_; upTo; zip; zipWith)
              renaming (map to mapᴸ; length to lengthᴸ)
 
-open import Categorical.Raw
-open import Categorical.Instances.Function.Raw
-open import Categorical.Instances.Function.Laws
+-- open import Categorical.Raw
+-- open import Categorical.Instances.Function.Raw
+-- open import Categorical.Instances.Function.Laws
+
+open import Function using (_∘_)
+open import Data.Product using (_×_)
+open import Data.Nat.Show using (show)
 
 open import Linearize.Simple
 
@@ -41,9 +45,9 @@ record Statement : Set where
 
 show-stmt : ℕ → Statement → String
 show-stmt comp#  (mk #outs prim ins) =
-   intersperse " , " (mapᴸ (curry showId comp#) (upTo #outs))
-   ++ " = "
-   ++ prim ++ parens (intersperse " , " (mapᴸ showId ins))
+     intersperse " , " (mapᴸ (curry showId comp#) (upTo #outs))
+  ++ " = "
+  ++ prim ++ parens (intersperse " , " (mapᴸ showId ins))
 
 SSA : Set
 SSA = List Statement
@@ -61,6 +65,9 @@ ssaᵏ i ins (f ∘·first p ∘ r) with ⟦ r ⟧′ ins ; ... | x ､ y =
 
 ssa : (a ⇨ₖ b) → SSA
 ssa {a} f = mk (size a) "input" [] ∷ ssaᵏ 1 (refs 0) f
+
+tagℕ : {ℓ : Level} {A : Set ℓ} → List (ℕ × A)
+tagℕ as = zip (upTo (lengthᴸ as)) as
 
 show-SSA : SSA → String
 show-SSA ssa = concat (zipWith show-stmt (upTo (lengthᴸ ssa)) ssa)
