@@ -11,13 +11,9 @@ open import Categorical.Instances.Function.Raw
 
 open import Typed.Raw (Function {0ℓ}) hiding (_⇨_)
 
-private variable a b c d : Ty
+open import Routing.Type public
 
--- Index of a bit in a type
-data TyIx : Ty → Set where
-  here : TyIx Bool
-  left  : TyIx a → TyIx (a × b)
-  right : TyIx b → TyIx (a × b)
+private variable a b c d : Ty
 
 swapIx : TyIx (b × a) → TyIx (a × b)
 swapIx (left x) = right x
@@ -38,12 +34,6 @@ _⊗Ix_ : (f : TyIx c → TyIx a) (g : TyIx d → TyIx b) → TyIx (c × d) → 
 (f ⊗Ix g) (left  x) = left  (f x)
 (f ⊗Ix g) (right y) = right (g y)
 
-
-infix 0 _⇨_
-record _⇨_ (a b : Ty) : Set where
-  constructor mk
-  field
-    f : TyIx b → TyIx a
 
 instance
 

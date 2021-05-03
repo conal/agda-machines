@@ -9,11 +9,7 @@ open import Data.Nat
 
 open import Categorical.Instances.Function.Raw
 
-infixr 2 _`×_
-data Ty : Set where
-  `⊤    : Ty
-  `Bool : Ty
-  _`×_  : Ty → Ty → Ty
+open import Ty public
 
 private variable a b c d : Ty
 

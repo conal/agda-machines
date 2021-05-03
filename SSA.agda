@@ -14,17 +14,21 @@ open import Data.String hiding (toList; show)
 open import Data.List using (List; []; _∷_; upTo; zip; zipWith)
              renaming (map to mapᴸ; length to lengthᴸ)
 
--- open import Categorical.Raw
--- open import Categorical.Instances.Function.Raw
--- open import Categorical.Instances.Function.Laws
+open import Miscellany using (Function)
 
-open import Function using (_∘_)
-open import Data.Product using (_×_)
-open import Data.Nat.Show using (show)
+open import Categorical.Raw
+open import Categorical.Instances.Function.Raw
 
-open import Linearize.Simple
+open import Typed.Raw (Function {0ℓ}) renaming (_⇨_ to _⇨ₜ_)
+open import Primitive.Type renaming (_⇨_ to _⇨ₚ_)
+open import Routing.Type renaming (_⇨_ to _⇨ᵣ_)
+open import Routing.Functor renaming (map to mapᵀ)
+
+open import Linearize.Type _⇨ₜ_ _⇨ₚ_ _⇨ᵣ_ renaming (_⇨_ to _⇨ₖ_)
 
 private variable a b : Ty
+
+-- open primitive-instances
 
 -- Identifier as component/instance number and output index
 Id : Set
@@ -43,8 +47,8 @@ record Statement : Set where
     prim  : String
     ins   : List Id
 
-show-stmt : ℕ → Statement → String
-show-stmt comp#  (mk #outs prim ins) =
+show-stmt : ℕ × Statement → String
+show-stmt (comp# , mk #outs prim ins) =
      intersperse " , " (mapᴸ (curry showId comp#) (upTo #outs))
   ++ " = "
   ++ prim ++ parens (intersperse " , " (mapᴸ showId ins))
@@ -61,15 +65,15 @@ refs comp# = mapᵀ (λ i → (comp# , toℕ i)) allFin
 ssaᵏ : ℕ → Ref a → (a ⇨ₖ b) → SSA
 ssaᵏ _ ins ⌞ r ⌟ = mk 0 "output" (toList (⟦ r ⟧′ ins)) ∷ []
 ssaᵏ i ins (f ∘·first p ∘ r) with ⟦ r ⟧′ ins ; ... | x ､ y =
-  mk (#outs p) (show p) (toList x) ∷ ssaᵏ (suc i) (refs i ､ y) f
+  mk (#outs p) (showₚ p) (toList x) ∷ ssaᵏ (suc i) (refs i ､ y) f
 
 ssa : (a ⇨ₖ b) → SSA
 ssa {a} f = mk (size a) "input" [] ∷ ssaᵏ 1 (refs 0) f
 
-tagℕ : {ℓ : Level} {A : Set ℓ} → List (ℕ × A)
+tagℕ : {A : Set} → List A → List (ℕ × A)
 tagℕ as = zip (upTo (lengthᴸ as)) as
 
 show-SSA : SSA → String
-show-SSA ssa = concat (zipWith show-stmt (upTo (lengthᴸ ssa)) ssa)
+show-SSA ssa = concat (mapᴸ show-stmt (tagℕ ssa))
 
 -- TODO: sort out what to make private.

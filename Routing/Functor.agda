@@ -70,15 +70,9 @@ TyF→ (x ､ y) = TyF→ x , TyF→ y
 
 -- Relate Ty values to vectors
 
-open import Data.Nat
 open import Data.Fin hiding (_+_)
 open import Data.Vec using (Vec; []; _∷_)
   renaming (_++_ to _++ⁿ_; toList to toListⁿ)
-
-size : Ty → ℕ
-size `⊤       = 0
-size `Bool    = 1
-size (a `× b) = size a + size b
 
 toFin : TyIx a → Fin (size a)
 toFin here      = zero

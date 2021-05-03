@@ -12,16 +12,11 @@ module Primitive.Raw
 open import Categorical.Homomorphism
 open import Categorical.Laws
 
+open import Primitive.Type public
+
 open import Typed.Raw _↠_ renaming (_⇨_ to _⇨ₜ_)
 
 private variable a b : Ty
-
-infix 0 _⇨_
-data _⇨_ : Ty → Ty → Set where
-  `false `true : ⊤ ⇨ Bool
-  `not : Bool ⇨ Bool
-  `∧ `∨ `xor : Bool × Bool ⇨ Bool
-  `cond : Bool × (a × a) ⇨ a
 
 module primitive-instances where
 
@@ -42,15 +37,17 @@ module primitive-instances where
                }
 
     p-show : Show (a ⇨ b)
-    p-show = record { show = λ { `false → "false"
-                               ; `true  → "true"
-                               ; `not   → "not"
-                               ; `∧     → "∧"
-                               ; `∨     → "∨"
-                               ; `xor   → "⊕"
-                               ; `cond  → "cond"
-                               }
-                    }
+    p-show = record { show = showₚ }
+
+    -- p-show = record { show = λ { `false → "false"
+    --                            ; `true  → "true"
+    --                            ; `not   → "not"
+    --                            ; `∧     → "∧"
+    --                            ; `∨     → "∨"
+    --                            ; `xor   → "⊕"
+    --                            ; `cond  → "cond"
+    --                            }
+    --                 }
 
     logic : Logic _⇨_
     logic = record { false = `false ; true = `true

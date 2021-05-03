@@ -10,9 +10,10 @@ import Symbolic
 import Mealy
 import Linearize
 import Dot
-import Test
 
 import Examples.Add
+
+-- import Test
 
 -- -- Experimental modules not used above.
 -- import Tinkering.StreamFun

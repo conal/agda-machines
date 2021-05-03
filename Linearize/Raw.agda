@@ -34,11 +34,7 @@ module Linearize.Raw {ℓₘ}{objₘ : Set ℓₘ} ⦃ _ : Products objₘ ⦄
 
 private variable a b c d z : obj
 
-infix 0 _⇨_
-infixr 9 _∘·first_∘_
-data _⇨_ : obj → obj → Set ℓ where
-  ⌞_⌟ : (r : a ⇨ᵣ b) → (a ⇨ b)
-  _∘·first_∘_ : (f : c × z ⇨ d) (p : b ⇨ₚ c) (r : a ⇨ᵣ b × z) → (a ⇨ d)
+open import Linearize.Type _⇨ₘ_ _⇨ₚ_ _⇨ᵣ_ public
 
 ⟦_⟧ₖ : (a ⇨ b) → (Fₒ a ⇨ₘ Fₒ b)
 ⟦ ⌞ r ⌟ ⟧ₖ = Fₘ r
