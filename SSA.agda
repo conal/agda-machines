@@ -7,11 +7,12 @@
 module SSA where
 
 open import Level using (Level; 0ℓ)
-open import Data.Product using (_,_)
+open import Data.Product using (_,_; curry)
 open import Data.Fin using (Fin; toℕ; suc; zero)
 open import Data.Nat using (ℕ; suc; zero; _+_)
 open import Data.String hiding (toList; show)
-open import Data.List using (List; []; _∷_)
+open import Data.List using (List; []; _∷_; upTo; zipWith)
+             renaming (map to mapᴸ; length to lengthᴸ)
 
 open import Categorical.Raw
 open import Categorical.Instances.Function.Raw
@@ -21,36 +22,47 @@ open import Linearize.Simple
 
 private variable a b : Ty
 
+-- Identifier as component/instance number and output index
 Id : Set
-Id = String
+Id = ℕ × ℕ
+
+showId : Id → String
+showId (comp# , out#) = "x" ++ show comp# ++ "_" ++ show out#
 
 Ref : Ty → Set
 Ref = TyF Id
 
 record Statement : Set where
-  constructor _:=_·_
+  constructor mk
   field
-    outs  : List Id
+    #outs : ℕ
     prim  : String
     ins   : List Id
 
-instance
-  show-Statement : Show Statement
-  show-Statement = record { show = λ (outs := prim · ins) →
-     intersperse " , " outs ++ " = " ++ prim ++ parens (intersperse " , " outs)
-   }
+show-stmt : ℕ → Statement → String
+show-stmt comp#  (mk #outs prim ins) =
+   intersperse " , " (mapᴸ (curry showId comp#) (upTo #outs))
+   ++ " = "
+   ++ prim ++ parens (intersperse " , " (mapᴸ showId ins))
 
 SSA : Set
 SSA = List Statement
 
--- Construct an assignment and bump the free variable counter.
-mkRefs : ℕ → Ref b × ℕ
-mkRefs {b = b} i = mapᵀ (λ j → "x" ++ show (i + toℕ j)) allFin , i + size b
+refs : ℕ → Ref b
+refs comp# = mapᵀ (λ i → (comp# , toℕ i)) allFin
+
+#outs : (a ⇨ₚ b) → ℕ
+#outs {b = b} _ = size b
 
 ssaᵏ : ℕ → Ref a → (a ⇨ₖ b) → SSA
-ssaᵏ _ ins ⌞ r ⌟ = [] := "Out" · toList (⟦ r ⟧′ ins) ∷ []
+ssaᵏ _ ins ⌞ r ⌟ = mk 0 "output" (toList (⟦ r ⟧′ ins)) ∷ []
 ssaᵏ i ins (f ∘·first p ∘ r) with ⟦ r ⟧′ ins ; ... | x ､ y =
-  let os , i′ = mkRefs i in toList os := show p · toList x ∷ ssaᵏ i′ (os ､ y) f
+  mk (#outs p) (show p) (toList x) ∷ ssaᵏ (suc i) (refs i ､ y) f
 
 ssa : (a ⇨ₖ b) → SSA
-ssa f = let ins , i = mkRefs 0 in ssaᵏ i ins f
+ssa {a} f = mk (size a) "input" [] ∷ ssaᵏ 1 (refs 0) f
+
+show-SSA : SSA → String
+show-SSA ssa = concat (zipWith show-stmt (upTo (lengthᴸ ssa)) ssa)
+
+-- TODO: sort out what to make private.
