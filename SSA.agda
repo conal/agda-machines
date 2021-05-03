@@ -47,8 +47,8 @@ record Statement : Set where
     prim  : String
     ins   : List Id
 
-show-stmt : ℕ × Statement → String
-show-stmt (comp# , mk #outs prim ins) =
+show-stmt : ℕ → Statement → String
+show-stmt comp#  (mk #outs prim ins) =
      intersperse " , " (mapᴸ (curry showId comp#) (upTo #outs))
   ++ " = "
   ++ prim ++ parens (intersperse " , " (mapᴸ showId ins))
@@ -70,10 +70,10 @@ ssaᵏ i ins (f ∘·first p ∘ r) with ⟦ r ⟧′ ins ; ... | x ､ y =
 ssa : (a ⇨ₖ b) → SSA
 ssa {a} f = mk (size a) "input" [] ∷ ssaᵏ 1 (refs 0) f
 
-tagℕ : {A : Set} → List A → List (ℕ × A)
-tagℕ as = zip (upTo (lengthᴸ as)) as
+mapℕ : {A B : Set} → (ℕ → A → B) → List A → List B
+mapℕ f as = zipWith f (upTo (lengthᴸ as)) as
 
 show-SSA : SSA → String
-show-SSA ssa = concat (mapᴸ show-stmt (tagℕ ssa))
+show-SSA ssa = concat (mapℕ show-stmt ssa)
 
 -- TODO: sort out what to make private.
