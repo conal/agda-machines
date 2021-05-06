@@ -57,7 +57,7 @@ SSA : Set
 SSA = List Statement
 
 refs : ℕ → Ref b
-refs comp# = mapᵀ (λ i → (comp# , toℕ i)) allFin
+refs comp# = mapᵀ (λ i → comp# , toℕ i) allFin
 
 #outs : (a ⇨ₚ b) → ℕ
 #outs {b = b} _ = size b
