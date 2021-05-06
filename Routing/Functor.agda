@@ -33,7 +33,7 @@ infixr 4 _､_
 data TyF (X : Set) : Ty → Set where
   ·   : TyF X ⊤
   [_] : X → TyF X Bool
-  _､_ : TyF X a → TyF X b → TyF X (a × b)
+  _､_ : (x : TyF X a) (y : TyF X b) → TyF X (a × b)
 
 tabulate′ : (TyIx a → X) → TyF X a
 tabulate′ {`⊤} f = ·
@@ -112,3 +112,20 @@ _⊛_ : TyF (X → Y) a → TyF X a → TyF Y a
 
 map₂ : (X → Y → Z) → TyF X a → TyF Y a → TyF Z a
 map₂ f u v = map f u ⊛ v
+
+
+open import Data.Bool using (if_then_else_) renaming (false to 𝕗; true to 𝕥)
+open import Data.String hiding (show)
+
+showTyF : (X → String) → TyF X a → String
+showTyF {X = X} showX = go 𝕥
+ where
+   -- Flag says we're in the left part of a pair
+   go :  Bool → TyF X a → String
+   go p · = "tt"
+   go p [ b ] = parensIfSpace (showX b)
+   go p (x ､ y) = (if p then parens else id) (go 𝕥 x ++ " , " ++ go 𝕗 y)
+
+instance
+  show-TyF : ⦃ _ : Show X ⦄ → Show (TyF X a)
+  show-TyF = record { show = showTyF show }
