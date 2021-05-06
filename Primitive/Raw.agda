@@ -12,6 +12,7 @@ module Primitive.Raw
 open import Categorical.Homomorphism
 open import Categorical.Laws
 
+open import Ty
 open import Primitive.Type public
 
 open import Typed.Raw _↠_ renaming (_⇨_ to _⇨ₜ_)
@@ -35,19 +36,6 @@ module primitive-instances where
                         ; `cond  → mk cond
                         }
                }
-
-    p-show : Show (a ⇨ b)
-    p-show = record { show = showₚ }
-
-    -- p-show = record { show = λ { `false → "false"
-    --                            ; `true  → "true"
-    --                            ; `not   → "not"
-    --                            ; `∧     → "∧"
-    --                            ; `∨     → "∨"
-    --                            ; `xor   → "⊕"
-    --                            ; `cond  → "cond"
-    --                            }
-    --                 }
 
     logic : Logic _⇨_
     logic = record { false = `false ; true = `true

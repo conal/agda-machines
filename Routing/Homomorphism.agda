@@ -13,6 +13,7 @@ open import Miscellany using (Function)
 open import Categorical.Instances.Function.Raw
 open import Categorical.Instances.Function.Laws
 
+open import Ty
 open import Typed.Raw (Function {0ℓ}) renaming (_⇨_ to _⇨ₜ_)
 open import Typed.Homomorphism (Function {0ℓ}) 0ℓ
 open import Typed.Laws         (Function {0ℓ}) 0ℓ

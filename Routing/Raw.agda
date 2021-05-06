@@ -9,6 +9,7 @@ open import Miscellany using (Function)
 open import Categorical.Raw
 open import Categorical.Instances.Function.Raw
 
+open import Ty
 open import Typed.Raw (Function {0ℓ}) hiding (_⇨_)
 
 open import Routing.Type public

@@ -21,10 +21,7 @@ private
 open import Symbolic.Raw using (_⇨_)
 open import Symbolic.Homomorphism
 
--- TODO: Replace with single import
-open import Typed.Raw          _↠_ renaming (_⇨_ to _⇨ₜ_)
-open import Typed.Homomorphism _↠_ q
-open import Typed.Laws         _↠_ q
+open import Typed _↠_ q renaming (_⇨_ to _⇨ₜ_)
 
 module symbolic-laws where
 

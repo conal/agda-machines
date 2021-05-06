@@ -19,10 +19,8 @@ private
   q : Level
   q = 0ℓ
 
--- TODO: Replace with single import
-open import Typed.Raw          _↠_ renaming (_⇨_ to _⇨ₜ_)
-open import Typed.Homomorphism _↠_ q
-open import Typed.Laws         _↠_ q
+open import Ty
+open import Typed _↠_ q renaming (_⇨_ to _⇨ₜ_)
 
 open import Routing as r using (swizzle-id)
 import Primitive _↠_ q as p

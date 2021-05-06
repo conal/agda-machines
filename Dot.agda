@@ -11,12 +11,13 @@ open import Data.String hiding (toList; concat; show)
 open import Data.List using (List; []; _∷_; concat; map; upTo)
   renaming (_++_ to _++ᴸ_)
 
-open import Miscellany using (Function)
+open import Miscellany
 open import Categorical.Raw
 open import Categorical.Instances.Function.Raw
 open import Categorical.Instances.Function.Laws
 open import Categorical.Homomorphism
 
+open import Ty
 open import Linearize.Simple
 open import Routing.Raw using (here)
 

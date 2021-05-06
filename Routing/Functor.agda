@@ -5,20 +5,13 @@ module Routing.Functor where
 open import Level using (0ℓ)
 open import Data.Product using (_,_)
 
-open import Miscellany using (Function)
+open import Miscellany
 open import Categorical.Raw
 open import Categorical.Instances.Function.Raw
 open import Categorical.Instances.Function.Laws
 
--- open import Ty.Raw hiding (_⇨_)
--- open import Routing.Raw
-
-open import Typed.Raw (Function {0ℓ}) renaming (_⇨_ to _⇨ₜ_)
-open import Typed.Homomorphism (Function {0ℓ}) 0ℓ
-open import Typed.Laws         (Function {0ℓ}) 0ℓ
-
--- -- I don't know why the following alternative leads to problems
--- open import Typed (Function {0ℓ}) 0ℓ renaming (_⇨_ to _⇨ₜ_)
+open import Ty
+open import Typed (Function {0ℓ}) 0ℓ renaming (_⇨_ to _⇨ₜ_)
 
 open import Routing.Raw
 

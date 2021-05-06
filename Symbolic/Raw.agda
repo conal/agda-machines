@@ -19,6 +19,7 @@ private
   q : Level
   q = 0ℓ
 
+open import Ty
 open import Typed.Raw _↠_ renaming (_⇨_ to _⇨ₜ_)
 
 import Routing.Raw as r

@@ -12,11 +12,7 @@ module Primitive.Homomorphism
 open import Categorical.Homomorphism
 open import Categorical.Laws
 
--- TODO: Replace with single import
-open import Typed.Raw          _↠_ renaming (_⇨_ to _⇨ₜ_)
-open import Typed.Homomorphism _↠_ q
-open import Typed.Laws         _↠_ q
-
+open import Typed _↠_ q renaming (_⇨_ to _⇨ₜ_)
 open import Primitive.Raw _↠_
 
 module primitive-homomomorphism-instances where

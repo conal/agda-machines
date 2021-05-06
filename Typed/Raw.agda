@@ -9,7 +9,7 @@ open import Data.Nat
 
 open import Categorical.Instances.Function.Raw
 
-open import Ty public
+open import Ty -- public
 
 private variable a b c d : Ty
 

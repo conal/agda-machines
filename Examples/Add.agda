@@ -6,6 +6,7 @@ open import Categorical.Raw
 open import Miscellany using (Function)
 open import Categorical.Instances.Function.Raw
 
+open import Ty
 open import Typed.Raw Function
 
 module Examples.Add

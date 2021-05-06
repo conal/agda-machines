@@ -17,6 +17,7 @@ open import Categorical.Laws
 
 open import Miscellany
 open import Categorical.Instances.Function
+open import Ty
 open import Typed.Raw _↠_
 
 open Equiv {q = q}{_⇨_ = _↠_} using () renaming (sym to sym↠; trans to trans↠)

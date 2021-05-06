@@ -22,11 +22,9 @@ private
   q : Level
   q = 0ℓ
 
+open import Ty
 import Typed.Raw _↠_ as t
-open t using (Ty; size) renaming (_⇨_ to _⇨ₜ_) public
-
--- import Primitive _↠_ q as p
--- open p using () renaming (_⇨_ to _⇨ₚ_) public
+open t renaming (_⇨_ to _⇨ₜ_) public
 
 import Primitive.Raw _↠_ as p
 open p using () renaming (_⇨_ to _⇨ₚ_) public

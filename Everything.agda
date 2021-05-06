@@ -1,5 +1,7 @@
 module Everything where
 
+import Miscellany
+
 import Categorical
 import Categorical.Instances.Function
 
