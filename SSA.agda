@@ -14,11 +14,12 @@ open import Data.String hiding (toList; show)
 open import Data.List using (List; []; _∷_; upTo; zip; zipWith)
              renaming (map to mapᴸ; length to lengthᴸ)
 
-open import Miscellany using (Function)
+open import Miscellany
 
 open import Categorical.Raw
 open import Categorical.Instances.Function.Raw
 
+open import Ty
 open import Typed.Raw (Function {0ℓ}) renaming (_⇨_ to _⇨ₜ_)
 open import Primitive.Type renaming (_⇨_ to _⇨ₚ_)
 open import Routing.Type renaming (_⇨_ to _⇨ᵣ_)
@@ -65,7 +66,7 @@ refs comp# = mapᵀ (λ i → comp# , toℕ i) allFin
 ssaᵏ : ℕ → Ref a → (a ⇨ₖ b) → SSA
 ssaᵏ _ ins ⌞ r ⌟ = mk 0 "output" (toList (⟦ r ⟧′ ins)) ∷ []
 ssaᵏ i ins (f ∘·first p ∘ r) with ⟦ r ⟧′ ins ; ... | x ､ y =
-  mk (#outs p) (showₚ p) (toList x) ∷ ssaᵏ (suc i) (refs i ､ y) f
+  mk (#outs p) (show p) (toList x) ∷ ssaᵏ (suc i) (refs i ､ y) f
 
 ssa : (a ⇨ₖ b) → SSA
 ssa {a} f = mk (size a) "input" [] ∷ ssaᵏ 1 (refs 0) f
