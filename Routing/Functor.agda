@@ -110,15 +110,15 @@ map₂ f u v = map f u ⊛ v
 open import Data.Bool using (if_then_else_) renaming (false to 𝕗; true to 𝕥)
 open import Data.String hiding (show)
 
-showTyF : (X → String) → TyF X a → String
-showTyF {X = X} showX = go 𝕥
- where
-   -- Flag says we're in the left part of a pair
-   go :  Bool → TyF X a → String
-   go p · = "tt"
-   go p [ b ] = parensIfSpace (showX b)
-   go p (x ､ y) = (if p then parens else id) (go 𝕥 x ++ " , " ++ go 𝕗 y)
-
 instance
   Show-TyF : ⦃ _ : Show X ⦄ → Show (TyF X a)
   Show-TyF = record { show = showTyF show }
+   where     
+     showTyF : (X → String) → TyF X a → String
+     showTyF {X = X} showX = go 𝕥
+      where
+        -- Flag says we're in the left part of a pair
+        go :  Bool → TyF X a → String
+        go p · = "tt"
+        go p [ b ] = parensIfSpace (showX b)
+        go p (x ､ y) = (if p then parens else id) (go 𝕥 x ++ " , " ++ go 𝕗 y)
