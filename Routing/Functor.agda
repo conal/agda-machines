@@ -120,5 +120,5 @@ showTyF {X = X} showX = go 𝕥
    go p (x ､ y) = (if p then parens else id) (go 𝕥 x ++ " , " ++ go 𝕗 y)
 
 instance
-  show-TyF : ⦃ _ : Show X ⦄ → Show (TyF X a)
-  show-TyF = record { show = showTyF show }
+  Show-TyF : ⦃ _ : Show X ⦄ → Show (TyF X a)
+  Show-TyF = record { show = showTyF show }
