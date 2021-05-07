@@ -112,13 +112,9 @@ open import Data.String hiding (show)
 
 instance
   Show-TyF : ⦃ _ : Show X ⦄ → Show (TyF X a)
-  Show-TyF = record { show = showTyF show }
-   where     
-     showTyF : (X → String) → TyF X a → String
-     showTyF {X = X} showX = go 𝕥
-      where
-        -- Flag says we're in the left part of a pair
-        go :  Bool → TyF X a → String
-        go p · = "tt"
-        go p [ b ] = parensIfSpace (showX b)
-        go p (x ､ y) = (if p then parens else id) (go 𝕥 x ++ " , " ++ go 𝕗 y)
+  Show-TyF {X = X} = record { show = go 𝕥 } where     
+    -- Flag says we're in the left part of a pair
+    go :  Bool → TyF X a → String
+    go p · = "tt"
+    go p [ b ] = parensIfSpace (show b)
+    go p (x ､ y) = (if p then parens else id) (go 𝕥 x ++ " , " ++ go 𝕗 y)
