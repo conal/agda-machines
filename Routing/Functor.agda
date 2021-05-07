@@ -107,10 +107,11 @@ map₂ : (X → Y → Z) → TyF X a → TyF Y a → TyF Z a
 map₂ f u v = map f u ⊛ v
 
 
-open import Data.Bool using (if_then_else_) renaming (false to 𝕗; true to 𝕥)
-open import Data.String hiding (show)
-
 instance
+
+  open import Data.Bool using (if_then_else_) renaming (false to 𝕗; true to 𝕥)
+  open import Data.String hiding (show)
+
   Show-TyF : ⦃ _ : Show X ⦄ → Show (TyF X a)
   Show-TyF {X = X} = record { show = go 𝕥 } where     
     -- Flag says we're in the left part of a pair
