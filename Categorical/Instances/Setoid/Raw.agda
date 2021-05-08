@@ -88,16 +88,16 @@ module setoid-instances where
 
     logic : Logic _⟶_
     logic = record
-              { false = lift→ false
-              ; true  = lift→ true
-              ; not   = lift→ not
-              ; ∧     = lift→₂ ∧
-              ; ∨     = lift→₂ ∨
-              ; xor   = lift→₂ xor
-              ; cond  = record
-                 { _⟨$⟩_ = cond
-                 ; cong  = λ { {𝕗 , a₁ , b₁} {.𝕗 , a₂ , b₂} (refl≡ , a₁≈a₂ , b₁≈b₂) → a₁≈a₂
-                             ; {𝕥 , a₁ , b₁} {.𝕥 , a₂ , b₂} (refl≡ , a₁≈a₂ , b₁≈b₂) → b₁≈b₂ }
-                 }
-              }
+      { false = lift→ false
+      ; true  = lift→ true
+      ; not   = lift→ not
+      ; ∧     = lift→₂ ∧
+      ; ∨     = lift→₂ ∨
+      ; xor   = lift→₂ xor
+      ; cond  = record
+         { _⟨$⟩_ = cond
+         ; cong  = λ { {𝕗 , _} {.𝕗 , _} (refl≡ , ≈a , ≈b) → ≈a
+                     ; {𝕥 , _} {.𝕥 , _} (refl≡ , ≈a , ≈b) → ≈b }
+         }
+      }
 
