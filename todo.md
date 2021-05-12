@@ -1,5 +1,12 @@
 ## To do
 
+*   Build up from setoids (`Setoid` in `Binary.Bundles`) and equivalence-preserving functions (`_⟶_` in `Function.Equality`) in place of sets and functions.
+    Needed for exponentials.
+*   Move `!` from `Monoidal` to `Cartesian`.
+*   Drop the `Monoidal` requirement of `Cartesian`, and define `Monoidal` and `Braided` instance as a function of `Cartesian`.
+    Oh, hm. Then `Cartesian` would need to add more than it does now.
+*   Replace uses of `swizzle-id` with `tabulate∘lookup`.
+*   Consider factoring `Categorical.Object` out of `Categorical.Raw`.
 *   Generalize `Ty` to map to *any* monoidal category rather than just functions.
 *   Add a congruence property to `Homomorphism`: `f ≈ g → Fₘ f ≈ Fₘ g`.
 *   Introduce explicit isomorphisms for things like `assoc×`, `ε`, and `μ`.
@@ -17,8 +24,6 @@
 *   Fix `Monoidal` to align with [nLab's definition](https://ncatlab.org/nlab/show/monoidal+category).
     Likewise for [monoidal functors](https://ncatlab.org/nlab/show/monoidal+functor).
 
-*   Revisit uses of `swizzle-id`.
-    Can I refer to the routing category instead?
 *   Define some utilities to capture common method definitions, including most of `Monoidal` using routings.
     Similarly for primitives.
     Is there a suitable category theory concept?

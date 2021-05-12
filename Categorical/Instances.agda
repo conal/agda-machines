@@ -1,5 +1,7 @@
 {-# OPTIONS --safe --without-K #-}
 
-module Categorical.Instances where
+open import Level
 
-open import Categorical.Instances.Function
+module Categorical.Instances (0ℓ) where
+
+open import Categorical.Instances.Function 0ℓ

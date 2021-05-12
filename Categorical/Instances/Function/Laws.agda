@@ -1,17 +1,16 @@
 {-# OPTIONS --safe --without-K #-}
 
-module Categorical.Instances.Function.Laws where
-
 open import Level using (Level)
+
+module Categorical.Instances.Function.Laws (o : Level) where
+
 open import Relation.Binary.PropositionalEquality as ≡ using (_≗_; cong)
 open import Data.Product using (_,_)
 
 open import Miscellany
 open import Categorical.Raw
 open import Categorical.Laws
-open import Categorical.Instances.Function.Raw
-
-private variable o : Level
+open import Categorical.Instances.Function.Raw o
 
 module →Lawful where
 

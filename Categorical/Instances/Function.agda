@@ -1,6 +1,8 @@
 {-# OPTIONS --safe --without-K #-}
 
-module Categorical.Instances.Function where
+open import Level
 
-open import Categorical.Instances.Function.Raw   public
-open import Categorical.Instances.Function.Laws  public
+module Categorical.Instances.Function (o : Level) where
+
+open import Categorical.Instances.Function.Raw  o public
+open import Categorical.Instances.Function.Laws o public

@@ -7,10 +7,12 @@ open import Data.Product using (_,_)
 
 open import Miscellany using (Function)
 open import Categorical.Raw
-open import Categorical.Instances.Function.Raw
+open import Categorical.Instances.Function.Raw 0ℓ
+-- open import Categorical.Instances.Setoid.Raw 0ℓ
 
 open import Ty
 open import Typed.Raw (Function {0ℓ}) hiding (_⇨_)
+-- open import Typed.Raw _⟶_ hiding (_⇨_)
 
 open import Routing.Type public
 

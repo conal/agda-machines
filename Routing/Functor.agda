@@ -22,11 +22,13 @@ private
 
 infixr 4 _､_
 
--- Ty-indexed representable functor
+-- TyIx-indexed representable functor
 data TyF (X : Set) : Ty → Set where
   ·   : TyF X ⊤
   [_] : X → TyF X Bool
   _､_ : (x : TyF X a) (y : TyF X b) → TyF X (a × b)
+
+-- TODO: explore generalizing X from Set to obj
 
 tabulate′ : (TyIx a → X) → TyF X a
 tabulate′ {`⊤} f = ·

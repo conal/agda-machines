@@ -2,21 +2,21 @@
 
 open import Categorical.Raw
 
-module Typed.Raw {o ℓ} {obj : Set o} ⦃ _ : Products obj ⦄ ⦃ _ : Boolean obj ⦄
-                 (_↠_ : obj → obj → Set ℓ) where
+module Typed.Raw {o ℓ} {obj : Set o}
+ ⦃ _ : Products obj ⦄ ⦃ _ : Exponentials obj ⦄ ⦃ _ : Boolean obj ⦄
+ (_↠_ : obj → obj → Set ℓ) where
 
 open import Data.Nat
 
-open import Categorical.Instances.Function.Raw
-
-open import Ty -- public
+open import Ty
 
 private variable a b c d : Ty
 
 ⟦_⟧ : Ty → obj
 ⟦ `⊤ ⟧     = ⊤
-⟦ σ `× τ ⟧ = ⟦ σ ⟧ × ⟦ τ ⟧
 ⟦ `Bool ⟧  = Bool
+⟦ a `× b ⟧ = ⟦ a ⟧ × ⟦ b ⟧
+⟦ a `⇛ b ⟧ = ⟦ a ⟧ ⇛ ⟦ b ⟧
 
 infix 0 _⇨_
 record _⇨_ (a b : Ty) : Set ℓ where
@@ -28,11 +28,8 @@ module typed-instances where
 
   instance
 
-    products : Products Ty
-    products = record { ⊤ = `⊤ ; _×_ = _`×_ }
-
     category : ⦃ _ : Category _↠_ ⦄ → Category _⇨_
-    category = record { id = mk id ; _∘_ = λ { (mk g) (mk f) → mk (g ∘ f) } }
+    category = record { id = mk id ; _∘_ = λ (mk g) (mk f) → mk (g ∘ f) }
 
     monoidal : ⦃ _ : Monoidal _↠_ ⦄ → Monoidal _⇨_
     monoidal = record
@@ -60,6 +57,8 @@ module typed-instances where
                    ; ∧ = mk ∧ ; ∨ = mk ∨ ; xor = mk xor ; not = mk not
                    ; cond = mk cond
                    }
+
+{-
 
 -- Miscellaneous utilities, perhaps to move elsewhere
 module TyUtils {ℓ}
@@ -128,3 +127,5 @@ module TyUtils {ℓ}
       -- ((e , t) , (e′ , t′)) , (c , c)
       -- ((e , t) , c) , ((e′ , t′) , c)
       -- r , r′
+
+-}

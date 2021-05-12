@@ -1,8 +1,9 @@
 {-# OPTIONS --safe --without-K #-}
 
-module Categorical.Instances.Function.Raw where
+open import Level
 
-open import Level using (Level)
+module Categorical.Instances.Function.Raw (o : Level) where
+
 open import Function using (_∘′_; const) renaming (id to id′)
 open import Data.Unit.Polymorphic using () renaming (⊤ to ⊤′)
 open import Data.Product using (_,_; proj₁; proj₂; uncurry)
@@ -11,7 +12,18 @@ open import Data.Product using (_,_; proj₁; proj₂; uncurry)
 open import Miscellany using (Function)
 open import Categorical.Raw
 
-private variable o : Level
+import Data.Bool as B
+
+pattern 𝕗 = lift B.false
+pattern 𝕥 = lift B.true
+
+private
+
+  lift→ : ∀ {a b} {A B : Set} → (A → B) → (Lift a A → Lift b B)
+  lift→ f (lift x) = lift (f x)
+
+  lift→₂ : ∀ {a b c} {A B C : Set} → (A → B → C) → (Lift a A → Lift b B → Lift c C)
+  lift→₂ f (lift x) (lift y) = lift (f x y)
 
 module →RawInstances where
 
@@ -40,19 +52,23 @@ module →RawInstances where
     cartesian : Cartesian (Function {o})
     cartesian = record { exl = proj₁ ; exr = proj₂ ; dup = λ z → z , z }
 
-    import Data.Bool as B
+    exponentials : Exponentials (Set o)
+    exponentials = record { _⇛_ = Function }
 
-    boolean : Boolean Set
-    boolean = record { Bool  = B.Bool }
-    -- Can I make level-polymorphic? Probably with Lift.
+    closed : Closed (Function {o})
+    closed = record { _⟴_ = λ f h g → h ∘ g ∘ f }
 
-    logic : Logic Function
+    boolean : Boolean (Set o)
+    boolean = record { Bool = Lift o B.Bool }
+
+    logic : Logic (Function {o})
     logic = record
-              { ∧     = uncurry B._∧_
-              ; ∨     = uncurry B._∨_
-              ; xor   = uncurry B._xor_
-              ; not   = B.not
-              ; true  = const B.true
-              ; false = const B.false
-              ; cond  = λ (c , (a , b)) → B.if c then b else a
+              { ∧     = uncurry (lift→₂ B._∧_)
+              ; ∨     = uncurry (lift→₂ B._∨_)
+              ; xor   = uncurry (lift→₂ B._xor_)
+              ; not   = lift→ B.not
+              ; true  = const 𝕥
+              ; false = const 𝕗
+              ; cond  = λ (lift c , (a , b)) → B.if c then b else a
               }
+

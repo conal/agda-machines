@@ -4,7 +4,8 @@ open import Level using (Level)
 open import Categorical.Raw
 
 module Typed.Homomorphism
-    {o ℓ} {obj : Set o} ⦃ _ : Products obj ⦄ ⦃ _ : Boolean obj ⦄
+    {o ℓ} {obj : Set o}
+    ⦃ _ : Products obj ⦄ ⦃ _ : Exponentials obj ⦄ ⦃ _ : Boolean obj ⦄
     (_↠_ : obj → obj → Set ℓ)
     (q : Level) ⦃ _ : Equivalent q _↠_ ⦄
   where

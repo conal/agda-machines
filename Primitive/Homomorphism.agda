@@ -4,14 +4,17 @@ open import Level
 open import Categorical.Raw
 
 module Primitive.Homomorphism
-    {o ℓ} {obj : Set o} (_↠_ : obj → obj → Set ℓ)
-    ⦃ _ : Products obj ⦄ ⦃ _ : Boolean obj ⦄ ⦃ _ : Logic _↠_ ⦄
+    {o ℓ} {obj : Set o}
+    ⦃ _ : Products obj ⦄ ⦃ _ : Boolean obj ⦄ ⦃ _ : Exponentials obj ⦄
+    (_↠_ : obj → obj → Set ℓ)
+    ⦃ _ : Logic _↠_ ⦄
     (q : Level) ⦃ _ : Equivalent q _↠_ ⦄
   where
 
 open import Categorical.Homomorphism
 open import Categorical.Laws
 
+open import Ty
 open import Typed _↠_ q renaming (_⇨_ to _⇨ₜ_)
 open import Primitive.Raw _↠_
 

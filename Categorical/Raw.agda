@@ -61,7 +61,6 @@ record Monoidal {obj : Set o} ⦃ _ : Products obj ⦄
   field
     ⦃ ⇨Category ⦄ : Category _⇨_
 
-    ! : a ⇨ ⊤
     _⊗_ : (a ⇨ c) → (b ⇨ d) → (a × b ⇨ c × d)
 
     unitorᵉˡ : ⊤ × a ⇨ a
@@ -69,8 +68,10 @@ record Monoidal {obj : Set o} ⦃ _ : Products obj ⦄
     unitorⁱˡ : a ⇨ ⊤ × a
     unitorⁱʳ : a ⇨ a × ⊤
 
-    assocʳ : (a × b) × c ⇨ a × (b × c)
     assocˡ : a × (b × c) ⇨ (a × b) × c
+    assocʳ : (a × b) × c ⇨ a × (b × c)
+
+    ! : a ⇨ ⊤  -- Oops. Should be in Cartesian, right?
 
   first : a ⇨ c → a × b ⇨ c × b
   first f = f ⊗ id
@@ -130,6 +131,22 @@ record Cartesian {obj : Set o} ⦃ _ : Products obj ⦄
 
 open Cartesian ⦃ … ⦄ public
 
+record Exponentials (obj : Set o) : Set (lsuc o) where
+  infixr 1 _⇛_
+  field
+    _⇛_ : obj → obj → obj
+
+open Exponentials ⦃ … ⦄ public
+
+record Closed {obj : Set o} ⦃ _ : Exponentials obj ⦄
+         (_⇨′_ : obj → obj → Set ℓ) : Set (lsuc o ⊔ ℓ) where
+  private infix 0 _⇨_; _⇨_ = _⇨′_
+  infixr 1 _⟴_
+  field
+    _⟴_ : (a ⇨ b) → (c ⇨ d) → ((b ⇛ c) ⇨ (a ⇛ d))
+
+open Closed ⦃ … ⦄ public
+
 
 record Boolean (obj : Set o) : Set (lsuc o) where
   field
@@ -179,7 +196,7 @@ record Equivalent q {obj : Set o} (_⇨_ : obj → obj → Set ℓ)
   infix 4 _≈_
   field
     _≈_ : Rel (a ⇨ b) q   -- (f g : a ⇨ b) → Set q
-    equiv : ∀ {a b} → IsEquivalence (_≈_ {a}{b})
+    equiv : IsEquivalence (_≈_ {a}{b})
 
   module Equiv {a b} where
     open IsEquivalence (equiv {a}{b}) public

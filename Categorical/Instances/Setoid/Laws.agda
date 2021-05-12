@@ -1,8 +1,9 @@
 {-# OPTIONS --safe --without-K #-}
 
-module Categorical.Instances.Setoid.Laws where
+open import Level
 
-open import Level using (Level; 0ℓ)
+module Categorical.Instances.Setoid.Laws (o : Level) where
+
 open import Data.Product using (_,_)
 
 open import Relation.Binary using (module Setoid)
@@ -11,17 +12,17 @@ open import Function.Equality as E using (Π) ; open Π
 open import Miscellany
 open import Categorical.Raw
 open import Categorical.Laws
-open import Categorical.Instances.Setoid.Raw
-open import Categorical.Instances.Function.Raw
+open import Categorical.Instances.Setoid.Raw o
+open import Categorical.Instances.Function.Raw o
 
 module setoid-lawful where
 
   instance
 
-    equivalent : Equivalent 0ℓ _⟶_
+    equivalent : Equivalent o _⟶_
     equivalent = record { equiv = λ {a b} → Setoid.isEquivalence (a ⇛ b) }
 
-    lawful-category : LawfulCategory _⟶_ 0ℓ
+    lawful-category : LawfulCategory _⟶_ o
     lawful-category = record
       { identityˡ = λ {a}{b}{f} → cong f
       ; identityʳ = λ {a}{b}{f} → cong f
@@ -30,7 +31,7 @@ module setoid-lawful where
       ; ∘≈ = λ h≈k f≈g → h≈k ∘ f≈g
       }
 
-    lawful-monoidal : LawfulMonoidal _⟶_ 0ℓ
+    lawful-monoidal : LawfulMonoidal _⟶_ o
     lawful-monoidal = record
       { id⊗id = id
       ; ∘⊗ = λ {a₁ b₁ a₂ b₂ a₃ b₃} {f g h k} → cong (h ∘ f) ⊗ cong (k ∘ g)

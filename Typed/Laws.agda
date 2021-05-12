@@ -6,7 +6,8 @@ open import Categorical.Laws
 open import Categorical.MakeLawful
 
 module Typed.Laws
-    {o ℓ} {obj : Set o} ⦃ _ : Products obj ⦄ ⦃ _ : Boolean obj ⦄
+    {o ℓ} {obj : Set o}
+    ⦃ _ : Products obj ⦄ ⦃ _ : Exponentials obj ⦄ ⦃ _ : Boolean obj ⦄
     (_↠_ : obj → obj → Set ℓ)
     (q : Level) ⦃ _ : Equivalent q _↠_ ⦄
   where

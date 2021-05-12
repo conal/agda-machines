@@ -5,8 +5,10 @@ open import Level
 open import Categorical.Raw
 
 module Primitive.Raw
-    {o ℓ} {obj : Set o} (_↠_ : obj → obj → Set ℓ)
-    ⦃ _ : Products obj ⦄ ⦃ _ : Boolean obj ⦄ ⦃ _ : Logic _↠_ ⦄
+    {o ℓ} {obj : Set o}
+    ⦃ _ : Products obj ⦄ ⦃ _ : Exponentials obj ⦄ ⦃ _ : Boolean obj ⦄
+    (_↠_ : obj → obj → Set ℓ)
+    ⦃ _ : Logic _↠_ ⦄
   where
 
 open import Categorical.Homomorphism

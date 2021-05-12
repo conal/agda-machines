@@ -9,8 +9,8 @@ open import Level using (Level; 0ℓ)
 open import Miscellany using (Function)
 open import Categorical.Raw
 open import Categorical.Homomorphism
-open import Categorical.Instances.Function.Raw
-import Categorical.Instances.Function.Laws
+open import Categorical.Instances.Function.Raw  0ℓ
+open import Categorical.Instances.Function.Laws 0ℓ
 
 private
   _↠_ : Set → Set → Set

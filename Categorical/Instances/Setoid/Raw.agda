@@ -1,8 +1,8 @@
 {-# OPTIONS --safe --without-K #-}
 
-module Categorical.Instances.Setoid.Raw where
+open import Level
 
-open import Level using (0ℓ)
+module Categorical.Instances.Setoid.Raw (o : Level) where
 
 open import Data.Product using (_,_)
 open import Relation.Binary.PropositionalEquality
@@ -16,22 +16,26 @@ open import Data.Product.Relation.Binary.Pointwise.NonDependent using (_×ₛ_)
 
 open import Miscellany using (Function)
 open import Categorical.Raw
-open import Categorical.Instances.Function.Raw
+open import Categorical.Instances.Function.Raw o
 
-Setoid : Set₁
-Setoid = B.Setoid 0ℓ 0ℓ
+Setoid : Set (suc o)
+Setoid = B.Setoid o o
 
 open B.Setoid
 
 infixr 0 _⟶_
-_⟶_ : Setoid → Setoid → Set
+_⟶_ : Setoid → Setoid → Set o
 _⟶_ = E._⟶_
 
+infixr 0 _⟹_
+_⟹_ : Setoid → Setoid → Setoid
+_⟹_ = E._⇨_
+
 -- Lift a function between values to a setoid function, using equality.
-lift→ : ∀ {a b} → (a → b) → (setoid a ⟶ setoid b)
+lift→ : ∀ {a b : Set o} → (a → b) → (setoid a ⟶ setoid b)
 lift→ f = record { _⟨$⟩_ = f ; cong = cong≡ f }
 
-lift→₂ : ∀ {a b c} → (a × b → c) → (setoid a ×ₛ setoid b ⟶ setoid c)
+lift→₂ : ∀ {a b c : Set o} → (a × b → c) → (setoid a ×ₛ setoid b ⟶ setoid c)
 lift→₂ f = record { _⟨$⟩_ = f ; cong = λ { (refl≡ , refl≡) → refl≡ } }
 
 module setoid-instances where
@@ -45,13 +49,12 @@ module setoid-instances where
     exponentials = record { _⇛_ = E._⇨_ }
 
     import Data.Bool as Bool
-    open Bool using () renaming (false to 𝕗; true to 𝕥)
+
+    -- boolean : Boolean (Setoid 0ℓ)
+    -- boolean = record { Bool = setoid Bool.Bool }
 
     boolean : Boolean Setoid
-    boolean = record { Bool = setoid Bool.Bool }
-
-    -- boolean : Boolean Setoid
-    -- boolean = record { Bool = setoid (Lift o B.Bool) }
+    boolean = record { Bool = setoid (Lift o Bool.Bool) }
 
     category : Category _⟶_
     category = record { id = E.id ; _∘_ = E._∘_ }

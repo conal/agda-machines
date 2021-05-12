@@ -109,7 +109,7 @@ record LawfulMonoidal {obj : Set o} ⦃ _ : Products obj ⦄
   field
     ⦃ lawful-cat ⦄ : LawfulCategory _⇨_ q
 
-    id⊗id : ∀ {a b : obj} → id {a = a} ⊗ id {a = b} ≈ id
+    id⊗id : ∀ {a b : obj} → id ⊗ id ≈ id {a = a × b}
 
     ∘⊗ : ∀ {a₁ b₁ a₂ b₂ a₃ b₃ : obj}
            {f : a₁ ⇨ a₂}{g : b₁ ⇨ b₂}
