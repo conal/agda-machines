@@ -20,6 +20,8 @@ Makefile targets:
 
 ## Summary of important modules
 
+***This section is out of date.***
+
 A quick summary of the important modules:
 
 *   `Category`: Simple type classes for flavors of categories.
