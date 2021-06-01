@@ -1,3 +1,5 @@
+*This project is being superceded by [agda-hardware](https://github.com/conal/agda-hardware).*
+
 ## Introduction
 
 This Agda project aims to synthesize machine-verified, parallel hardware designs from high-level denotational specifications.
