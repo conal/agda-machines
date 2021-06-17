@@ -1,4 +1,4 @@
-*This project has been archived and is being superceded by [agda-hardware](https://github.com/conal/agda-hardware).*
+*This project has been archived and is being superceded by [denotational-hardware](https://github.com/conal/denotational-hardware).*
 
 ## Introduction
 
